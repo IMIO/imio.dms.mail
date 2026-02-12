@@ -46,6 +46,8 @@ Changelog
   [chris-adam, sgeulette]
 - Appendix files can now be signed.
   [chris-adam]
+- Replaced default actions bar by actionspanel for iconified categories.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------

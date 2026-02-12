@@ -324,7 +324,10 @@ body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widget
     display: none !important;
 }
 
-.template-reply #edit-bar {
+.template-reply #edit-bar,
+.portaltype-contentcategoryconfiguration #edit-bar,
+.portaltype-contentcategorygroup #edit-bar,
+.portaltype-contentcategory #edit-bar {
     display: none;
 }
 

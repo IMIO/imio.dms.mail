@@ -508,6 +508,51 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
     }
 
 
+class ContentCategoryActionsPanelViewlet(ActionsPanelViewlet):
+    """
+    Override render method for content categories
+    """
+
+    params = {
+        "useIcons": True,
+        "showEdit": False,
+        "showOwnDelete": False,
+        "showAddContent": True,
+        "showActions": False,
+        "showTransitions": False,
+    }
+
+
+class CategoryGroupActionsPanelViewlet(ActionsPanelViewlet):
+    """
+    Override render method for category groups
+    """
+
+    params = {
+        "useIcons": True,
+        "showEdit": True,
+        "showOwnDelete": False,
+        "showAddContent": True,
+        "showActions": False,
+        "showTransitions": False,
+    }
+
+
+class CategoryActionsPanelViewlet(ActionsPanelViewlet):
+    """
+    Override render method for categories
+    """
+
+    params = {
+        "useIcons": True,
+        "showEdit": True,
+        "showOwnDelete": False,
+        "showAddContent": False,
+        "showActions": False,
+        "showTransitions": False,
+    }
+
+
 class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
     """
     Override render method for IActionsPanelFolder
