@@ -73,6 +73,8 @@ class Migrate_To_3_1(Migrator):  # noqa
             update_solr_config()
             active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
             if active_solr:
+                self.upgradeProfile("collective.solr")
+                self.runProfileSteps("collective.solr", steps=["plone.app.registry"])
                 logger.info("Deactivating solr")
                 api.portal.set_registry_record("collective.solr.active", False)
 
