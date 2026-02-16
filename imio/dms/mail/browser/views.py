@@ -544,7 +544,7 @@ class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
         self._finished()
 
     def available(self):
-        approval = IOMApproval(self.context.aq_parent)
+        approval = IOMApproval(self.context.__parent__)
         return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
 
 

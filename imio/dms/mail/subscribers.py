@@ -770,10 +770,13 @@ def i_annex_removed(obj, event):
         # Case 1: We are removing a file to be eSigned generated from an ODT template
         source_uid = getattr(obj, "conv_from_uid", None)
         if source_uid:
-            file_index = approval.files_uids.index(source_uid)
+            try:
+                file_index = approval.files_uids.index(source_uid)
+            except ValueError:
+                file_index = None
             getMultiAdapter((obj, obj.REQUEST), name="remove-item-from-esign-session").index()
             source_file = uuidToObject(source_uid, unrestricted=True)
-            if source_file and not approval.pdf_files_uids[file_index]:
+            if source_file and file_index is not None and not approval.pdf_files_uids[file_index]:
                 # Set the source file not to be signed
                 source_file.to_sign = False
                 source_file.to_approve = False
@@ -789,8 +792,11 @@ def i_annex_removed(obj, event):
                 approval.remove_file_from_approval(source_file.UID())
         # Case 2: We are removing a source file (not the pdf version)
         else:
-            file_index = approval.files_uids.index(obj.UID())
-            if file_index >= 0:
+            try:
+                file_index = approval.files_uids.index(obj.UID())
+            except ValueError:
+                file_index = None
+            if file_index is not None:
                 for pdf_uid in approval.pdf_files_uids[file_index]:
                     pdf_obj = uuidToObject(pdf_uid)
                     if pdf_obj is not None:
