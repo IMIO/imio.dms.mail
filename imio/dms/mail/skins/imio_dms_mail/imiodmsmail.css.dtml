@@ -282,7 +282,7 @@ body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widget
 
 /* Display None */
 
-.template-facetednavigation_view .in_esign_sessions {
+body.section-outgoing-mail .in_esign_sessions {
     display: none;
 }
 
