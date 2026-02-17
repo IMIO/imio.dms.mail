@@ -104,6 +104,32 @@ def activate_esigning(context):
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
                                        ["odt", "pdf"])
 
+    if not api.portal.get_registry_record("imio.esign.signing_users_email_content"):
+        from string import Template
+        template = Template(
+            u"""
+Bonjour {fullname},
+
+Vous avez été invité sur Paraphéo, la plateforme de signature de iMio.
+
+Avant de pouvoir signer des documents, vous devez activer votre compte.
+
+Veuillez suivre ces étapes:
+1. Visiter https://simplycosi-1.trustsigneurope.com/login?tenantName=IMIO
+2. Entrez votre adresse email ({email}) dans le champ "utilisateur"
+3. Cliquez sur "mot de passe oublié" pour définir votre mot de passe
+4. Connectez-vous une première fois sur la plateforme
+
+L'activation ne doit être faite qu'une seule fois. Vous pourrez ensuite commencer à signer des documents.
+
+Bien cordialement,
+L'équipe iMio"""
+        )
+        api.portal.set_registry_record(
+            "imio.esign.signing_users_email_content",
+            template.substitute(),
+        )
+
     omf = api.portal.get_registry_record(
         "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", default=[]
     )
