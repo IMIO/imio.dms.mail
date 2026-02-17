@@ -1402,11 +1402,20 @@ def update_solr_config():
     """Update config following buildout var"""
     if api.portal.get_registry_record("collective.solr.port", default=None) is None:
         return
-    for key, cast in (("host", u""), ("port", 0), ("base", u"")):
+    for key, cast in (
+        ("host", u""),
+        ("port", 0),
+        ("base", u""),
+        ("solr_login", u""),
+        ("solr_password", u""),
+        ("https_connection", True),
+        ("ignore_certificate_check", True),
+    ):
         full_key = "collective.solr.{}".format(key)
         value = api.portal.get_registry_record(full_key, default=None)
-        new_value = type(cast)(os.getenv("COLLECTIVE_SOLR_{}".format(key.upper()), cast))
-        if new_value and new_value != value:
+        new_value = os.getenv("COLLECTIVE_SOLR_{}".format(key.replace("solr_", "").upper()), cast)
+        new_value = (new_value == "true") if isinstance(cast, bool) else type(cast)(new_value)
+        if any(new_value is not v for v in (0, u"", None)) and new_value != value:
             api.portal.set_registry_record(full_key, new_value)
 
 

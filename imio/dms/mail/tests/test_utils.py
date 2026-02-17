@@ -28,6 +28,7 @@ from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
+from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.utils import UtilsMethods
@@ -1026,3 +1027,107 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         with open(os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"), 'rb') as f1, \
                 open(blobs[0]._p_blob_uncommitted, 'rb') as f2:
             self.assertEqual(f1.read(), f2.read())
+
+    def test_update_solr_config(self):
+        get_rec = "imio.dms.mail.utils.api.portal.get_registry_record"
+        set_rec = "imio.dms.mail.utils.api.portal.set_registry_record"
+
+        def make_patches(registry):
+            """Return get/set patches that read from and write to registry."""
+            get_se = lambda k, default=None: registry.get(k, default)
+            set_se = lambda k, v: registry.__setitem__(k, v)
+            return (patch(get_rec, side_effect=get_se),
+                    patch(set_rec, side_effect=set_se))
+
+        # early return when solr not installed (port record is None)
+        registry = {}
+        with patch(get_rec, return_value=None), \
+                patch(set_rec, side_effect=lambda k, v: registry.__setitem__(k, v)):
+            update_solr_config()
+            self.assertEqual(registry, {})
+
+        # env vars update registry values
+        registry = {
+            "collective.solr.port": 8983,
+            "collective.solr.host": u"localhost",
+            "collective.solr.base": u"/solr/plone",
+            "collective.solr.solr_login": u"",
+            "collective.solr.solr_password": u"",
+            "collective.solr.https_connection": False,
+            "collective.solr.ignore_certificate_check": False,
+        }
+        env_vars = {
+            "COLLECTIVE_SOLR_HOST": "newhost",
+            "COLLECTIVE_SOLR_PORT": "9999",
+            "COLLECTIVE_SOLR_BASE": "/solr/new",
+            "COLLECTIVE_SOLR_LOGIN": "admin",
+            "COLLECTIVE_SOLR_PASSWORD": "secret",
+            "COLLECTIVE_SOLR_HTTPS_CONNECTION": "true",
+            "COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK": "true",
+        }
+        p_get, p_set = make_patches(registry)
+        with p_get, p_set, patch.dict(os.environ, env_vars):
+            update_solr_config()
+        self.assertEqual(registry["collective.solr.host"], u"newhost")
+        self.assertEqual(registry["collective.solr.port"], 9999)
+        self.assertEqual(registry["collective.solr.base"], u"/solr/new")
+        self.assertEqual(registry["collective.solr.solr_login"], u"admin")
+        self.assertEqual(registry["collective.solr.solr_password"], u"secret")
+        self.assertEqual(registry["collective.solr.https_connection"], True)
+        self.assertEqual(registry["collective.solr.ignore_certificate_check"], True)
+
+        # boolean casting: "false" string becomes False
+        registry = {
+            "collective.solr.port": 8983,
+            "collective.solr.host": u"localhost",
+            "collective.solr.base": u"/solr/plone",
+            "collective.solr.solr_login": u"",
+            "collective.solr.solr_password": u"",
+            "collective.solr.https_connection": True,
+            "collective.solr.ignore_certificate_check": True,
+        }
+        env_vars_bool = {
+            "COLLECTIVE_SOLR_HOST": "localhost",
+            "COLLECTIVE_SOLR_PORT": "8983",
+            "COLLECTIVE_SOLR_BASE": "/solr/plone",
+            "COLLECTIVE_SOLR_LOGIN": "",
+            "COLLECTIVE_SOLR_PASSWORD": "",
+            "COLLECTIVE_SOLR_HTTPS_CONNECTION": "false",
+            "COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK": "false",
+        }
+        p_get, p_set = make_patches(registry)
+        with p_get, p_set, patch.dict(os.environ, env_vars_bool):
+            update_solr_config()
+        self.assertEqual(registry["collective.solr.https_connection"], False)
+        self.assertEqual(registry["collective.solr.ignore_certificate_check"], False)
+        # non-boolean values unchanged
+        self.assertEqual(registry["collective.solr.host"], u"localhost")
+        self.assertEqual(registry["collective.solr.port"], 8983)
+        self.assertEqual(registry["collective.solr.base"], u"/solr/plone")
+        self.assertEqual(registry["collective.solr.solr_login"], u"")
+        self.assertEqual(registry["collective.solr.solr_password"], u"")
+
+        # no update when env var values already match registry
+        registry = {
+            "collective.solr.port": 9999,
+            "collective.solr.host": u"myhost",
+            "collective.solr.base": u"/solr/mycore",
+            "collective.solr.solr_login": u"admin",
+            "collective.solr.solr_password": u"pass",
+            "collective.solr.https_connection": True,
+            "collective.solr.ignore_certificate_check": False,
+        }
+        expected = registry.copy()
+        env_vars_match = {
+            "COLLECTIVE_SOLR_HOST": "myhost",
+            "COLLECTIVE_SOLR_PORT": "9999",
+            "COLLECTIVE_SOLR_BASE": "/solr/mycore",
+            "COLLECTIVE_SOLR_LOGIN": "admin",
+            "COLLECTIVE_SOLR_PASSWORD": "pass",
+            "COLLECTIVE_SOLR_HTTPS_CONNECTION": "true",
+            "COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK": "false",
+        }
+        p_get, p_set = make_patches(registry)
+        with p_get, p_set, patch.dict(os.environ, env_vars_match):
+            update_solr_config()
+        self.assertEqual(registry, expected)
