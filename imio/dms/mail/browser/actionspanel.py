@@ -508,49 +508,27 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
     }
 
 
-class ContentCategoryActionsPanelViewlet(ActionsPanelViewlet):
-    """
-    Override render method for content categories
-    """
-
-    params = {
-        "useIcons": True,
-        "showEdit": False,
-        "showOwnDelete": False,
-        "showAddContent": True,
-        "showActions": False,
-        "showTransitions": False,
-    }
-
-
-class CategoryGroupActionsPanelViewlet(ActionsPanelViewlet):
-    """
-    Override render method for category groups
-    """
-
-    params = {
-        "useIcons": True,
-        "showEdit": True,
-        "showOwnDelete": False,
-        "showAddContent": True,
-        "showActions": False,
-        "showTransitions": False,
-    }
-
-
 class CategoryActionsPanelViewlet(ActionsPanelViewlet):
     """
     Override render method for categories
     """
 
     params = {
-        "useIcons": True,
+        "useIcons": False,
         "showEdit": True,
         "showOwnDelete": False,
         "showAddContent": False,
-        "showActions": False,
+        "showActions": True,
         "showTransitions": False,
     }
+
+
+class CategoryActionsPanelView(ActionsPanelView):
+    """This manage the view displaying actions on some folder."""
+
+    def __init__(self, context, request):
+        super(CategoryActionsPanelView, self).__init__(context, request)
+        self.ACCEPTABLE_ACTIONS = ["copy", "delete", "rename"]
 
 
 class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
