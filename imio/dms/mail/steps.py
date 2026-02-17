@@ -96,6 +96,10 @@ def activate_esigning(context):
     site = context.getSite()
 
     site.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
+    # redo actions to add condition on installed actions
+    site.portal_setup.runImportStepFromProfile(
+        "profile-imio.dms.mail:default", "actions", run_dependencies=False
+    )
     log = ["Installed imio.esign"]
 
     set_registry_enabled(True)
