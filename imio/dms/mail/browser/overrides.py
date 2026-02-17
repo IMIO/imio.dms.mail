@@ -29,6 +29,9 @@ from collective.documentgenerator.content.style_template import IStyleTemplate
 from collective.eeafaceted.collectionwidget.browser.views import RenderCategoryView
 from collective.eeafaceted.dashboard.browser.facetedcollectionportlet import Renderer
 from collective.eeafaceted.dashboard.browser.views import JSONCollectionsCount
+from collective.iconifiedcategory.content.category import ICategory
+from collective.iconifiedcategory.content.categoryconfiguration import ICategoryConfiguration
+from collective.iconifiedcategory.content.categorygroup import ICategoryGroup
 from collective.task.behaviors import ITask
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from imio.annex.content.annex import IAnnex
@@ -47,7 +50,6 @@ from plone.app.controlpanel.usergroups import UsersGroupsControlPanelView
 from plone.app.controlpanel.usergroups import UsersOverviewControlPanel
 from plone.app.layout.navigation.root import getNavigationRoot
 from plone.app.layout.viewlets.common import ContentActionsViewlet as PALContentActionsViewlet
-from plone.app.search.browser import Search
 from plone.locking.browser.info import LockInfoViewlet as PLLockInfoViewlet
 from plone.locking.browser.locking import LockingOperations as PLLockingOperations
 from Products.ATContentTypes.interfaces.document import IATDocument
@@ -163,6 +165,9 @@ class Plone(PloneView):
             IStyleTemplate,
             IClassificationContainer,
             IClassificationCategory,
+            ICategory,
+            ICategoryGroup,
+            ICategoryConfiguration,
         )
         for interface in interfaces:
             if interface.providedBy(context):

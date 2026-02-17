@@ -398,6 +398,39 @@
             template="browser/actions_panel.pt"
             permission="zope2.View"
             />
+        <!-- Iconified category -->
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="collective.iconifiedcategory.content.categorygroup.ICategoryGroup"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletOnlyAdd"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="collective.iconifiedcategory.content.category.ICategory"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.CategoryActionsPanelViewlet"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
+        <browser:page
+            name="actions_panel"
+            for="collective.iconifiedcategory.content.categorygroup.ICategoryGroup"
+            class="imio.dms.mail.browser.actionspanel.OnlyAddActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View"
+            />
+        <browser:page
+            name="actions_panel"
+            for="collective.iconifiedcategory.content.category.ICategory"
+            class="imio.dms.mail.browser.actionspanel.CategoryActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View"
+            />
     </configure>
 
     <!-- BATCH ACTIONS CONTACTS -->

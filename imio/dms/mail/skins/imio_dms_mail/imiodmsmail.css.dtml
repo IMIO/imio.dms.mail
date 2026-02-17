@@ -613,8 +613,14 @@ div.ac_results {
     border-bottom: 1px dotted;
 }
 
-#parent-fieldname-title, .documentEditable, .section-contacts h1, .template-dmsdocument-edit div.formControls,
- .template-view.portaltype-annex h1 {
+#parent-fieldname-title,
+.documentEditable,
+.section-contacts h1,
+.template-dmsdocument-edit div.formControls,
+.template-view.portaltype-annex h1,
+.template-view.portaltype-contentcategory h1,
+.template-view.portaltype-contentcategorygroup h1
+{
     clear: both;
 }
 
