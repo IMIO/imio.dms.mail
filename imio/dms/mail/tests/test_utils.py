@@ -1034,8 +1034,12 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
         def make_patches(registry):
             """Return get/set patches that read from and write to registry."""
-            get_se = lambda k, default=None: registry.get(k, default)
-            set_se = lambda k, v: registry.__setitem__(k, v)
+            def get_se(k, default=None):
+                return registry.get(k, default)
+
+            def set_se(k, v):
+                registry.__setitem__(k, v)
+
             return (patch(get_rec, side_effect=get_se),
                     patch(set_rec, side_effect=set_se))
 
@@ -1129,5 +1133,25 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         }
         p_get, p_set = make_patches(registry)
         with p_get, p_set, patch.dict(os.environ, env_vars_match):
+            update_solr_config()
+        self.assertEqual(registry, expected)
+
+        # no overwrite when env variables are not set
+        registry = {
+            "collective.solr.port": 8983,
+            "collective.solr.host": u"myhost",
+            "collective.solr.base": u"/solr/plone",
+            "collective.solr.solr_login": u"admin",
+            "collective.solr.solr_password": u"secret",
+            "collective.solr.https_connection": True,
+            "collective.solr.ignore_certificate_check": False,
+        }
+        expected = registry.copy()
+        env_without_solr = {
+            k: v for k, v in os.environ.items()
+            if not k.startswith("COLLECTIVE_SOLR_")
+        }
+        p_get, p_set = make_patches(registry)
+        with p_get, p_set, patch.dict(os.environ, env_without_solr, clear=True):
             update_solr_config()
         self.assertEqual(registry, expected)

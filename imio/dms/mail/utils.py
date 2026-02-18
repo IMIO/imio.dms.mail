@@ -1413,9 +1413,11 @@ def update_solr_config():
     ):
         full_key = "collective.solr.{}".format(key)
         value = api.portal.get_registry_record(full_key, default=None)
-        new_value = os.getenv("COLLECTIVE_SOLR_{}".format(key.replace("solr_", "").upper()), cast)
+        new_value = os.getenv("COLLECTIVE_SOLR_{}".format(key.replace("solr_", "").upper()))
+        if new_value is None:
+            continue
         new_value = (new_value == "true") if isinstance(cast, bool) else type(cast)(new_value)
-        if any(new_value is not v for v in (0, u"", None)) and new_value != value:
+        if new_value != value:
             api.portal.set_registry_record(full_key, new_value)
 
 
