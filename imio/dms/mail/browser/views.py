@@ -2,8 +2,6 @@
 from AccessControl import getSecurityManager
 from Acquisition import aq_inner
 from collective.ckeditortemplates.cktemplate import ICKTemplate
-from collective.iconifiedcategory.utils import get_category_object
-from collective.iconifiedcategory.utils import update_categorized_elements
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
@@ -536,12 +534,17 @@ class ImioExternalSessionCreateView(ExternalSessionCreateView):
 class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
 
     def index(self):
+        if not self.available():
+            return None
+        self.actions()
+        self._finished()
+
+    def actions(self):
         # remove from mail approval annotation
         approval = IOMApproval(self.context.__parent__)
         approval.remove_pdf_file_from_approval(self.context.UID())
         # remove from global esign annotation
         remove_files_from_session([self.context.UID()])
-        self._finished()
 
     def available(self):
         approval = IOMApproval(self.context.__parent__)

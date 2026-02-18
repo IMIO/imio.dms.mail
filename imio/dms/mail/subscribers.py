@@ -55,6 +55,7 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.config import get_registry_seal_code
+from imio.esign.utils import get_session_annotation
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
@@ -460,6 +461,9 @@ def dmsoutgoingmail_transition(mail, event):
                     request=mail.REQUEST,
                     type="error",
                 )
+    else:
+        # TODO check if to_sign and approved files have a pdf version
+        pass
 
 
 def dmsoutgoingmail_modified(mail, event):
@@ -766,49 +770,44 @@ def i_annex_removed(obj, event):
         except TypeError:
             pass
     if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+        current_uid = obj.UID()
         approval = OMApprovalAdapter(obj.__parent__)
-        # Case 1: We are removing a file to be eSigned generated from an ODT template
-        source_uid = getattr(obj, "conv_from_uid", None)
-        if source_uid:
-            try:
-                file_index = approval.files_uids.index(source_uid)
-            except ValueError:
-                file_index = None
-            getMultiAdapter((obj, obj.REQUEST), name="remove-item-from-esign-session").index()
-            source_file = uuidToObject(source_uid, unrestricted=True)
-            if source_file and file_index is not None and not approval.pdf_files_uids[file_index]:
-                # Set the source file not to be signed
-                source_file.to_sign = False
-                source_file.to_approve = False
-                category_object = get_category_object(source_file, source_file.content_category)
-                update_categorized_elements(
-                    source_file.__parent__,
-                    source_file,
-                    category_object,
-                    limited=True,
-                    sort=False,
-                    logging=True,
+        # Case 1: We are removing a file in a session. Can be a pdf from odt, a direct pdf, a sealed odf
+        session_annot = get_session_annotation()
+        if current_uid in session_annot["uids"]:
+            session_id = session_annot["uids"][current_uid]
+            # No breach anymore via i_annex_will_be_removed if we are before to_approve state
+            if session_annot["sessions"][session_id]["state"] != "draft":
+                api.portal.show_message(
+                    message=_(
+                        u"You cannot delete a file '${title}' part of already started esign process !",
+                        mapping={"title": safe_unicode(obj.Title())},
+                    ),
+                    request=obj.REQUEST,
+                    type="error",
                 )
-                approval.remove_file_from_approval(source_file.UID())
-        # Case 2: We are removing a source file (not the pdf version)
-        else:
-            try:
-                file_index = approval.files_uids.index(obj.UID())
-            except ValueError:
-                file_index = None
-            if file_index is not None:
-                for pdf_uid in approval.pdf_files_uids[file_index]:
-                    pdf_obj = uuidToObject(pdf_uid)
-                    if pdf_obj is not None:
-                        api.content.delete(pdf_obj, check_linkintegrity=False)
-                # The file may be a user-uploaded annex, try to remove it from session
-                remove_files_from_session([obj.UID()])
-            approval.remove_file_from_approval(obj.UID())
+                obj.REQUEST.RESPONSE.redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for delete_confirmation
+                raise Redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for "normal" delete
+            # we remove this pdf_file from session and annotation
+            getMultiAdapter((obj, obj.REQUEST), name="remove-item-from-esign-session").actions()
 
-        # Check no files to be signed anymore + to_be_signed state
-        if not approval.files_uids and api.content.get_state(obj.__parent__) == "to_be_signed":
-            pw = api.portal.get_tool("portal_workflow")
-            pw.doActionFor(obj.__parent__, "back_to_creation")
+        # Case 2: We are removing a source file: odt or direct pdf
+        if current_uid in approval.files_uids:
+            file_index = approval.files_uids.index(current_uid)
+            if approval.pdf_files_uids[file_index]:
+                api.portal.show_message(
+                    message=_(
+                        u"You cannot delete a file '${title}' when there are still linked pdf files !",
+                        mapping={"title": safe_unicode(obj.Title())},
+                    ),
+                    request=obj.REQUEST,
+                    type="error",
+                )
+                obj.REQUEST.RESPONSE.redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for delete_confirmation
+                raise Redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for "normal" delete
+            # The file may be a user-uploaded annex, try to remove it from session
+            remove_files_from_session([current_uid])
+            approval.remove_file_from_approval(current_uid)
 
 
 def dmsmainfile_modified(dmf, event):

@@ -106,7 +106,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order.get(x["id"], 99), self.tr_order.get(y["id"], 99)))
+        lst.sort(lambda x, y: cmp(self.tr_order.get(x["id"], 99), self.tr_order.get(y["id"], 99)))  # noqa F821
 
     @ram.cache(actionspanelview_cachekey)
     def DmsIMActionsPanelView__call__(
@@ -194,7 +194,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))
+        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))  # noqa F821
 
     def may_create_from_template(self):
         """
@@ -280,14 +280,7 @@ class DmsFileActionsPanelView(ActionsPanelView):
 
     def __init__(self, context, request):
         super(DmsFileActionsPanelView, self).__init__(context, request)
-        self.ACCEPTABLE_ACTIONS = [
-            "delete",
-            "documentviewer_convert",
-            "download",
-            "edit",
-            "external_edit",
-            "mailing",
-        ]
+        self.ACCEPTABLE_ACTIONS = ["edit", "external_edit", "mailing", "documentviewer_convert", "download", "delete"]
 
     def listObjectButtonsActions(self):
         actions = super(DmsFileActionsPanelView, self).listObjectButtonsActions()
@@ -319,7 +312,7 @@ class DmsTaskActionsPanelView(ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))
+        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))  # noqa F821
 
     @ram.cache(actionspanelview_cachekey)
     def DmsTaskActionsPanelView__call__(
