@@ -495,11 +495,11 @@ def add_test_mails(context):
     import imio.dms.mail as imiodmsmail
 
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
-    files = [
+    files = sorted([
         safe_unicode(name)
         for name in os.listdir(filespath)  # noqa
         if os.path.splitext(name)[1][1:] in ("pdf", "doc", "jpg")
-    ]
+    ])
     files_cycle = cycle(files)
 
     intids = getUtility(IIntIds)
