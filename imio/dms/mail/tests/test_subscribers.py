@@ -19,6 +19,7 @@ from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.esign.config import set_registry_file_url
+from imio.esign.utils import get_session_annotation
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
@@ -1008,7 +1009,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         approval.approve_file(files[0], "bourgmestre", transition="propose_to_be_signed")
 
     def test_i_annex_removed_pdf_file(self):
-        """Test i_annex_removed Case 1: removing a generated PDF file cleans up approval."""
+        """Test i_annex_removed Case 1: removing a generated PDF removes it from approval."""
         omail, files, approval = self._setup_omail_with_esign()
         self._approve_all_files(omail, files, approval)
         self.assertEqual(api.content.get_state(omail), "to_be_signed")
@@ -1022,36 +1023,57 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         # Call the subscriber directly to remove the PDF
         event = ObjectRemovedEvent(pdf_obj, omail, pdf_obj.getId())
         i_annex_removed(pdf_obj, event)
-        # When the last PDF for a source file is removed, Case 1 also removes
-        # the source file from approval (it has no more PDFs to sign)
-        self.assertNotIn(files[0].UID(), approval.files_uids)
-        # The second file should still be in approval
+        # PDF is removed from pdf_files_uids annotation
+        self.assertNotIn(pdf_uid, [uid for lst in approval.pdf_files_uids for uid in lst])
+        # Source file stays in approval (Case 1 only removes the PDF, not the source)
+        self.assertIn(files[0].UID(), approval.files_uids)
         self.assertIn(files[1].UID(), approval.files_uids)
 
+    def test_i_annex_removed_pdf_file_not_draft(self):
+        """Test i_annex_removed Case 1: removing a PDF when its esign session is not in draft state
+        raises Redirect. The PDF stays in the session (deletion is blocked)."""
+        omail, files, approval = self._setup_omail_with_esign()
+        self._approve_all_files(omail, files, approval)
+        self.assertEqual(api.content.get_state(omail), "to_be_signed")
+        pdf_uid = approval.pdf_files_uids[0][0]
+        pdf_obj = uuidToObject(pdf_uid)
+        self.assertIsNotNone(pdf_obj)
+
+        # Simulate the session having been sent to the signing service (no longer draft)
+        session_annot = get_session_annotation()
+        session_id = session_annot["uids"][pdf_uid]
+        session_annot["sessions"][session_id]["state"] = "sent"
+
+        event = ObjectRemovedEvent(pdf_obj, omail, pdf_obj.getId())
+        with self.assertRaises(Redirect):
+            i_annex_removed(pdf_obj, event)
+
+        # PDF is still registered in the session (deletion was blocked)
+        self.assertIn(pdf_uid, session_annot["uids"])
+        self.assertIn(pdf_uid, [uid for lst in approval.pdf_files_uids for uid in lst])
+
     def test_i_annex_removed_source_file(self):
-        """Test i_annex_removed Case 2: removing a source file cascades deletion of its PDF files."""
+        """Test i_annex_removed Case 2: removing a source file that has linked PDFs raises Redirect.
+        The source file and its PDFs are left untouched (deletion is blocked)."""
         omail, files, approval = self._setup_omail_with_esign()
         self._approve_all_files(omail, files, approval)
         self.assertEqual(api.content.get_state(omail), "to_be_signed")
         # We should have PDF files generated
         self.assertTrue(approval.pdf_files_uids[0])
-        self.assertTrue(approval.pdf_files_uids[1])
         pdf_uid_0 = approval.pdf_files_uids[0][0]
         self.assertIsNotNone(uuidToObject(pdf_uid_0))
 
-        # Call the subscriber directly to remove the first source file
-        file0_uid = files[0].UID()
+        # Attempting to delete a source file with linked PDFs must be blocked
         event = ObjectRemovedEvent(files[0], omail, files[0].getId())
-        i_annex_removed(files[0], event)
-        # The source file's PDF should be deleted too
-        self.assertIsNone(uuidToObject(pdf_uid_0))
-        # The source file should be removed from approval
-        self.assertNotIn(file0_uid, approval.files_uids)
-        # The second file should still be in approval
-        self.assertIn(files[1].UID(), approval.files_uids)
+        with self.assertRaises(Redirect):
+            i_annex_removed(files[0], event)
 
-    def test_i_annex_removed_no_source_uid(self):
-        """Test i_annex_removed Case 3: source file with no conv_from_uid."""
+        # Source file and its PDF remain in approval (deletion was blocked)
+        self.assertIn(files[0].UID(), approval.files_uids)
+        self.assertIsNotNone(uuidToObject(pdf_uid_0))
+
+    def test_i_annex_removed_source_file_no_pdfs(self):
+        """Test i_annex_removed Case 2: source file with no linked PDFs is removed from approval."""
         omail, files, approval = self._setup_omail_with_esign()
         # files[0] has no conv_from_uid (it's a source file, not a generated PDF)
         self.assertIsNone(getattr(files[0], "conv_from_uid", None))
@@ -1062,21 +1084,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         i_annex_removed(files[0], event)
         # The file should be removed from approval
         self.assertEqual(len(approval.files_uids), initial_files_count - 1)
-
-    def test_i_annex_removed_all_files_back_to_creation(self):
-        """Test i_annex_removed transitions mail back to creation when all files are removed."""
-        omail, files, approval = self._setup_omail_with_esign()
-        self._approve_all_files(omail, files, approval)
-        self.assertEqual(api.content.get_state(omail), "to_be_signed")
-        # Remove both source files via the subscriber (cascades PDF deletion)
-        # Needs Manager for cascading api.content.delete and back_to_creation transition
-        with api.env.adopt_roles(["Manager"]):
-            for f in files:
-                event = ObjectRemovedEvent(f, omail, f.getId())
-                i_annex_removed(f, event)
-        # All files removed: mail should transition back to created
-        self.assertEqual(approval.files_uids, [])
-        self.assertEqual(api.content.get_state(omail), "created")
 
     def test_task_transition(self):
         # task = createContentInContainer(self.imail, 'task', id='t1')
