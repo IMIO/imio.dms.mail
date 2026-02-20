@@ -1442,7 +1442,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                         "seal": False,
                         "sign_url": None,
                         "sign_id": "012999900000",
-                        "size": 23291,
+                        "size": 27330,
                         "acroform": True,
                     }
                 },
@@ -1497,7 +1497,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                         "seal": False,
                         "sign_url": None,
                         "sign_id": "012999900000",
-                        "size": 23291,
+                        "size": 27330,
                         "acroform": True,
                     }
                 },
