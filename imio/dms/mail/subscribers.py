@@ -55,6 +55,7 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.config import get_registry_seal_code
+from imio.esign.config import get_registry_seal_email
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 # from imio.helpers.content import get_vocab_values
@@ -442,23 +443,28 @@ def dmsoutgoingmail_transition(mail, event):
                 if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
                     approval.add_file_to_approval(f.UID())
             added, msg = approval.add_mail_files_to_session()
-            msg2 = ""
-            if added:
-                if not get_registry_seal_code():
-                    msg2 = _("Seal code must be defined in eSign settings befode sending session")
-                else:
-                    ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval.session_id)
             api.portal.show_message(
                 message=msg,
                 request=mail.REQUEST,
                 type=added and "info" or "error",
             )
-            if msg2:
-                api.portal.show_message(
-                    message=msg2,
-                    request=mail.REQUEST,
-                    type="error",
-                )
+            if added:
+                seal_code = get_registry_seal_code()
+                seal_email = get_registry_seal_email()
+                if not seal_code:
+                    api.portal.show_message(
+                        message=_("Seal code must be defined in eSign settings before sending session"),
+                        request=mail.REQUEST,
+                        type="error",
+                    )
+                if not seal_email:
+                    api.portal.show_message(
+                        message=_("Seal email must be defined in eSign settings before sending session"),
+                        request=mail.REQUEST,
+                        type="error",
+                    )
+                if seal_code and seal_email:
+                    ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval.session_id)
 
 
 def dmsoutgoingmail_modified(mail, event):

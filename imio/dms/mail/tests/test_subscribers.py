@@ -4,12 +4,14 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.config import set_registry_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.iconifiedcategory.utils import calculate_category_id
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
@@ -17,6 +19,8 @@ from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
+from mock import Mock
+from mock import patch
 from plone import api
 from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.dexterity.behaviors.metadata import IBasic
@@ -166,6 +170,202 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertIsNone(self.imail.assigned_user)
         api.content.transition(self.imail, "close")
         self.assertEqual(self.imail.assigned_user, "agent")
+
+    def test_dmsoutgoingmail_transition(self):
+        def make_event(transition_id=None):
+            event = Mock()
+            if transition_id is None:
+                event.transition = None
+            else:
+                event.transition = Mock()
+                event.transition.id = transition_id
+            return event
+
+        omail = sub_create(
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(),
+            "omail-tr-test",
+            title=u"Transition test",
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type=u"courrier",
+        )
+        request = self.portal.REQUEST
+
+        # Branch A: mark_as_sent sets outgoing_date
+        # A1: no transition → no effect
+        dmsoutgoingmail_transition(omail, make_event())
+        self.assertIsNone(omail.outgoing_date)
+
+        # A2: unrelated transition → no effect
+        dmsoutgoingmail_transition(omail, make_event("set_scanned"))
+        self.assertIsNone(omail.outgoing_date)
+
+        # A3: mark_as_sent with outgoing_date=None → sets it
+        dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
+        self.assertIsNotNone(omail.outgoing_date)
+
+        # A4: mark_as_sent with outgoing_date already set → no overwrite
+        orig_date = datetime(2020, 1, 1)
+        omail.outgoing_date = orig_date
+        dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
+        self.assertEqual(omail.outgoing_date, orig_date)
+
+        # Branch B: propose_to_approve → calls start_approval_process
+        with patch.object(OMApprovalAdapter, "start_approval_process") as mock_start:
+            dmsoutgoingmail_transition(omail, make_event("propose_to_approve"))
+            mock_start.assert_called_once_with()
+
+        # Branch C: ODT cleaning (not mail.esign, not mail.seal)
+        # Create a dmsommainfile inside omail
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            file_obj = NamedBlobFile(fo.read(), filename=filename)
+        afile = createContentInContainer(
+            omail, "dmsommainfile", id="test-odt",
+            file=file_obj,
+            content_category=calculate_category_id(ct),
+        )
+
+        # C1: esign=True → entire block skipped, convert_odt never called
+        omail.esign = True
+        with patch("imio.dms.mail.subscribers.convert_odt") as mock_conv:
+            dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
+            mock_conv.assert_not_called()
+        omail.esign = False
+
+        # C2: file with need_mailing=True → skip
+        IAnnotations(afile).setdefault("documentgenerator", {})["need_mailing"] = True
+        with patch("imio.dms.mail.subscribers.convert_odt") as mock_conv:
+            dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
+            mock_conv.assert_not_called()
+
+        # C3: file with cleaned_download=True → skip
+        IAnnotations(afile)["documentgenerator"]["need_mailing"] = False
+        IAnnotations(afile)["documentgenerator"]["cleaned_download"] = True
+        with patch("imio.dms.mail.subscribers.convert_odt") as mock_conv:
+            dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
+            mock_conv.assert_not_called()
+
+        # C4: eligible file → convert_odt called, cleaned_download set to True
+        doc_annot = IAnnotations(afile)["documentgenerator"]
+        doc_annot["cleaned_download"] = False
+        with patch("imio.dms.mail.subscribers.convert_odt", return_value=b"new_content") as mock_conv:
+            with patch("imio.dms.mail.subscribers.getMultiAdapter"):
+                dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
+                mock_conv.assert_called_once()
+                self.assertTrue(IAnnotations(afile)["documentgenerator"]["cleaned_download"])
+
+        # Branch D: seal handling (omail.seal set to True before C; stays True here)
+
+        # D1: seal=False → OMApprovalAdapter never instantiated
+        omail.seal = False
+        with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
+            dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
+            MockAdapter.assert_not_called()
+        omail.seal = True
+
+        # D2: file filter — to_sign=True files are added, to_sign=False are not
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            file_obj2 = NamedBlobFile(fo.read(), filename=filename)
+        afile2 = createContentInContainer(
+            omail, "dmsommainfile", id="test-odt2",
+            file=file_obj2,
+            content_category=calculate_category_id(ct),
+        )
+        afile2.to_sign = True
+        afile.to_sign = False  # category defaults to True; explicitly disable
+
+        with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
+            mock_approval = Mock()
+            MockAdapter.return_value = mock_approval
+            mock_approval.add_mail_files_to_session.return_value = (False, u"No files")
+            dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
+            self.assertEqual(mock_approval.add_file_to_approval.call_count, 1)
+            self.assertEqual(mock_approval.add_file_to_approval.call_args[0][0], afile2.UID())
+            IStatusMessage(request).show()  # consume messages
+
+        # D3: (False, msg) → exactly 1 error message with correct content, no second message
+        with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
+            mock_approval = Mock()
+            MockAdapter.return_value = mock_approval
+            mock_approval.add_mail_files_to_session.return_value = (False, u"No files")
+            dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
+            msgs = IStatusMessage(request).show()
+            self.assertEqual(len(msgs), 1)
+            self.assertEqual(msgs[0].type, u"error")
+            self.assertEqual(msgs[0].message, u"No files")
+
+        # D4: (True, msg), no seal code only → info + "Seal code" error, ExternalSessionCreateView not called
+        with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
+            mock_approval = Mock()
+            MockAdapter.return_value = mock_approval
+            mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
+            with patch("imio.dms.mail.subscribers.get_registry_seal_code", return_value=None):
+                with patch("imio.dms.mail.subscribers.get_registry_seal_email", return_value=u"sign@example.com"):
+                    with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
+                        dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
+                        MockESV.assert_not_called()
+            msgs = IStatusMessage(request).show()
+            self.assertEqual(len(msgs), 2)
+            self.assertEqual(msgs[0].type, u"info")
+            self.assertEqual(msgs[0].message, u"1 file added")
+            self.assertEqual(msgs[1].type, u"error")
+            self.assertIn(u"cachet", msgs[1].message)  # French: "Le code du cachet électronique..."
+
+        # D5: both seal code and email missing → info + 2 errors
+        with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
+            mock_approval = Mock()
+            MockAdapter.return_value = mock_approval
+            mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
+            with patch("imio.dms.mail.subscribers.get_registry_seal_code", return_value=None):
+                with patch("imio.dms.mail.subscribers.get_registry_seal_email", return_value=None):
+                    with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
+                        dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
+                        MockESV.assert_not_called()
+            msgs = IStatusMessage(request).show()
+            self.assertEqual(len(msgs), 3)
+            self.assertEqual(msgs[0].type, u"info")
+            self.assertEqual(msgs[1].type, u"error")
+            self.assertIn(u"cachet", msgs[1].message)
+            self.assertEqual(msgs[2].type, u"error")
+            self.assertIn(u"email", msgs[2].message.lower())
+
+        # D6: (True, msg), seal code present but no seal email → info + "Seal email" error
+        with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
+            mock_approval = Mock()
+            MockAdapter.return_value = mock_approval
+            mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
+            with patch("imio.dms.mail.subscribers.get_registry_seal_code", return_value=u"1234"):
+                with patch("imio.dms.mail.subscribers.get_registry_seal_email", return_value=None):
+                    with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
+                        dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
+                        MockESV.assert_not_called()
+            msgs = IStatusMessage(request).show()
+            self.assertEqual(len(msgs), 2)
+            self.assertEqual(msgs[0].type, u"info")
+            self.assertEqual(msgs[1].type, u"error")
+            self.assertIn(u"email", msgs[1].message.lower())  # "Seal email must be defined..."
+
+        # D7: (True, msg), both seal code and email present → ExternalSessionCreateView called, 1 info message
+        with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
+            mock_approval = Mock()
+            MockAdapter.return_value = mock_approval
+            mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
+            mock_approval.session_id = u"session-abc"
+            with patch("imio.dms.mail.subscribers.get_registry_seal_code", return_value=u"1234"):
+                with patch("imio.dms.mail.subscribers.get_registry_seal_email", return_value=u"sign@example.com"):
+                    with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
+                        mock_esv_instance = Mock()
+                        MockESV.return_value = mock_esv_instance
+                        dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
+                        MockESV.assert_called_once_with(omail, omail.REQUEST)
+                        mock_esv_instance.assert_called_once_with(session_id=u"session-abc")
+            msgs = IStatusMessage(request).show()
+            self.assertEqual(len(msgs), 1)
+            self.assertEqual(msgs[0].type, u"info")
+            self.assertEqual(msgs[0].message, u"1 file added")
 
     def test_dmsoutgoingmail_modified_signer_rules(self):
         dirg = self.pf["dirg"]
