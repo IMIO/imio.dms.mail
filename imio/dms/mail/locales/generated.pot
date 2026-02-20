@@ -967,7 +967,7 @@ msgid "Seal"
 msgstr ""
 
 #: ./subscribers.py:448
-msgid "Seal code must be defined in eSign settings befode sending session"
+msgid "Seal code must be defined in eSign settings before sending session"
 msgstr ""
 
 #: ./browser/batchactions.py:240
