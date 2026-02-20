@@ -1069,15 +1069,6 @@
     </configure>
 
     <browser:page
-        name="signing-users-csv"
-        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-        class=".views.SigningUsersCsv"
-        permission="cmf.ManagePortal"
-        i18n:domain="imio.esign"
-        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
-    />
-
-    <browser:page
         name="approvals"
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         template="templates/approvals.pt"
