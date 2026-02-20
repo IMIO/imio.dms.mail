@@ -55,6 +55,7 @@ from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.config import get_registry_seal_code
+from imio.esign.config import get_registry_seal_email
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 # from imio.helpers.content import get_vocab_values
@@ -445,7 +446,9 @@ def dmsoutgoingmail_transition(mail, event):
             msg2 = ""
             if added:
                 if not get_registry_seal_code():
-                    msg2 = _("Seal code must be defined in eSign settings befode sending session")
+                    msg2 = _("Seal code must be defined in eSign settings before sending session")
+                elif not get_registry_seal_email():
+                    msg2 = _("Seal email must be defined in eSign settings before sending session")
                 else:
                     ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval.session_id)
             api.portal.show_message(
