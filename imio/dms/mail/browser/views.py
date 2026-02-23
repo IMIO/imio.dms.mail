@@ -18,7 +18,6 @@ from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
-from imio.esign.browser.views import SigningUsersCsv as BaseSigningUsersCsv
 from imio.esign.config import get_registry_enabled
 from imio.helpers.content import richtextval
 from imio.helpers.content import uuidToObject
@@ -35,7 +34,6 @@ from Products.CMFPlone import utils
 from Products.CMFPlone.browser.navigation import CatalogNavigationTabs
 from Products.CMFPlone.browser.navigation import get_id
 from Products.CMFPlone.browser.navigation import get_view_url
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
@@ -526,23 +524,6 @@ class ImioExternalSessionCreateView(ExternalSessionCreateView):
         # check if user is in esign_watchers group
         if "esign_watchers" in current_user_groups_ids(user=user):
             return True
-        return False
-
-
-class SigningUsersCsv(BaseSigningUsersCsv):
-
-    def filter_user(self, user_data):
-        """Filter users that are signers."""
-        hps = api.content.find(
-            portal_type="held_position",
-            userid=user_data["userid"],
-        )
-        if not hps:
-            return False
-        for hp in hps:
-            hp_obj = hp.getObject()
-            if base_hasattr(hp_obj, "usages") and "signer" in hp_obj.usages:
-                return True
         return False
 
 
