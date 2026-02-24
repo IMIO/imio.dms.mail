@@ -715,7 +715,7 @@ class ActiveInactiveStatesVocabulary(object):
 
 
 class DmsFilesCategoryVocabulary(CategoryVocabulary):
-    """"""
+    """Vocabulary to retrieve available content categories for incoming mails, outgoing mails and classification folders"""
 
     implements(IVocabularyFactory)
 
@@ -724,6 +724,7 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
         parent_type = context.aq_parent.portal_type
         context_type = context.portal_type
         url = context.REQUEST.getURL()
+        typeupload = context.REQUEST.get('typeupload', '')
         query = {
             "object_provides": "collective.iconifiedcategory.content.category.ICategory",
             "enabled": True,
@@ -733,12 +734,12 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
         if {"dmsincomingmail", "dmsincoming_email"}.intersection({parent_type, context_type}):
             if context_type == "dmsmainfile" or url.endswith("dmsmainfile"):
                 query["path"] = "{}/annexes_types/incoming_dms_files".format(portal_path)
-            elif context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile'):
+            elif context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile') or typeupload == 'dmsappendixfile':
                 query["path"] = "{}/annexes_types/incoming_appendix_files".format(portal_path)
         elif {"dmsoutgoingmail", "dmsoutgoing_email"}.intersection({parent_type, context_type}):
             if context_type == "dmsommainfile" or url.endswith("dmsommainfile"):
                 query["path"] = "{}/annexes_types/outgoing_dms_files".format(portal_path)
-            elif context_type == "dmsappendixfile" or url.endswith("dmsappendixfile"):
+            elif context_type == "dmsappendixfile" or url.endswith("dmsappendixfile") or typeupload == 'dmsappendixfile':
                 query["path"] = "{}/annexes_types/outgoing_appendix_files".format(portal_path)
         elif {"ClassificationFolder", "ClassificationSubfolder", "annex"}.intersection({parent_type, context_type}):
             query["path"] = "{}/annexes_types/annexes".format(portal_path)

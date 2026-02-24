@@ -35,8 +35,28 @@ def actionspanelview_cachekey(
     return ret
 
 
-class DmsIMActionsPanelView(ActionsPanelView):
+class MultipleAnnexesMixin(object):
+    typeupload = None
 
+    """Mixin class for batch upload of dmsappendixfiles"""
+    def may_multiple_annexes(self):
+        """Method that defines if quickupload 'Annexes multiples' has to be displayed"""
+        if not self.isInFacetedNavigation() and self.member.has_permission("Add portal content", self.context):
+            return True
+        return False
+
+    def render_multiple_annexes_button(self):
+        """Renders quickupload 'Annexes multiples' button"""
+        if not self.typeupload:
+            raise NotImplementedError("typeupload is not defined")
+        if self.may_multiple_annexes():
+            return ViewPageTemplateFile("templates/actions_panel_multiple_annexes.pt")(self)
+        return ""
+
+
+class DmsIMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
+
+    typeupload = "dmsappendixfile"
     transitions = [
         "back_to_creation",
         "back_to_pre_manager",
@@ -66,6 +86,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
         self.SECTIONS_TO_RENDER += (
             "renderReplyButton",
             "renderAssignUser",
+            "render_multiple_annexes_button",
         )
         self.ACCEPTABLE_ACTIONS = ["delete"]
         self.ogm = api.portal.get()["outgoing-mail"]
@@ -158,8 +179,9 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
     }
 
 
-class DmsOMActionsPanelView(ActionsPanelView):
+class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
 
+    typeupload = "dmsappendixfile"
     transitions = [
         "back_to_agent",
         "back_to_creation",
@@ -190,6 +212,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
             "render_create_from_template_button",
             "render_create_new_message",
             "render_send_email",
+            "render_multiple_annexes_button",
         )
 
     def sortTransitions(self, lst):
@@ -350,21 +373,14 @@ class DmsTaskActionsPanelView(ActionsPanelView):
     __call__ = DmsTaskActionsPanelView__call__
 
 
-class ClassificationFolderActionsPanelView(ActionsPanelView):
+class ClassificationFolderActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
+
+    typeupload = "annex"
+
     def __init__(self, context, request):
         super(ClassificationFolderActionsPanelView, self).__init__(context, request)
         self.ACCEPTABLE_ACTIONS = ["cut", "copy", "paste", "delete"]
         self.SECTIONS_TO_RENDER += ("render_multiple_annexes_button",)
-
-    def may_multiple_annexes(self):
-        if not self.isInFacetedNavigation() and self.member.has_permission("Add portal content", self.context):
-            return True
-        return False
-
-    def render_multiple_annexes_button(self):
-        if self.may_multiple_annexes():
-            return ViewPageTemplateFile("templates/actions_panel_folder_annexes.pt")(self)
-        return ""
 
     @ram.cache(actionspanelview_cachekey)
     def ClassificationFolderActionsPanelView__call__(self, **kwargs):
