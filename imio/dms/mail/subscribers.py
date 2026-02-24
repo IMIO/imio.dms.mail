@@ -663,7 +663,7 @@ def _correct_to_sign(file_obj):
 
 def _correct_to_approve(file_obj):
     """Correct to_approve value following context.
-    Force to True to False except if:
+    Force from True to False except if:
     * to_sign is True
     * approvers are defined on parent om
     * file is not a pdf conversion
@@ -710,10 +710,14 @@ def i_annex_added(obj, event):
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
         # TODO add unit tests for the following
-        if not _correct_to_sign(obj):
+        if getattr(obj, "to_sign", False):
+            _correct_to_sign(obj)
+        if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
     elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
-        if not _correct_to_sign(obj):
+        if getattr(obj, "to_sign", False):
+            _correct_to_sign(obj)
+        if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
 
 
