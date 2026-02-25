@@ -169,6 +169,13 @@
             template="browser/actions_panel.pt"
             permission="zope2.View" />
         <browser:page
+            for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+            name="signing_actions_panel"
+            class="imio.dms.mail.browser.actionspanel.SigningFieldsetActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View" />
+        <browser:page
             for="collective.task.interfaces.ITaskContent"
             name="actions_panel"
             class="imio.dms.mail.browser.actionspanel.DmsTaskActionsPanelView"
