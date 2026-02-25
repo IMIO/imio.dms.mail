@@ -57,6 +57,13 @@
 
     <browser:page
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        name="signing-annotation-info"
+        class=".views.SigningAnnotationInfoView"
+        permission="cmf.ManagePortal"
+        />
+
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         name="render_email_signature"
         class=".views.RenderEmailSignature"
         permission="cmf.ModifyPortalContent"

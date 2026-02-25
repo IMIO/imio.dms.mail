@@ -3,6 +3,7 @@ from imio.actionspanel.browser.viewlets import ActionsPanelViewlet
 from imio.actionspanel.browser.views import ActionsPanelView
 from imio.dms.mail.dmsmail import filter_dmsincomingmail_assigned_users
 from imio.helpers.cache import get_plone_groups_for_user
+from imio.helpers.security import check_zope_admin
 from plone import api
 from plone.memoize import ram
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
@@ -159,12 +160,14 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
 
 
 class SigningFieldsetActionsPanelView(ActionsPanelView):
+    """Actions panel for signing actions located in outgoing mail signing fieldset"""
 
     _fieldset = "signing"
 
     def __init__(self, context, request):
         super(SigningFieldsetActionsPanelView, self).__init__(context, request)
         self.ACCEPTABLE_ACTIONS = ["edit", "approvals"]
+        self.SECTIONS_TO_RENDER += ("renderSigningAnnotationInfo",)
 
     @property
     def fieldset(self):
@@ -173,6 +176,11 @@ class SigningFieldsetActionsPanelView(ActionsPanelView):
     def renderEdit(self):
         if self.showEdit and self.mayEdit():
             return ViewPageTemplateFile("templates/fieldset_actions_panel_edit.pt")(self)
+        return ""
+
+    def renderSigningAnnotationInfo(self):
+        if check_zope_admin():
+            return ViewPageTemplateFile("templates/fieldset_actions_panel_signing_annotation_info.pt")(self)
         return ""
 
     @ram.cache(actionspanelview_cachekey)
