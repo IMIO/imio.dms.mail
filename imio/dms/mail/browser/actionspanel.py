@@ -158,6 +158,24 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
     }
 
 
+class SigningFieldsetActionsPanelView(ActionsPanelView):
+
+    _fieldset = "signing"
+
+    def __init__(self, context, request):
+        super(SigningFieldsetActionsPanelView, self).__init__(context, request)
+        self.SECTIONS_TO_RENDER = ("renderEdit",)
+
+    @property
+    def fieldset(self):
+        return "#fieldsetlegend-" + self._fieldset
+
+    def renderEdit(self):
+        if self.showEdit and self.mayEdit():
+            return ViewPageTemplateFile("templates/fieldset_actions_panel_edit.pt")(self)
+        return ""
+
+
 class DmsOMActionsPanelView(ActionsPanelView):
 
     transitions = [

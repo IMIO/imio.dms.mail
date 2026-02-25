@@ -1,0 +1,17 @@
+<td class="noPadding" i18n:domain="plone" tal:define="dummy view/saveHasActions;
+                                                      useIcons view/useIcons;">
+  <tal:comment replace="nothing">Icon</tal:comment>
+  <a tal:condition="useIcons"
+     tal:attributes="href string:${context/absolute_url}/edit${view/fieldset};
+                     class python: view.kwargs.get('edit_action_class', '');
+                     target python: view.kwargs.get('edit_action_target', '_parent');"
+     target="_parent">
+    <img src="edit.gif" tal:attributes="src string:${view/portal_url}/edit.png" title="Edit" i18n:attributes="title" />
+  </a>
+  <tal:comment replace="nothing">Button</tal:comment>
+  <form tal:condition="not: useIcons"
+        tal:attributes="action string:${context/absolute_url}/edit${view/fieldset};">
+    <input type="submit" i18n:attributes="value" value="Edit"
+           class="apButton apButtonAction apButtonAction_edit"/>
+  </form>
+</td>
