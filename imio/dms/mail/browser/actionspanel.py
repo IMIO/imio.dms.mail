@@ -185,7 +185,7 @@ class SigningFieldsetActionsPanelView(ActionsPanelView):
 
     def __init__(self, context, request):
         super(SigningFieldsetActionsPanelView, self).__init__(context, request)
-        self.SECTIONS_TO_RENDER = ("renderEdit",)
+        self.ACCEPTABLE_ACTIONS = ["edit", "approvals"]
 
     @property
     def fieldset(self):
@@ -195,6 +195,27 @@ class SigningFieldsetActionsPanelView(ActionsPanelView):
         if self.showEdit and self.mayEdit():
             return ViewPageTemplateFile("templates/fieldset_actions_panel_edit.pt")(self)
         return ""
+
+    @ram.cache(actionspanelview_cachekey)
+    def SigningFieldsetActionsPanelView__call__(
+        self,
+        useIcons=True,
+        showEdit=True,
+        showOwnDelete=False,
+        showTransitions=False,
+        **kwargs
+    ):
+        super(SigningFieldsetActionsPanelView, self).__call__(
+            useIcons=useIcons,
+            showEdit=showEdit,
+            showOwnDelete=showOwnDelete,
+            showTransitions=showTransitions,
+            **kwargs
+        )
+        self.saveHasActions()  # To remove dash "-" when no actions available
+        return self.index()
+
+    __call__ = SigningFieldsetActionsPanelView__call__
 
 
 class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
@@ -225,7 +246,7 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
         super(DmsOMActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
-        self.ACCEPTABLE_ACTIONS = ["delete", 'approvals']
+        self.ACCEPTABLE_ACTIONS = ["delete"]
         self.SECTIONS_TO_RENDER += (
             "render_create_from_template_button",
             "render_create_new_message",
