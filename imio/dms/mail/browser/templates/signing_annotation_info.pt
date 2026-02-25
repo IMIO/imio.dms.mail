@@ -1,0 +1,20 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+    xmlns:tal="http://xml.zope.org/namespaces/tal"
+    xmlns:metal="http://xml.zope.org/namespaces/metal"
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    metal:use-macro="context/main_template/macros/master"
+    i18n:domain="imio.dms.mail">
+    <body>
+      <metal:bodytext fill-slot="content-core">
+          <h2>idm.approval annotation</h2>
+          <pre style="background: #f5f5f5; color: #333; padding: 1em; overflow: auto;"
+               tal:content="structure view/approval_annot_html" />
+
+          <tal:esign tal:repeat="session view/esign_sessions">
+            <h2 tal:content="python:'imio.esign session (id: {})'.format(session[0])"></h2>
+            <pre style="background: #f5f5f5; color: #333; padding: 1em; overflow: auto;"
+                 tal:content="structure python:view.esign_session_html(session[1])" />
+          </tal:esign>
+      </metal:bodytext>
+    </body>
+</html>

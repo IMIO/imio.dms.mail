@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
+from AccessControl import Unauthorized
 from Acquisition import aq_inner
 from collective.ckeditortemplates.cktemplate import ICKTemplate
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
+from html import escape
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PMH_ENABLED
@@ -15,11 +17,13 @@ from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import persistent_to_native
 from imio.esign import manage_session_perm
 from imio.esign.browser.actions import RemoveItemFromSessionView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.config import get_registry_enabled
+from imio.esign.utils import get_session_annotation
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.content import richtextval
 from imio.helpers.content import uuidToObject
@@ -28,6 +32,7 @@ from imio.helpers.emailer import create_html_email
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
+from imio.helpers.security import check_zope_admin
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from plone import api
@@ -50,6 +55,8 @@ from zope.lifecycleevent import modified
 from zope.pagetemplate.pagetemplate import PageTemplate
 
 import json
+import pprint
+import re
 
 
 class CreateFromTemplateForm(BaseRenderFancyTree):
@@ -668,3 +675,73 @@ class ImioCatalogNavigationTabs(CatalogNavigationTabs):
         result = sorted(result, key=lambda x: x['id'] == "plus")
 
         return result
+
+
+class SigningAnnotationInfoView(BrowserView):
+    """Admin-only view displaying idm.approval and imio.esign session annotations for an outgoing mail."""
+
+    index = ViewPageTemplateFile("templates/signing_annotation_info.pt")
+
+    def __call__(self):
+        if not check_zope_admin():
+            raise Unauthorized
+        return self.index()
+
+    def _uid_to_link(self, uid):
+        """Return an HTML link for an object UID, or the UID if not found."""
+        obj = uuidToObject(uid, unrestricted=True)
+        if obj is None:
+            return u"<span title='not found'>{}</span>".format(safe_unicode(uid))
+        url = obj.absolute_url()
+        title = escape(safe_unicode(getattr(obj, 'title', '') or uid))
+        path = escape(u"/".join(obj.getPhysicalPath()))
+        return u"<a href='{}' title='{}'>{}</a>".format(url, path, title)
+
+    def _render_value(self, value, indent=u""):
+        """Render a value, replacing UIDs with links where possible."""
+        inner = indent + u"  "
+        if isinstance(value, dict):
+            if not value:
+                return u"{}"
+            lines = [u"{"]
+            for k, v in sorted(value.items()):
+                lines.append(u"{}{!r}: {},".format(inner, k, self._render_value(v, inner)))
+            lines.append(u"{}}}".format(indent))
+            return u"\n".join(lines)
+        elif isinstance(value, (list, tuple)):
+            if not value:
+                return u"[]"
+            lines = [u"["]
+            for item in value:
+                lines.append(u"{}{},".format(inner, self._render_value(item, inner)))
+            lines.append(u"{}]".format(indent))
+            return u"\n".join(lines)
+        elif isinstance(value, basestring) and re.match(r'^[0-9a-f]{32}$', value):
+            # Looks like a UUID
+            return self._uid_to_link(value)
+        else:
+            return safe_unicode(pprint.pformat(value))
+
+    @property
+    def approval_annot_html(self):
+        approval = IOMApproval(self.context)
+        native = persistent_to_native(approval.annot)
+        return self._render_value(native)
+
+    @property
+    def esign_sessions(self):
+        """Return list of (session_id, session_data) for all sessions."""
+        approval = IOMApproval(self.context)
+        session_ids = approval.annot.get("session_ids", [])
+        if not session_ids:
+            return []
+        annot = get_session_annotation()
+        result = []
+        for session_id in session_ids:
+            session = annot["sessions"].get(session_id)
+            if session is not None:
+                result.append((session_id, persistent_to_native(session)))
+        return sorted(result)
+
+    def esign_session_html(self, session_data):
+        return self._render_value(session_data)
