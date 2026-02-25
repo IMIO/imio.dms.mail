@@ -1060,7 +1060,16 @@
 
         <browser:view
             name="remove-item-from-esign-session"
-            for="imio.annex.content.annex.IAnnex"
+            for="imio.dms.mail.dmsfile.IImioDmsFile"
+            class="imio.dms.mail.browser.views.ImioRemoveItemFromSessionView"
+            permission="imio.esign.ManageSessions"
+            i18n:domain="imio.esign"
+            allowed_attributes="available"
+        />
+
+        <browser:view
+            name="remove-item-from-esign-session"
+            for="collective.dms.basecontent.dmsfile.IDmsAppendixFile"
             class="imio.dms.mail.browser.views.ImioRemoveItemFromSessionView"
             permission="imio.esign.ManageSessions"
             i18n:domain="imio.esign"

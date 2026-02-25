@@ -545,7 +545,10 @@ class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
         remove_files_from_session([self.context.UID()])
 
     def available(self):
-        approval = IOMApproval(self.context.__parent__)
+        try:
+            approval = IOMApproval(self.context.__parent__)
+        except TypeError:  # when trying to adapt a file in incomingmail
+            return False
         return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
 
 
