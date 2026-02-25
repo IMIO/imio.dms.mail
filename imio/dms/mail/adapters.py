@@ -1546,6 +1546,7 @@ class OMApprovalAdapter(object):
             return False
 
         if totally:
+            # for seal, nb is None and approval is []. all([]) is True
             return all(
                 self.annot["approval"][nb][file_index]["status"] == "a" for nb in range(len(self.annot["approval"]))
             )
