@@ -398,6 +398,39 @@
             template="browser/actions_panel.pt"
             permission="zope2.View"
             />
+        <!-- Iconified category -->
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="collective.iconifiedcategory.content.categorygroup.ICategoryGroup"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletOnlyAdd"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="collective.iconifiedcategory.content.category.ICategory"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.CategoryActionsPanelViewlet"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
+        <browser:page
+            name="actions_panel"
+            for="collective.iconifiedcategory.content.categorygroup.ICategoryGroup"
+            class="imio.dms.mail.browser.actionspanel.OnlyAddActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View"
+            />
+        <browser:page
+            name="actions_panel"
+            for="collective.iconifiedcategory.content.category.ICategory"
+            class="imio.dms.mail.browser.actionspanel.CategoryActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View"
+            />
     </configure>
 
     <!-- BATCH ACTIONS CONTACTS -->
@@ -986,6 +1019,17 @@
         allowed_attributes="detailed_description"
         permission="zope2.View"
         />
+    <configure package="imio.pm.wsclient">
+        <browser:viewlet
+            for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+            name="imio.pm.wsclient.pminfos"
+            layer="imio.pm.wsclient.interfaces.IWS4PMClientLayer"
+            manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+            class="imio.pm.wsclient.browser.viewlets.PloneMeetingInfosViewlet"
+            permission="ws.client.Access"
+        />
+    </configure>
+
 
     <!-- eSignature -->
     <configure package="imio.esign">
@@ -1043,15 +1087,6 @@
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
     </configure>
-
-    <browser:page
-        name="signing-users-csv"
-        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
-        class=".views.SigningUsersCsv"
-        permission="cmf.ManagePortal"
-        i18n:domain="imio.esign"
-        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
-    />
 
     <browser:page
         name="approvals"

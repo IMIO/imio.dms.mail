@@ -508,6 +508,29 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
     }
 
 
+class CategoryActionsPanelViewlet(ActionsPanelViewlet):
+    """
+    Override render method for categories
+    """
+
+    params = {
+        "useIcons": False,
+        "showEdit": True,
+        "showOwnDelete": False,
+        "showAddContent": False,
+        "showActions": True,
+        "showTransitions": False,
+    }
+
+
+class CategoryActionsPanelView(ActionsPanelView):
+    """This manage the view displaying actions on some folder."""
+
+    def __init__(self, context, request):
+        super(CategoryActionsPanelView, self).__init__(context, request)
+        self.ACCEPTABLE_ACTIONS = ["copy", "delete", "rename"]
+
+
 class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
     """
     Override render method for IActionsPanelFolder

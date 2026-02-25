@@ -668,7 +668,7 @@ def _correct_to_sign(file_obj):
 
 def _correct_to_approve(file_obj):
     """Correct to_approve value following context.
-    Force to True to False except if:
+    Force from True to False except if:
     * to_sign is True
     * approvers are defined on parent om
     * file is not a pdf conversion
@@ -715,10 +715,14 @@ def i_annex_added(obj, event):
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
         # TODO add unit tests for the following
-        if not _correct_to_sign(obj):
+        if getattr(obj, "to_sign", False):
+            _correct_to_sign(obj)
+        if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
     elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
-        if not _correct_to_sign(obj):
+        if getattr(obj, "to_sign", False):
+            _correct_to_sign(obj)
+        if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
 
 
@@ -1399,15 +1403,6 @@ def contact_modified(obj, event):
     #    if IObjectRemovedEvent.providedBy(event):
     #        return
     if IPersonnelContact.providedBy(obj):
-        mod_attr = [
-            name
-            for at in getattr(event, "descriptions", [])
-            if base_hasattr(at, "attributes")
-            for name in at.attributes
-        ]
-        if "IPlonegroupUserLink.userid" in mod_attr:
-            for hp in obj.objectValues():
-                hp.reindexObject(["userid"])
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
 

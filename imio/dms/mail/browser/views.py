@@ -19,7 +19,6 @@ from imio.esign import manage_session_perm
 from imio.esign.browser.actions import RemoveItemFromSessionView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
-from imio.esign.browser.views import SigningUsersCsv as BaseSigningUsersCsv
 from imio.esign.config import get_registry_enabled
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.content import richtextval
@@ -37,7 +36,6 @@ from Products.CMFPlone import utils
 from Products.CMFPlone.browser.navigation import CatalogNavigationTabs
 from Products.CMFPlone.browser.navigation import get_id
 from Products.CMFPlone.browser.navigation import get_view_url
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
@@ -549,23 +547,6 @@ class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
     def available(self):
         approval = IOMApproval(self.context.__parent__)
         return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
-
-
-class SigningUsersCsv(BaseSigningUsersCsv):
-
-    def filter_user(self, user_data):
-        """Filter users that are signers."""
-        hps = api.content.find(
-            portal_type="held_position",
-            userid=user_data["userid"],
-        )
-        if not hps:
-            return False
-        for hp in hps:
-            hp_obj = hp.getObject()
-            if base_hasattr(hp_obj, "usages") and "signer" in hp_obj.usages:
-                return True
-        return False
 
 
 class ApprovalTableView(BrowserView):
