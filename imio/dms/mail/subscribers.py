@@ -56,6 +56,8 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.config import get_registry_seal_code
 from imio.esign.config import get_registry_seal_email
+from imio.esign.utils import get_session_annotation
+from imio.esign.utils import remove_files_from_session
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
 # from imio.helpers.content import get_vocab_values
@@ -465,6 +467,9 @@ def dmsoutgoingmail_transition(mail, event):
                     )
                 if seal_code and seal_email:
                     ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval.session_id)
+    else:
+        # TODO check if to_sign and approved files have a pdf version
+        pass
 
 
 def dmsoutgoingmail_modified(mail, event):
@@ -669,7 +674,7 @@ def _correct_to_sign(file_obj):
 
 def _correct_to_approve(file_obj):
     """Correct to_approve value following context.
-    Force to True to False except if:
+    Force from True to False except if:
     * to_sign is True
     * approvers are defined on parent om
     * file is not a pdf conversion
@@ -716,10 +721,14 @@ def i_annex_added(obj, event):
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
         # TODO add unit tests for the following
-        if not _correct_to_sign(obj):
+        if getattr(obj, "to_sign", False):
+            _correct_to_sign(obj)
+        if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
     elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
-        if not _correct_to_sign(obj):
+        if getattr(obj, "to_sign", False):
+            _correct_to_sign(obj)
+        if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
 
 
@@ -766,12 +775,49 @@ def i_annex_removed(obj, event):
     # if event.object.portal_type == "Plone Site":
     #     return
     if not IReferenceable.providedBy(obj):
-        referencedObjectRemoved(obj, event)
+        try:
+            referencedObjectRemoved(obj, event)
+        except TypeError:
+            pass
     if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+        current_uid = obj.UID()
         approval = OMApprovalAdapter(obj.__parent__)
-        # Removes file from approval process (doesn't fail if not there)
-        if not approval.remove_file_from_approval(obj.UID()):
-            approval.remove_pdf_file_from_approval(obj.UID())
+        # Case 1: We are removing a file in a session. Can be a pdf from odt, a direct pdf, a sealed odf
+        session_annot = get_session_annotation()
+        if current_uid in session_annot["uids"]:
+            session_id = session_annot["uids"][current_uid]
+            # No breach anymore via i_annex_will_be_removed if we are before to_approve state
+            if session_annot["sessions"][session_id]["state"] != "draft":
+                api.portal.show_message(
+                    message=_(
+                        u"You cannot delete a file '${title}' part of already started esign process !",
+                        mapping={"title": safe_unicode(obj.Title())},
+                    ),
+                    request=obj.REQUEST,
+                    type="error",
+                )
+                obj.REQUEST.RESPONSE.redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for delete_confirmation
+                raise Redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for "normal" delete
+            # we remove this pdf_file from session and annotation
+            getMultiAdapter((obj, obj.REQUEST), name="remove-item-from-esign-session").actions()
+
+        # Case 2: We are removing a source file: odt or direct pdf
+        if current_uid in approval.files_uids:
+            file_index = approval.files_uids.index(current_uid)
+            if approval.pdf_files_uids[file_index]:
+                api.portal.show_message(
+                    message=_(
+                        u"You cannot delete a file '${title}' when there are still linked pdf files !",
+                        mapping={"title": safe_unicode(obj.Title())},
+                    ),
+                    request=obj.REQUEST,
+                    type="error",
+                )
+                obj.REQUEST.RESPONSE.redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for delete_confirmation
+                raise Redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for "normal" delete
+            # The file may be a user-uploaded annex, try to remove it from session
+            remove_files_from_session([current_uid])
+            approval.remove_file_from_approval(current_uid)
 
 
 def dmsmainfile_modified(dmf, event):
@@ -1363,15 +1409,6 @@ def contact_modified(obj, event):
     #    if IObjectRemovedEvent.providedBy(event):
     #        return
     if IPersonnelContact.providedBy(obj):
-        mod_attr = [
-            name
-            for at in getattr(event, "descriptions", [])
-            if base_hasattr(at, "attributes")
-            for name in at.attributes
-        ]
-        if "IPlonegroupUserLink.userid" in mod_attr:
-            for hp in obj.objectValues():
-                hp.reindexObject(["userid"])
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
 

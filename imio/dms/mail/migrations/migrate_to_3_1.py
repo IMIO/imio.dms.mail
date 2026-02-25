@@ -83,6 +83,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             # collective.contact.facetednav
             # collective.iconifiedcategory (on existing objects, folders only if the first time)
             # imio.pm.wsclient
+            # collective.contact.plonegroup
             self.upgradeAll(omit=[u"imio.dms.mail:default"])
 
         if self.is_in_part("c"):  # various, update workflow, localroles and security

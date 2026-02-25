@@ -3,7 +3,6 @@ from AccessControl import getSecurityManager
 from borg.localrole.interfaces import ILocalRoleProvider
 from collective.classification.folder.interfaces import IServiceInCharge
 from collective.classification.folder.interfaces import IServiceInCopy
-from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.indexers import contact_source
 from collective.contact.core.interfaces import IContactContent
@@ -618,15 +617,6 @@ def mail_type_index(obj):
     """Indexer of 'mail_type' for IContentish."""
     if base_hasattr(obj, "mail_type") and obj.mail_type:
         return obj.mail_type
-    return common_marker
-
-
-@indexer(IHeldPosition)
-def heldposition_userid_index(obj):
-    """Indexer of 'userid' for IHeldPosition. Stores parent userid !"""
-    parent = obj.aq_parent
-    if base_hasattr(parent, "userid") and parent.userid:
-        return parent.userid
     return common_marker
 
 
@@ -1556,6 +1546,7 @@ class OMApprovalAdapter(object):
             return False
 
         if totally:
+            # for seal, nb is None and approval is []. all([]) is True
             return all(
                 self.annot["approval"][nb][file_index]["status"] == "a" for nb in range(len(self.annot["approval"]))
             )
