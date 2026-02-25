@@ -106,7 +106,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order.get(x["id"], 99), self.tr_order.get(y["id"], 99)))
+        lst.sort(lambda x, y: cmp(self.tr_order.get(x["id"], 99), self.tr_order.get(y["id"], 99)))  # noqa F821
 
     @ram.cache(actionspanelview_cachekey)
     def DmsIMActionsPanelView__call__(
@@ -194,7 +194,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))
+        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))  # noqa F821
 
     def may_create_from_template(self):
         """
@@ -312,7 +312,7 @@ class DmsTaskActionsPanelView(ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))
+        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))  # noqa F821
 
     @ram.cache(actionspanelview_cachekey)
     def DmsTaskActionsPanelView__call__(

@@ -3,19 +3,27 @@ from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.config import set_registry_organizations
+from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
+from collective.iconifiedcategory.utils import calculate_category_id
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.interfaces import IOMApproval
+from imio.dms.mail.subscribers import i_annex_removed
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
+from imio.esign.config import set_registry_file_url
+from imio.esign.utils import get_session_annotation
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
+from imio.helpers.content import uuidToObject
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.app.controlpanel.events import ConfigurationChangedEvent
@@ -35,6 +43,7 @@ from zope.intid import IIntIds
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import modified
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.lifecycleevent import ObjectRemovedEvent
 
 import unittest
 import zope.event
@@ -933,6 +942,155 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             },
         )
         # we remove a signer
+
+    def _setup_omail_with_esign(self):
+        """Helper to create an outgoing mail with esign approval and files."""
+        self.change_user("admin")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+        )
+        set_registry_file_url("https://downloads.files.com")
+        intids = getUtility(IIntIds)
+        params = {
+            "title": u"Courrier sortant test",
+            "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
+                DummyView(self.portal, self.portal.REQUEST)
+            ),
+            "mail_type": "courrier",
+            "treating_groups": self.pgof["direction-generale"]["grh"].UID(),
+            "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
+            "assigned_user": "agent",
+            "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
+            "send_modes": u"post",
+            "signers": [
+                {
+                    "number": 1,
+                    "signer": self.pf["dirg"]["directeur-general"].UID(),
+                    "approvings": [u"_themself_"],
+                    "editor": True,
+                },
+                {
+                    "number": 2,
+                    "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
+                    "approvings": [u"_themself_", self.pf["chef"].UID()],
+                    "editor": False,
+                },
+            ],
+            "esign": True,
+        }
+        omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om", **params)
+        filename = u"Réponse salle.odt"
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        files = []
+        for i in range(2):
+            with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+                file_object = NamedBlobFile(fo.read(), filename=filename)
+                files.append(
+                    createContentInContainer(
+                        omail,
+                        "dmsommainfile",
+                        id="file%s" % i,
+                        scan_id="012999900000601",
+                        file=file_object,
+                        content_category=calculate_category_id(ct),
+                    )
+                )
+        return omail, files, IOMApproval(omail)
+
+    def _approve_all_files(self, omail, files, approval):
+        """Helper to transition omail through full approval to to_be_signed state."""
+        pw = self.portal.portal_workflow
+        pw.doActionFor(omail, "propose_to_approve")
+        approval.start_approval_process()
+        # Both signers must approve both files to reach to_be_signed
+        approval.approve_file(files[0], "dirg", transition="propose_to_be_signed")
+        approval.approve_file(files[1], "dirg", transition="propose_to_be_signed")
+        approval.approve_file(files[1], "bourgmestre", transition="propose_to_be_signed")
+        approval.approve_file(files[0], "bourgmestre", transition="propose_to_be_signed")
+
+    def test_i_annex_removed_pdf_file(self):
+        """Test i_annex_removed Case 1: removing a generated PDF removes it from approval."""
+        omail, files, approval = self._setup_omail_with_esign()
+        self._approve_all_files(omail, files, approval)
+        self.assertEqual(api.content.get_state(omail), "to_be_signed")
+        # Get the generated PDF for files[0]
+        pdf_uid = approval.pdf_files_uids[0][0]
+        pdf_obj = uuidToObject(pdf_uid)
+        self.assertIsNotNone(pdf_obj)
+        # The PDF should have conv_from_uid pointing to the source
+        self.assertEqual(pdf_obj.conv_from_uid, files[0].UID())
+        session_annot = get_session_annotation()
+        self.assertIn(pdf_uid, session_annot["uids"])
+        self.assertEqual(session_annot["uids"][pdf_uid], 0)
+        self.assertIn(pdf_uid, [dic["uid"] for dic in session_annot["sessions"][0]["files"]])
+
+        # Call the subscriber directly to remove the PDF
+        event = ObjectRemovedEvent(pdf_obj, omail, pdf_obj.getId())
+        i_annex_removed(pdf_obj, event)
+        # PDF is removed from session annotation
+        self.assertNotIn(pdf_uid, session_annot["uids"])
+        self.assertNotIn(pdf_uid, [dic["uid"] for dic in session_annot["sessions"][0]["files"]])
+        # PDF is removed from pdf_files_uids annotation
+        self.assertNotIn(pdf_uid, [uid for lst in approval.pdf_files_uids for uid in lst])
+        # Source file stays in approval (Case 1 only removes the PDF, not the source)
+        self.assertIn(files[0].UID(), approval.files_uids)
+        self.assertIn(files[1].UID(), approval.files_uids)
+
+    def test_i_annex_removed_pdf_file_not_draft(self):
+        """Test i_annex_removed Case 1: removing a PDF when its esign session is not in draft state
+        raises Redirect. The PDF stays in the session (deletion is blocked)."""
+        omail, files, approval = self._setup_omail_with_esign()
+        self._approve_all_files(omail, files, approval)
+        self.assertEqual(api.content.get_state(omail), "to_be_signed")
+        pdf_uid = approval.pdf_files_uids[0][0]
+        pdf_obj = uuidToObject(pdf_uid)
+        self.assertIsNotNone(pdf_obj)
+
+        # Simulate the session having been sent to the signing service (no longer draft)
+        session_annot = get_session_annotation()
+        session_id = session_annot["uids"][pdf_uid]
+        session_annot["sessions"][session_id]["state"] = "sent"
+
+        event = ObjectRemovedEvent(pdf_obj, omail, pdf_obj.getId())
+        with self.assertRaises(Redirect):
+            i_annex_removed(pdf_obj, event)
+
+        # PDF is still registered in the session (deletion was blocked)
+        self.assertIn(pdf_uid, session_annot["uids"])
+        self.assertIn(pdf_uid, [uid for lst in approval.pdf_files_uids for uid in lst])
+
+    def test_i_annex_removed_source_file(self):
+        """Test i_annex_removed Case 2: removing a source file that has linked PDFs raises Redirect.
+        The source file and its PDFs are left untouched (deletion is blocked)."""
+        omail, files, approval = self._setup_omail_with_esign()
+        self._approve_all_files(omail, files, approval)
+        self.assertEqual(api.content.get_state(omail), "to_be_signed")
+        # We should have PDF files generated
+        self.assertTrue(approval.pdf_files_uids[0])
+        pdf_uid_0 = approval.pdf_files_uids[0][0]
+        self.assertIsNotNone(uuidToObject(pdf_uid_0))
+
+        # Attempting to delete a source file with linked PDFs must be blocked
+        event = ObjectRemovedEvent(files[0], omail, files[0].getId())
+        with self.assertRaises(Redirect):
+            i_annex_removed(files[0], event)
+
+        # Source file and its PDF remain in approval (deletion was blocked)
+        self.assertIn(files[0].UID(), approval.files_uids)
+        self.assertIsNotNone(uuidToObject(pdf_uid_0))
+
+    def test_i_annex_removed_source_file_no_pdfs(self):
+        """Test i_annex_removed Case 2: source file with no linked PDFs is removed from approval."""
+        omail, files, approval = self._setup_omail_with_esign()
+        # files[0] has no conv_from_uid (it's a source file, not a generated PDF)
+        self.assertIsNone(getattr(files[0], "conv_from_uid", None))
+        self.assertIn(files[0].UID(), approval.files_uids)
+        initial_files_count = len(approval.files_uids)
+        # Directly call the subscriber with a removal event
+        event = ObjectRemovedEvent(files[0], omail, files[0].getId())
+        i_annex_removed(files[0], event)
+        # The file should be removed from approval
+        self.assertEqual(len(approval.files_uids), initial_files_count - 1)
 
     def test_task_transition(self):
         # task = createContentInContainer(self.imail, 'task', id='t1')

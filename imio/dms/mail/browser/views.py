@@ -16,9 +16,11 @@ from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
+from imio.esign.browser.actions import RemoveItemFromSessionView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.config import get_registry_enabled
+from imio.esign.utils import remove_files_from_session
 from imio.helpers.content import richtextval
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import add_attachment
@@ -525,6 +527,26 @@ class ImioExternalSessionCreateView(ExternalSessionCreateView):
         if "esign_watchers" in current_user_groups_ids(user=user):
             return True
         return False
+
+
+class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
+
+    def index(self):
+        if not self.available():
+            return None
+        self.actions()
+        self._finished()
+
+    def actions(self):
+        # remove from mail approval annotation
+        approval = IOMApproval(self.context.__parent__)
+        approval.remove_pdf_file_from_approval(self.context.UID())
+        # remove from global esign annotation
+        remove_files_from_session([self.context.UID()])
+
+    def available(self):
+        approval = IOMApproval(self.context.__parent__)
+        return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
 
 
 class ApprovalTableView(BrowserView):
