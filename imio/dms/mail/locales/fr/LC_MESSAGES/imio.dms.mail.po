@@ -1075,7 +1075,7 @@ msgid "Seal"
 msgstr "Sceau"
 
 #: ./subscribers.py:448
-msgid "Seal code must be defined in eSign settings befode sending session"
+msgid "Seal code must be defined in eSign settings before sending session"
 msgstr "Le code du cachet électronique doit être défini dans la configuration avant de l'utiliser dans une session"
 
 #: ./browser/batchactions.py:240
