@@ -1019,10 +1019,17 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertIsNotNone(pdf_obj)
         # The PDF should have conv_from_uid pointing to the source
         self.assertEqual(pdf_obj.conv_from_uid, files[0].UID())
+        session_annot = get_session_annotation()
+        self.assertIn(pdf_uid, session_annot["uids"])
+        self.assertEqual(session_annot["uids"][pdf_uid], 0)
+        self.assertIn(pdf_uid, [dic["uid"] for dic in session_annot["sessions"][0]["files"]])
 
         # Call the subscriber directly to remove the PDF
         event = ObjectRemovedEvent(pdf_obj, omail, pdf_obj.getId())
         i_annex_removed(pdf_obj, event)
+        # PDF is removed from session annotation
+        self.assertNotIn(pdf_uid, session_annot["uids"])
+        self.assertNotIn(pdf_uid, [dic["uid"] for dic in session_annot["sessions"][0]["files"]])
         # PDF is removed from pdf_files_uids annotation
         self.assertNotIn(pdf_uid, [uid for lst in approval.pdf_files_uids for uid in lst])
         # Source file stays in approval (Case 1 only removes the PDF, not the source)
