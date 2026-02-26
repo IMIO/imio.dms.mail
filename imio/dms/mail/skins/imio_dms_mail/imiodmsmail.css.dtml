@@ -1064,11 +1064,11 @@ div.faceted-session-info {
     padding-bottom: 0px;
 }
 
-#content table#context_viewlet_signers_table {
+#content table.context_viewlet_signers_table {
     margin-bottom: 0px;
 }
 
-#context_viewlet_signers_table td {
+.context_viewlet_signers_table td {
     padding-right: 10px;
 }
 

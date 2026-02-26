@@ -1130,7 +1130,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 "files": [],
                 "current_nb": None,
                 "approvers": [[], []],
-                "session_id": None,
+                "session_ids": [],
                 "pdf_files": [],
                 "approval": [[], []],
                 "editors": [True, False],
