@@ -1,3 +1,5 @@
+<!-- This is a copy of collective/dms/basecontent/browser/templates/dmsdocument_view.pt -->
+<!-- Only the @@signing_actions_panel has been added -->
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
@@ -58,7 +60,8 @@
               tal:attributes="id python:''.join((group.prefix, 'groups.', group.__name__)).replace('.', '-')">
         <legend>
             <span tal:content="group/label" style="padding-right: 5px"></span>
-            <tal:widget tal:replace="structure context/@@signing_actions_panel"/>
+            <tal:widget tal:condition="python:getattr(group, '__name__', '') == 'signing'"
+                        tal:replace="structure context/@@signing_actions_panel"/>
         </legend>
         <tal:block tal:repeat="widget group/widgets/values">
             <tal:widget tal:replace="structure widget/@@ploneform-render-widget"/>
