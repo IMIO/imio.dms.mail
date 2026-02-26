@@ -1,0 +1,81 @@
+<!-- This is a copy of collective/dms/basecontent/browser/templates/dmsdocument_view.pt -->
+<!-- Only the @@signing_actions_panel has been added -->
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      lang="en"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="collective.dms.mailcontent">
+
+<metal:js fill-slot="javascript_head_slot">
+  <!--[if (!IE)|(gte IE 8)]>
+  <!-->
+  <link href="/viewer/viewer-datauri.css" media="screen" rel="stylesheet" type="text/css"
+      tal:attributes="href string:${view/dvstatic}/assets/viewer-datauri.css" />
+  <!--<![endif]-->
+  <!--[if lte IE 7]>
+  <link href="/viewer/viewer.css" media="screen" rel="stylesheet" type="text/css"
+        tal:attributes="href string:${view/dvstatic}/assets/viewer.css" />
+  <![endif]-->
+
+  <script src="/dv_javascript_variables.js"
+      tal:attributes="src string:${portal_url}/dv_javascript_variables.js"></script>
+  <link href="/viewer/printviewer.css" media="print" rel="stylesheet" type="text/css"
+      tal:attributes="href string:${view/dvstatic}/assets/printviewer.css" />
+  <script src="/viewer/viewer.js"
+      tal:attributes="src string:${view/dvstatic}/assets/viewer.js"></script>
+  <script src="/viewer/viewer.js"
+      tal:attributes="src string:${view/dvstatic}/javascripts/viewer.js"></script>
+
+</metal:js>
+
+<metal:css fill-slot="style_slot">
+  <link rel="stylesheet" type="text/css" media="screen" href="group.css"
+        tal:attributes="href string:${context/portal_url}/++resource++dv.resources/stylesheets/viewer.css" />
+</metal:css>
+
+<body>
+  <metal:desc fill-slot="content-description">
+    <div metal:use-macro="context/kss_generic_macros/macros/generic_description_view">
+        <metal:inside fill-slot="inside">
+            <span tal:content="context/Description" class="dms-description">Description</span>
+        </metal:inside>
+    </div>
+  </metal:desc>
+
+<metal:main fill-slot="content-core">
+  <metal:content-core define-macro="content-core">
+
+    <tal:abovecontent replace="structure provider:dms.abovecontent" />
+
+    <div id="fields" style="float:left; width: 50%;">
+    <tal:block repeat="widget view/widgets/values">
+        <tal:block tal:condition="python:widget.__name__ not in ('IBasic.title', 'IBasic.description', 'title', 'description',)">
+            <tal:widget tal:replace="structure widget/@@ploneform-render-widget"/>
+        </tal:block>
+    </tal:block>
+
+    <fieldset tal:repeat="group view/groups"
+              tal:attributes="id python:''.join((group.prefix, 'groups.', group.__name__)).replace('.', '-')">
+        <legend>
+            <span tal:content="group/label" style="padding-right: 5px"></span>
+            <tal:widget tal:condition="python:getattr(group, '__name__', '') == 'signing'"
+                        tal:replace="structure context/@@signing_actions_panel"/>
+        </legend>
+        <tal:block tal:repeat="widget group/widgets/values">
+            <tal:widget tal:replace="structure widget/@@ploneform-render-widget"/>
+        </tal:block>
+    </fieldset>
+
+    </div>
+
+    <div style="clear:left"></div>
+    <tal:belowcontent replace="structure provider:dms.belowcontent" />
+    <div style="clear:both"></div>
+
+  </metal:content-core>
+</metal:main>
+
+</body>
+</html>

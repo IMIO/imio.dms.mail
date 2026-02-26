@@ -3,6 +3,7 @@ from imio.actionspanel.browser.viewlets import ActionsPanelViewlet
 from imio.actionspanel.browser.views import ActionsPanelView
 from imio.dms.mail.dmsmail import filter_dmsincomingmail_assigned_users
 from imio.helpers.cache import get_plone_groups_for_user
+from imio.helpers.security import check_zope_admin
 from plone import api
 from plone.memoize import ram
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
@@ -158,6 +159,52 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
     }
 
 
+class SigningFieldsetActionsPanelView(ActionsPanelView):
+    """Actions panel for signing actions located in outgoing mail signing fieldset"""
+
+    _fieldset = "signing"
+
+    def __init__(self, context, request):
+        super(SigningFieldsetActionsPanelView, self).__init__(context, request)
+        self.ACCEPTABLE_ACTIONS = ["edit", "approvals"]
+        self.SECTIONS_TO_RENDER += ("renderSigningAnnotationInfo",)
+
+    @property
+    def fieldset(self):
+        return "#fieldsetlegend-" + self._fieldset
+
+    def renderEdit(self):
+        if self.showEdit and self.mayEdit():
+            return ViewPageTemplateFile("templates/fieldset_actions_panel_edit.pt")(self)
+        return ""
+
+    def renderSigningAnnotationInfo(self):
+        if check_zope_admin():
+            return ViewPageTemplateFile("templates/fieldset_actions_panel_signing_annotation_info.pt")(self)
+        return ""
+
+    @ram.cache(actionspanelview_cachekey)
+    def SigningFieldsetActionsPanelView__call__(
+        self,
+        useIcons=True,
+        showEdit=True,
+        showOwnDelete=False,
+        showTransitions=False,
+        **kwargs
+    ):
+        super(SigningFieldsetActionsPanelView, self).__call__(
+            useIcons=useIcons,
+            showEdit=showEdit,
+            showOwnDelete=showOwnDelete,
+            showTransitions=showTransitions,
+            **kwargs
+        )
+        self.saveHasActions()  # To remove dash "-" when no actions available
+        return self.index()
+
+    __call__ = SigningFieldsetActionsPanelView__call__
+
+
 class DmsOMActionsPanelView(ActionsPanelView):
 
     transitions = [
@@ -185,7 +232,7 @@ class DmsOMActionsPanelView(ActionsPanelView):
         super(DmsOMActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
-        self.ACCEPTABLE_ACTIONS = ["delete", 'approvals']
+        self.ACCEPTABLE_ACTIONS = ["delete"]
         self.SECTIONS_TO_RENDER += (
             "render_create_from_template_button",
             "render_create_new_message",
@@ -277,14 +324,13 @@ class DmsOMActionsPanelView(ActionsPanelView):
 
 
 class DmsFileActionsPanelView(ActionsPanelView):
-
     def __init__(self, context, request):
         super(DmsFileActionsPanelView, self).__init__(context, request)
         self.ACCEPTABLE_ACTIONS = ["edit", "external_edit", "mailing", "documentviewer_convert", "download", "delete"]
 
     def listObjectButtonsActions(self):
         actions = super(DmsFileActionsPanelView, self).listObjectButtonsActions()
-        actions.sort(key=lambda x: self.ACCEPTABLE_ACTIONS.index(x['id']))
+        actions.sort(key=lambda x: self.ACCEPTABLE_ACTIONS.index(x["id"]))
         return actions
 
 
