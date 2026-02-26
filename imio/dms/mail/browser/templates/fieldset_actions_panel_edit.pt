@@ -1,3 +1,5 @@
+<!-- This is a copy of imio/actionspanel/browser/actions_panel_edit.pt -->
+<!-- Only the anchor fieldset has been added -->
 <td class="noPadding" i18n:domain="plone" tal:define="dummy view/saveHasActions;
                                                       useIcons view/useIcons;">
   <tal:comment replace="nothing">Icon</tal:comment>

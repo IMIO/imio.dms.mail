@@ -692,9 +692,9 @@ class SigningAnnotationInfoView(BrowserView):
         obj = uuidToObject(uid, unrestricted=True)
         if obj is None:
             return u"<span title='not found'>{}</span>".format(safe_unicode(uid))
-        url = obj.absolute_url()
-        title = escape(safe_unicode(getattr(obj, 'title', '') or uid))
+        url = escape(obj.absolute_url(), quote=True)
         path = escape(u"/".join(obj.getPhysicalPath()))
+        title = escape(safe_unicode(getattr(obj, "title", "") or path))
         return u"<a href='{}' title='{}'>{}</a>".format(url, path, title)
 
     def _render_value(self, value, indent=u""):
@@ -705,7 +705,8 @@ class SigningAnnotationInfoView(BrowserView):
                 return u"{}"
             lines = [u"{"]
             for k, v in sorted(value.items()):
-                lines.append(u"{}{!r}: {},".format(inner, k, self._render_value(v, inner)))
+                key = escape(safe_unicode(pprint.pformat(k)))
+                lines.append(u"{}{}: {},".format(inner, key, self._render_value(v, inner)))
             lines.append(u"{}}}".format(indent))
             return u"\n".join(lines)
         elif isinstance(value, (list, tuple)):
@@ -716,14 +717,15 @@ class SigningAnnotationInfoView(BrowserView):
                 lines.append(u"{}{},".format(inner, self._render_value(item, inner)))
             lines.append(u"{}]".format(indent))
             return u"\n".join(lines)
-        elif isinstance(value, basestring) and re.match(r'^[0-9a-f]{32}$', value):
+        elif isinstance(value, basestring) and re.match(r"^[0-9a-f]{32}$", value):
             # Looks like a UUID
             return self._uid_to_link(value)
         else:
-            return safe_unicode(pprint.pformat(value))
+            return escape(safe_unicode(pprint.pformat(value)))
 
     @property
     def approval_annot_html(self):
+        """Renders approval annot in HTML"""
         approval = IOMApproval(self.context)
         native = persistent_to_native(approval.annot)
         return self._render_value(native)
@@ -738,10 +740,11 @@ class SigningAnnotationInfoView(BrowserView):
         annot = get_session_annotation()
         result = []
         for session_id in session_ids:
-            session = annot["sessions"].get(session_id)
+            session = annot.get("sessions", {}).get(session_id)
             if session is not None:
                 result.append((session_id, persistent_to_native(session)))
         return sorted(result)
 
     def esign_session_html(self, session_data):
+        """Renders esign session annot in HTML"""
         return self._render_value(session_data)
