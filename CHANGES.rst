@@ -48,6 +48,8 @@ Changelog
   [chris-adam]
 - Replaced default actions bar by actionspanel for iconified categories.
   [chris-adam]
+- Added download QR code page to docx and pdf files to be signed.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------

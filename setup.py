@@ -82,7 +82,7 @@ setup(
         "imio.pm.wsclient>=2",
         "imio.esign",
         "imio.fpaudit",
-        "imio.helpers",
+        "imio.helpers[pdf]",
         "imio.migrator",
         "imio.zamqp.core",
         "natsort",

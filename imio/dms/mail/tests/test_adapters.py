@@ -34,11 +34,18 @@ from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_registry_file_url
 from imio.esign.utils import get_session_annotation
 from imio.helpers.test_helpers import ImioTestHelpers
+from imio.helpers.tests.test_pdf import _pdf_page_count
+from io import BytesIO
+from mock import Mock
+from mock import patch
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
+from Products.CMFCore.utils import getToolByName
+from reportlab.pdfgen import canvas as pdf_canvas
 from z3c.relationfield.relation import RelationValue
+from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import Attributes
@@ -1506,3 +1513,128 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "c_uids": {self.omail.UID(): [pdf_file.UID()]},
             },
         )
+
+    def test_create_pdf_file_from_pdf(self):
+        """Through the esignature process, a PDF file gets a QR barcode page appended."""
+
+        # Replace existing ODT files with a PDF file in the approval process
+        self.approval.remove_file_from_approval(self.files[0].UID())
+        self.approval.remove_file_from_approval(self.files[1].UID())
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        with open("%s/tests/files/example.pdf" % PRODUCT_DIR, "rb") as fo:
+            pdf_data = fo.read()
+        pdf_fobj = createContentInContainer(
+            self.omail,
+            "dmsommainfile",
+            id="pdffile",
+            scan_id="012999900000601",
+            file=NamedBlobFile(pdf_data, filename=u"example.pdf"),
+            content_category=calculate_category_id(ct),
+        )
+
+        self.pw.doActionFor(self.omail, "propose_to_approve")
+        self.approval.approve_file(pdf_fobj, "dirg")
+        self.approval.approve_file(pdf_fobj, "bourgmestre")
+
+        # 2 ODT originals + 1 PDF original + 1 merged PDF
+        self.assertEqual(len(list(self.omail.objectIds())), 4)
+
+        # Locate the created PDF via the approval annotation
+        new_uid = self.approval.annot["pdf_files"][0][0]
+        self.assertNotEqual(new_uid, pdf_fobj.UID())  # PDF original != merged PDF
+        catalog = getToolByName(self.portal, "portal_catalog")
+        brains = catalog(UID=new_uid)
+        self.assertEqual(len(brains), 1)
+        new_fobj = brains[0].getObject()
+
+        # Check page count: 6 pages (example.pdf) + 1 barcode page = 7
+        page_count = _pdf_page_count(new_fobj.file.data)
+        self.assertEqual(page_count, 7)
+
+        # Check all required attributes
+        self.assertTrue(new_fobj.to_sign)
+        self.assertFalse(new_fobj.signed)
+        self.assertFalse(new_fobj.to_approve)
+        self.assertTrue(new_fobj.approved)
+        self.assertEqual(new_fobj.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
+        self.assertEqual(new_fobj.conv_from_uid, pdf_fobj.UID())
+
+    def test_create_pdf_file_from_odt(self):
+        """Through the esignature process, a real ODT file is embedded
+        with the download code bar template then converted to PDF."""
+
+        # Keep self.files[0] (ODT) in approval; remove file1
+        self.approval.remove_file_from_approval(self.files[1].UID())
+
+        self.pw.doActionFor(self.omail, "propose_to_approve")
+        self.approval.approve_file(self.files[0], "dirg")
+        self.approval.approve_file(self.files[0], "bourgmestre")
+
+        # 2 ODT originals + 1 converted PDF
+        self.assertEqual(len(list(self.omail.objectIds())), 3)
+        self.assertIn("reponse-salle.pdf", self.omail)
+        pdf_file = self.omail["reponse-salle.pdf"]
+
+        # Check page count: at least one page produced by the conversion
+        page_count = _pdf_page_count(pdf_file.file.data)
+        self.assertGreaterEqual(page_count, 1)
+
+        # Check all required attributes
+        self.assertTrue(pdf_file.to_sign)
+        self.assertFalse(pdf_file.signed)
+        self.assertFalse(pdf_file.to_approve)
+        self.assertTrue(pdf_file.approved)
+        self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
+        self.assertEqual(pdf_file.conv_from_uid, self.files[0].UID())
+
+    def test_create_pdf_file_from_doc(self):
+        """Through the esignature process, a DOC file is converted to PDF
+        with a QR barcode page appended."""
+
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
+            ["odt", "pdf", "doc"],
+        )
+
+        try:
+            # Remove existing ODT files from approval, then add a DOC file
+            self.approval.remove_file_from_approval(self.files[0].UID())
+            self.approval.remove_file_from_approval(self.files[1].UID())
+            ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+            with open("%s/batchimport/toprocess/incoming-mail/in-courrier4.doc" % PRODUCT_DIR, "rb") as fo:
+                doc_data = fo.read()
+            doc_fobj = createContentInContainer(
+                self.omail,
+                "dmsommainfile",
+                id="docfile",
+                scan_id="012999900000601",
+                file=NamedBlobFile(doc_data, contentType="application/msword", filename=u"in-courrier4.doc"),
+                content_category=calculate_category_id(ct),
+            )
+
+            self.pw.doActionFor(self.omail, "propose_to_approve")
+            # Signer 0 (dirg) approves — no session creation yet
+            self.approval.approve_file(doc_fobj, "dirg")
+            # Signer 1 (bourgmestre) approves — triggers add_mail_files_to_session()
+            self.approval.approve_file(doc_fobj, "bourgmestre")
+        finally:
+            api.portal.set_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
+                ["odt", "pdf"],
+            )
+
+        # 2 ODT originals + 1 DOC + 1 converted PDF
+        self.assertEqual(len(list(self.omail.objectIds())), 4)
+
+        # At least 1 converted content page + 1 barcode page
+        pdf_file = self.omail.values()[-1]
+        page_count = _pdf_page_count(pdf_file.file.data)
+        self.assertGreaterEqual(page_count, 2)
+
+        # Check all required attributes
+        self.assertTrue(pdf_file.to_sign)
+        self.assertFalse(pdf_file.signed)
+        self.assertFalse(pdf_file.to_approve)
+        self.assertTrue(pdf_file.approved)
+        self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
+        self.assertEqual(pdf_file.conv_from_uid, doc_fobj.UID())
