@@ -14,6 +14,7 @@ from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
 from imio.dms.mail.vocabularies import AssignedUsersForFacetedFilterVocabulary
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.dms.mail.vocabularies import CreatingGroupVocabulary
+from imio.dms.mail.vocabularies import DmsFilesCategoryVocabulary
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.vocabularies import get_settings_vta_table
 from imio.dms.mail.vocabularies import IMReviewStatesVocabulary
@@ -328,3 +329,136 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.change_user("siteadmin")  # refresh getGroups
         self.assertEqual(len(voc_inst1(self.imail)), 2)
         self.assertEqual(len(voc_inst2(self.imail)), 2)
+
+    def test_DmsFilesCategoryVocabulary(self):
+        """Test DmsFilesCategoryVocabulary"""
+
+        def voc_to_tokens(voc):
+            return [v.token for v in voc]
+
+        voc_inst = DmsFilesCategoryVocabulary()
+
+        # === No match: mail context itself with no typeupload → empty ===
+        # context_type is "dmsincomingmail"/"dmsoutgoingmail", inner conditions don't match → path stays []
+        self.assertEqual(len(voc_inst(self.imail)), 0)
+        self.assertEqual(len(voc_inst(self.omail)), 0)
+
+        # === Trigger via typeupload REQUEST parameter (quick-upload add forms) ===
+        self.portal.REQUEST.form["typeupload"] = "dmsappendixfile"
+        try:
+            # incoming context → incoming_appendix_files (1 category)
+            self.assertEqual(
+                voc_to_tokens(voc_inst(self.imail)),
+                ["plone-annexes_types_-_incoming_appendix_files_-_incoming-appendix-file"],
+            )
+            # outgoing context → outgoing_appendix_files (2 categories)
+            self.assertEqual(
+                voc_to_tokens(voc_inst(self.omail)),
+                [
+                    "plone-annexes_types_-_outgoing_appendix_files_-_outgoing-appendix-file",
+                    "plone-annexes_types_-_outgoing_appendix_files_-_outgoing-signable-appendix-file",
+                ],
+            )
+        finally:
+            del self.portal.REQUEST.form["typeupload"]
+
+        # === Trigger via context_type (child content objects) ===
+        # dmsmainfile inside incoming mail → incoming_dms_files (1 category)
+        mainfile = api.content.create(container=self.imail, type="dmsmainfile", id="mf")
+        self.assertEqual(
+            voc_to_tokens(voc_inst(mainfile)), ["plone-annexes_types_-_incoming_dms_files_-_incoming-dms-file"]
+        )
+
+        # dmsappendixfile inside incoming mail → incoming_appendix_files (1 category)
+        iappendix = api.content.create(container=self.imail, type="dmsappendixfile", id="iaf")
+        self.assertEqual(
+            voc_to_tokens(voc_inst(iappendix)),
+            ["plone-annexes_types_-_incoming_appendix_files_-_incoming-appendix-file"],
+        )
+
+        # dmsommainfile inside outgoing mail → outgoing_dms_files (2 categories)
+        ommainfile = api.content.create(container=self.omail, type="dmsommainfile", id="omf")
+        self.assertEqual(
+            voc_to_tokens(voc_inst(ommainfile)),
+            [
+                "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file",
+                "plone-annexes_types_-_outgoing_dms_files_-_outgoing-scanned-dms-file",
+            ],
+        )
+
+        # dmsappendixfile inside outgoing mail → outgoing_appendix_files (2 categories)
+        oappendix = api.content.create(container=self.omail, type="dmsappendixfile", id="oaf")
+        self.assertEqual(
+            voc_to_tokens(voc_inst(oappendix)),
+            [
+                "plone-annexes_types_-_outgoing_appendix_files_-_outgoing-appendix-file",
+                "plone-annexes_types_-_outgoing_appendix_files_-_outgoing-signable-appendix-file",
+            ],
+        )
+
+        # === Trigger via URL suffix (add form URLs) ===
+        orig_url = self.portal.REQUEST.other["URL"]
+        try:
+            # URL ending "dmsmainfile", incoming context → incoming_dms_files (1 category)
+            self.portal.REQUEST.other["URL"] = self.imail.absolute_url() + "/++add++dmsmainfile"
+            self.assertEqual(
+                voc_to_tokens(voc_inst(self.imail)), ["plone-annexes_types_-_incoming_dms_files_-_incoming-dms-file"]
+            )
+
+            # URL ending "dmsappendixfile", incoming context → incoming_appendix_files (1 category)
+            self.portal.REQUEST.other["URL"] = self.imail.absolute_url() + "/++add++dmsappendixfile"
+            self.assertEqual(
+                voc_to_tokens(voc_inst(self.imail)),
+                ["plone-annexes_types_-_incoming_appendix_files_-_incoming-appendix-file"],
+            )
+
+            # URL ending "dmsommainfile", outgoing context → outgoing_dms_files (2 categories)
+            self.portal.REQUEST.other["URL"] = self.omail.absolute_url() + "/++add++dmsommainfile"
+            self.assertEqual(
+                voc_to_tokens(voc_inst(self.omail)),
+                [
+                    "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file",
+                    "plone-annexes_types_-_outgoing_dms_files_-_outgoing-scanned-dms-file",
+                ],
+            )
+
+            # URL ending "dmsappendixfile", outgoing context → outgoing_appendix_files (2 categories)
+            self.portal.REQUEST.other["URL"] = self.omail.absolute_url() + "/++add++dmsappendixfile"
+            self.assertEqual(
+                voc_to_tokens(voc_inst(self.omail)),
+                [
+                    "plone-annexes_types_-_outgoing_appendix_files_-_outgoing-appendix-file",
+                    "plone-annexes_types_-_outgoing_appendix_files_-_outgoing-signable-appendix-file",
+                ],
+            )
+        finally:
+            self.portal.REQUEST.other["URL"] = orig_url
+
+        # === ClassificationFolder/ClassificationSubfolder context → annexes (5 categories) ===
+        cf = api.content.find(portal_type="ClassificationFolder")[0].getObject()
+        self.assertEqual(
+            voc_to_tokens(voc_inst(cf)),
+            [
+                "plone-annexes_types_-_annexes_-_annex",
+                "plone-annexes_types_-_annexes_-_deliberation",
+                "plone-annexes_types_-_annexes_-_cahier-charges",
+                "plone-annexes_types_-_annexes_-_legal-advice",
+                "plone-annexes_types_-_annexes_-_budget",
+            ],
+        )
+
+        csf = api.content.find(portal_type="ClassificationSubfolder")[0].getObject()
+        self.assertEqual(
+            voc_to_tokens(voc_inst(csf)),
+            [
+                "plone-annexes_types_-_annexes_-_annex",
+                "plone-annexes_types_-_annexes_-_deliberation",
+                "plone-annexes_types_-_annexes_-_cahier-charges",
+                "plone-annexes_types_-_annexes_-_legal-advice",
+                "plone-annexes_types_-_annexes_-_budget",
+            ],
+        )
+
+        # === Other context → get all content categories ===
+        tasks_folder = api.content.get(path="/tasks")
+        self.assertEqual(len(voc_inst(tasks_folder)), 11)
