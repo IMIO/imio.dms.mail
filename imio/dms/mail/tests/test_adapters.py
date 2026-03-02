@@ -34,10 +34,13 @@ from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_registry_file_url
 from imio.esign.utils import get_session_annotation
 from imio.helpers.test_helpers import ImioTestHelpers
+from mock import Mock
+from mock import patch
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
+from Products.CMFCore.utils import getToolByName
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
@@ -1506,3 +1509,196 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "c_uids": {self.omail.UID(): [pdf_file.UID()]},
             },
         )
+
+    def test_render_download_template_to_pdf(self):
+        """_render_download_template_to_pdf builds the gen_context and delegates to convert_odt."""
+        fake_pdf_bytes = b"%PDF-1.4 fake"
+        mock_template = Mock()
+        mock_template.UID.return_value = "template-uid"
+        mock_template.get_file.return_value = Mock(data=b"odt content")
+
+        with patch("imio.dms.mail.adapters.convert_odt", return_value=fake_pdf_bytes) as mock_conv:
+            with patch("imio.dms.mail.adapters.generate_barcode") as mock_barcode:
+                mock_barcode.return_value = Mock(**{"read.return_value": b"barcode-bytes"})
+                with patch("imio.dms.mail.adapters.getMultiAdapter") as mock_adapt:
+                    mock_adapt.return_value = Mock()
+                    result = self.approval._render_download_template_to_pdf(
+                        mock_template, "https://downloads.files.com/abc"
+                    )
+
+        self.assertEqual(result, fake_pdf_bytes)
+        call_args = mock_conv.call_args
+        self.assertEqual(call_args[1]["fmt"], "pdf")
+        gen_context = call_args[1]["gen_context"]
+        self.assertEqual(gen_context["context"], self.omail)
+        self.assertEqual(gen_context["download_barcode"], b"barcode-bytes")
+        self.assertEqual(gen_context["download_url"], "https://downloads.files.com/abc")
+        self.assertTrue(gen_context["render_download_barcode"])
+
+    def test_create_pdf_file_from_pdf(self):
+        """When input is a PDF and download_barcode template exists, a new file with the QR page is created."""
+        fake_sub_pdf = b"%PDF-1.4 sub"
+        fake_merged = b"%PDF-1.4 merged"
+
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        with open("%s/tests/files/example.pdf" % PRODUCT_DIR, "rb") as fo:
+            pdf_data = fo.read()
+        pdf_blob = NamedBlobFile(pdf_data, filename=u"test.pdf")
+        pdf_fobj = createContentInContainer(
+            self.omail,
+            "dmsommainfile",
+            id="pdffile2",
+            scan_id="012999900000601",
+            file=pdf_blob,
+            content_category=calculate_category_id(ct),
+        )
+
+        mock_template = Mock()
+        mock_template.UID.return_value = "dl-barcode-uid"
+        mock_template.get_file.return_value = Mock(data=b"odt content")
+
+        session_file_uids = []
+        with patch.object(self.portal.templates.om, "get", return_value=mock_template):
+            with patch.object(self.approval, "_render_download_template_to_pdf", return_value=fake_sub_pdf):
+                with patch("imio.dms.mail.adapters.merge_pdf", return_value=fake_merged):
+                    self.approval._create_pdf_file(
+                        pdf_fobj, pdf_fobj.file, u"test", pdf_fobj.UID(), 0, session_file_uids
+                    )
+
+        self.assertEqual(len(self.omail.objectIds()), 4)
+        self.assertEqual(len(session_file_uids), 1)
+        new_uid = session_file_uids[0]
+        self.assertNotEqual(new_uid, pdf_fobj.UID())
+        catalog = getToolByName(self.portal, "portal_catalog")
+        brains = catalog(UID=new_uid)
+        self.assertEqual(len(brains), 1)
+        new_fobj = brains[0].getObject()
+        self.assertTrue(new_fobj.to_sign)
+        self.assertFalse(new_fobj.to_approve)
+
+    def test_create_pdf_file_from_odt(self):
+        """When input is an ODT file with a pod template, the download barcode is merged during conversion."""
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        odt_blob = NamedBlobFile(
+            b"PK fake odt content",
+            contentType="application/vnd.oasis.opendocument.text",
+            filename=u"test.odt",
+        )
+        odt_fobj = createContentInContainer(
+            self.omail,
+            "dmsommainfile",
+            id="odtfile",
+            scan_id="012999900000601",
+            file=odt_blob,
+            content_category=calculate_category_id(ct),
+        )
+
+        mock_orig_template = Mock()
+        mock_orig_template.UID.return_value = "orig-template-uid"
+        mock_orig_template.merge_templates = [
+            {"template": "dl-template-uuid", "pod_context_name": "doc_cb_download"}
+        ]
+
+        mock_dl_template = Mock()
+
+        mock_pdf_file = Mock()
+        mock_pdf_file.UID.return_value = "converted-pdf-uid"
+        mock_pdf_file.file = Mock()
+        mock_pdf_file.file.data = b"%PDF-1.4 converted"
+        mock_pdf_file.file.filename = u"test.pdf"
+        mock_pdf_file.approved = False
+
+        session_file_uids = []
+        with patch("imio.dms.mail.adapters.get_original_template", return_value=mock_orig_template):
+            with patch("imio.dms.mail.adapters.uuidToObject", return_value=mock_dl_template):
+                with patch("imio.dms.mail.adapters.convert_and_save_file", return_value=mock_pdf_file) as mock_conv:
+                    with patch("imio.dms.mail.adapters.update_categorized_elements"):
+                        with patch("imio.dms.mail.adapters.get_category_object", return_value=Mock()):
+                            with patch("imio.dms.mail.adapters.generate_barcode") as mock_barcode:
+                                mock_barcode.return_value = Mock(**{"read.return_value": b"barcode-bytes"})
+                                with patch("imio.dms.mail.adapters.getMultiAdapter") as mock_adapt:
+                                    mock_adapt.return_value = Mock()
+                                    self.approval._create_pdf_file(
+                                        odt_fobj, odt_fobj.file, u"test", odt_fobj.UID(), 0, session_file_uids
+                                    )
+
+        self.assertEqual(session_file_uids, ["converted-pdf-uid"])
+        gen_context = mock_conv.call_args[1]["gen_context"]
+        self.assertEqual(gen_context["download_barcode"], b"barcode-bytes")
+        self.assertEqual(gen_context["render_download_barcode"], True)
+        self.assertEqual(gen_context["doc_cb_download"], mock_dl_template)
+
+    def test_create_pdf_file_from_docx(self):
+        """For non-ODT files (DOCX), the QR page is appended after conversion."""
+        fake_sub_pdf = b"%PDF-1.4 sub"
+        fake_merged = b"%PDF-1.4 merged"
+
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
+            ["odt", "pdf", "doc"],
+        )
+
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        docx_blob = NamedBlobFile(
+            b"PK fake docx content",
+            contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            filename=u"test.docx",
+        )
+        docx_fobj = createContentInContainer(
+            self.omail,
+            "dmsommainfile",
+            id="docxfile",
+            scan_id="012999900000601",
+            file=docx_blob,
+            content_category=calculate_category_id(ct),
+        )
+
+        mock_template = Mock()
+        mock_template.UID.return_value = "dl-barcode-uid"
+        mock_template.get_file.return_value = Mock(data=b"odt content")
+
+        mock_pdf_file = Mock()
+        mock_pdf_file.UID.return_value = "new-pdf-uid"
+        mock_pdf_file.file = Mock()
+        mock_pdf_file.file.data = b"%PDF-1.4 converted"
+        mock_pdf_file.file.filename = u"test.pdf"
+
+        session_file_uids = []
+        try:
+            with patch("imio.dms.mail.adapters.convert_and_save_file", return_value=mock_pdf_file):
+                with patch("imio.dms.mail.adapters.get_original_template", return_value=None):
+                    with patch("imio.dms.mail.adapters.update_categorized_elements"):
+                        with patch("imio.dms.mail.adapters.get_category_object", return_value=Mock()):
+                            with patch.object(self.portal.templates.om, "get", return_value=mock_template):
+                                with patch.object(
+                                    self.approval, "_render_download_template_to_pdf", return_value=fake_sub_pdf
+                                ):
+                                    with patch("imio.dms.mail.adapters.merge_pdf", return_value=fake_merged):
+                                        with patch("imio.dms.mail.adapters.Converter") as mock_converter_cls:
+                                            mock_converter_cls.return_value = Mock()
+                                            self.approval._create_pdf_file(
+                                                docx_fobj,
+                                                docx_fobj.file,
+                                                u"test",
+                                                docx_fobj.UID(),
+                                                0,
+                                                session_file_uids,
+                                            )
+        finally:
+            api.portal.set_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
+                ["odt", "pdf"],
+            )
+
+        self.assertEqual(mock_pdf_file.file.data, fake_merged)
+        mock_converter_cls.assert_called_once_with(mock_pdf_file)
+        mock_converter_cls.return_value.assert_called_once()
+        self.assertEqual(session_file_uids, ["new-pdf-uid"])
+
+    def test_create_pdf_file_not_implemented(self):
+        """When the file has an unsupported content type, NotImplementedError is raised."""
+        mock_nbf = Mock()
+        mock_nbf.contentType = "text/plain"
+        with self.assertRaises(NotImplementedError) as cm:
+            self.approval._create_pdf_file(Mock(), mock_nbf, u"test", "fake-uid", 0, [])
+        self.assertIn("text/plain", str(cm.exception))

@@ -16,9 +16,11 @@ from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator import _ as _dg
 from collective.documentgenerator.utils import convert_and_save_file
+from collective.documentgenerator.utils import convert_odt
 from collective.documentgenerator.utils import get_original_template
 from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
+from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
@@ -50,6 +52,7 @@ from imio.helpers.content import object_values
 from imio.helpers.content import uuidToCatalogBrain
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
+from imio.helpers.pdf import merge_pdf
 from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
@@ -61,6 +64,7 @@ from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuI
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
+from plone.dexterity.utils import createContentInContainer
 from plone.indexer import indexer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
@@ -1617,8 +1621,11 @@ class OMApprovalAdapter(object):
                 message=_(
                     u"The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files "
                     u"to approve on this mail.",
-                    mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname),
-                             "nb": len(yet_to_approve)},
+                    mapping={
+                        "file": safe_unicode(afile.Title()),
+                        "user": safe_unicode(fullname),
+                        "nb": len(yet_to_approve),
+                    },
                 ),
                 request=request,
                 type="info",
@@ -1635,8 +1642,10 @@ class OMApprovalAdapter(object):
             self.context.reindexObjectSecurity()  # to update local roles from adapter
             message += u"Next approval number is ${nb}."
             api.portal.show_message(
-                message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname),
-                                            "nb": c_a + 1}),
+                message=_(
+                    message,
+                    mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname), "nb": c_a + 1},
+                ),
                 request=request,
                 type="info",
             )
@@ -1714,6 +1723,31 @@ class OMApprovalAdapter(object):
 
         self.start_approval_process()
 
+    def _render_download_template_to_pdf(self, download_template, download_url):
+        """Render the download subtemplate (QR code page) to PDF bytes.
+
+        :param download_template: the POD template object to render
+        :param download_url: the URL to encode in the QR/barcode
+        :return: PDF bytes, or empty string on failure
+        """
+        helper_view = getMultiAdapter(
+            (self.context, self.context.REQUEST),
+            name="document_generation_helper_view",
+        )
+        helper_view.pod_template = download_template.UID()
+        helper_view.output_format = "pdf"
+        gen_context = {
+            "context": self.context,
+            "portal": api.portal.get(),
+            "view": helper_view,
+            "download_barcode": generate_barcode(download_url).read(),
+            "download_url": download_url,
+            "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
+            "render_download_barcode": True,
+        }
+        template_file = NamedBlobFile(download_template.get_file().data, filename=u"download_template.odt")
+        return convert_odt(template_file, fmt="pdf", gen_context=gen_context)
+
     def _create_pdf_file(self, orig_fobj, nbf, f_title, f_uid, file_index, session_file_uids):
         """Create a pdf version file.
 
@@ -1728,32 +1762,72 @@ class OMApprovalAdapter(object):
         new_filename = u"{}.pdf".format(f_title)
         if nbf.contentType == "application/pdf":
             pdf_file = orig_fobj
+            download_template = api.portal.get().templates.om.get("download_barcode")
+            if download_template:
+                new_uid = uuid.uuid4().hex
+                dl_url, _ = get_file_download_url(new_uid, short_uid=get_suid_from_uuid(new_uid))
+                sub_pdf_data = self._render_download_template_to_pdf(download_template, dl_url)
+                if sub_pdf_data:
+                    merged = merge_pdf(nbf.data, sub_pdf_data)
+                    file_object = NamedBlobFile(merged, filename=safe_unicode(new_filename))
+                    pdf_file = createContentInContainer(
+                        self.context,
+                        orig_fobj.portal_type,
+                        title=safe_unicode(new_filename),
+                        file=file_object,
+                        content_category=orig_fobj.content_category,
+                        scan_id=orig_fobj.scan_id,
+                        conv_from_uid=f_uid,
+                        **{"_plone.uuid": new_uid}
+                    )
+                    annot = IAnnotations(pdf_file)
+                    annot["documentgenerator"] = {"conv_from_uid": f_uid}
+                    pdf_file.to_sign = True
+                    pdf_file.to_approve = False
+                    pdf_file.approved = orig_fobj.approved
+                    update_categorized_elements(
+                        self.context,
+                        pdf_file,
+                        get_category_object(self.context, pdf_file.content_category),
+                        limited=True,
+                        sort=False,
+                        logging=True,
+                    )
         elif nbf.contentType in get_allowed_omf_content_types(esign=True):
             gen_context = {}
             new_uid = uuid.uuid4().hex
             download_url, s_uid = get_file_download_url(new_uid, short_uid=get_suid_from_uuid(new_uid))
             orig_template = get_original_template(orig_fobj)
+            doc_cb_download_added = False
             if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
-                helper_view = getMultiAdapter((self.context, self.context.REQUEST),
-                                              name='document_generation_helper_view')
+                helper_view = getMultiAdapter(
+                    (self.context, self.context.REQUEST), name="document_generation_helper_view"
+                )
                 helper_view.pod_template = orig_template.UID()
                 helper_view.output_format = "pdf"
                 gen_context = {"context": self.context, "portal": api.portal.get(), "view": helper_view}
                 # update_dict_with_validation(gen_context, self._get_context_variables(pod_template),
                 #                                   _("Error when merging context_variables in generation context"))
-                merge_templates = [dic["template"] for dic in orig_template.merge_templates
-                                   if dic["pod_context_name"] == "doc_cb_download"]
+                merge_templates = [
+                    dic["template"]
+                    for dic in orig_template.merge_templates
+                    if dic["pod_context_name"] == "doc_cb_download"
+                ]
                 if merge_templates:
                     download_template = uuidToObject(merge_templates[0])
                     if download_template:
                         gen_context["doc_cb_download"] = download_template
                 update_dict_with_validation(
                     gen_context,
-                    {"download_barcode": generate_barcode(download_url).read(), "download_url": download_url,
-                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
-                     "render_download_barcode": True},
+                    {
+                        "download_barcode": generate_barcode(download_url).read(),
+                        "download_url": download_url,
+                        "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
+                        "render_download_barcode": True,
+                    },
                     _dg("Error when merging 'download_barcode' in generation context"),
                 )
+                doc_cb_download_added = True
 
             # TODO which pdf format to choose ?
             pdf_file = convert_and_save_file(
@@ -1783,10 +1857,19 @@ class OMApprovalAdapter(object):
                 sort=False,
                 logging=True,
             )
+
+            # For non-ODT files (e.g. DOC, DOCX), the subtemplate cannot be merged during conversion.
+            # Render it to PDF separately and append it to the converted PDF.
+            if not doc_cb_download_added:
+                download_template = api.portal.get().templates.om.get("download_barcode")
+                if download_template:
+                    sub_pdf_data = self._render_download_template_to_pdf(download_template, download_url)
+                    if sub_pdf_data:
+                        merged = merge_pdf(pdf_file.file.data, sub_pdf_data)
+                        pdf_file.file = NamedBlobFile(merged, filename=pdf_file.file.filename)
+                        Converter(pdf_file)()  # Refresh pdf preview
         else:
-            raise NotImplementedError(
-                "Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType)
-            )
+            raise NotImplementedError("Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType))
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
@@ -1856,21 +1939,28 @@ class OMApprovalAdapter(object):
             signers.append((signer, email, name, label))
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
-        session_id, session = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
-                                                   title=_("[ia.docs] Session {sign_id}"),
-                                                   watchers=watcher_emails)
+        session_id, _session = add_files_to_session(
+            signers,
+            session_file_uids,
+            bool(self.context.seal),
+            title=_("[ia.docs] Session {sign_id}"),
+            watchers=watcher_emails,
+        )
         self.annot["session_id"] = session_id
         session_len = len(session_file_uids)
         if session_len > 1:
-            return True, _("${count} files added to session number ${session_id}",
-                           mapping={"count": session_len, "session_id": session_id})
+            return True, _(
+                "${count} files added to session number ${session_id}",
+                mapping={"count": session_len, "session_id": session_id},
+            )
         else:
-            return True, _("${count} file added to session number ${session_id}",
-                           mapping={"count": session_len, "session_id": session_id})
+            return True, _(
+                "${count} file added to session number ${session_id}",
+                mapping={"count": session_len, "session_id": session_id},
+            )
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
-
     def get_infos(self, category, limited=False):
         base_infos = super(DmsCategorizedObjectInfoAdapter, self).get_infos(category, limited=limited)
         base_infos["scan_id"] = getattr(self.obj, "scan_id", None)
