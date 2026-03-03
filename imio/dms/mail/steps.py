@@ -37,6 +37,7 @@ from imio.dms.mail.wfadaptations import OMToApproveAdaptation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
 from imio.esign.config import set_registry_enabled
+from imio.esign.config import set_registry_external_watchers
 from imio.esign.config import set_registry_file_url
 from imio.esign.config import set_registry_seal_code
 from imio.esign.config import set_registry_seal_email
@@ -137,6 +138,17 @@ def activate_esigning(context):
 
     # update approvers settings
     update_approvers_settings()
+
+    # Add team members to watchers
+    emails = [
+        "stephan.geulette@imio.be",
+        "benoit.leybaert@imio.be",
+        "thomas.bruyer@imio.be",
+        "joel.naisse@imio.be",
+        "chris.adam@imio.be",
+    ]
+    set_registry_external_watchers(u",".join(emails))
+
     return "\n".join(log)
 
 
