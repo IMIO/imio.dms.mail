@@ -10,6 +10,7 @@ from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSig
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import logger  # noqa F401
+from imio.esign.audit import audit as esign_audit
 from plone import api
 from plone.memoize.interfaces import ICacheChooser
 from zope.component import getUtility
@@ -189,12 +190,14 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 values["approved"] = False
                 status = 1
                 self.approval.add_file_to_approval(self.uid)
+                esign_audit("add_file_to_approval", "mail={} file={}".format(self.parent.UID(), self.uid))
                 self.msg = u"Activated for approval (click to deactivate)"
             else:
                 values["to_approve"] = False
                 values["approved"] = False
                 status = 0
                 self.approval.remove_file_from_approval(self.uid)
+                esign_audit("remove_file_from_approval", "mail={} file={}".format(self.parent.UID(), self.uid))
                 self.msg = u"Deactivated for approval (click to activate)"
         else:
             values = old_values.copy()
@@ -303,20 +306,24 @@ class SignedChangeView(BaseSignedChangeView):
                 values['to_sign'] = True
                 values['signed'] = False
                 status = 0
+                esign_audit("enable_to_sign", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
             else:
                 values['to_sign'] = False
                 values['signed'] = False
                 status = -1
+                esign_audit("disable_to_sign", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
             self.reload = True
         elif old_values['to_sign'] and self.p_state in ("to_be_signed", "signed"):
             if old_values['signed'] is False:
                 values['to_sign'] = True
                 values['signed'] = True
                 status = 1
+                esign_audit("mark_as_signed", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
             else:
                 values['to_sign'] = True
                 values['signed'] = False
                 status = 0
+                esign_audit("unmark_as_signed", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
         # logger.info("After values change: %s, %s", status, values)
         return status, values
 

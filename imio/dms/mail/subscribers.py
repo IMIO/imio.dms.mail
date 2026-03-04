@@ -53,6 +53,7 @@ from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import update_approvers_settings
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
+from imio.esign.audit import audit as esign_audit
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.config import get_registry_seal_code
 from imio.esign.config import get_registry_seal_email
@@ -419,6 +420,7 @@ def dmsoutgoingmail_transition(mail, event):
     if event.transition and event.transition.id == "propose_to_approve":
         approval = OMApprovalAdapter(mail)
         approval.start_approval_process()
+        esign_audit("start_approval_process", "mail={}".format(mail.UID()))
     if not mail.esign:
         # if not mail.seal, we render odt to remove download subdocument comment
         if (not mail.seal and event.transition
