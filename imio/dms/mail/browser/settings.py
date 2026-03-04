@@ -435,6 +435,17 @@ fullname_forms = SimpleVocabulary(
 #     ]
 # )
 
+omail_duplicate_fields = SimpleVocabulary(
+    [
+        SimpleTerm(value=u"category", title=_(u"Keep classification category")),
+        SimpleTerm(value=u"folder", title=_(u"Keep classification folder")),
+        SimpleTerm(value=u"reply_to", title=_(u"Keep reply_to mails")),
+        SimpleTerm(value=u"dms_files", title=_(u"Keep DMS files")),
+        SimpleTerm(value=u"annexes", title=_(u"Keep annexes")),
+        SimpleTerm(value=u"link_to_duplicated", title=_(u"Link to duplicated mail")),
+    ]
+)
+
 oemail_sender_email_values = SimpleVocabulary(
     [
         SimpleTerm(value=u"agent_email", title=_(u"Sender held position email is used")),
@@ -594,6 +605,8 @@ class IImioDmsMailConfig(model.Schema):
             "omail_send_modes",
             "omail_post_mailing",
             "omail_signer_rules",
+            "omail_duplicate_display_fields",
+            "omail_duplicate_true_default_values",
             "omail_fields",
             "omail_group_encoder",
         ],
@@ -676,6 +689,22 @@ class IImioDmsMailConfig(model.Schema):
         DataGridFieldFactory,
         allow_reorder=True,
         auto_append=False,
+    )
+
+    omail_duplicate_display_fields = schema.List(
+        title=_(u"Fields to display when duplicating an outgoing mail"),
+        required=False,
+        value_type=schema.Choice(vocabulary=omail_duplicate_fields),
+        default=[u"category", u"folder", u"reply_to", u"dms_files", u"annexes", u"link_to_duplicated"],
+    )
+    # widget("omail_duplicate_display_fields", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+    omail_duplicate_true_default_values = schema.List(
+        title=_(u"Default values to True when duplicating an outgoing mail"),
+        description=_(u"If checked, the default value will be True."),
+        required=False,
+        value_type=schema.Choice(vocabulary=omail_duplicate_fields),
+        default=[u"category", u"folder", u"annexes"],
     )
 
     omail_fields = schema.List(

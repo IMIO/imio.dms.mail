@@ -209,6 +209,7 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
         # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
         self.ACCEPTABLE_ACTIONS = ["delete", 'approvals']
         self.SECTIONS_TO_RENDER += (
+            "render_duplicate_button",
             "render_create_from_template_button",
             "render_create_new_message",
             "render_send_email",
@@ -232,6 +233,17 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
     def render_create_from_template_button(self):
         if self.may_create_from_template():
             return ViewPageTemplateFile("templates/actions_panel_create_from_template.pt")(self)
+        return ""
+
+    def may_duplicate(self):
+        """Method that check if special 'duplicate' action has to be displayed."""
+        if self.member.has_permission("Add portal content", self.portal["outgoing-mail"]):
+            return True
+        return False
+
+    def render_duplicate_button(self):
+        if self.may_duplicate():
+            return ViewPageTemplateFile("templates/actions_panel_duplicate.pt")(self)
         return ""
 
     def may_create_new_message(self):
