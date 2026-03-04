@@ -72,6 +72,30 @@ body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBe
     font-weight: bold;
 }
 
+body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-seal span.selected-option::before {
+    content: "";
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 6px;
+    background-image: url("&dtml-portal_url;/++resource++imio.esign/seal.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+}
+
+body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esign span.selected-option::before {
+    content: "";
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 2px;
+    background-image: url("&dtml-portal_url;/++resource++imio.esign/parapheo.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+}
+
 /* Display description as multilines */
 .dms-description,
 .template-facetednavigation_view.portaltype-classificationfolder #faceted-results tbody  tr:nth-child(5) td.table_widget_value,
