@@ -140,14 +140,14 @@ def activate_esigning(context):
     update_approvers_settings()
 
     # Add team members to watchers
-    emails = [
-        "stephan.geulette@imio.be",
-        "benoit.leybaert@imio.be",
-        "thomas.bruyer@imio.be",
-        "joel.naisse@imio.be",
-        "chris.adam@imio.be",
+    watchers = [
+        ("geulette", "stephan"),
+        ("leybaert", "benoit"),
+        ("bruyer", "thomas"),
+        ("naisse", "joel"),
+        ("adam", "chris"),
     ]
-    set_registry_external_watchers(u",".join(emails))
+    set_registry_external_watchers(u", ".join(["{}.{}@imio.be".format(name[1], name[0]) for name in watchers]))
 
     return "\n".join(log)
 
