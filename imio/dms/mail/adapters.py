@@ -38,6 +38,7 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
+from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
 from imio.esign.utils import get_max_download_date
@@ -1606,6 +1607,8 @@ class OMApprovalAdapter(object):
         self.annot["approval"][c_a][f_index]["approved_on"] = datetime.datetime.now()
         self.annot["approval"][c_a][f_index]["approved_by"] = userid
         self.annot["current_nb"] = self.calculate_current_nb()
+        esign_audit("approve_file", "mail={} file={} signer_level={} approver={}".format(
+            self.context.UID(), f_uid, c_a, userid))
         pc = getToolByName(self.context, "portal_catalog")
         if self.is_file_approved(f_uid):
             afile.approved = True
@@ -1703,6 +1706,8 @@ class OMApprovalAdapter(object):
         self.annot["approval"][nb][f_index]["status"] = "w"
         self.annot["approval"][nb][f_index]["approved_on"] = None
         self.annot["approval"][nb][f_index]["approved_by"] = None
+        esign_audit("unapprove_file", "mail={} file={} signer={}".format(
+            self.context.UID(), f_uid, signer_userid))
 
         afile.approved = False
 
@@ -1861,6 +1866,8 @@ class OMApprovalAdapter(object):
                                                    watchers=watcher_emails)
         self.annot["session_id"] = session_id
         session_len = len(session_file_uids)
+        esign_audit("add_mail_files_to_session", "mail={} session={} files={}".format(
+            self.context.UID(), session_id, ",".join(session_file_uids)))
         if session_len > 1:
             return True, _("${count} files added to session number ${session_id}",
                            mapping={"count": session_len, "session_id": session_id})
