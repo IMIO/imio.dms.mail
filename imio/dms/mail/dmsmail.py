@@ -56,6 +56,9 @@ from imio.dms.mail.utils import is_n_plus_level_obsolete
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
 from imio.dms.mail.vocabularies import encodeur_active_orgs
+from imio.esign.config import get_registry_enabled
+from imio.esign.config import get_registry_seal_code
+from imio.esign.config import get_registry_seal_email
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import object_values
@@ -727,6 +730,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     """ """
 
     implements(IImioDmsOutgoingMail)
+    security = ClassSecurityInfo()
     __ac_local_roles_block__ = True
 
     # Needed by collective.z3cform.rolefield. Need to be overriden here
@@ -876,12 +880,20 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         else:  # has approvals and all done
             return approval.current_nb == -1
 
+    security.declarePublic("is_seal_available")
+    def is_seal_available(self):
+        """Returns True if the eSeal is available to be used"""
+        return bool(get_registry_enabled() and get_registry_seal_code() and get_registry_seal_email())
+
     def wf_conditions(self):
         """Returns the adapter providing workflow conditions"""
         return IImioDmsOutgoingMailWfConditions(self)
 
     def has_mailing(self, document):
         return need_mailing_value(document=document)
+
+
+InitializeClass(ImioDmsOutgoingMail)
 
 
 class ImioDmsOutgoingMailWfConditionsAdapter(object):
