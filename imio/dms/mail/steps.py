@@ -118,7 +118,7 @@ def activate_esigning(context):
         omf.insert(pos + 1,
                    {"field_name": "ISigningBehavior.signers", "read_tal_condition": u"", "write_tal_condition": u""})
         omf.insert(pos + 2,
-                   {"field_name": "ISigningBehavior.seal", "read_tal_condition": u"", "write_tal_condition": u""})
+                   {"field_name": "ISigningBehavior.seal", "read_tal_condition": u"object/is_seal_available", "write_tal_condition": u""})
         omf.insert(pos + 3,
                    {"field_name": "ISigningBehavior.esign", "read_tal_condition": u"", "write_tal_condition": u""})
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
