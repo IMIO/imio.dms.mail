@@ -772,8 +772,8 @@ def i_annex_will_be_removed(obj, event):
 def i_annex_removed(obj, event):
     """when an annex file is removed"""
     # if IObjectRemovedEvent.providedBy(event):
-    # if event.object.portal_type == "Plone Site":
-    #     return
+    if event.object.portal_type == "Plone Site":
+        return
     if not IReferenceable.providedBy(obj):
         try:
             referencedObjectRemoved(obj, event)
