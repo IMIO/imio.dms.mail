@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+from collective.classification.folder.browser.settings import IClassificationConfig
+from collective.classification.folder.browser.settings import SettingsEditForm as CFSettingsEditForm
+from collective.classification.folder.browser.settings import SettingsView as CFSettingsView
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
@@ -37,6 +40,7 @@ from plone.dexterity.fti import DexterityFTIModificationDescription
 from plone.dexterity.fti import ftiModified
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRecordModifiedEvent
+from plone.registry.interfaces import IRegistry
 from plone.registry.recordsproxy import RecordsProxy
 from plone.supermodel import model
 from plone.z3cform import layout
@@ -449,6 +453,25 @@ oemail_bcc_email_values = SimpleVocabulary(
     ]
 )
 
+omail_duplicate_fields = SimpleVocabulary(
+    [
+        SimpleTerm(value=u"category", title=_(u"Keep classification category")),
+        SimpleTerm(value=u"folder", title=_(u"Keep classification folder")),
+        SimpleTerm(value=u"reply_to", title=_(u"Keep reply_to mails")),
+        SimpleTerm(value=u"dms_files", title=_(u"Keep DMS files")),
+        SimpleTerm(value=u"annexes", title=_(u"Keep annexes")),
+        SimpleTerm(value=u"link_to_duplicated", title=_(u"Link to duplicated mail")),
+    ]
+)
+
+folder_duplicate_fields = SimpleVocabulary(
+    [
+        SimpleTerm(value=u"subfolders", title=_(u"Keep subfolders")),
+        SimpleTerm(value=u"linked_mails", title=_(u"Keep linked mails")),
+        SimpleTerm(value=u"annexes", title=_(u"Keep annexes")),
+    ]
+)
+
 
 class ITableListSchema(Interface):
     value = schema.TextLine(title=_("Stored value/id"), required=True, constraint=is_valid_identifier)
@@ -594,6 +617,8 @@ class IImioDmsMailConfig(model.Schema):
             "omail_send_modes",
             "omail_post_mailing",
             "omail_signer_rules",
+            "omail_duplicate_display_fields",
+            "omail_duplicate_true_default_values",
             "omail_fields",
             "omail_group_encoder",
         ],
@@ -676,6 +701,21 @@ class IImioDmsMailConfig(model.Schema):
         DataGridFieldFactory,
         allow_reorder=True,
         auto_append=False,
+    )
+
+    omail_duplicate_display_fields = schema.List(
+        title=_(u"Fields to display when duplicating an outgoing mail"),
+        required=False,
+        value_type=schema.Choice(vocabulary=omail_duplicate_fields),
+        default=[u"category", u"folder", u"reply_to", u"dms_files", u"annexes", u"link_to_duplicated"],
+    )
+
+    omail_duplicate_true_default_values = schema.List(
+        title=_(u"Default values to True when duplicating an outgoing mail"),
+        description=_(u"If checked, the default value will be True."),
+        required=False,
+        value_type=schema.Choice(vocabulary=omail_duplicate_fields),
+        default=[u"category", u"folder", u"annexes"],
     )
 
     omail_fields = schema.List(
@@ -1473,3 +1513,40 @@ class IImioDmsMailConfig2(Interface):
     product_version = schema.TextLine(
         title=_(u"Current product version"),
     )
+
+
+# --- Classification folder settings
+
+class IImioClassificationConfig(IClassificationConfig):
+
+    folder_duplicate_display_fields = schema.List(
+        title=_(u"Fields to display when duplicating a folder"),
+        required=False,
+        value_type=schema.Choice(vocabulary=folder_duplicate_fields),
+        default=[u"subfolders", u"linked_mails", u"annexes"],
+    )
+
+    folder_duplicate_true_default_values = schema.List(
+        title=_(u"Default values to True when duplicating a folder"),
+        description=_(u"If checked, the default value will be True."),
+        required=False,
+        value_type=schema.Choice(vocabulary=folder_duplicate_fields),
+        default=[u"subfolders", u"linked_mails", u"annexes"],
+    )
+
+
+class ImioClassificationSettingsEditForm(CFSettingsEditForm):
+    schema = IImioClassificationConfig
+    label = _(u"Classification Config")
+
+    def getContent(self):
+        registry = getUtility(IRegistry)
+        return registry.forInterface(
+            self.schema,
+            prefix='collective.classification.folder.browser.settings.IClassificationConfig',
+            check=False
+        )
+
+
+class ImioClassificationSettingsView(CFSettingsView):
+    form = ImioClassificationSettingsEditForm
