@@ -714,7 +714,8 @@ class UtilsMethods(BrowserView):
             portal_type=self.mainfile_type, sort_on="scan_id", sort_order="descending"
         )
         if brains:
-            return "dmsmainfiles: '%d', highest scan_id: '%s'" % (len(brains), brains[0].scan_id)
+            return "dmsmainfiles: '%d', highest scan_id: '%s'" % (
+                len(brains), pc.getIndexDataForRID(brains[0].getRID())['scan_id'])
         else:  # pragma: no cover
             return "No scan id"
 
@@ -767,19 +768,20 @@ class VariousUtilsMethods(UtilsMethods):
         divisor = int(by)
         out = []
         for brain in brains:
-            if not brain.scan_id:
+            scan_id = pc.getIndexDataForRID(brain.getRID())['scan_id']
+            if not scan_id:
                 continue
             try:
-                nb = int(brain.scan_id[7:])
+                nb = int(scan_id[7:])
             except ValueError:
-                out.append("Invalid scan_id '{}' for item {}".format(brain.scan_id, brain.getURL()))
+                out.append("Invalid scan_id '{}' for item {}".format(scan_id, brain.getURL()))
                 continue
             if (nb % divisor) == 0:
                 ref = brain._unrestrictedGetObject().__parent__.internal_reference_no
                 if sort == "scan":
-                    res[brain.scan_id[2:3]][nb] = (os.path.dirname(brain.getURL()), ref)
+                    res[scan_id[2:3]][nb] = (os.path.dirname(brain.getURL()), ref)
                 else:
-                    res[brain.scan_id[2:3]][ref] = (os.path.dirname(brain.getURL()), nb)
+                    res[scan_id[2:3]][ref] = (os.path.dirname(brain.getURL()), nb)
         for flow in sorted(res):
             out.append("<h1>%s</h1>" % flow_titles[flow])
             for nb in natsorted(res[flow], reverse=True):
@@ -929,7 +931,7 @@ class VariousUtilsMethods(UtilsMethods):
             obj = brain._unrestrictedGetObject()
             mail = obj.getParentNode()
             out.append(
-                u"{} ({}) in {} ({})".format(brain.scan_id, obj.version, mail.internal_reference_no, object_link(mail))
+                u"{} ({}) in {} ({})".format(obj.scan_id, obj.version, mail.internal_reference_no, object_link(mail))
             )
         sep = u"\n<br />"
         return sep.join(out)
