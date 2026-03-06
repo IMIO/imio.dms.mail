@@ -1,0 +1,11 @@
+<td class="noPadding" i18n:domain="imio.dms.mail">
+  <a tal:attributes="href string:${context/absolute_url}/${view/duplicate_view}"
+     target="_parent"
+     class="overlay overlay-ajax overlay-duplicate"
+     tal:define="dummy view/saveHasActions;">
+     <input type="button" value="Duplicate" i18n:attributes="value"
+            class="apButton apButtonAction apButtonAction_duplicate"/>
+  </a>
+</td>
+<td class="noPadding">
+</td>

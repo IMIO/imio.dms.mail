@@ -7,6 +7,7 @@ from plone import api
 from plone.memoize import ram
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from zope.component import getMultiAdapter
 
 
 def actionspanelview_cachekey(
@@ -51,6 +52,21 @@ class MultipleAnnexesMixin(object):
             raise NotImplementedError("typeupload is not defined")
         if self.may_multiple_annexes():
             return ViewPageTemplateFile("templates/actions_panel_multiple_annexes.pt")(self)
+        return ""
+
+
+class DuplicateMixin(object):
+    """Mixin class for duplicate action"""
+    duplicate_view = None
+
+    def may_duplicate(self):
+        raise NotImplementedError
+
+    def render_duplicate_button(self):
+        if not self.duplicate_view:
+            raise NotImplementedError("duplicate_view is not defined")
+        if self.may_duplicate():
+            return ViewPageTemplateFile("templates/actions_panel_duplicate.pt")(self)
         return ""
 
 
@@ -179,9 +195,10 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
     }
 
 
-class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
+class DmsOMActionsPanelView(MultipleAnnexesMixin, DuplicateMixin, ActionsPanelView):
 
     typeupload = "dmsappendixfile"
+    duplicate_view = "@@om-duplicate"
     transitions = [
         "back_to_agent",
         "back_to_creation",
@@ -203,6 +220,10 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
     ]
     tr_order = dict((val, i) for (i, val) in enumerate(transitions))
 
+    def may_duplicate(self):
+        odm_utils = getMultiAdapter((self.context, self.request), name='odm-utils')
+        return not self.isInFacetedNavigation() and odm_utils.may_duplicate()
+
     def __init__(self, context, request):
         super(DmsOMActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
@@ -213,6 +234,7 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
             "render_create_new_message",
             "render_send_email",
             "render_multiple_annexes_button",
+            "render_duplicate_button",
         )
 
     def sortTransitions(self, lst):
@@ -380,14 +402,19 @@ class DmsTaskActionsPanelView(ActionsPanelView):
     __call__ = DmsTaskActionsPanelView__call__
 
 
-class ClassificationFolderActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
+class ClassificationFolderActionsPanelView(MultipleAnnexesMixin, DuplicateMixin, ActionsPanelView):
 
     typeupload = "annex"
+    duplicate_view = "@@folder-duplicate"
+
+    def may_duplicate(self):
+        folder_utils = getMultiAdapter((self.context, self.request), name='folder-utils')
+        return not self.isInFacetedNavigation() and folder_utils.may_duplicate()
 
     def __init__(self, context, request):
         super(ClassificationFolderActionsPanelView, self).__init__(context, request)
         self.ACCEPTABLE_ACTIONS = ["cut", "copy", "paste", "delete"]
-        self.SECTIONS_TO_RENDER += ("render_multiple_annexes_button",)
+        self.SECTIONS_TO_RENDER += ("render_multiple_annexes_button", "render_duplicate_button")
 
     @ram.cache(actionspanelview_cachekey)
     def ClassificationFolderActionsPanelView__call__(self, **kwargs):

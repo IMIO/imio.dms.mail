@@ -7,6 +7,9 @@
     <records interface="imio.dms.mail.browser.settings.IImioDmsMailConfig2" prefix="imio.dms.mail">
     </records>
 
+    <records interface="imio.dms.mail.browser.settings.IImioClassificationConfig" prefix="collective.classification.folder.browser.settings.IClassificationConfig">
+    </records>
+
     <records interface="plone.app.querystring.interfaces.IQueryField"
              prefix="plone.app.querystring.field.approvings">
        <value key="title" i18n:translate="">Approvings</value>

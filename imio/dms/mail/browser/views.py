@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
+from AccessControl import Unauthorized
 from Acquisition import aq_inner
 from collective.ckeditortemplates.cktemplate import ICKTemplate
 from datetime import datetime
@@ -7,6 +8,10 @@ from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PMH_ENABLED
+from imio.dms.mail.browser.settings import folder_duplicate_fields
+from imio.dms.mail.browser.settings import IImioClassificationConfig
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.settings import omail_duplicate_fields
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
@@ -30,6 +35,7 @@ from imio.helpers.emailer import send_email
 from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
+from imio.pyutils.utils import safe_encode
 from plone import api
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone import utils
@@ -42,6 +48,10 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.PageTemplates.Expressions import SecureModuleImporter
 from Products.statusmessages.interfaces import IStatusMessage
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
+from z3c.form import button
+from z3c.form.field import Fields
+from z3c.form.form import Form
+from zope import schema
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
@@ -86,6 +96,121 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
             "output_format=odt",
         ]
         return "{}/persistent-document-generation?{}".format(url, "&".join(params))
+
+
+class OMDuplicateForm(Form):
+
+    """Duplicate an outgoing mail."""
+    label = _(u"Duplicate mail")
+    ignoreContext = True
+
+    def update(self):
+        """Handle fields."""
+        self._check_auth()
+        to_show = api.portal.get_registry_record("omail_duplicate_display_fields", IImioDmsMailConfig, [])
+        to_true = api.portal.get_registry_record("omail_duplicate_true_default_values", IImioDmsMailConfig, [])
+        for term in omail_duplicate_fields:
+            if term.value not in to_show and term.value not in to_true:
+                continue
+            self.fields += Fields(
+                schema.Bool(
+                    __name__=safe_encode(term.value),
+                    title=term.title,
+                    default=term.value in to_true,
+                ))
+        super(OMDuplicateForm, self).update()
+
+    @button.buttonAndHandler(_(u'Duplicate'), name='duplicate')
+    def handleApply(self, action):
+        self._check_auth()
+        data, errors = self.extractData()
+
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+
+        odm_utils = getMultiAdapter((self.context, self.request), name='odm-utils')
+        duplicated_mail = odm_utils.duplicate(
+            keep_category=data.get('category', False),
+            keep_folder=data.get('folder', False),
+            keep_reply_to=data.get('reply_to', False),
+            keep_dms_files=data.get('dms_files', False),
+            keep_annexes=data.get('annexes', False),
+            link_to_duplicated=data.get('link_to_duplicated', False),
+        )
+
+        api.portal.show_message(
+            translate('The outgoing mail has been duplicated.', domain='imio.dms.mail', context=self.request),
+            request=self.request,
+        )
+        return self.request.RESPONSE.redirect(duplicated_mail.absolute_url() + "/edit")
+
+    @button.buttonAndHandler(_('Cancel'), name='cancel')
+    def handleCancel(self, action):
+        return self.request.RESPONSE.redirect(self.context.absolute_url())
+
+    def _check_auth(self):
+        """Raise Unauthorized if current user may not duplicate the item."""
+        odm_utils = getMultiAdapter((self.context, self.request), name='odm-utils')
+        if not odm_utils.may_duplicate():
+            raise Unauthorized
+
+
+class FolderDuplicateForm(Form):
+
+    """Duplicate a classification folder."""
+    label = _(u"Duplicate folder")
+    ignoreContext = True
+
+    def update(self):
+        """Handle fields."""
+        self._check_auth()
+        to_show = api.portal.get_registry_record(
+            "collective.classification.folder.browser.settings.IClassificationConfig.folder_duplicate_display_fields", default=[])
+        to_true = api.portal.get_registry_record(
+            "collective.classification.folder.browser.settings.IClassificationConfig.folder_duplicate_true_default_values", default=[])
+        for term in folder_duplicate_fields:
+            if term.value not in to_show and term.value not in to_true:
+                continue
+            self.fields += Fields(
+                schema.Bool(
+                    __name__=safe_encode(term.value),
+                    title=term.title,
+                    default=term.value in to_true,
+                ))
+        super(FolderDuplicateForm, self).update()
+
+    @button.buttonAndHandler(_(u'Duplicate'), name='duplicate')
+    def handleApply(self, action):
+        self._check_auth()
+        data, errors = self.extractData()
+
+        if errors:
+            self.status = self.formErrorsMessage
+            return
+
+        folder_utils = getMultiAdapter((self.context, self.request), name='folder-utils')
+        duplicated_folder = folder_utils.duplicate(
+            keep_subfolders=data.get('subfolders', False),
+            keep_linked_mails=data.get('linked_mails', False),
+            keep_annexes=data.get('annexes', False),
+        )
+
+        api.portal.show_message(
+            translate('The folder has been duplicated.', domain='imio.dms.mail', context=self.request),
+            request=self.request,
+        )
+        self.request.RESPONSE.redirect(duplicated_folder.absolute_url() + "/edit")
+
+    @button.buttonAndHandler(_('Cancel'), name='cancel')
+    def handleCancel(self, action):
+        return self.request.RESPONSE.redirect(self.context.absolute_url())
+
+    def _check_auth(self):
+        """Raise Unauthorized if current user may not duplicate the item."""
+        folder_utils = getMultiAdapter((self.context, self.request), name='folder-utils')
+        if not folder_utils.may_duplicate():
+            raise Unauthorized
 
 
 def parse_query(text):
