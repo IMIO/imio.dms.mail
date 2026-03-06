@@ -1141,8 +1141,8 @@ class OMApprovalAdapter(object):
     Annotation structure: metadata + 2D matrix with n signers and m files
 
     ### Metadata
-    self.annot["session_id"] = str
-        The unique id of the internal approval session
+    self.annot["session_ids"] = list[session_id]
+        The list of esign session ids
     self.annot["signers"] = list[n] (userid, name, label)
         The list of signers for the approval process
     self.annot["approvers"] = list[n] tuple(userids)
@@ -1170,7 +1170,7 @@ class OMApprovalAdapter(object):
                 {
                     # Metadata
                     "current_nb": None,
-                    "session_id": None,
+                    "session_ids": PersistentList(),
                     "signers": PersistentList(),
                     "editors": PersistentList(),
                     "approvers": PersistentList(),
@@ -1186,7 +1186,7 @@ class OMApprovalAdapter(object):
         """Reset approval annotation."""
         # Metadata
         self.annot["current_nb"] = None
-        self.annot["session_id"] = None
+        self.annot["session_ids"] = PersistentList()
         self.annot["signers"] = PersistentList()
         self.annot["editors"] = PersistentList()
         self.annot["approvers"] = PersistentList()
@@ -1196,9 +1196,9 @@ class OMApprovalAdapter(object):
         self.annot["approval"] = PersistentList()
 
     @property
-    def session_id(self):
-        """Return the unique session id of the approval process."""
-        return self.annot["session_id"]
+    def session_ids(self):
+        """Return all session ids for this approval."""
+        return self.annot.get("session_ids", PersistentList())
 
     @property
     def files_uids(self):
@@ -1856,17 +1856,27 @@ class OMApprovalAdapter(object):
             signers.append((signer, email, name, label))
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
-        session_id, session = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
-                                                   title=_("[ia.docs] Session {sign_id}"),
-                                                   watchers=watcher_emails)
-        self.annot["session_id"] = session_id
-        session_len = len(session_file_uids)
-        if session_len > 1:
-            return True, _("${count} files added to session number ${session_id}",
-                           mapping={"count": session_len, "session_id": session_id})
+        # Add one file at a time so max_session_size discrimination splits sessions naturally
+        new_session_ids = []
+        for pdf_uid in session_file_uids:
+            sid, _session = add_files_to_session(signers, [pdf_uid], bool(self.context.seal),
+                                                 title=_("[ia.docs] Session {sign_id}"),
+                                                 watchers=watcher_emails)
+            if sid not in new_session_ids:
+                new_session_ids.append(sid)
+        if new_session_ids:
+            session_ids = set(self.session_ids).union(set(new_session_ids))
+            self.annot["session_ids"] = PersistentList(list(session_ids))
         else:
-            return True, _("${count} file added to session number ${session_id}",
-                           mapping={"count": session_len, "session_id": session_id})
+            # All PDFs already existed — reuse the previously stored session ids
+            new_session_ids = list(self.session_ids)
+        session_len = sum(len(p) for p in self.pdf_files_uids)
+        n_sessions = len(new_session_ids)
+        if n_sessions == 1:
+            return True, _("${count} file(s) added to session number ${session_id}",
+                           mapping={"count": session_len, "session_id": new_session_ids[0]})
+        return True, _("${count} file(s) added to ${n} sessions",
+                       mapping={"count": session_len, "n": n_sessions})
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):

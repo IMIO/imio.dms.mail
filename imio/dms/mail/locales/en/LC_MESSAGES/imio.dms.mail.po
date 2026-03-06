@@ -16,7 +16,7 @@ msgstr ""
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
 #: ./adapters.py:1877
-msgid "${count} file added to session number ${session_id}"
+msgid "${count} file(s) added to session number ${session_id}"
 msgstr ""
 
 #: ./adapters.py:1874
