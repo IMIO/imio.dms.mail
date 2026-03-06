@@ -473,6 +473,22 @@ def dmsoutgoingmail_transition(mail, event):
 
 
 def dmsoutgoingmail_modified(mail, event):
+    # Copy DMS files from original if requested after duplication
+    annot = IAnnotations(mail).get('imio.dms.mail', {})
+    copy_dms_files_from = annot.get('copy_dms_files_from')
+    if copy_dms_files_from:
+        del annot['copy_dms_files_from']
+        try:
+            original_mail = uuidToObject(copy_dms_files_from, unrestricted=True)
+            mail.copy_dms_files(original_mail)
+        except Exception as e:
+            logger.exception('An error occured when copying DMS files')
+            api.portal.show_message(
+                translate('An error occured when copying DMS files', domain='imio.dms.mail', context=mail.REQUEST),
+                request=mail.REQUEST,
+                type='error',
+            )
+
     # Do not update signers field if mail is sent or to be signed
     mail_state = api.content.get_state(mail)
     if mail_state in ("sent", "signed", "to_approve", "to_be_signed"):

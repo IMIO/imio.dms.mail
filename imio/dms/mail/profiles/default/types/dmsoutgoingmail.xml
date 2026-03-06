@@ -22,4 +22,5 @@
   <element value="task"/>
  </property>
  <alias from="edit" to="@@dmsdocument-edit"/>
+
 </object>
