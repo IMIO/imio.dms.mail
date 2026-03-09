@@ -18,7 +18,7 @@ from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
-from imio.dms.mail.utils import persistent_to_native
+from imio.esign.utils import persistent_to_native
 from imio.helpers.content import find
 from imio.helpers.security import check_zope_admin
 from imio.helpers.workflow import do_transitions

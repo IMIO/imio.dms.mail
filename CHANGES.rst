@@ -48,6 +48,10 @@ Changelog
   [chris-adam]
 - Replaced default actions bar by actionspanel for iconified categories.
   [chris-adam]
+- Added view to display esing annotations.
+  [chris-adam]
+- Added actions panel in signing fieldset.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------

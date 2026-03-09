@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Test views."""
 
-from AccessControl import Unauthorized
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.MockMailHost.MockMailHost import MockMailHost
@@ -9,8 +8,8 @@ from datetime import datetime
 from HTMLParser import HTMLParser
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.browser.views import OMSessionAnnotationInfoView
 from imio.dms.mail.browser.views import parse_query
-from imio.dms.mail.browser.views import SigningAnnotationInfoView
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
@@ -26,7 +25,6 @@ from plone import api
 from plone.app.testing import login
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
-from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield import RelationValue
 from zope.component import getUtility
 from zope.i18n import translate
@@ -318,8 +316,8 @@ class TestRenderEmailSignature(unittest.TestCase):
         self.assertIn(u">5032 Isnes<", rendered)
 
 
-class TestSigningAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
-    """Test SigningAnnotationInfoView"""
+class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
+    """Test OMSessionAnnotationInfoView"""
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
@@ -327,7 +325,7 @@ class TestSigningAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         self.portal = self.layer["portal"]
         change_user(self.portal)
         self.om1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
-        self.view = SigningAnnotationInfoView(self.om1, self.portal.REQUEST)
+        self.view = OMSessionAnnotationInfoView(self.om1, self.portal.REQUEST)
         self.pf = self.portal["contacts"]["personnel-folder"]
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
 
@@ -394,68 +392,12 @@ class TestSigningAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         approval.approve_file(files[1], "bourgmestre", transition="propose_to_be_signed")
         approval.approve_file(files[0], "bourgmestre", transition="propose_to_be_signed")
 
-    def test_call(self):
-        with self.assertRaises(Unauthorized):
-            self.view()
-        login(self.portal.aq_parent, "admin")
-        self.assertIsInstance(self.view(), basestring)
-
-    def test_render_value(self):
-        # Dict
-        self.assertEqual(self.view._render_value({}), u"{}")
-        self.assertEqual(
-            self.view._render_value({"key": "val"}),
-            u"{\n  &#x27;key&#x27;: &#x27;val&#x27;,\n}",
-        )
-
-        # Indentation: nested value increases indent level
-        self.assertEqual(
-            self.view._render_value({"key": ["a"]}),
-            u"{\n  &#x27;key&#x27;: [\n    &#x27;a&#x27;,\n  ],\n}",
-        )
-
-        # List
-        self.assertEqual(self.view._render_value([]), u"[]")
-        self.assertEqual(
-            self.view._render_value(["a", "b"]),
-            u"[\n  &#x27;a&#x27;,\n  &#x27;b&#x27;,\n]",
-        )
-
-        # Tuple
-        self.assertEqual(self.view._render_value(()), u"[]")
-
-        # String
-        self.assertEqual(self.view._render_value(u"hello"), u"u&#x27;hello&#x27;")
-
-        # UID not found
-        fake_uid = u"a" * 32
-        self.assertEqual(
-            self.view._render_value(fake_uid),
-            u"<span title='not found'>aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa</span>",
-        )
-
-        # UID found
-        self.assertEqual(
-            self.view._render_value(self.om1.UID()),
-            u"<a href='http://nohost/plone/outgoing-mail/202608/reponse1' title='/plone/outgoing-mail/202608/reponse1'>R\xe9ponse 1</a>",
-        )
-
-    def test_uid_to_link(self):
-        uid = self.om1.UID()
-        result = self.view._uid_to_link(uid)
-        self.assertIn(u"<a href=", result)
-        self.assertIn(self.om1.absolute_url(), result)
-
-        result = self.view._uid_to_link(u"a" * 32)
-        self.assertIn(u"<span", result)
-        self.assertIn(u"not found", result)
-
-    def test_approval_and_esign_sessions(self):
-        """Test approval_annot_html and esign_session_html after a true approval process."""
+    def test_annot_html(self):
+        """Test approval_annot_html and esign_session_html."""
         omail, files, approval = self._setup_esign_omail()
         self._approve_all_files(omail, files, approval)
 
-        view = SigningAnnotationInfoView(omail, self.portal.REQUEST)
+        view = OMSessionAnnotationInfoView(omail, self.portal.REQUEST)
 
         # approval annot html
         self.assertEqual(
@@ -501,15 +443,15 @@ class TestSigningAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
     False,
   ],
   'files': [
-    <a href='http://nohost/plone/outgoing-mail/202608/om-esign/file0' title='/plone/outgoing-mail/202608/om-esign/file0'>Réponse salle.odt</a>,
-    <a href='http://nohost/plone/outgoing-mail/202608/om-esign/file1' title='/plone/outgoing-mail/202608/om-esign/file1'>Réponse salle.odt</a>,
+    <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a>,
+    <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file1/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file1'>Réponse salle.odt</a>,
   ],
   'pdf_files': [
     [
-      <a href='http://nohost/plone/outgoing-mail/202608/om-esign/reponse-salle.pdf' title='/plone/outgoing-mail/202608/om-esign/reponse-salle.pdf'>Réponse salle.pdf</a>,
+      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle.pdf'>Réponse salle.pdf</a>,
     ],
     [
-      <a href='http://nohost/plone/outgoing-mail/202608/om-esign/reponse-salle-1.pdf' title='/plone/outgoing-mail/202608/om-esign/reponse-salle-1.pdf'>Réponse salle.pdf</a>,
+      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle-1.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle-1.pdf'>Réponse salle.pdf</a>,
     ],
   ],
   'session_ids': [
@@ -532,6 +474,7 @@ class TestSigningAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
                 repr(approval.annot["approval"][0][1]["approved_on"]),
                 repr(approval.annot["approval"][1][0]["approved_on"]),
                 repr(approval.annot["approval"][1][1]["approved_on"]),
+                folder_name=omail.__parent__.__name__,
             ),
         )
 
@@ -551,20 +494,20 @@ class TestSigningAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
   'discriminators': [],
   'files': [
     {{
-      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a>,
+      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a>,
       'filename': u'R\\xe9ponse salle__{pdf1_uid}.pdf',
       'scan_id': '012999900000601',
       'status': '',
       'title': u'R\\xe9ponse salle.pdf',
-      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle.pdf' title='/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle.pdf'>Réponse salle.pdf</a>,
+      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle.pdf'>Réponse salle.pdf</a>,
     }},
     {{
-      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a>,
+      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a>,
       'filename': u'R\\xe9ponse salle__{pdf2_uid}.pdf',
       'scan_id': '012999900000601',
       'status': '',
       'title': u'R\\xe9ponse salle.pdf',
-      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle-1.pdf' title='/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle-1.pdf'>Réponse salle.pdf</a>,
+      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle-1.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle-1.pdf'>Réponse salle.pdf</a>,
     }},
   ],
   'last_update': {last_update},

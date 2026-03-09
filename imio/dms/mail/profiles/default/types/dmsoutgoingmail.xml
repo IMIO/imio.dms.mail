@@ -22,4 +22,9 @@
   <element value="task"/>
  </property>
  <alias from="edit" to="@@dmsdocument-edit"/>
+ <action title="Annotation info" action_id="session-annotation-info" category="object_buttons" condition_expr=""
+    description="" icon_expr="string:${portal_url}/info.png" link_target="_blank"
+    url_expr="string:${object/absolute_url}/@@session-annotation-info?context_uid=${object/UID}" visible="True">
+  <permission value="cmf.ManagePortal"/>
+ </action>
 </object>

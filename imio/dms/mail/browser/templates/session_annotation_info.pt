@@ -3,7 +3,7 @@
     xmlns:metal="http://xml.zope.org/namespaces/metal"
     xmlns:i18n="http://xml.zope.org/namespaces/i18n"
     metal:use-macro="context/main_template/macros/master"
-    i18n:domain="imio.dms.mail">
+    i18n:domain="imio.esign">
     <body>
       <metal:bodytext fill-slot="content-core">
           <h2>idm.approval annotation</h2>

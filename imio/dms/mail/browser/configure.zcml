@@ -57,8 +57,8 @@
 
     <browser:page
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
-        name="signing-annotation-info"
-        class=".views.SigningAnnotationInfoView"
+        name="session-annotation-info"
+        class=".views.OMSessionAnnotationInfoView"
         permission="cmf.ManagePortal"
         />
 
