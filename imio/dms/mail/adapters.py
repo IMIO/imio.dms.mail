@@ -1766,6 +1766,7 @@ class OMApprovalAdapter(object):
                 attributes={
                     "content_category": orig_fobj.content_category,
                     "scan_id": orig_fobj.scan_id,
+                    "scan_user": hasattr(orig_fobj, "scan_user") and orig_fobj.scan_user or None,
                     "_plone.uuid": new_uid,
                 },
                 renderer=bool(orig_template),
