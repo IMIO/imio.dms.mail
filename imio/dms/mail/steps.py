@@ -1142,6 +1142,9 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         site.email_from_name = "Gestion courrier 3.1"
         site.email_from_address = "support-docs@imio.be"
 
+    # Removed template edition for OM editor
+    api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit",
+                                   False)
 
 def contact_import_pipeline(context):
     """Set contact import pipeline record."""
