@@ -2,18 +2,22 @@
 from collective.contact.plonegroup.browser.tables import OrgaPrettyLinkWithAdditionalInfosColumn as opl_base
 from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
+from collective.eeafaceted.z3ctable.columns import BaseColumn
 from collective.iconifiedcategory import utils as ic_utils
 from collective.iconifiedcategory.browser.tabview import CategorizedContent
 from collective.task import _ as _task
 from html import escape  # noqa F401
 from imio.dms.mail import _
-from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.interfaces import IOMApproval
+from imio.esign.config import get_registry_enabled
+from imio.esign.utils import get_session_annotation
 from imio.helpers.content import uuidToObject
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
 from z3c.table.table import Table
 from zope.cachedescriptors.property import CachedProperty
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.schema.interfaces import IVocabularyFactory
@@ -72,6 +76,32 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
         )
 
 
+class SessionIdColumn(BaseColumn):
+    """"""
+    weight = 10
+    escape = False
+
+    def renderHeadCell(self):
+        return u'<img src="++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID'
+
+    def renderCell(self, content):
+        session_id = self.table._session_annotation.get("uids", {}).get(content.UID, None)
+        portal = api.portal.get()
+        dashboard_link = getMultiAdapter((portal, portal.REQUEST), name="parapheo").get_dashboard_link({"id": session_id})
+        if session_id is not None and len(self.table._approval.session_ids) > 1:
+            return u'<a href={dashboard_link} title="{title}" class="pdf-session-badge">#{session_id}</span>'.format(
+                dashboard_link=dashboard_link,
+                title=translate(
+                    u"Paraphéo session ID: ${session_id}",
+                    domain="imio.dms.mail",
+                    context=content.REQUEST,
+                    mapping={'session_id': session_id},
+                ),
+                session_id=session_id,
+            )
+        return u""
+
+
 class EnquirerColumn(Column):
     """Tasks table viewlet. xss ok"""
 
@@ -127,7 +157,87 @@ class IMVersionsTable(BaseVersionsTable):
 
 
 class OMVersionsTable(BaseVersionsTable):
+    """Versions table for outgoing mails with PDF child row indentation.
+
+    When the esign approval process generates PDF files from source files, the
+    table reorders rows so each PDF child appears directly below its source, and
+    adds a ``pdf-child-row`` CSS class for visual indentation (↳ arrow via CSS).
+
+        +----------------------------------+-----+--------+
+        | Title                            | ... | signed |
+        +----------------------------------+-----+--------+
+        | [icon] Source file A             |     |        |
+        |   ↳ #1 [icon] PDF of A           |     |   ✔    |  ← pdf-child-row
+        | [icon] File B (no signature)     |     |        |
+        | [icon] Source file C             |     |        |
+        |   ↳ #2 [icon] PDF of C           |     |   ✔    |  ← pdf-child-row
+        +----------------------------------+-----+--------+
+
+    Notes:
+    - The ``#N`` session badge (OMVersionsTitleColumn) appears only when the
+      mail spans multiple esign sessions (len(approval.session_ids) > 1).
+    """
+
     portal_types = ["dmsommainfile", "dmsappendixfile"]
+
+    @CachedProperty
+    def _approval(self):
+        return IOMApproval(self.context)
+
+    @CachedProperty
+    def _session_annotation(self):
+        return get_session_annotation()
+
+    @CachedProperty
+    def _pdf_child_uids(self):
+        """Set of PDF-generated child file UIDs that are distinct from their source."""
+        return set(
+            uid for lst in self._approval.pdf_files_uids for uid in lst
+            if uid not in self._approval.files_uids
+        )
+
+    @property
+    def values(self):
+        """
+        Values (DMS files and appendixes) in orginal order except children are below their parent.
+        Note: Children mean files generated for eSignature, parent is the file originally created by the user.
+        """
+        raw_data = super(OMVersionsTable, self).values
+        uid_to_content = {c.UID: c for c in raw_data}
+
+        # Build parent-to-children UID mapping
+        parent_to_children_uids = {}
+        for i, source_uid in enumerate(self._approval.files_uids):
+            parent_to_children_uids[source_uid] = [
+                uid for uid in self._approval.pdf_files_uids[i]
+                if uid in self._pdf_child_uids
+            ]
+
+        # Build list of values in parent order, but with children below their parent
+        result = []
+        for content in raw_data:
+            if content.UID in self._pdf_child_uids:
+                continue  # skip and insert later below parent
+            result.append(content)
+            for child_uid in parent_to_children_uids.get(content.UID, []):
+                if child_uid in uid_to_content:
+                    result.append(uid_to_content[child_uid])
+
+        return result
+
+    def setUpColumns(self):
+        """Removes SessionIdColumn if eSignature is disabled or this mail doesn't belong to any session"""
+        columns = super(OMVersionsTable, self).setUpColumns()
+        if not get_registry_enabled() or not self.context.UID() in self._session_annotation['c_uids']:
+            columns = [col for col in columns if col.__name__ != "session-id-column"]
+        return columns
+
+    def renderRow(self, row, cssClass=None):
+        """Render row with custom css class for children"""
+        item = row[0][0]
+        if item.UID in self._pdf_child_uids:
+            cssClass = (cssClass + ' pdf-child-row') if cssClass else 'pdf-child-row'
+        return super(OMVersionsTable, self).renderRow(row, cssClass)
 
 
 class OrgaPrettyLinkWithAdditionalInfosColumn(opl_base):
@@ -219,7 +329,7 @@ class ApprovalTable(Table):
 
     def __init__(self, context, request):
         super(ApprovalTable, self).__init__(context, request)
-        self.approval = OMApprovalAdapter(self.context)
+        self.approval = IOMApproval(self.context)
         self.portal = api.portal.getSite()
 
     def setUpColumns(self):

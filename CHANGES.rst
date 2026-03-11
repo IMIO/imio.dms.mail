@@ -48,6 +48,10 @@ Changelog
   [chris-adam]
 - Replaced default actions bar by actionspanel for iconified categories.
   [chris-adam]
+- Added tree struture on OMVersionsTable for eSigned files.
+  [chris-adam]
+- Added Session ID column on OMVersionsTable.
+  [chris-adam]
 
 3.0 (2021-09-30)
 ----------------
