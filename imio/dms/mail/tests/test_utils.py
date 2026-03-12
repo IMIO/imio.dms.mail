@@ -18,6 +18,8 @@ from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import dv_clean
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
+from imio.dms.mail.utils import FolderUtilsMethods
+from imio.helpers.content import get_object
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import group_has_user
@@ -25,6 +27,7 @@ from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import list_wf_states
+from imio.dms.mail.utils import OdmUtilsMethods
 from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
@@ -1026,3 +1029,100 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         with open(os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"), 'rb') as f1, \
                 open(blobs[0]._p_blob_uncommitted, 'rb') as f2:
             self.assertEqual(f1.read(), f2.read())
+
+    def test_OdmUtilsMethods_duplicate(self):
+        # Use an existing demo outgoing mail (has valid sender, treating_groups, etc.)
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        intids = getUtility(IIntIds)
+        cf_uid = self.portal.portal_catalog(portal_type="ClassificationFolder")[0].UID
+        # Set classification_folders directly (avoids Choice source validation on construction)
+        omail.classification_folders = [cf_uid]
+        createContentInContainer(omail, "dmsappendixfile", title=u"Test annexe")
+        view = OdmUtilsMethods(omail, omail.REQUEST)
+        # may_duplicate: siteadmin (Manager) can duplicate
+        self.assertTrue(view.may_duplicate())
+        # basic duplicate: all options False
+        new = view.duplicate(
+            keep_category=False, keep_folder=False, keep_reply_to=False,
+            keep_dms_files=False, keep_annexes=False, link_to_duplicated=False,
+        )
+        self.assertEqual(new.portal_type, "dmsoutgoingmail")
+        self.assertEqual(new.title, omail.title)
+        self.assertEqual(new.treating_groups, omail.treating_groups)
+        self.assertIsNone(new.classification_categories)
+        self.assertIsNone(new.classification_folders)
+        from collective.dms.basecontent.dmsfile import IDmsAppendixFile
+        self.assertEqual(len([s for s in new.values() if IDmsAppendixFile.providedBy(s)]), 0)
+        self.assertFalse(IAnnotations(new).get('imio.dms.mail', {}).get('copy_dms_files_from'))
+        # keep_folder=True preserves classification_folders
+        new2 = view.duplicate(
+            keep_category=False, keep_folder=True, keep_reply_to=False,
+            keep_dms_files=False, keep_annexes=False, link_to_duplicated=False,
+        )
+        self.assertEqual(new2.classification_folders, [cf_uid])
+        # keep_annexes=True copies appendix files
+        new3 = view.duplicate(
+            keep_category=False, keep_folder=False, keep_reply_to=False,
+            keep_dms_files=False, keep_annexes=True, link_to_duplicated=False,
+        )
+        self.assertEqual(len([s for s in new3.values() if IDmsAppendixFile.providedBy(s)]), 1)
+        # keep_dms_files=True sets copy_dms_files_from annotation
+        new4 = view.duplicate(
+            keep_category=False, keep_folder=False, keep_reply_to=False,
+            keep_dms_files=True, keep_annexes=False, link_to_duplicated=False,
+        )
+        self.assertEqual(IAnnotations(new4)['imio.dms.mail']['copy_dms_files_from'], omail.UID())
+        # link_to_duplicated=True sets reply_to with original mail intid
+        new5 = view.duplicate(
+            keep_category=False, keep_folder=False, keep_reply_to=False,
+            keep_dms_files=False, keep_annexes=False, link_to_duplicated=True,
+        )
+        self.assertIn(intids.getId(omail), [rv.to_id for rv in new5.reply_to])
+
+    def test_FolderUtilsMethods_duplicate(self):
+        pgof = self.portal["contacts"]["plonegroup-organization"]
+        omf = self.portal["outgoing-mail"]
+        # Use first ClassificationFolder from demo data (has subfolders)
+        cf = self.portal.portal_catalog(portal_type="ClassificationFolder")[0].getObject()
+        view = FolderUtilsMethods(cf, cf.REQUEST)
+        # may_duplicate: ClassificationFolder → True; ClassificationSubfolder → False
+        self.assertTrue(view.may_duplicate())
+        sub_brains = self.portal.portal_catalog(portal_type="ClassificationSubfolder")
+        if sub_brains:
+            sub = sub_brains[0].getObject()
+            self.assertFalse(FolderUtilsMethods(sub, sub.REQUEST).may_duplicate())
+        # basic duplicate: all options False
+        new_folder = view.duplicate(keep_subfolders=False, keep_linked_mails=False, keep_annexes=False)
+        self.assertEqual(new_folder.portal_type, "ClassificationFolder")
+        self.assertEqual(new_folder.title, cf.title)
+        self.assertEqual(new_folder.__parent__, cf.__parent__)
+        self.assertEqual(len([o for o in new_folder.values() if o.portal_type == "ClassificationSubfolder"]), 0)
+        # keep_subfolders=True copies subfolders
+        orig_subs = [o for o in cf.values() if o.portal_type == "ClassificationSubfolder"]
+        if orig_subs:
+            new_folder2 = view.duplicate(keep_subfolders=True, keep_linked_mails=False, keep_annexes=False)
+            new_subs = [o for o in new_folder2.values() if o.portal_type == "ClassificationSubfolder"]
+            self.assertEqual(len(new_subs), len(orig_subs))
+        # keep_linked_mails=True links existing omails to the new folder
+        dir_gen_uid = pgof["direction-generale"].UID()
+        omail = sub_create(
+            omf, "dmsoutgoingmail", DateTime().asdatetime(), "test-linked-omail-dup",
+            title=u"Linked OM", treating_groups=dir_gen_uid,
+        )
+        omail.classification_folders = [cf.UID()]
+        omail.reindexObject(idxs=["classification_folders"])
+        new_folder3 = view.duplicate(keep_subfolders=False, keep_linked_mails=True, keep_annexes=False)
+        self.assertIn(new_folder3.UID(), omail.classification_folders)
+        self.assertIn(cf.UID(), omail.classification_folders)
+        # keep_annexes=True copies annex children
+        from collective.iconifiedcategory.utils import calculate_category_id
+        annex_category = calculate_category_id(self.portal["annexes_types"]["annexes"]["annex"])
+        api.content.create(
+            container=cf, type="annex", title=u"Test annex",
+            content_category=annex_category,
+            file=NamedBlobFile(b"test", filename=u"test.txt"),
+        )
+        new_folder4 = view.duplicate(keep_subfolders=False, keep_linked_mails=False, keep_annexes=True)
+        self.assertEqual(len([o for o in new_folder4.values() if o.portal_type == "annex"]), 1)
+        new_folder5 = view.duplicate(keep_subfolders=False, keep_linked_mails=False, keep_annexes=False)
+        self.assertEqual(len([o for o in new_folder5.values() if o.portal_type == "annex"]), 0)

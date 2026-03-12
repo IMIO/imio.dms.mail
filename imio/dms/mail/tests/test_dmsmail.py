@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.contact.plonegroup.config import get_registry_organizations
+from datetime import date
 from datetime import datetime
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CONTACTS_PART_SUFFIX
@@ -30,6 +31,7 @@ from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
+from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.interface import Invalid
 from zope.intid.interfaces import IIntIds
@@ -641,3 +643,43 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Invalid, auv.validate, "agent1")
         # we check assigned_user requirement if the imail state will be changed
         # this test is done in im wfadaptation test
+
+    def test_ImioDmsOutgoingMail_copy_dms_files(self):
+        """Test ImioDmsOutgoingMail.copy_dms_files"""
+        # Create fresh source and destination mails
+        original = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-orig-dms")
+        pc = api.portal.get_tool("portal_catalog")
+
+        # No dmsommainfile on original → copy_dms_files is a no-op
+        new_mail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-copy-dms-1")
+        new_mail.mail_date = date.today()
+        new_mail.copy_dms_files(original)
+        self.assertEqual(len(pc(portal_type="dmsommainfile", path="/".join(new_mail.getPhysicalPath()))), 0)
+
+        # Add a dmsommainfile without documentgenerator annotation → direct copy
+        new_mail2 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-copy-dms-2")
+        new_mail2.mail_date = date.today()
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            mainfile = createContentInContainer(
+                original, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
+        self.assertNotIn("documentgenerator", IAnnotations(mainfile))
+        new_mail2.copy_dms_files(original)
+        self.assertEqual(len([s for s in new_mail2.values() if s.portal_type == "dmsommainfile"]), 1)
+
+        # Add a dmsommainfile generated from a template → regenerate the file on new_mail
+        new_mail3 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-copy-dms-3")
+        new_mail3.mail_date = date.today()
+        dgv = getMultiAdapter((original, self.request), name="persistent-document-generation")
+        template_uid = self.portal["templates"]["om"]["main"].UID()
+        dgv(template_uid=template_uid, output_format='odt')
+        new_mail3.copy_dms_files(original)
+        self.assertEqual(len(pc(portal_type="dmsommainfile", path="/".join(new_mail3.getPhysicalPath()))), 1)
+
+        # mail_date missing on new_mail → gets copied from original (with warn message)
+        new_mail4 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-copy-dms-4")
+        original.mail_date = date(2024, 1, 15)
+        self.assertIsNone(new_mail4.mail_date)
+        new_mail4.copy_dms_files(original)
+        self.assertEqual(new_mail4.mail_date, date(2024, 1, 15))
+        self.assertEqual(len(pc(portal_type="dmsommainfile", path="/".join(new_mail4.getPhysicalPath()))), 1)
