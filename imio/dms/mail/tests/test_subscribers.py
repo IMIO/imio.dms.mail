@@ -12,8 +12,8 @@ from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
-from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.interfaces import IOMApproval
+from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.subscribers import i_annex_removed
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
@@ -361,7 +361,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             mock_approval = Mock()
             MockAdapter.return_value = mock_approval
             mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
-            mock_approval.session_id = u"session-abc"
+            mock_approval.session_ids = [u"session-abc"]
             with patch("imio.dms.mail.subscribers.get_registry_seal_code", return_value=u"1234"):
                 with patch("imio.dms.mail.subscribers.get_registry_seal_email", return_value=u"sign@example.com"):
                     with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:

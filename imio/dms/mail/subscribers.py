@@ -32,7 +32,6 @@ from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.adapters import OMApprovalAdapter
-
 # from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
@@ -42,7 +41,6 @@ from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
-
 # from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
@@ -62,7 +60,6 @@ from imio.esign.utils import get_session_annotation
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
-
 # from imio.helpers.content import get_vocab_values
 from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
@@ -92,7 +89,6 @@ from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
-
 # from zope.component.interfaces import ComponentLookupError
 from zope.annotation import IAnnotations
 from zope.component import getAdapter
@@ -652,7 +648,7 @@ def task_transition(task, event):
 
 
 def _correct_to_sign(file_obj):
-    """ "Correct to_sign value following mimetype.
+    """Correct to_sign value following mimetype.
 
     :param file_obj: dmsommainfile or dmsappendixfile
     :return: True if to_sign has been changed

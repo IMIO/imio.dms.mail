@@ -1857,26 +1857,17 @@ class OMApprovalAdapter(object):
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
         # Add one file at a time so max_session_size discrimination splits sessions naturally
-        new_session_ids = []
+        pdf_session_ids = set()
         for pdf_uid in session_file_uids:
             sid, _session = add_files_to_session(signers, [pdf_uid], bool(self.context.seal),
                                                  title=_("[ia.docs] Session {sign_id}"),
                                                  watchers=watcher_emails)
-            if sid not in new_session_ids:
-                new_session_ids.append(sid)
-        if new_session_ids:
-            session_ids = set(self.session_ids).union(set(new_session_ids))
-            self.annot["session_ids"] = PersistentList(list(session_ids))
-        else:
-            # All PDFs already existed — reuse the previously stored session ids
-            new_session_ids = list(self.session_ids)
-        session_len = sum(len(p) for p in self.pdf_files_uids)
-        n_sessions = len(new_session_ids)
-        if n_sessions == 1:
-            return True, _("${count} file(s) added to session number ${session_id}",
-                           mapping={"count": session_len, "session_id": new_session_ids[0]})
-        return True, _("${count} file(s) added to ${n} sessions",
-                       mapping={"count": session_len, "n": n_sessions})
+            pdf_session_ids.add(sid)
+            if sid not in self.annot["session_ids"]:
+                self.annot["session_ids"].append(sid)
+        return True, _("${count} file(s) added to session(s) ${session_ids}",
+                       mapping={"count": str(len(session_file_uids)),
+                                "session_ids": u", ".join([str(sid) for sid in pdf_session_ids])})
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):

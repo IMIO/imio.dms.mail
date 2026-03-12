@@ -1388,7 +1388,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             },
         )
         self.assertEqual(self.approval.add_mail_files_to_session(),
-                         (True, "${count} file(s) added to session number ${session_id}"))
+                         (True, "${count} file(s) added to session(s) ${session_ids}"))
         self.assertEqual(len(self.omail.values()), 3)
         self.assertIn("reponse-salle.pdf", self.omail)
         pdf_file = self.omail["reponse-salle.pdf"]
@@ -1456,7 +1456,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # Already done
         self.assertEqual(self.approval.add_mail_files_to_session(),
-                         (True, "${count} file(s) added to session number ${session_id}"))
+                         (True, "${count} file(s) added to session(s) ${session_ids}"))
         last_update = get_session_annotation()["sessions"][0]["last_update"]
         self.assertEqual(
             get_session_annotation(),
