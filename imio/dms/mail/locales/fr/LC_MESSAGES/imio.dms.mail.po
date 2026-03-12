@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-01-21 16:28+0000\n"
+"POT-Creation-Date: 2026-03-12 17:24+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,13 +17,9 @@ msgstr ""
 "Language: fr\n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: ./adapters.py:1877
-msgid "${count} file added to session number ${session_id}"
-msgstr "${count} fichier a été ajouté à la session numéro ${session_id}"
-
-#: ./adapters.py:1874
-msgid "${count} files added to session number ${session_id}"
-msgstr "${count} fichiers ont été ajoutés à la session numéro ${session_id}"
+#: ./adapters.py:1869
+msgid "${count} file(s) added to session(s) ${session_ids}"
+msgstr "${count} fichier(s) ajouté(s) dans session(s) ${session_ids}"
 
 #: ./vocabularies.py
 msgid "${element_title} (Inactive)"
@@ -93,7 +89,7 @@ msgstr "Onglet « ${tab} »: champ « ${field} », la date « ${until} » doit �
 msgid "${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal to « ${from} »"
 msgstr "Onglet « ${tab} »: champ « ${field} », la date « ${until} » doit être >= à la date « ${from} »"
 
-#: ./browser/views.py:52
+#: ./browser/views.py:63
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
@@ -178,7 +174,7 @@ msgstr "2 Lecteurs Globaux CE"
 msgid "2 OM global readers"
 msgstr "2 Lecteurs Globaux CS"
 
-#: ./subscribers.py:1034
+#: ./subscribers.py:1090
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
@@ -194,7 +190,7 @@ msgstr "Un signataire est manquant aux positions ${positions} !"
 msgid "A signer is missing at position: ${positions} ! You have to adapt the rules !"
 msgstr "Un signataire est manquant aux positions ${positions} ! Il faut adapter les règles dans la configuration !"
 
-#: ./adapters.py:1676
+#: ./adapters.py:1667
 msgid "A signing session has been created: ${msg}."
 msgstr "Une session de signature a été créée: ${msg}."
 
@@ -320,7 +316,7 @@ msgstr "Utilisateur obligatoire seulement au niveau n+1"
 msgid "Assigned user value"
 msgstr "Valeur utilisateur assigné"
 
-#: ./adapters.py:1836
+#: ./adapters.py:1828
 msgid "Bad scan_id for file uid ${uid}"
 msgstr "Mauvais scan ID pour le fichier avec UID ${uid}"
 
@@ -376,11 +372,11 @@ msgstr "Changement de service traitant par lot"
 msgid "Can choose possible usages (on held position)"
 msgstr "Champ « Utilisé comme » (pour fonction occupée)"
 
-#: ./adapters.py:1851
+#: ./adapters.py:1843
 msgid "Cannot split odt file uid ${uid}"
 msgstr "Le fichier ODT avec UID ${uid} ne peut pas être fractionné"
 
-#: ./browser/views.py:250
+#: ./browser/views.py:261
 msgid "Cannot use localhost as smtp"
 msgstr "vous ne pouvez pas utiliser 'localhost' comme serveur smtp"
 
@@ -388,7 +384,7 @@ msgstr "vous ne pouvez pas utiliser 'localhost' comme serveur smtp"
 msgid "Category to apply on generated documents from this template."
 msgstr "Catégorie à appliquer sur les documents générés depuis ce modèle."
 
-#: ./browser/views.py:558
+#: ./browser/views.py:607
 msgid "Changes saved."
 msgstr "Changements sauvegardés."
 
@@ -414,7 +410,7 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/views.py:57
+#: ./browser/views.py:68
 msgid "Choose this template"
 msgstr "Choisir ce modèle"
 
@@ -472,7 +468,7 @@ msgstr "Créer depuis modèle"
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
-#: ./utils.py:893
+#: ./utils.py:895
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
@@ -627,11 +623,11 @@ msgstr "Champ"
 msgid "Field name"
 msgstr "Nom du champ"
 
-#: ./adapters.py:1844
+#: ./adapters.py:1836
 msgid "File '${file}' cannot be split for signing: ${error}."
 msgstr "Le fichier publiposté '${file}' ne peut être reséparé en documents différents: ${error}."
 
-#: ./adapters.py:1829
+#: ./adapters.py:1821
 msgid "File '${file}' has no or a wrong scan id, it cannot be added to sign session."
 msgstr "Le fichier '${file}' a un identifiant de scan manquant ou invalide. Il ne peut être ajouté à la session de signature."
 
@@ -785,7 +781,7 @@ msgstr "Nom Prénom"
 msgid "Legal advice"
 msgstr "Avis légal"
 
-#: ./subscribers.py:1061
+#: ./subscribers.py:1117
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
@@ -838,7 +834,7 @@ msgstr "Document Microsoft Word (.doc, .docx)"
 msgid "Missing mandatory fields: ${msg}"
 msgstr "Champs obligatoires manquants: ${msg}"
 
-#: ./browser/templates/actions_panel_folder_annexes.pt:5
+#: ./browser/templates/actions_panel_multiple_annexes.pt:5
 msgid "Multiple annexes"
 msgstr "Annexes multiples"
 
@@ -854,7 +850,7 @@ msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sél
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
-#: ./adapters.py:1808
+#: ./adapters.py:1800
 msgid "No files"
 msgstr "Aucun fichier"
 
@@ -866,7 +862,7 @@ msgstr "Il n'y a aucun dossier où vous pouvez ajouter des modèles."
 msgid "No incoming mail !"
 msgstr "Aucun courrier entrant trouvé !"
 
-#: ./adapters.py:1811
+#: ./adapters.py:1803
 msgid "Not all files approved"
 msgstr "Tous les fichiers ne sont pas approuvés"
 
@@ -1054,7 +1050,7 @@ msgstr "Répondre à ${ref}"
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./examples.py:1041
+#: ./examples.py:1044
 msgid "Response: "
 msgstr "Réponse: "
 
@@ -1074,9 +1070,13 @@ msgstr "Scanner"
 msgid "Seal"
 msgstr "Sceau"
 
-#: ./subscribers.py:448
+#: ./subscribers.py:466
 msgid "Seal code must be defined in eSign settings before sending session"
 msgstr "Le code du cachet électronique doit être défini dans la configuration avant de l'utiliser dans une session"
+
+#: ./subscribers.py:472
+msgid "Seal email must be defined in eSign settings before sending session"
+msgstr "L'email du cachet doit être défini dans la configuration du module de signature externe"
 
 #: ./browser/batchactions.py:240
 msgid "Select multiple values (CTRL+click)"
@@ -1211,7 +1211,7 @@ msgstr "Recherches tâches"
 msgid "Technical specifications"
 msgstr "Spécifications techniques"
 
-#: ./adapters.py:1442
+#: ./adapters.py:1432
 #: ./content/behaviors.py:277
 msgid "The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
 msgstr "L'utilisateur ${userid} existe déjà dans les approbateurs lignes ${o} <=> ${c}"
@@ -1228,7 +1228,7 @@ msgstr "L'approbateur dont le UID de sa personne est ${uid} n'existe pas !"
 msgid "The assigned user is not in the selected group !"
 msgstr "L'utilisateur assigné n'est pas dans le groupe sélectionné !"
 
-#: ./subscribers.py:652
+#: ./subscribers.py:667
 msgid "The file '${file_title}' cannot be electronically signed because its type is not allowed. It has been removed from the signing and approval process."
 msgstr "Le fichier '${file_title}' ne peut être signé électroniquement car son type n'est pas permis. Il a été retiré du processus de signature."
 
@@ -1236,7 +1236,7 @@ msgstr "Le fichier '${file_title}' ne peut être signé électroniquement car so
 msgid "The file '${file}' has been approved by ${user}. All approvals have been done for this file."
 msgstr "Le fichier '${file}' a été approuvé par ${user}. Toutes les approbations ont été effectuées."
 
-#: ./adapters.py:1626
+#: ./adapters.py:1617
 msgid "The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files to approve on this mail."
 msgstr "Le fichier '${file}' a été approuvé par ${user}. Cependant, il y a encore ${nb} fichier(s) à approuver sur cette fiche."
 
@@ -1248,7 +1248,7 @@ msgstr "Le fichier '${file}' a été approuvé par ${user}. Le prochain numéro 
 msgid "The signer '${signer_title}' has no userid, you cannot use it !"
 msgstr "Le signataire '${signer_title}' n'a pas d'utilisateur Plone sélectionné sur sa personne !"
 
-#: ./adapters.py:1415
+#: ./adapters.py:1405
 msgid "The signer held position with UID ${uid} does not exist !"
 msgstr "La fonction occupée signataire avec l'UID ${uid} n'existe plus !"
 
@@ -1256,7 +1256,7 @@ msgstr "La fonction occupée signataire avec l'UID ${uid} n'existe plus !"
 msgid "The signer with UID ${uid} does not exist !"
 msgstr "Le signataire avec la position occupée dont l'UID est ${uid} n'existe pas !"
 
-#: ./adapters.py:1667
+#: ./adapters.py:1658
 msgid "There was an error while creating the signing session: ${msg} !"
 msgstr "Erreur lors de la création de la session de signature: ${msg} !"
 
@@ -1298,7 +1298,7 @@ msgstr "Valeur service traitant"
 msgid "Treating groups"
 msgstr "Service traitant"
 
-#: ./utils.py:897
+#: ./utils.py:899
 msgid "Treating groups : to be used in kofax index"
 msgstr "Services traitant : à coller dans l'index de Kofax"
 
@@ -1359,7 +1359,7 @@ msgstr "Rédiger email"
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr "Vous pouvez seulement uploader un fichier \".odt\" (format Libre Office)"
 
-#: ./subscribers.py:1197
+#: ./subscribers.py:1253
 msgid "You cannot add a group in a group !"
 msgstr "Vous ne pouvez pas ajouter un groupe dans un groupe !"
 
@@ -1367,35 +1367,39 @@ msgstr "Vous ne pouvez pas ajouter un groupe dans un groupe !"
 msgid "You cannot change the userid because the user is in approvals on following objects ${paths}"
 msgstr "Vous ne pouvez pas changer l'utilisateur Plone car l'ancienne valeur est utilisée dans la mécanique d'approbation sur les courriers suivants ${paths}"
 
-#: ./subscribers.py:137
+#: ./subscribers.py:141
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr "Vous ne pouvez pas copier cet élément '${title}' ! Pour un élément du tableau, vous devez utiliser les boutons sous le tableau."
 
-#: ./subscribers.py:743
+#: ./subscribers.py:759
 msgid "You cannot delete a file '${title}' part of already started esign process !"
 msgstr "Vous ne pouvez pas supprimer le fichier '${title}' qui est déjà engagé dans une procédure de signature électronique !"
 
-#: ./subscribers.py:1157
+#: ./subscribers.py:810
+msgid "You cannot delete a file '${title}' when there are still linked pdf files !"
+msgstr "Vous ne pouvez pas effacer un fichier '${title}' avec des pdfs associés !"
+
+#: ./subscribers.py:1213
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:1096
+#: ./subscribers.py:1152
 msgid "You cannot delete the group '${group}'."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}'."
 
-#: ./subscribers.py:1055
+#: ./subscribers.py:1111
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:1025
+#: ./subscribers.py:1081
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les groupes."
 
-#: ./subscribers.py:1014
+#: ./subscribers.py:1070
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
-#: ./subscribers.py:162
+#: ./subscribers.py:166
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
 
@@ -1407,7 +1411,7 @@ msgstr "Vous ne pouvez pas activer la signature électronique car le fichier '${
 msgid "You cannot have a seal and signers but no electronic signature !"
 msgstr "Vous ne pouvez pas avoir de cachet et de signataire sans cocher 'Signature élec.' !"
 
-#: ./subscribers.py:508
+#: ./subscribers.py:528
 msgid "You cannot have a seal without electronic signature ! You have to adapt the rules !"
 msgstr "Vous ne pouvez pas avoir un sceau sans signature électronique ! Il faut adapter les règles dans la configuration !"
 
@@ -1419,7 +1423,7 @@ msgstr "Vous ne pouvez pas avoir un approbateur à la ligne ${c} qui a déjà le
 msgid "You cannot have empty and defined approvings at the same time !"
 msgstr "Vous ne pouvez pas avoir des lignes avec des approbateurs parfois vides, parfois non !"
 
-#: ./adapters.py:1424
+#: ./adapters.py:1414
 #: ./content/behaviors.py:253
 msgid "You cannot have the same email (${email}) for multiple signers !"
 msgstr "Vous ne pouvez pas avoir le même email (${email}) pour plusieurs signataires !"
@@ -1432,7 +1436,7 @@ msgstr "Vous ne pouvez pas utiliser le même numéro pour plusieurs signataires 
 msgid "You cannot have the same signer (${signer_title}) multiple times !"
 msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_title}) !"
 
-#: ./subscribers.py:520
+#: ./subscribers.py:540
 msgid "You cannot have the same signer (${signer_title}) multiple times ! You have to adapt the rules !"
 msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_title}) ! Il faut adapter les règles dans la configuration !"
 
@@ -1460,15 +1464,15 @@ msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service 
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
-#: ./browser/views.py:278
+#: ./browser/views.py:289
 msgid "Your email has been sent."
 msgstr "Votre email a été envoyé"
 
-#: ./browser/views.py:250
+#: ./browser/views.py:261
 msgid "Your email has not been sent: ${error}."
 msgstr "Votre email n'a pas été envoyé: ${error}."
 
-#: ./adapters.py:1869
+#: ./adapters.py:1864
 msgid "[ia.docs] Session {sign_id}"
 msgstr "[ia.docs] Session {sign_id}"
 
@@ -1735,11 +1739,11 @@ msgstr "En copie"
 msgid "om_in_my_group"
 msgstr "Dans mon service"
 
-#: ./wfadaptations.py:1212
+#: ./wfadaptations.py:1228
 msgid "om_in_sessions"
 msgstr "Dans session signature"
 
-#: ./wfadaptations.py:1185
+#: ./wfadaptations.py:1201
 msgid "om_to_approve"
 msgstr "Á approuver"
 
@@ -1768,7 +1772,7 @@ msgid "outgoing_mail_tab"
 msgstr "Sortant"
 
 #. Default: "You have been redirected here because you do not have access anymore to the element you just edited."
-#: ./subscribers.py:380
+#: ./subscribers.py:384
 msgid "redirected_after_edition"
 msgstr "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier."
 
