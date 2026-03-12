@@ -130,6 +130,7 @@ except ImportError:
     class IReferenceable(Interface):
         pass
 
+
 logger = logging.getLogger("imio.dms.mail: events")
 
 
@@ -421,19 +422,26 @@ def dmsoutgoingmail_transition(mail, event):
         approval.start_approval_process()
     if not mail.esign:
         # if not mail.seal, we render odt to remove download subdocument comment
-        if (not mail.seal and event.transition
-                and event.transition.id in ("set_validated", "set_to_print", "propose_to_be_signed", "mark_as_sent")):
-            for afile in object_values(mail, ("ImioDmsFile", )):
+        if (
+            not mail.seal
+            and event.transition
+            and event.transition.id in ("set_validated", "set_to_print", "propose_to_be_signed", "mark_as_sent")
+        ):
+            for afile in object_values(mail, ("ImioDmsFile",)):
                 doc_annot = IAnnotations(afile).get("documentgenerator", {})
                 # if not a generated odt (or needing mailing) or already done, we pass
                 if doc_annot.get("need_mailing", True) is True or doc_annot.get("cleaned_download") is True:
                     continue
-                helper_view = getMultiAdapter((mail, mail.REQUEST), name='document_generation_helper_view')
+                helper_view = getMultiAdapter((mail, mail.REQUEST), name="document_generation_helper_view")
                 helper_view.pod_template = doc_annot.get("template_uid")
                 helper_view.output_format = "odt"
-                gen_context = {"context": mail, "portal": api.portal.get(), "view": helper_view,
-                               "render_download_barcode": True}
-                new_file_content = convert_odt(afile.file, fmt='odt', gen_context=gen_context)
+                gen_context = {
+                    "context": mail,
+                    "portal": api.portal.get(),
+                    "view": helper_view,
+                    "render_download_barcode": True,
+                }
+                new_file_content = convert_odt(afile.file, fmt="odt", gen_context=gen_context)
                 afile.file = NamedBlobFile(new_file_content, filename=afile.file.filename)
                 modified(afile, Attributes(ImioDmsFile, "file"))
                 doc_annot["cleaned_download"] = True
@@ -466,7 +474,8 @@ def dmsoutgoingmail_transition(mail, event):
                         type="error",
                     )
                 if seal_code and seal_email:
-                    ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval.session_id)
+                    for sid in approval.session_ids:
+                        ExternalSessionCreateView(mail, mail.REQUEST)(session_id=sid)
     else:
         # TODO check if to_sign and approved files have a pdf version
         pass
@@ -639,7 +648,7 @@ def task_transition(task, event):
 
 
 def _correct_to_sign(file_obj):
-    """"Correct to_sign value following mimetype.
+    """Correct to_sign value following mimetype.
 
     :param file_obj: dmsommainfile or dmsappendixfile
     :return: True if to_sign has been changed
@@ -652,12 +661,7 @@ def _correct_to_sign(file_obj):
         file_obj.to_approve = False
         category_object = get_category_object(file_obj, file_obj.content_category)
         update_categorized_elements(
-            file_obj.__parent__,
-            file_obj,
-            category_object,
-            limited=True,
-            sort=False,
-            logging=True
+            file_obj.__parent__, file_obj, category_object, limited=True, sort=False, logging=True
         )
         api.portal.show_message(
             message=_(
@@ -686,22 +690,19 @@ def _correct_to_approve(file_obj):
     new_value = False
     om_obj = file_obj.__parent__
     approval = OMApprovalAdapter(om_obj)
-    if (orig_value and getattr(file_obj, "to_sign", False) and approval.approvers
-            and not base_hasattr(file_obj, "conv_from_uid")
-            and not getattr(file_obj, "need_mailing", False)):
+    if (
+        orig_value
+        and getattr(file_obj, "to_sign", False)
+        and approval.approvers
+        and not base_hasattr(file_obj, "conv_from_uid")
+        and not getattr(file_obj, "need_mailing", False)
+    ):
         new_value = True
         approval.add_file_to_approval(file_obj.UID())
     if orig_value != new_value:  # only when passing from True to False normally
         file_obj.to_approve = new_value
         category_object = get_category_object(file_obj, file_obj.content_category)
-        update_categorized_elements(
-            om_obj,
-            file_obj,
-            category_object,
-            limited=True,
-            sort=False,
-            logging=True
-        )
+        update_categorized_elements(om_obj, file_obj, category_object, limited=True, sort=False, logging=True)
 
 
 def i_annex_added(obj, event):
@@ -862,7 +863,7 @@ def imiodmsfile_added(obj, event):
 
 def imiodmsfile_iconified_attr_changed(obj, event):
     """When an iconified attribute is changed. Not used for the moment."""
-    if event.attr_name == 'approved':
+    if event.attr_name == "approved":
         if event.is_created:
             return
         fil = event.object  # noqa F841
@@ -1344,10 +1345,13 @@ def organization_modified(obj, event):
 
 def held_position_modified(obj, event):
     if IPersonnelContact.providedBy(obj):
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
-        mod_attr = [at for at in getattr(event, "descriptions", []) if base_hasattr(at, "attributes")
-                    and "IUsagesBehavior.usages" in at.attributes]
+        mod_attr = [
+            at
+            for at in getattr(event, "descriptions", [])
+            if base_hasattr(at, "attributes") and "IUsagesBehavior.usages" in at.attributes
+        ]
         if mod_attr:
             update_approvers_settings()
 
@@ -1357,7 +1361,7 @@ def held_position_removed(obj, event):
         # at site removal
         if event.object.portal_type == "Plone Site":
             return
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
 
 

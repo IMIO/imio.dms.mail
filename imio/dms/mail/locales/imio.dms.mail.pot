@@ -17,14 +17,6 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: imio.dms.mail\n"
 
-#: ./adapters.py:1877
-msgid "${count} file added to session number ${session_id}"
-msgstr ""
-
-#: ./adapters.py:1874
-msgid "${count} files added to session number ${session_id}"
-msgstr ""
-
 #: ./vocabularies.py
 msgid "${element_title} (Inactive)"
 msgstr ""
