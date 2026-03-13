@@ -966,6 +966,7 @@ def configure_imio_dms_mail(context):
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types"] = [
             {"value": u"courrier", "dtitle": u"Courrier", "active": True},
+            {"value": u"email", "dtitle": u"Email", "active": True},
             {"value": u"recommande", "dtitle": u"Recommandé", "active": True},
             {"value": u"certificat", "dtitle": u"Certificat médical", "active": True},
             {"value": u"fax", "dtitle": u"Fax", "active": True},

@@ -167,6 +167,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (u"courrier", u"Courrier"),
+                (u"email", u"Email"),
                 (u"recommande", u"Recommandé"),
                 (u"certificat", u"Certificat médical"),
                 (u"fax", u"Fax"),
@@ -199,6 +200,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (u"courrier", u"Courrier"),
+                (u"email", u"Email"),
                 (u"recommande", u"Recommandé"),
                 (u"certificat", u"Certificat médical"),
                 (u"fax", u"Fax"),
@@ -211,7 +213,8 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMActiveMailTypesVocabulary")
         voc_list = [t.value for t in voc_inst(self.imail)]
         self.assertListEqual(
-            voc_list, [None, u"courrier", u"recommande", u"certificat", u"fax", u"retour-recommande", u"facture"]
+            voc_list,
+            [None, u"courrier", u"email", u"recommande", u"certificat", u"fax", u"retour-recommande", u"facture"]
         )
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.mail_types
@@ -219,7 +222,10 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         settings.mail_types = mail_types
         # After a registry change, the vocabulary cache has been cleared
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [None, u"recommande", u"certificat", u"fax", u"retour-recommande", u"facture"])
+        self.assertListEqual(
+            voc_list,
+            [None, u"email", u"recommande", u"certificat", u"fax", u"retour-recommande", u"facture"]
+        )
 
     def test_PloneGroupInterfacesVocabulary(self):
         voc_inst = PloneGroupInterfacesVocabulary()

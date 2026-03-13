@@ -172,9 +172,9 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         # changing mail types
         key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types"
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMMailTypesVocabulary")
-        self.assertEqual(len(voc_inst(self.portal)), 6)
-        self.registry[key] += [{"value": u"new_type", "dtitle": u"New type", "active": True}]
         self.assertEqual(len(voc_inst(self.portal)), 7)
+        self.registry[key] += [{"value": u"new_type", "dtitle": u"New type", "active": True}]
+        self.assertEqual(len(voc_inst(self.portal)), 8)
 
         # changing omail types
         key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types"
