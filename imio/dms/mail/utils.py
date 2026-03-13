@@ -4,6 +4,7 @@ from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.dms.basecontent.dmsfile import IDmsAppendixFile
+from collective.documentgenerator.content.pod_template import IMailingLoopTemplate
 from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
 from collective.documentviewer.settings import GlobalSettings
@@ -73,6 +74,7 @@ from z3c.relationfield import RelationValue
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
 from zope.annotation.interfaces import IAnnotations
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component.hooks import getSite
 from zope.i18n import translate
@@ -1265,6 +1267,48 @@ class OdmUtilsMethods(UtilsMethods):
                 duplicated_mail.reply_to = []
             duplicated_mail.reply_to.append(RelationValue(rel_id))
         return duplicated_mail
+
+    def copy_dms_files(self, original_mail):
+        """Re-generate DMS files on self from templates used in original_mail."""
+        mainfile_type = "dmsommainfile"
+        pdf_uids = [f_uid for lst in original_mail.approval.pdf_files_uids for f_uid in lst]
+        # Add DMS files that are not pdf created my OMApprovalAdapter
+        dms_files = [sub for sub in original_mail.values() if sub.portal_type == mainfile_type and (sub.UID() in original_mail.approval.files_uids or sub.UID() not in pdf_uids)]
+        used_template_uids = set()
+        # If no mail date, import it from source mail. Otherwise, the generated mails might be broken
+        if dms_files and not self.context.mail_date:
+            self.context.mail_date = original_mail.mail_date
+            api.portal.show_message(
+                translate(
+                    'The mail date was missing and has been updating following the source mail (${date}).',
+                    domain='imio.dms.mail',
+                    context=self.context.REQUEST,
+                    mapping={"date": self.context.mail_date.strftime("%d/%m/%Y")},
+                ),
+                request=self.context.REQUEST,
+                type='warn',
+            )
+        for dms_file in dms_files:
+            annot = IAnnotations(dms_file).get('documentgenerator', {})
+            if not annot:
+                api.content.copy(source=dms_file, target=self.context)
+                continue
+            if not annot.get('template_uid') or annot.get('template_uid') in used_template_uids:
+                continue
+            document_generation_helper_view = getMultiAdapter(
+                (self.context, self.context.REQUEST), name="document_generation_helper_view")
+            requires_mailing = len(document_generation_helper_view.mailing_list()) > 1
+            if requires_mailing and not annot.get('need_mailing'):
+                continue
+            template_uid = annot.get('template_uid')
+            generation_view = getMultiAdapter((self.context, self.context.REQUEST), name="persistent-document-generation")
+            pod_template = generation_view.get_pod_template(template_uid)
+            if IMailingLoopTemplate.providedBy(pod_template):
+                continue
+            generation_view.pod_template = pod_template
+            generation_view.output_format = 'odt'
+            generation_view.generate_persistent_doc(pod_template, 'odt')
+            used_template_uids.add(template_uid)
 
     def get_om_folder(self):
         """Get the outgoing-mail folder"""

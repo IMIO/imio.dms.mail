@@ -314,7 +314,6 @@
         class=".utils.OdmUtilsMethods"
         permission="zope2.View"
         allowed_attributes="
-            duplicate
             get_object_from_relation
             get_om_folder
             highest_scan_id

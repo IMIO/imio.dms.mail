@@ -887,46 +887,6 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     def has_mailing(self, document):
         return need_mailing_value(document=document)
 
-    def copy_dms_files(self, original_mail):
-        """Re-generate DMS files on self from templates used in original_mail."""
-        mainfile_type = "dmsommainfile"
-        dms_files = [sub for sub in original_mail.values() if sub.portal_type == mainfile_type]
-        used_template_uids = set()
-        # If no mail date, import it from source mail. Otherwise, the generated mails might be broken
-        if dms_files and not self.mail_date:
-            self.mail_date = original_mail.mail_date
-            api.portal.show_message(
-                translate(
-                    'The mail date was missing and has been updating following the source mail (${date}).',
-                    domain='imio.dms.mail',
-                    context=self.REQUEST,
-                    mapping={"date": self.mail_date.strftime("%d/%m/%Y")},
-                ),
-                request=self.REQUEST,
-                type='warn',
-            )
-        for dms_file in dms_files:
-            annot = IAnnotations(dms_file).get('documentgenerator', {})
-            if not annot:
-                api.content.copy(source=dms_file, target=self)
-                continue
-            if not annot.get('template_uid') or annot.get('template_uid') in used_template_uids:
-                continue
-            document_generation_helper_view = getMultiAdapter(
-                (self, self.REQUEST), name="document_generation_helper_view")
-            requires_mailing = len(document_generation_helper_view.mailing_list()) > 1
-            if requires_mailing and not annot.get('need_mailing'):
-                continue
-            template_uid = annot.get('template_uid')
-            generation_view = getMultiAdapter((self, self.REQUEST), name="persistent-document-generation")
-            pod_template = generation_view.get_pod_template(template_uid)
-            if IMailingLoopTemplate.providedBy(pod_template):
-                continue
-            generation_view.pod_template = pod_template
-            generation_view.output_format = 'odt'
-            generation_view.generate_persistent_doc(pod_template, 'odt')
-            used_template_uids.add(template_uid)
-
 
 class ImioDmsOutgoingMailWfConditionsAdapter(object):
     implements(IImioDmsOutgoingMailWfConditions)

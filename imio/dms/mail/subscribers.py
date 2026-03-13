@@ -480,7 +480,8 @@ def dmsoutgoingmail_modified(mail, event):
         del annot['copy_dms_files_from']
         try:
             original_mail = uuidToObject(copy_dms_files_from, unrestricted=True)
-            mail.copy_dms_files(original_mail)
+            odm_utils = getMultiAdapter((mail, mail.REQUEST), name="odm-utils")
+            odm_utils.copy_dms_files(original_mail)
         except Exception as e:
             logger.exception('An error occured when copying DMS files')
             api.portal.show_message(
