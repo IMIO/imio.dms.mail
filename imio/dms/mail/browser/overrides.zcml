@@ -156,12 +156,12 @@
           permission="zope2.View" />
       <browser:page
           name="search"
-          class="Products.CMFPlone.browser.search.Search"
+          class="collective.solr.browser.p4_search.Search"
           permission="zope2.View"
           for="plone.app.layout.navigation.interfaces.INavigationRoot"
-          template="search.pt"
+          template="browser/search.pt"
           layer="collective.solr.browser.interfaces.IThemeSpecific"
-          zcml:condition="have plone-5"
+          zcml:condition="not-have plone-5"
       />
     </unconfigure>
 
