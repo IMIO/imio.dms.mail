@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.contact.plonegroup.config import get_registry_organizations
+from datetime import date
 from datetime import datetime
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CONTACTS_PART_SUFFIX

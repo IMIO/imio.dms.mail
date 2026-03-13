@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from collective.documentviewer.convert import Converter
+from collective.iconifiedcategory.utils import calculate_category_id
+from datetime import date
 from datetime import datetime
 from datetime import timedelta
 from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import AUC_RECORD
+from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import back_or_again_state
@@ -18,6 +23,7 @@ from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import dv_clean
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
+from imio.dms.mail.utils import FolderUtilsMethods
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import group_has_user
@@ -25,6 +31,7 @@ from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import list_wf_states
+from imio.dms.mail.utils import OdmUtilsMethods
 from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
@@ -33,6 +40,8 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.utils import UtilsMethods
 from imio.dms.mail.utils import VariousUtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.content import get_object
+from imio.helpers.content import uuidToObject
 from imio.helpers.test_helpers import ImioTestHelpers
 from mock import Mock
 from mock import patch
@@ -44,6 +53,7 @@ from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import base_hasattr
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 
@@ -63,6 +73,8 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.imf = self.portal["incoming-mail"]
         self.omf = self.portal["outgoing-mail"]
         self.contacts = self.portal["contacts"]
+        self.pf = self.portal["contacts"]["personnel-folder"]
+        self.intids = getUtility(IIntIds)
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
@@ -876,12 +888,11 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertIsNone(dv_clean(self.portal, date_back="invalid"))
 
         # Create incoming mail with file
-        intids = getUtility(IIntIds)
         params = {
             "title": "Courrier 10",
             "mail_type": "courrier",
             "internal_reference_no": "E0010",
-            "sender": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
+            "sender": [RelationValue(self.intids.getId(self.portal["contacts"]["jeancourant"]))],
             "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
             "description": "Ceci est la description du courrier",
             "mail_date": datetime.today(),
@@ -987,12 +998,11 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
     def test_eml_preview(self):
         # Create incoming mail with file
-        intids = getUtility(IIntIds)
         params = {
             "title": "Courrier 10",
             "mail_type": "courrier",
             "internal_reference_no": "E0010",
-            "sender": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
+            "sender": [RelationValue(self.intids.getId(self.portal["contacts"]["jeancourant"]))],
             "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
             "description": "Ceci est la description du courrier",
             "mail_date": datetime.today(),
@@ -1026,3 +1036,228 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         with open(os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"), 'rb') as f1, \
                 open(blobs[0]._p_blob_uncommitted, 'rb') as f2:
             self.assertEqual(f1.read(), f2.read())
+
+    def test_OdmUtilsMethods_duplicate(self):
+        """test OdmUtilsMethods.duplicate"""
+
+        # Use an existing demo outgoing mail (has valid sender, treating_groups, etc.)
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        cf_uid = self.portal.portal_catalog(portal_type="ClassificationFolder")[0].UID
+        omail.classification_folders = [cf_uid]
+        cc_uid = uuidToObject(cf_uid).classification_categories[0]
+        omail.classification_categories = [cc_uid]
+        createContentInContainer(omail, "dmsappendixfile", title=u"Test annexe")
+        view = OdmUtilsMethods(omail, omail.REQUEST)
+        self.assertTrue(view.may_duplicate())
+        linked_omail = get_object(oid="reponse2", ptype="dmsoutgoingmail")
+        omail.reply_to = [RelationValue(self.intids.getId(linked_omail))]
+
+        # Basic duplication
+        duplicated = view.duplicate(
+            keep_category=False, keep_folder=False, keep_reply_to=False,
+            keep_dms_files=False, keep_annexes=False, link_to_duplicated=False,
+        )
+        self.assertEqual(duplicated.portal_type, "dmsoutgoingmail")
+        self.assertEqual(duplicated.title, u'Réponse 1')
+        self.assertEqual(duplicated.treating_groups, omail.treating_groups)
+        self.assertIsNone(duplicated.classification_categories)
+        self.assertIsNone(duplicated.classification_folders)
+        self.assertEqual(len([s for s in duplicated.values() if IDmsAppendixFile.providedBy(s)]), 0)
+        self.assertFalse(IAnnotations(duplicated).get('imio.dms.mail', {}).get('copy_dms_files_from'))
+
+        # keep_category=True preserves classification_categories
+        duplicated2 = view.duplicate(
+            keep_category=True, keep_folder=False, keep_reply_to=False,
+            keep_dms_files=False, keep_annexes=False, link_to_duplicated=False,
+        )
+        self.assertEqual(duplicated2.classification_categories, [cc_uid])
+
+        # keep_folder=True preserves classification_folders
+        duplicated3 = view.duplicate(
+            keep_category=False, keep_folder=True, keep_reply_to=False,
+            keep_dms_files=False, keep_annexes=False, link_to_duplicated=False,
+        )
+        self.assertEqual(duplicated3.classification_folders, [cf_uid])
+
+        # keep_reply_to=True keeps linked mails
+        duplicated4 = view.duplicate(
+            keep_category=False, keep_folder=False, keep_reply_to=True,
+            keep_dms_files=False, keep_annexes=False, link_to_duplicated=False,
+        )
+        self.assertIn(self.intids.getId(linked_omail), [rv.to_id for rv in duplicated4.reply_to])
+
+        # keep_dms_files=True sets copy_dms_files_from annotation
+        duplicated4 = view.duplicate(
+            keep_category=False, keep_folder=False, keep_reply_to=False,
+            keep_dms_files=True, keep_annexes=False, link_to_duplicated=False,
+        )
+        self.assertEqual(IAnnotations(duplicated4)['imio.dms.mail']['copy_dms_files_from'], omail.UID())
+
+        # keep_annexes=True copies appendix files
+        duplicated5 = view.duplicate(
+            keep_category=False, keep_folder=False, keep_reply_to=False,
+            keep_dms_files=False, keep_annexes=True, link_to_duplicated=False,
+        )
+        self.assertEqual(len([s for s in duplicated5.values() if IDmsAppendixFile.providedBy(s)]), 1)
+
+        # link_to_duplicated=True sets reply_to with original mail intid
+        duplicated6 = view.duplicate(
+            keep_category=False, keep_folder=False, keep_reply_to=False,
+            keep_dms_files=False, keep_annexes=False, link_to_duplicated=True,
+        )
+        self.assertIn(self.intids.getId(omail), [rv.to_id for rv in duplicated6.reply_to])
+
+    def test_OdmUtilsMethods_copy_dms_files(self):
+        """Test OdmUtilsMethods.copy_dms_files"""
+
+        # No dmsommainfile on original1 → copy_dms_files is a no-op
+        original1 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-orig-dms-1")
+        new_mail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-copy-dms-1")
+        new_mail.mail_date = date.today()
+        OdmUtilsMethods(new_mail, new_mail.REQUEST).copy_dms_files(original1)
+        self.assertEqual(len([s for s in new_mail.values() if s.portal_type == "dmsommainfile"]), 0)
+
+        # Add a dmsommainfile without documentgenerator annotation → direct copy
+        new_mail2 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-copy-dms-2")
+        new_mail2.mail_date = date.today()
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            createContentInContainer(
+                original1, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
+        OdmUtilsMethods(new_mail2, new_mail2.REQUEST).copy_dms_files(original1)
+        copied_files = [s for s in new_mail2.values() if s.portal_type == "dmsommainfile"]
+        self.assertEqual(len(copied_files), 1)
+        self.assertNotIn("documentgenerator", IAnnotations(copied_files[0]))
+
+        # Add a dmsommainfile generated from a template → regenerate the file on new_mail
+        original2 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-orig-dms-2")
+        new_mail3 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-copy-dms-3")
+        new_mail3.mail_date = date.today()
+        pdgv = getMultiAdapter((original2, original2.REQUEST), name="persistent-document-generation")
+        template_uid = self.portal["templates"]["om"]["main"].UID()
+        pdgv(template_uid=template_uid, output_format='odt')
+        OdmUtilsMethods(new_mail3, new_mail3.REQUEST).copy_dms_files(original2)
+        copied_files = [s for s in new_mail3.values() if s.portal_type == "dmsommainfile"]
+        self.assertEqual(len(copied_files), 1)
+        regen_annot = IAnnotations(copied_files[0]).get("documentgenerator", {})
+        self.assertEqual(regen_annot.get("template_uid"), template_uid)
+
+        # mail_date missing on new_mail → gets copied from original2 (with warn message)
+        new_mail4 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-copy-dms-4")
+        original2.mail_date = date(2024, 1, 15)
+        self.assertIsNone(new_mail4.mail_date)
+        OdmUtilsMethods(new_mail4, new_mail4.REQUEST).copy_dms_files(original2)
+        self.assertEqual(new_mail4.mail_date, date(2024, 1, 15))
+        self.assertEqual(len([s for s in new_mail4.values() if s.portal_type == "dmsommainfile"]), 1)
+
+        # Complex case: esigned mail
+        # 1. Activate esignature
+        activate_signing(self.portal)
+        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile", ["odt", "pdf"])
+        esign_original = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-orig-dms-esign",
+            **{
+                "title": u"Courrier sortant test",
+                "mail_type": "courrier",
+                "treating_groups": self.pgof["direction-generale"]["grh"].UID(),
+                "recipients": [RelationValue(self.intids.getId(self.portal["contacts"]["jeancourant"]))],
+                "assigned_user": "agent",
+                "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
+                "send_modes": u"post",
+                "signers": [
+                    {
+                        "number": 1,
+                        "signer": self.pf["dirg"]["directeur-general"].UID(),
+                        "approvings": [u"_themself_"],
+                        "editor": True,
+                    },
+                ],
+                "esign": True,
+            }
+        )
+        esign_new_mail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-copy-dms-esign")
+        esign_new_mail.mail_date = date.today()
+        # 2. Add 1 uploaded ODT file, 1 PDF file, 1 generated file
+        content_category=calculate_category_id(self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"])
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            odt_file = createContentInContainer(
+                esign_original, "dmsommainfile", scan_id="012999900000701",
+                file=NamedBlobFile(fo.read(), filename=filename),
+                content_category=content_category,
+            )
+        pdf_file = createContentInContainer(
+            esign_original, "dmsommainfile", scan_id="012999900000702",
+            file=NamedBlobFile(b"%PDF-1.4 test", filename=u"document.pdf", contentType="application/pdf"),
+            content_category=content_category,
+        )
+        pdgv = getMultiAdapter((esign_original, esign_original.REQUEST), name="persistent-document-generation")
+        pod_template = pdgv.get_pod_template(template_uid)
+        pdgv.pod_template = pod_template
+        pdgv.output_format = 'odt'
+        pdgv.generate_persistent_doc(pod_template, 'odt')
+        gen_file = [s for s in esign_original.values() if s.portal_type == "dmsommainfile"
+                    and IAnnotations(s).get("documentgenerator")][0]
+        # 3. Approve files
+        pw = self.portal.portal_workflow
+        pw.doActionFor(esign_original, "propose_to_approve")
+        # FIXME AttributeError: 'NoneType' object has no attribute 'unregister'
+        import ipdb; ipdb.set_trace()
+        for file in [odt_file, pdf_file, gen_file]:
+            esign_original.approval.approve_file(file, "dirg")
+        # 4. copy_dms_files
+        OdmUtilsMethods(esign_new_mail, esign_new_mail.REQUEST).copy_dms_files(esign_original)
+        # 5. Test esign_new_mail files
+        new_files = [s for s in esign_new_mail.values() if s.portal_type == "dmsommainfile"]
+        self.assertEqual(
+            [f.title for f in new_files],
+            [
+                u'Réponse salle.odt',  # direct copy of uploaded odt
+                u'document.pdf',       # direct copy of pdf
+                u'Modèle de base',     # regenerated from template
+            ],
+        )
+        # New files are NOT in the esign session (they have new UIDs)
+        for new_file in new_files:
+            self.assertNotIn(new_file.UID(), session_annot["uids"])
+        # Original and converted files are still in session
+        for uid in original_uids + [converted_uid]:
+            self.assertIn(uid, session_annot["uids"])
+
+    def test_FolderUtilsMethods_duplicate(self):
+        """Test FolderUtilsMethods.duplicate"""
+
+        cf = self.portal.portal_catalog(portal_type="ClassificationFolder")[0].getObject()
+        api.content.create(
+            container=cf, type="annex", title=u"Test annex",
+            content_category=calculate_category_id(self.portal["annexes_types"]["annexes"]["annex"]),
+            file=NamedBlobFile(b"test", filename=u"test.txt"),
+        )
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        omail.classification_folders = [cf.UID()]
+        omail.reindexObject(idxs=["classification_folders"])
+        view = FolderUtilsMethods(cf, cf.REQUEST)
+
+        # Test may_duplicate
+        self.assertTrue(view.may_duplicate())
+        sub_cf = self.portal.portal_catalog(portal_type="ClassificationSubfolder")[0].getObject()
+        self.assertFalse(FolderUtilsMethods(sub_cf, sub_cf.REQUEST).may_duplicate())
+
+        # basic duplicate: all options False
+        duplicated = view.duplicate(keep_subfolders=False, keep_linked_mails=False, keep_annexes=False)
+        self.assertEqual(duplicated.portal_type, "ClassificationFolder")
+        self.assertEqual(duplicated.title, u'Ordre public - Règlement général de police')
+        self.assertEqual(len([o for o in duplicated.values() if o.portal_type == "ClassificationSubfolder"]), 0)
+        self.assertEqual(len([o for o in duplicated.values() if o.portal_type == "annex"]), 0)
+
+        # keep_subfolders=True copies subfolders
+        duplicated2 = view.duplicate(keep_subfolders=True, keep_linked_mails=False, keep_annexes=False)
+        new_subs = [o for o in duplicated2.values() if o.portal_type == "ClassificationSubfolder"]
+        self.assertEqual(len(new_subs), 3)
+
+        # keep_linked_mails=True links existing omails to the new folder
+        duplicated3 = view.duplicate(keep_subfolders=False, keep_linked_mails=True, keep_annexes=False)
+        self.assertIn(cf.UID(), omail.classification_folders)
+        self.assertIn(duplicated3.UID(), omail.classification_folders)
+
+        # keep_annexes=True copies annex children
+        duplicated4 = view.duplicate(keep_subfolders=False, keep_linked_mails=False, keep_annexes=True)
+        self.assertEqual(len([o for o in duplicated4.values() if o.portal_type == "annex"]), 1)

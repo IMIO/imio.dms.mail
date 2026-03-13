@@ -319,7 +319,19 @@
             highest_scan_id
             is_in_user_groups
             is_odt_activated
+            may_duplicate
             scanned_col_cond
+        "
+    />
+
+    <browser:page
+        for="collective.classification.folder.content.classification_folder.IClassificationFolder"
+        name="folder-utils"
+        class=".utils.FolderUtilsMethods"
+        permission="zope2.View"
+        allowed_attributes="
+            duplicate
+            may_duplicate
         "
     />
 

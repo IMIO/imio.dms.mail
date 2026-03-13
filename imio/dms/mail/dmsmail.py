@@ -27,6 +27,7 @@ from collective.dms.mailcontent.dmsmail import IDmsIncomingMail
 from collective.dms.mailcontent.dmsmail import IDmsOutgoingMail
 from collective.dms.mailcontent.dmsmail import IFieldsetOutgoingEmail
 from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
+from collective.documentgenerator.content.pod_template import IMailingLoopTemplate
 from collective.documentgenerator.utils import need_mailing_value
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
@@ -55,6 +56,7 @@ from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import is_n_plus_level_obsolete
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
+from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 # from imio.dms.mail.vocabularies import ServicesSourceBinder
 from imio.helpers.cache import get_plone_groups_for_user
@@ -82,9 +84,11 @@ from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
+from zope.annotation.interfaces import IAnnotations
 from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtility
+from zope.i18n import translate
 from zope.interface import alsoProvides
 from zope.interface import implements
 from zope.interface import Invalid

@@ -1606,7 +1606,7 @@ class OMApprovalAdapter(object):
         self.annot["approval"][c_a][f_index]["approved_on"] = datetime.datetime.now()
         self.annot["approval"][c_a][f_index]["approved_by"] = userid
         self.annot["current_nb"] = self.calculate_current_nb()
-        pc = getToolByName(self.context, "portal_catalog")
+        pc = getToolByName(api.portal.get(), "portal_catalog")
         if self.is_file_approved(f_uid):
             afile.approved = True
             if values is not None:

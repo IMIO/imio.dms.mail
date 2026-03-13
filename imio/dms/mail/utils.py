@@ -3,6 +3,8 @@ from BTrees.OOBTree import OOBTree  # noqa
 from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.utils import organizations_with_suffixes
+from collective.dms.basecontent.dmsfile import IDmsAppendixFile
+from collective.documentgenerator.content.pod_template import IMailingLoopTemplate
 from collective.documentviewer.convert import Converter
 from collective.documentviewer.convert import saveFileToBlob
 from collective.documentviewer.settings import GlobalSettings
@@ -12,6 +14,7 @@ from collective.documentviewer.utils import getPortal
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from copy import deepcopy
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -42,6 +45,7 @@ from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
 from imio.helpers.security import separate_fullname
+from imio.helpers.transmogrifier import get_correct_id
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from interfaces import IIMDashboard
@@ -70,8 +74,10 @@ from z3c.relationfield import RelationValue
 from zc.relation.interfaces import ICatalog
 from zExceptions import Redirect
 from zope.annotation.interfaces import IAnnotations
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component.hooks import getSite
+from zope.i18n import translate
 from zope.interface import alsoProvides
 from zope.intid import IIntIds
 from zope.schema.interfaces import IVocabularyFactory
@@ -1200,6 +1206,112 @@ class OdmUtilsMethods(UtilsMethods):
 
     mainfile_type = "dmsommainfile"
 
+    def may_duplicate(self):
+        """Check if the current user may duplicate outgoing mail."""
+        return api.user.has_permission("Add portal content", obj=self.context.__parent__)
+
+    def duplicate(self, keep_category, keep_folder, keep_reply_to,
+                  keep_dms_files, keep_annexes, link_to_duplicated):
+        """Duplicate the context outgoing mail and return the new mail."""
+        mail = self.context
+        pc = api.portal.get_tool("portal_catalog")
+        user = api.user.get_current()
+        user_groups = current_user_groups_ids(user=user)
+        is_user_in_treating_group = mail.treating_groups and any(
+            g.startswith(mail.treating_groups + '_') for g in user_groups
+        )
+        duplicated_mail = sub_create(
+            api.portal.get()["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            get_correct_id([om.getId for om in pc(portal_type="dmsoutgoingmail")], mail.getId()),
+            title=mail.title,
+            description=mail.description,
+            recipients=mail.recipients[:] if mail.recipients else None,
+            treating_groups=mail.treating_groups,
+            assigned_user=mail.assigned_user if is_user_in_treating_group else None,
+            sender=mail.sender,
+            recipient_groups=mail.recipient_groups[:] if mail.recipient_groups else None,
+            send_modes=mail.send_modes[:] if mail.send_modes else None,
+            task_description=mail.task_description,
+            esign=mail.esign,
+            seal=mail.seal,
+            signers=deepcopy(mail.signers),
+        )
+        if keep_category and getattr(mail, 'classification_categories', None):
+            duplicated_mail.classification_categories = mail.classification_categories[:]
+        else:
+            duplicated_mail.classification_categories = None
+        if keep_folder and getattr(mail, 'classification_folders', None):
+            duplicated_mail.classification_folders = mail.classification_folders[:]
+        else:
+            duplicated_mail.classification_folders = None
+        if keep_reply_to and getattr(mail, 'reply_to', None):
+            duplicated_mail.reply_to = mail.reply_to[:]
+        if keep_annexes:
+            annexes = [sub.getId() for sub in mail.values() if IDmsAppendixFile.providedBy(sub)]
+            if annexes:
+                clipboard = mail.manage_copyObjects(annexes)
+                duplicated_mail.manage_pasteObjects(clipboard)
+        if keep_dms_files:
+            annot = IAnnotations(duplicated_mail)
+            annot.setdefault('imio.dms.mail', PersistentDict())
+            annot['imio.dms.mail']['copy_dms_files_from'] = mail.UID()
+            api.portal.show_message(
+                translate('Your generated DMS files will be regenerated after you finish editing metadata.', domain='imio.dms.mail', context=self.context.REQUEST),
+                request=self.context.REQUEST,
+                type='info',
+            )
+        if link_to_duplicated:
+            intids = getUtility(IIntIds)
+            rel_id = intids.getId(mail)
+            if duplicated_mail.reply_to is None:
+                duplicated_mail.reply_to = []
+            duplicated_mail.reply_to.append(RelationValue(rel_id))
+        return duplicated_mail
+
+    def copy_dms_files(self, original_mail):
+        """Re-generate DMS files on self from templates used in original_mail."""
+        mainfile_type = "dmsommainfile"
+        pdf_uids = [f_uid for lst in original_mail.approval.pdf_files_uids for f_uid in lst]
+        # Add DMS files that are not pdf created my OMApprovalAdapter
+        dms_files = [sub for sub in original_mail.values() if sub.portal_type == mainfile_type and (sub.UID() in original_mail.approval.files_uids or sub.UID() not in pdf_uids)]
+        used_template_uids = set()
+        # If no mail date, import it from source mail. Otherwise, the generated mails might be broken
+        if dms_files and not self.context.mail_date:
+            self.context.mail_date = original_mail.mail_date
+            api.portal.show_message(
+                translate(
+                    'The mail date was missing and has been updating following the source mail (${date}).',
+                    domain='imio.dms.mail',
+                    context=self.context.REQUEST,
+                    mapping={"date": self.context.mail_date.strftime("%d/%m/%Y")},
+                ),
+                request=self.context.REQUEST,
+                type='warn',
+            )
+        for dms_file in dms_files:
+            annot = IAnnotations(dms_file).get('documentgenerator', {})
+            if not annot:
+                api.content.copy(source=dms_file, target=self.context)
+                continue
+            if not annot.get('template_uid') or annot.get('template_uid') in used_template_uids:
+                continue
+            document_generation_helper_view = getMultiAdapter(
+                (self.context, self.context.REQUEST), name="document_generation_helper_view")
+            requires_mailing = len(document_generation_helper_view.mailing_list()) > 1
+            if requires_mailing and not annot.get('need_mailing'):
+                continue
+            template_uid = annot.get('template_uid')
+            generation_view = getMultiAdapter((self.context, self.context.REQUEST), name="persistent-document-generation")
+            pod_template = generation_view.get_pod_template(template_uid)
+            if IMailingLoopTemplate.providedBy(pod_template):
+                continue
+            generation_view.pod_template = pod_template
+            generation_view.output_format = 'odt'
+            generation_view.generate_persistent_doc(pod_template, 'odt')
+            used_template_uids.add(template_uid)
+
     def get_om_folder(self):
         """Get the outgoing-mail folder"""
         portal = getSite()
@@ -1627,6 +1739,58 @@ def update_approvers_settings():
     old_approvings = set(get_dms_config(["approvings"], missing_key_handling=True, missing_key_value=[]))
     if old_approvings != set(approvings):
         set_dms_config(["approvings"], approvings)
+
+
+class FolderUtilsMethods(UtilsMethods):
+    """View containing classification folder utils methods."""
+
+    def may_duplicate(self):
+        """Check if the current user may duplicate a classification folder."""
+        return (self.context.portal_type == "ClassificationFolder"
+                and api.user.has_permission("Add portal content", obj=self.context.__parent__))
+
+    def duplicate(self, keep_subfolders, keep_linked_mails, keep_annexes):
+        """Duplicate the context classification folder and return the new folder."""
+        from collective.classification.folder.utils import evaluate_internal_reference
+        from plone.dexterity.utils import createContentInContainer
+        folder = self.context
+        portal = api.portal.get()
+        folders = portal["folders"]
+        new_folder = createContentInContainer(
+            folder.__parent__,
+            "ClassificationFolder",
+            title=folder.title,
+            description=folder.description,
+            classification_categories=folder.classification_categories,
+            treating_groups=folder.treating_groups,
+            recipient_groups=folder.recipient_groups[:] if folder.recipient_groups else [],
+            internal_reference_no=evaluate_internal_reference(
+                folders, folders.REQUEST, "folder_number", "folder_talexpression"),
+        )
+        if keep_subfolders:
+            subs = [obj.getId() for obj in folder.values() if obj.portal_type == "ClassificationSubfolder"]
+            if subs:
+                clipboard = folder.manage_copyObjects(subs)
+                new_folder.manage_pasteObjects(clipboard)
+                for sub in new_folder.values():
+                    if sub.portal_type == "ClassificationSubfolder":
+                        sub.internal_reference_no = evaluate_internal_reference(
+                            new_folder, folders.REQUEST, "subfolder_number", "subfolder_talexpression")
+        if keep_linked_mails:
+            pc = api.portal.get_tool("portal_catalog")
+            for brain in pc.unrestrictedSearchResults(portal_type="dmsoutgoingmail", classification_folders=folder.UID()):
+                mail = brain._unrestrictedGetObject()
+                if mail.classification_folders is None:
+                    mail.classification_folders = []
+                if new_folder.UID() not in mail.classification_folders:
+                    mail.classification_folders.append(new_folder.UID())
+                    mail.reindexObject(idxs=["classification_folders"])
+        if keep_annexes:
+            annexes = [obj.getId() for obj in folder.values() if obj.portal_type == "annex"]
+            if annexes:
+                clipboard = folder.manage_copyObjects(annexes)
+                new_folder.manage_pasteObjects(clipboard)
+        return new_folder
 
 
 def get_allowed_omf_content_types(esign=False):
