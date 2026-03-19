@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collective.documentgenerator.utils import update_oo_config
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
 from collective.iconifiedcategory.utils import calculate_category_id
@@ -70,13 +71,13 @@ class Migrate_To_3_1(Migrator):  # noqa
 
         if self.is_in_part("a"):  # install and upgrade products
             # check if oo port or solr port must be changed
-            update_solr_config()
             active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
             if active_solr:
-                self.upgradeProfile("collective.solr")
+                self.upgradeProfile("collective.solr:default")
                 self.runProfileSteps("collective.solr", steps=["plone.app.registry"])
                 logger.info("Deactivating solr")
                 api.portal.set_registry_record("collective.solr.active", False)
+            update_solr_config()
 
         if self.is_in_part("b"):  # upgrade other products
             # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
@@ -299,6 +300,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                 zope_app = self.portal
                 while not isinstance(zope_app, OFS.Application.Application):
                     zope_app = zope_app.aq_parent
+                update_oo_config()
                 if "cputils_install" not in zope_app.objectIds():
                     manage_addExternalMethod(zope_app, "cputils_install", "", "CPUtils.utils", "install")
                 ret = zope_app.cputils_install(zope_app)
