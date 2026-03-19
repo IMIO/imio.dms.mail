@@ -840,6 +840,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         manage_addExternalMethod(site, "import_scanned", "", "imio.dms.mail.demo", "import_scanned")
     if "import_scanned2" not in site.objectIds():
         manage_addExternalMethod(site, "import_scanned2", "", "imio.dms.mail.demo", "import_scanned2")
+    if "import_sign_examples" not in site.objectIds():
+        manage_addExternalMethod(site, "import_sign_examples", "", "imio.dms.mail.demo", "import_sign_examples")
 
     # Add object_portlet actions to be displayed in "divers" portlet
     category = site.portal_actions.object_portlet
@@ -1145,6 +1147,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     # Removed template edition for OM editor
     api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit",
                                    False)
+
 
 def contact_import_pipeline(context):
     """Set contact import pipeline record."""
