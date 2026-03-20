@@ -154,7 +154,7 @@
           class="collective.solr.browser.facets.SearchBox"
           layer="collective.solr.browser.interfaces.IThemeSpecific"
           permission="zope2.View" />
-      <browser:page
+      <!--browser:page
           name="search"
           class="collective.solr.browser.p4_search.Search"
           permission="zope2.View"
@@ -162,7 +162,7 @@
           template="browser/search.pt"
           layer="collective.solr.browser.interfaces.IThemeSpecific"
           zcml:condition="not-have plone-5"
-      />
+      /-->
     </unconfigure>
 
     <configure package="collective.eeafaceted.dashboard.browser">
