@@ -53,6 +53,7 @@ from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import update_approvers_settings
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
+from imio.esign.audit import audit as esign_audit
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.config import get_registry_seal_code
 from imio.esign.config import get_registry_seal_email
@@ -801,6 +802,10 @@ def i_annex_removed(obj, event):
                 raise Redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for "normal" delete
             # we remove this pdf_file from session and annotation
             getMultiAdapter((obj, obj.REQUEST), name="remove-item-from-esign-session").actions()
+            esign_audit(
+                "delete_file_1",
+                "mail={} session={} file={}".format(obj.__parent__.UID(), session_id, current_uid)
+            )
 
         # Case 2: We are removing a source file: odt or direct pdf
         if current_uid in approval.files_uids:
@@ -819,6 +824,10 @@ def i_annex_removed(obj, event):
             # The file may be a user-uploaded annex, try to remove it from session
             remove_files_from_session([current_uid])
             approval.remove_file_from_approval(current_uid)
+            esign_audit(
+                "delete_file_2",
+                "mail={} session=x file={}".format(obj.__parent__.UID(), current_uid)
+            )
 
 
 def dmsmainfile_modified(dmf, event):
