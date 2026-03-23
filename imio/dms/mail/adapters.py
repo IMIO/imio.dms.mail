@@ -1333,6 +1333,12 @@ class OMApprovalAdapter(object):
     def start_approval_process(self):
         """Update the annotation to start the approval process."""
         orig_nb = self.calculate_current_nb()
+        esign_audit(
+            "start_approval_process",
+            "mail={} signers={} approvers={}".format(
+                self.context.UID(), "|".join(self.signers), "|".join([",".join(sublist) for sublist in
+                                                                      self.annot["approvers"]]))
+        )
         if self.approvers:
             # first time transition, set the first level to "proposed"
             if orig_nb is None:
@@ -1385,6 +1391,7 @@ class OMApprovalAdapter(object):
         # Create approvals backup to restore after update
         backup_files_uids = []
         backup_approvals = []
+        existing_signers = self.signers
         for fuid_index, fuid in enumerate(self.files_uids):
             backup_files_uids.append(fuid)
             backup_approvals.append([])
@@ -1464,6 +1471,14 @@ class OMApprovalAdapter(object):
                     )
                 )
 
+        if existing_signers or backup_approvals:
+            esign_audit(
+                "update_signers",
+                "mail={} signers={} approvers={}".format(
+                    self.context.UID(), "|".join(self.signers), "|".join([",".join(sublist) for sublist in
+                                                                          self.annot["approvers"]]))
+            )
+
         for fuid in backup_files_uids:
             self.add_file_to_approval(fuid)
         if api.content.get_state(self.context) == "to_approve":
@@ -1491,6 +1506,7 @@ class OMApprovalAdapter(object):
             return
         self.annot["files"].append(f_uid)
         self.annot["pdf_files"].append(PersistentList())
+        esign_audit("add_file_to_approval", "mail={} file={}".format(self.context.UID(), f_uid))
         for nb in range(len(self.annot["approval"])):
             self.annot["approval"][nb].append(
                 PersistentMapping(
@@ -1514,6 +1530,7 @@ class OMApprovalAdapter(object):
         file_index = self.files_uids.index(f_uid)
         self.annot["files"].pop(file_index)
         self.annot["pdf_files"].pop(file_index)
+        esign_audit("remove_file_from_approval", "mail={} file={}".format(self.context.UID(), f_uid))
         for nb in range(len(self.annot["approval"])):
             self.annot["approval"][nb].pop(file_index)
         self.annot["current_nb"] = self.calculate_current_nb()
@@ -1607,8 +1624,10 @@ class OMApprovalAdapter(object):
         self.annot["approval"][c_a][f_index]["approved_on"] = datetime.datetime.now()
         self.annot["approval"][c_a][f_index]["approved_by"] = userid
         self.annot["current_nb"] = self.calculate_current_nb()
-        esign_audit("approve_file", "mail={} file={} signer_level={} approver={}".format(
-            self.context.UID(), f_uid, c_a, userid))
+        esign_audit(
+            "approve_file",
+            "mail={} file={} signer={} approver={}".format(self.context.UID(), f_uid, self.signers[c_a], userid)
+        )
         pc = getToolByName(self.context, "portal_catalog")
         if self.is_file_approved(f_uid):
             afile.approved = True
@@ -1706,9 +1725,10 @@ class OMApprovalAdapter(object):
         self.annot["approval"][nb][f_index]["status"] = "w"
         self.annot["approval"][nb][f_index]["approved_on"] = None
         self.annot["approval"][nb][f_index]["approved_by"] = None
-        esign_audit("unapprove_file", "mail={} file={} signer={}".format(
-            self.context.UID(), f_uid, signer_userid))
-
+        esign_audit(
+            "unapprove_file",
+            "mail={} file={} signer={}".format(self.context.UID(), f_uid, signer_userid)
+        )
         afile.approved = False
 
         if orig_nb != self.current_nb:
@@ -1797,6 +1817,10 @@ class OMApprovalAdapter(object):
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
         pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
         session_file_uids.append(pdf_uid)
+        esign_audit(
+            "create_pdf_file",
+            "mail={} file={} pdf={}".format(self.context.UID(), f_uid, pdf_uid)
+        )
 
     def add_mail_files_to_session(self):
         """Add mail files to sign session."""
@@ -1866,8 +1890,6 @@ class OMApprovalAdapter(object):
                                                    watchers=watcher_emails)
         self.annot["session_id"] = session_id
         session_len = len(session_file_uids)
-        esign_audit("add_mail_files_to_session", "mail={} session={} files={}".format(
-            self.context.UID(), session_id, ",".join(session_file_uids)))
         if session_len > 1:
             return True, _("${count} files added to session number ${session_id}",
                            mapping={"count": session_len, "session_id": session_id})

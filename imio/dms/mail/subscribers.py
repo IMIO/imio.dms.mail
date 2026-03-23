@@ -420,7 +420,6 @@ def dmsoutgoingmail_transition(mail, event):
     if event.transition and event.transition.id == "propose_to_approve":
         approval = OMApprovalAdapter(mail)
         approval.start_approval_process()
-        esign_audit("start_approval_process", "mail={}".format(mail.UID()))
     if not mail.esign:
         # if not mail.seal, we render odt to remove download subdocument comment
         if (not mail.seal and event.transition
@@ -802,6 +801,10 @@ def i_annex_removed(obj, event):
                 raise Redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for "normal" delete
             # we remove this pdf_file from session and annotation
             getMultiAdapter((obj, obj.REQUEST), name="remove-item-from-esign-session").actions()
+            esign_audit(
+                "delete_file_1",
+                "mail={} session={} file={}".format(obj.__parent__.UID(), session_id, current_uid)
+            )
 
         # Case 2: We are removing a source file: odt or direct pdf
         if current_uid in approval.files_uids:
@@ -820,6 +823,10 @@ def i_annex_removed(obj, event):
             # The file may be a user-uploaded annex, try to remove it from session
             remove_files_from_session([current_uid])
             approval.remove_file_from_approval(current_uid)
+            esign_audit(
+                "delete_file_2",
+                "mail={} session=x file={}".format(obj.__parent__.UID(), current_uid)
+            )
 
 
 def dmsmainfile_modified(dmf, event):
