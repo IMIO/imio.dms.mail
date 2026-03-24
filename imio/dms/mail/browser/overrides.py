@@ -352,9 +352,6 @@ class DocsImportSecondStepView(ImportSecondStepView):
 # collective.solr maintenance view
 
 try:
-    from collective.solr.browser.maintenance import checkpointIterator
-    from collective.solr.browser.maintenance import MAX_ROWS
-    from collective.solr.browser.maintenance import notimeout
     from collective.solr.browser.maintenance import SolrMaintenanceView
     from collective.solr.browser.maintenance import timer
     from collective.solr.indexer import SolrIndexProcessor
