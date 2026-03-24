@@ -5,6 +5,7 @@ from collective.iconifiedcategory.content.events import content_updated
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.iconifiedcategory.utils import update_all_categorized_elements
 from collective.messagesviewlet.utils import add_message
+from collective.quickupload.browser.quickupload_settings import IQuickUploadControlPanel
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from datetime import datetime
@@ -382,6 +383,9 @@ class Migrate_To_3_1(Migrator):  # noqa
                     logger.info("Activating solr")
                     api.portal.set_registry_record("collective.solr.active", True)
                 self.sync_solr()
+
+        logger.info("Setting QuickUpload simultaneous uploads limit to 1")
+        IQuickUploadControlPanel(self.portal).set_sim_upload_limit(1)
 
         self.log_mem("END")
         logger.info("Really finished at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
