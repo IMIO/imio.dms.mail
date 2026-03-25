@@ -48,10 +48,16 @@ Changelog
   [chris-adam]
 - Replaced default actions bar by actionspanel for iconified categories.
   [chris-adam]
+- Added esign fingerpointing.
+  [chris-adam]
+- Added view to display esign annotations.
+  [chris-adam]
+- Added actions panel in signing fieldset.
+  [chris-adam,sgeulette]
 - Added tree struture on OMVersionsTable for eSigned files.
   [chris-adam]
 - Added Session ID column on OMVersionsTable.
-  [chris-adam]
+  [chris-adam,sgeulette]
 
 3.0 (2021-09-30)
 ----------------

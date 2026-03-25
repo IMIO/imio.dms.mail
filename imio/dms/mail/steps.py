@@ -36,6 +36,8 @@ from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import OMToApproveAdaptation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
+from imio.esign.config import get_registry_external_watchers
+from imio.esign.config import get_registry_file_url
 from imio.esign.config import set_registry_enabled
 from imio.esign.config import set_registry_external_watchers
 from imio.esign.config import set_registry_file_url
@@ -103,7 +105,19 @@ def activate_esigning(context):
     )
     log = ["Installed imio.esign"]
 
+    # Configured imio.esign
     set_registry_enabled(True)
+    watchers = [
+        ("geulette", "stephan"),
+        ("leybaert", "benoit"),
+        ("bruyer", "thomas"),
+        ("naisse", "joel"),
+        ("adam", "chris"),
+    ]
+    if not get_registry_external_watchers():
+        set_registry_external_watchers(u", ".join(["{}.{}@imio.be".format(name[1], name[0]) for name in watchers]))
+    if not get_registry_file_url():
+        set_registry_file_url(u"https://documents.imio-egov.be/esign")
 
     if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"):
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
@@ -138,16 +152,6 @@ def activate_esigning(context):
 
     # update approvers settings
     update_approvers_settings()
-
-    # Add team members to watchers
-    watchers = [
-        ("geulette", "stephan"),
-        ("leybaert", "benoit"),
-        ("bruyer", "thomas"),
-        ("naisse", "joel"),
-        ("adam", "chris"),
-    ]
-    set_registry_external_watchers(u", ".join(["{}.{}@imio.be".format(name[1], name[0]) for name in watchers]))
 
     return "\n".join(log)
 
@@ -905,7 +909,6 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
         )
         set_registry_vat_number(u"BE0000000097")
-        set_registry_file_url("https://fileserver.files.be")
         set_registry_seal_code(u"PADES_SEAL")
         set_registry_seal_email(u"sceau@imio.be")
         # set_registry_sign_code(u"BULK_VISA")
