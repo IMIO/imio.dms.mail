@@ -1208,6 +1208,14 @@ class OMView(DmsDocumentView):
         if not self.widgets["orig_sender_email"].value:
             self.widgets["orig_sender_email"].mode = HIDDEN_MODE
 
+    def legend_extra(self, group):
+        if group.__name__ == 'signing':
+            return self.context.restrictedTraverse('@@signing_actions_panel')()
+        # TODO do the same for email
+        # if group.__name__ == "email":
+        #     return xxx
+        return u""
+
 
 # Validators
 
