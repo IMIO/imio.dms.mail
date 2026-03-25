@@ -909,7 +909,6 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
         )
         set_registry_vat_number(u"BE0000000097")
-        set_registry_file_url("https://fileserver.files.be")
         set_registry_seal_code(u"PADES_SEAL")
         set_registry_seal_email(u"sceau@imio.be")
         # set_registry_sign_code(u"BULK_VISA")
