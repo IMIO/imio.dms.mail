@@ -590,6 +590,25 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
   color: #75ad0a;
 }
 
+/* esign PDF-generated version child rows - tree indentation */
+#fieldset-versions table.dv tr.pdf-child-row td a.version-link {
+    padding-left: 20px;
+    position: relative;
+}
+#fieldset-versions table.dv tr.pdf-child-row td a.version-link::before {
+    content: "\2937";
+    position: absolute;
+    left: 0;
+    color: #373737;
+    font-weight: bold;
+}
+#fieldset-versions table.dv tr a.pdf-session-badge {
+    color: #333;
+    background: #eee;
+    border-radius: 3px;
+    vertical-align: middle;
+}
+
 #collections-count-refresh {
     vertical-align: middle;
     margin-left: 1em;
