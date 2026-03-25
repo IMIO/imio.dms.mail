@@ -17,9 +17,11 @@ from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
 from imio.esign.browser.actions import RemoveItemFromSessionView
+from imio.esign.browser.actions import SessionAnnotationInfoView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.config import get_registry_enabled
+from imio.esign.utils import persistent_to_native
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.content import richtextval
 from imio.helpers.content import uuidToObject
@@ -668,3 +670,16 @@ class ImioCatalogNavigationTabs(CatalogNavigationTabs):
         result = sorted(result, key=lambda x: x['id'] == "plus")
 
         return result
+
+
+class OMSessionAnnotationInfoView(SessionAnnotationInfoView):
+    """Admin-only view displaying idm.approval and imio.esign session annotations for an outgoing mail."""
+
+    index = ViewPageTemplateFile("templates/session_annotation_info.pt")
+
+    @property
+    def approval_annot_html(self):
+        """Renders approval annot in HTML"""
+        approval = IOMApproval(self.context)
+        native = persistent_to_native(approval.annot)
+        return self._render_value(native)

@@ -50,6 +50,10 @@ Changelog
   [chris-adam]
 - Added esign fingerpointing.
   [chris-adam]
+- Added view to display esign annotations.
+  [chris-adam]
+- Added actions panel in signing fieldset.
+  [chris-adam,sgeulette]
 
 3.0 (2021-09-30)
 ----------------

@@ -179,6 +179,47 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
     }
 
 
+class SigningFieldsetActionsPanelView(ActionsPanelView):
+    """Actions panel for signing actions located in outgoing mail signing fieldset"""
+
+    _fieldset = "signing"
+
+    def __init__(self, context, request):
+        super(SigningFieldsetActionsPanelView, self).__init__(context, request)
+        self.ACCEPTABLE_ACTIONS = ["edit", "manage-approvals", "session-annotation-info"]
+
+    @property
+    def fieldset(self):
+        return "#fieldsetlegend-" + self._fieldset
+
+    def renderEdit(self):
+        if self.showEdit and self.mayEdit():
+            # TODO adapt imio.actionspanel directly to handle this case and avoid to override template
+            return ViewPageTemplateFile("templates/fieldset_actions_panel_edit.pt")(self)
+        return ""
+
+    @ram.cache(actionspanelview_cachekey)
+    def SigningFieldsetActionsPanelView__call__(
+        self,
+        useIcons=True,
+        showEdit=True,
+        showOwnDelete=False,
+        showTransitions=False,
+        **kwargs
+    ):
+        super(SigningFieldsetActionsPanelView, self).__call__(
+            useIcons=useIcons,
+            showEdit=showEdit,
+            showOwnDelete=showOwnDelete,
+            showTransitions=showTransitions,
+            **kwargs
+        )
+        self.saveHasActions()  # To remove dash "-" when no actions available
+        return self.index()
+
+    __call__ = SigningFieldsetActionsPanelView__call__
+
+
 class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
 
     typeupload = "dmsappendixfile"
@@ -207,7 +248,7 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
         super(DmsOMActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
-        self.ACCEPTABLE_ACTIONS = ["delete", 'approvals']
+        self.ACCEPTABLE_ACTIONS = ["delete"]
         self.SECTIONS_TO_RENDER += (
             "render_create_from_template_button",
             "render_create_new_message",
