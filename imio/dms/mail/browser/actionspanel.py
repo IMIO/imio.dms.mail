@@ -194,6 +194,7 @@ class SigningFieldsetActionsPanelView(ActionsPanelView):
 
     def renderEdit(self):
         if self.showEdit and self.mayEdit():
+            # TODO adapt imio.actionspanel directly to handle this case and avoid to override template
             return ViewPageTemplateFile("templates/fieldset_actions_panel_edit.pt")(self)
         return ""
 
