@@ -398,7 +398,7 @@ class ImioDmsIncomingMailWfConditionsAdapter(object):
         return True
 
 
-InitializeClass(ImioDmsIncomingMailWfConditionsAdapter)
+InitializeClass(ImioDmsIncomingMailWfConditionsAdapter)  # needed for security.declare
 
 
 def updatewidgets_assigned_user_description(the_form):

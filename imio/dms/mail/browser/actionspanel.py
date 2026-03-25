@@ -186,7 +186,7 @@ class SigningFieldsetActionsPanelView(ActionsPanelView):
 
     def __init__(self, context, request):
         super(SigningFieldsetActionsPanelView, self).__init__(context, request)
-        self.ACCEPTABLE_ACTIONS = ["edit", "approvals", "session-annotation-info"]
+        self.ACCEPTABLE_ACTIONS = ["edit", "manage-approvals", "session-annotation-info"]
 
     @property
     def fieldset(self):

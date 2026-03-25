@@ -60,6 +60,7 @@
         name="session-annotation-info"
         class=".views.OMSessionAnnotationInfoView"
         permission="cmf.ManagePortal"
+        allowed_attributes="available"
         />
 
     <browser:page
