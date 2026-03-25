@@ -10,6 +10,7 @@ from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSig
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import logger  # noqa F401
+# from imio.esign.audit import audit as esign_audit
 from plone import api
 from plone.memoize.interfaces import ICacheChooser
 from zope.component import getUtility
@@ -303,20 +304,24 @@ class SignedChangeView(BaseSignedChangeView):
                 values['to_sign'] = True
                 values['signed'] = False
                 status = 0
+#                esign_audit("enable_to_sign", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
             else:
                 values['to_sign'] = False
                 values['signed'] = False
                 status = -1
+#                esign_audit("disable_to_sign", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
             self.reload = True
         elif old_values['to_sign'] and self.p_state in ("to_be_signed", "signed"):
             if old_values['signed'] is False:
                 values['to_sign'] = True
                 values['signed'] = True
                 status = 1
+#                esign_audit("mark_as_signed", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
             else:
                 values['to_sign'] = True
                 values['signed'] = False
                 status = 0
+#                esign_audit("unmark_as_signed", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
         # logger.info("After values change: %s, %s", status, values)
         return status, values
 

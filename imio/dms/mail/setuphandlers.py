@@ -13,6 +13,7 @@ __docformat__ = "plaintext"
 
 from collections import OrderedDict
 from collective.ckeditortemplates.setuphandlers import FOLDER as DEFAULT_CKE_TEMPL_FOLDER
+from collective.quickupload.browser.quickupload_settings import IQuickUploadControlPanel
 from collective.documentgenerator.interfaces import IBelowContentBodyBatchActionsMarker
 from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
@@ -530,6 +531,9 @@ def postInstall(context):
     site.portal_setup.runImportStepFromProfile(
         "profile-imio.dms.mail:singles", "imiodmsmail-contact-import-pipeline", run_dependencies=False
     )
+
+    # set sim_upload_limit to 1 to prevent ZODB conflicts on concurrent uploads
+    IQuickUploadControlPanel(site).set_sim_upload_limit(1)
 
     # remove collective.ckeditortemplates folder
     if DEFAULT_CKE_TEMPL_FOLDER in site:
