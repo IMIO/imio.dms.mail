@@ -2,7 +2,6 @@
 from collective.contact.plonegroup.browser.tables import OrgaPrettyLinkWithAdditionalInfosColumn as opl_base
 from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
-from collective.eeafaceted.z3ctable.columns import BaseColumn
 from collective.iconifiedcategory import utils as ic_utils
 from collective.iconifiedcategory.browser.tabview import CategorizedContent
 from collective.task import _ as _task
@@ -17,7 +16,6 @@ from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
 from z3c.table.table import Table
 from zope.cachedescriptors.property import CachedProperty
-from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.schema.interfaces import IVocabularyFactory
@@ -74,32 +72,6 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
             description=escape(safe_unicode(content.Description)),
             # signed=signed,
         )
-
-
-class SessionIdColumn(BaseColumn):
-    """"""
-    weight = 10
-    escape = False
-
-    def renderHeadCell(self):
-        return u'<img src="++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID'
-
-    def renderCell(self, content):
-        session_id = self.table._session_annotation.get("uids", {}).get(content.UID, None)
-        portal = api.portal.get()
-        dashboard_link = getMultiAdapter((portal, portal.REQUEST), name="parapheo").get_dashboard_link({"id": session_id})
-        if session_id is not None and len(self.table._approval.session_ids) > 1:
-            return u'<a href={dashboard_link} title="{title}" class="pdf-session-badge">#{session_id}</span>'.format(
-                dashboard_link=dashboard_link,
-                title=translate(
-                    u"Paraphéo session ID: ${session_id}",
-                    domain="imio.dms.mail",
-                    context=content.REQUEST,
-                    mapping={'session_id': session_id},
-                ),
-                session_id=session_id,
-            )
-        return u""
 
 
 class EnquirerColumn(Column):
@@ -161,21 +133,20 @@ class OMVersionsTable(BaseVersionsTable):
 
     When the esign approval process generates PDF files from source files, the
     table reorders rows so each PDF child appears directly below its source, and
-    adds a ``pdf-child-row`` CSS class for visual indentation (↳ arrow via CSS).
+    adds a ``pdf-child-row`` CSS class for visual indentation (⤷ arrow via CSS).
 
         +----------------------------------+-----+--------+
         | Title                            | ... | signed |
         +----------------------------------+-----+--------+
         | [icon] Source file A             |     |        |
-        |   ↳ #1 [icon] PDF of A           |     |   ✔    |  ← pdf-child-row
+        |   ⤷ [icon] PDF of A              |     |   ✔    |  ← pdf-child-row
         | [icon] File B (no signature)     |     |        |
         | [icon] Source file C             |     |        |
-        |   ↳ #2 [icon] PDF of C           |     |   ✔    |  ← pdf-child-row
+        |   ⤷ [icon] PDF of C              |     |   ✔    |  ← pdf-child-row
         +----------------------------------+-----+--------+
 
-    Notes:
-    - The ``#N`` session badge (OMVersionsTitleColumn) appears only when the
-      mail spans multiple esign sessions (len(approval.session_ids) > 1).
+    # Notes:
+    - The session-id-column appears only when the mail spans multiple esign sessions.
     """
 
     portal_types = ["dmsommainfile", "dmsappendixfile"]
@@ -228,7 +199,7 @@ class OMVersionsTable(BaseVersionsTable):
     def setUpColumns(self):
         """Removes SessionIdColumn if eSignature is disabled or this mail doesn't belong to any session"""
         columns = super(OMVersionsTable, self).setUpColumns()
-        if not get_registry_enabled() or not self.context.UID() in self._session_annotation['c_uids']:
+        if not get_registry_enabled() or len(self._approval.session_ids) < 2:
             columns = [col for col in columns if col.__name__ != "session-id-column"]
         return columns
 

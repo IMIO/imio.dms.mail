@@ -596,10 +596,11 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     position: relative;
 }
 #fieldset-versions table.dv tr.pdf-child-row td a.version-link::before {
-    content: "\21B3 ";
+    content: "\2937";
     position: absolute;
     left: 0;
-    color: #888;
+    color: #373737;
+    font-weight: bold;
 }
 #fieldset-versions table.dv tr a.pdf-session-badge {
     color: #333;

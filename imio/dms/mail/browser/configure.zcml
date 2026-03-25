@@ -922,14 +922,6 @@
         provides="z3c.table.interfaces.IColumn"
         name="title-column"
     />
-    <adapter
-        for="zope.interface.Interface
-             zope.publisher.interfaces.browser.IBrowserRequest
-             collective.dms.basecontent.browser.listing.VersionsTable"
-        factory=".table.SessionIdColumn"
-        provides="z3c.table.interfaces.IColumn"
-        name="session-id-column"
-    />
 
     <unconfigure package="imio.annex">
         <adapter
