@@ -364,6 +364,16 @@ class Migrate_To_3_1(Migrator):  # noqa
                             {"pod_context_name": u"doc_cb_download", "do_rendering": False,
                              "template": doc_cb_download_uid})
                         obj.merge_templates = merge_templates
+                # update front-page
+                frontpage = self.portal["front-page"]
+                if frontpage.Title() == "Gestion du courrier 3.0":
+                    frontpage.setTitle(_("front_page_title"))
+                    frontpage.setDescription(_("front_page_descr"))
+                    frontpage.setText(_("front_page_text"), mimetype="text/html")
+
+                # update portal title
+                self.portal.title = "Gestion du courrier 3.1"
+
             # if active_solr:
             #     logger.info("Activating solr")
             #     api.portal.set_registry_record("collective.solr.active", True)

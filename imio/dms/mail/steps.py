@@ -717,7 +717,7 @@ d’un modèle prédéfini</li>
 une autre application, déjà imprimé et signé)</li>
 </ul>
 </li>
-<li>Signature électronique en lot des courriers sortants et/ou d'annexes, avec approbation préalable</li>
+<li>Signature électronique en lot des courriers sortants et/ou d'annexes (Paraphéo), avec approbation préalable</li>
 <li>Envoi possible d'un courrier sortant par email (avec pièces jointes, signature dynamique et modèle de message)</li>
 <li>Gestion d'un arbre de classement (pour la classification)</li>
 <li>Intégration d'une gestion de dossiers (avec les notions de farde et chemise), permettant de regrouper les courriers
