@@ -1,8 +1,8 @@
 Changelog
 =========
 
-3.1 (unreleased)
-----------------
+3.1.0 (2026-03-26)
+------------------
 
 - Added read mode.
   [chris-adam, sgeulette]
