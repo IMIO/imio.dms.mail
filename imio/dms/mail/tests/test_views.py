@@ -531,7 +531,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
       'userid': 'bourgmestre',
     }},
   ],
-  'size': 54660,
+  'size': {size},
   'state': 'draft',
   'title': u'[ia.docs] Session 012999900000',
   'watchers': [],
@@ -540,5 +540,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
                 pdf2_uid=api.content.get(omail.absolute_url_path() + "/reponse-salle-1.pdf").UID(),
                 folder_name=omail.__parent__.__name__,
                 last_update=repr(get_session_annotation()["sessions"][0]["last_update"]),
+                size=api.content.get(omail.absolute_url_path() + "/reponse-salle.pdf").file.size
+                + api.content.get(omail.absolute_url_path() + "/reponse-salle-1.pdf").file.size,
             ),
         )
