@@ -110,7 +110,7 @@ def activate_esigning(context):
     watchers = [
         ("geulette", "stephan"),
         ("leybaert", "benoit"),
-        ("bruyer", "thomas"),
+        # ("bruyer", "thomas"),
         ("naisse", "joel"),
         ("adam", "chris"),
     ]
