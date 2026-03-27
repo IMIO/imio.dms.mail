@@ -153,7 +153,7 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 
 .template-dmsdocument-edit #fieldset-versions {
     width: 65% !important;
-    padding-top: 4em;
+    margin-top: 6em;
 }
 
 #all-fields, .template-dmsdocument-edit #content-core #fieldset-default {
@@ -236,7 +236,6 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
     margin-top: 3em;
 }
 
-.template-dmsdocument-edit #fieldset-versions table,
 .template-dmsdocument-edit #content-core > p.discreet,
 .template-dmsdocument-edit #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs {
     display: None;
