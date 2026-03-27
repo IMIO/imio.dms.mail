@@ -617,10 +617,11 @@ def import_sign_examples(self, userid="", cases="1234567"):
     if not check_role(self):
         return "You must be a manager to run this script"
     if not userid:
+        user = api.user.get_current()
         return ("You must call this script with the following parameters:\n"
                 "-> userid : mandatory userid used as signer\n"
                 "-> cases : create only specified cases\n"
-                "Example: import_sign_examples?userid=dirg&cases=136\n\n"
+                "Example: import_sign_examples?userid={}&cases=136\n\n"
                 "Cases:\n"
                 "-> 1 : signataire avec modèle\n"
                 "-> 2 : signataire avec annexe seule\n"
@@ -628,7 +629,7 @@ def import_sign_examples(self, userid="", cases="1234567"):
                 "-> 4 : seal avec modèle\n"
                 "-> 5 : signataire et seal avec modèle\n"
                 "-> 6 : signataire avec modèle à publiposter\n"
-                "-> 7 : sans signature électronique avec modèle\n"
+                "-> 7 : sans signature électronique avec modèle\n".format(user and user.getId() or "dirg")
                 )
 
     portal = api.portal.get()
