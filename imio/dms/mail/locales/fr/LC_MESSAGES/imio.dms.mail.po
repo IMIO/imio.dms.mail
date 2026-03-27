@@ -272,7 +272,7 @@ msgstr "Formats de fichier autorisés comme fichier ged"
 
 #: ./browser/batchactions.py:69
 msgid "An assigned user is not in this new treating group. Mail \"${mail}\" !"
-msgstr "Un utilisateur assigné n'est pas dans le nouveau service traitant. Courrier \"${mail}\" !"
+msgstr "Un utilisateur assigné n'est pas dans le nouveau service traitant. Courrier « ${mail} » !"
 
 #: ./examples.py:113
 msgid "Annex"
@@ -683,7 +683,7 @@ msgstr "Général"
 
 #: ./browser/settings.py:778
 msgid "Groups hidden in dashboards filter"
-msgstr "Services à ne pas afficher dans les filtres \"Service traitant\", \"Service en copie\" ou \"Groupe assigné\" des tableaux de bord"
+msgstr "Services à ne pas afficher dans les filtres «Service traitant», «Service en copie» ou «Groupe assigné» des tableaux de bord"
 
 #: ./adapters.py:
 msgid "Has response icon"
@@ -1036,7 +1036,7 @@ msgstr "Chemin relatif"
 
 #: ./adapters.py:
 msgid "Remark icon"
-msgstr "Le champ \"description du travail\" n'est pas vide"
+msgstr "Le champ «description du travail» n'est pas vide"
 
 #: ./browser/templates/actions_panel_reply.pt:5
 msgid "Reply"
@@ -1165,7 +1165,7 @@ msgstr "Valeur état"
 
 #: ./browser/settings.py:509
 msgid "States for which to display remark icon"
-msgstr "États pour lesquels afficher l'icône de \"remarque\" "
+msgstr "États pour lesquels afficher l'icône de «remarque» "
 
 #: ./browser/settings.py:454
 msgid "Stored value/id"
@@ -1333,7 +1333,7 @@ msgstr "Personnes qui peuvent approuver avant signature."
 
 #: ./browser/settings.py:786
 msgid "Users hidden in dashboards filter"
-msgstr "Utilisateurs à ne pas afficher dans les filtres \"Utilisateur assigné\" ou \"Auteur\" des tableaux de bord"
+msgstr "Utilisateurs à ne pas afficher dans les filtres «Utilisateur assigné» ou «Auteur» des tableaux de bord"
 
 #: ./browser/settings.py:368
 msgid "Valid from"
@@ -1357,7 +1357,7 @@ msgstr "Rédiger email"
 
 #: ./dmsfile.py:33
 msgid "You can only upload \".odt\" file (Libre Office format)"
-msgstr "Vous pouvez seulement uploader un fichier \".odt\" (format Libre Office)"
+msgstr "Vous pouvez seulement uploader un fichier «.odt» (format Libre Office)"
 
 #: ./subscribers.py:1253
 msgid "You cannot add a group in a group !"
@@ -1604,7 +1604,7 @@ msgstr "Bienvenue sur votre outil de gestion du courrier"
 #: ./migrations/migrate_to_2_1.py:293
 #: ./migrations/migrate_to_2_3.py:171
 msgid "front_page_text"
-msgstr "<p>L'application contient actuellement les <strong>fonctionnalités suivantes</strong>:</p><ul><li>Création d'une fiche courrier entrant<ul><li>automatiquement après avoir scanné les courriers papier, avec un code barre séparateur collé sur la première page de chaque courrier</li><li>automatiquement après transfert autonome d'un email depuis un boîte générale ou transfert manuel</li><li>manuellement avec la possibilité d'associer ensuite un document scanné</li></ul></li><li>Création d'une fiche courrier sortant<ul><li>en réponse à un (ou plusieurs) courrier entrant avec reprise des données encodées sur l'entrant</li><li>manuellement avec la possibilité d'associer ensuite un document au format bureautique qui peut être généré à partir d’un modèle prédéfini</li><li>automatiquement après avoir scanné des courriers, avec un code barre séparateur (par exemple un courrier généré par une autre application, déjà imprimé et signé)</li></ul></li><li>Signature électronique en lot des courriers sortants et/ou d'annexes (Paraphéo), avec approbation préalable</li><li>Envoi possible d'un courrier sortant par email (avec pièces jointes, signature dynamique et modèle de message)</li><li>Gestion d'un arbre de classement (pour la classification)</li><li>Intégration d'une gestion de dossiers (avec les notions de farde et chemise), permettant de regrouper les courriers d'un dossier</li><li>Lien avec iA.Delib: création d'un point depuis une fiche courrier</li><li>Configuration de règles pour définir les signataires à partir de critères</li><li>Possibilité de configurer des services ''indicateur'' différents (confidentialité) et de présélectionner les services indicateur et traitant depuis le logiciel de scan</li><li>Le code barre intégré dans le courrier sortant généré (signé manuscritement ou électroniquement) permet d’effectuer un \"scan\" des documents après signature.&nbsp;Cela automatise les opérations suivantes :<ul><li>la sauvegarde de la version signée du document dans la fiche courrier sortant</li><li>l'enregistrement de la date d'expédition</li><li>la clôture de la fiche courrier sortant</li></ul></li><li><p>Possibilité de compléter les données de la fiche en faisant un ''glisser/déplacer'' depuis le texte océrisé</p></li><li>L'utilisation d'un modèle de courrier sortant a comme avantage de gérer automatiquement<ul><li>la fusion de données,</li><li>l'impression en lot,</li><li>l'intégration d'un code-barre</li><li>le publipostage</li></ul></li><li>Recherches prédéfinies suivant les actions à effectuer et l'état des courriers, avec indication du nombre d'éléments \"à traiter\"</li><li>Affichage des résultats dans un tableau dynamique avec filtres modifiables, tri, pagination, colonne d'actions, actions par lot, etc</li><li>Assignation d'un service traitant, des services en copie et gestion de tâches (qui peuvent aussi être assignées à d'autres services)</li><li>Choix d'un utilisateur responsable au sein du service traitant ou sur une tâche, ainsi qu'une date d'échéance</li><li>Gestion des contacts (expéditeurs, destinataires, liste de contacts)</li><li>Workflow de validation configurable (de n+1 à n+5 pour l'entrant et n+1 pour le sortant) et variable suivant les services</li><li>Workflow de traitement du courrier et des tâches</li><li>Gestion des absences</li><li>Possibilité d'avancer élément par élément depuis les résultats d'une recherche</li><li>Visualisation d'un courrier sans téléchargement de la pièce originale (facilité de visualisation sur tablette) et mode visualisation simplifié</li><li>etc.</li></ul>"
+msgstr "<p>L'application contient actuellement les <strong>fonctionnalités suivantes</strong>:</p><ul><li>Création d'une fiche courrier entrant<ul><li>automatiquement après avoir scanné les courriers papier, avec un code barre séparateur collé sur la première page de chaque courrier</li><li>automatiquement après transfert autonome d'un email depuis un boîte générale ou transfert manuel</li><li>manuellement avec la possibilité d'associer ensuite un document scanné</li></ul></li><li>Création d'une fiche courrier sortant<ul><li>en réponse à un (ou plusieurs) courrier entrant avec reprise des données encodées sur l'entrant</li><li>manuellement avec la possibilité d'associer ensuite un document au format bureautique qui peut être généré à partir d’un modèle prédéfini</li><li>automatiquement après avoir scanné des courriers, avec un code barre séparateur (par exemple un courrier généré par une autre application, déjà imprimé et signé)</li></ul></li><li>Signature électronique en lot des courriers sortants et/ou d'annexes (Paraphéo), avec approbation préalable</li><li>Envoi possible d'un courrier sortant par email (avec pièces jointes, signature dynamique et modèle de message)</li><li>Gestion d'un arbre de classement (pour la classification)</li><li>Intégration d'une gestion de dossiers (avec les notions de farde et chemise), permettant de regrouper les courriers d'un dossier</li><li>Lien avec iA.Delib: création d'un point depuis une fiche courrier</li><li>Configuration de règles pour définir les signataires à partir de critères</li><li>Possibilité de configurer des services « indicateur » différents (confidentialité) et de présélectionner les services indicateur et traitant depuis le logiciel de scan</li><li>Le code barre intégré dans le courrier sortant généré (signé manuscritement ou électroniquement) permet d’effectuer un « scan » des documents après signature.&nbsp;Cela automatise les opérations suivantes :<ul><li>la sauvegarde de la version signée du document dans la fiche courrier sortant</li><li>l'enregistrement de la date d'expédition</li><li>la clôture de la fiche courrier sortant</li></ul></li><li><p>Possibilité de compléter les données de la fiche en faisant un « glisser/déplacer » depuis le texte océrisé</p></li><li>L'utilisation d'un modèle de courrier sortant a comme avantage de gérer automatiquement<ul><li>la fusion de données,</li><li>l'impression en lot,</li><li>l'intégration d'un code-barre</li><li>le publipostage</li></ul></li><li>Recherches prédéfinies suivant les actions à effectuer et l'état des courriers, avec indication du nombre d'éléments « à traiter »</li><li>Affichage des résultats dans un tableau dynamique avec filtres modifiables, tri, pagination, colonne d'actions, actions par lot, etc</li><li>Assignation d'un service traitant, des services en copie et gestion de tâches (qui peuvent aussi être assignées à d'autres services)</li><li>Choix d'un utilisateur responsable au sein du service traitant ou sur une tâche, ainsi qu'une date d'échéance</li><li>Gestion des contacts (expéditeurs, destinataires, liste de contacts)</li><li>Workflow de validation configurable (de n+1 à n+5 pour l'entrant et n+1 pour le sortant) et variable suivant les services</li><li>Workflow de traitement du courrier et des tâches</li><li>Gestion des absences</li><li>Possibilité d'avancer élément par élément depuis les résultats d'une recherche</li><li>Visualisation d'un courrier sans téléchargement de la pièce originale (facilité de visualisation sur tablette) et mode visualisation simplifié</li><li>etc.</li></ul>"
 
 #: ./migrations/migrate_to_2_0.py:250
 #: ./migrations/migrate_to_2_1.py:291
