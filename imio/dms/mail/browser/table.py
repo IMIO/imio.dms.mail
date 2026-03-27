@@ -8,7 +8,7 @@ from collective.task import _ as _task
 from html import escape  # noqa F401
 from imio.dms.mail import _
 from imio.dms.mail.interfaces import IOMApproval
-from imio.esign.config import get_registry_enabled
+from imio.esign.config import get_esign_registry_enabled
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import uuidToObject
 from plone import api
@@ -199,7 +199,7 @@ class OMVersionsTable(BaseVersionsTable):
     def setUpColumns(self):
         """Removes SessionIdColumn if eSignature is disabled or this mail doesn't belong to any session"""
         columns = super(OMVersionsTable, self).setUpColumns()
-        if not get_registry_enabled() or len(self._approval.session_ids) < 2:
+        if not get_esign_registry_enabled() or len(self._approval.session_ids) < 2:
             columns = [col for col in columns if col.__name__ != "session-id-column"]
         return columns
 

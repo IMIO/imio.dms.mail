@@ -36,14 +36,14 @@ from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import OMToApproveAdaptation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
-from imio.esign.config import get_registry_external_watchers
-from imio.esign.config import get_registry_file_url
-from imio.esign.config import set_registry_enabled
-from imio.esign.config import set_registry_external_watchers
-from imio.esign.config import set_registry_file_url
-from imio.esign.config import set_registry_seal_code
-from imio.esign.config import set_registry_seal_email
-from imio.esign.config import set_registry_vat_number
+from imio.esign.config import get_esign_registry_external_watchers
+from imio.esign.config import get_esign_registry_file_url
+from imio.esign.config import set_esign_registry_enabled
+from imio.esign.config import set_esign_registry_external_watchers
+from imio.esign.config import set_esign_registry_file_url
+from imio.esign.config import set_esign_registry_seal_code
+from imio.esign.config import set_esign_registry_seal_email
+from imio.esign.config import set_esign_registry_vat_number
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.emailer import get_mail_host
@@ -110,7 +110,7 @@ def activate_esigning(context):
     load_type_from_package("SubTemplate", "profile-imio.dms.mail:default")  # views
 
     # Configured imio.esign
-    set_registry_enabled(True)
+    set_esign_registry_enabled(True)
     watchers = [
         ("geulette", "stephan"),
         ("leybaert", "benoit"),
@@ -118,10 +118,10 @@ def activate_esigning(context):
         ("naisse", "joel"),
         ("adam", "chris"),
     ]
-    if not get_registry_external_watchers():
-        set_registry_external_watchers(u", ".join(["{}.{}@imio.be".format(name[1], name[0]) for name in watchers]))
-    if not get_registry_file_url():
-        set_registry_file_url(u"https://documents.imio-egov.be/esign")
+    if not get_esign_registry_external_watchers():
+        set_esign_registry_external_watchers(u", ".join(["{}.{}@imio.be".format(name[1], name[0]) for name in watchers]))
+    if not get_esign_registry_file_url():
+        set_esign_registry_file_url(u"https://documents.imio-egov.be/esign")
 
     if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"):
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
@@ -912,10 +912,10 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         site.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
         )
-        set_registry_vat_number(u"BE0000000097")
-        set_registry_seal_code(u"PADES_SEAL")
-        set_registry_seal_email(u"sceau@imio.be")
-        # set_registry_sign_code(u"BULK_VISA")
+        set_esign_registry_vat_number(u"BE0000000097")
+        set_esign_registry_seal_code(u"PADES_SEAL")
+        set_esign_registry_seal_email(u"sceau@imio.be")
+        # set_esign_registry_sign_code(u"BULK_VISA")
 
         activated_orgs = get_registry_organizations()
         for dic in signer_rules:

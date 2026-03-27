@@ -31,7 +31,7 @@ from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
-from imio.esign.config import set_registry_file_url
+from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import get_session_annotation
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
@@ -474,7 +474,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.portal.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
         )
-        set_registry_file_url("https://downloads.files.com")
+        set_esign_registry_file_url("https://downloads.files.com")
         # Create outgoing mail with two eSign signers and two files to approve
         intids = getUtility(IIntIds)
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
