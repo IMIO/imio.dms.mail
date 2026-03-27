@@ -48,6 +48,7 @@ from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.security import get_user_from_criteria
+from imio.helpers.setup import load_type_from_package
 from imio.helpers.setup import load_workflow_from_package
 from imio.helpers.workflow import do_transitions
 from imio.pyutils.system import read_csv
@@ -104,6 +105,9 @@ def activate_esigning(context):
         "profile-imio.dms.mail:default", "actions", run_dependencies=False
     )
     log = ["Installed imio.esign"]
+    load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # content category
+    load_type_from_package("PODTemplate", "profile-imio.dms.mail:default")  # views
+    load_type_from_package("SubTemplate", "profile-imio.dms.mail:default")  # views
 
     # Configured imio.esign
     set_registry_enabled(True)

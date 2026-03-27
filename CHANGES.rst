@@ -4,8 +4,10 @@ Changelog
 3.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Updated front page content.
+  [sgeulette]
+- Corrected esign activation by reloading documentgenerator types
+  [sgeulette]
 
 3.1.0 (2026-03-26)
 ------------------
