@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.1.1 (unreleased)
+3.1.1 (2026-03-27)
 ------------------
 
 - Updated front page content.
