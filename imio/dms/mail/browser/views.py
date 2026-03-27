@@ -20,7 +20,7 @@ from imio.esign.browser.actions import RemoveItemFromSessionView
 from imio.esign.browser.actions import SessionAnnotationInfoView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
-from imio.esign.config import get_registry_enabled
+from imio.esign.config import get_esign_registry_enabled
 from imio.esign.utils import persistent_to_native
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.content import richtextval
@@ -497,7 +497,7 @@ class ImioSessionsListingView(SessionsListingView):
 
     def available(self):
         # check if esign is disabled
-        if not get_registry_enabled():
+        if not get_esign_registry_enabled():
             return False
         # check if user has manage_session_perm on context
         if api.user.has_permission(manage_session_perm, obj=self.context):
@@ -516,7 +516,7 @@ class ImioExternalSessionCreateView(ExternalSessionCreateView):
 
     def may_create_external_sessions(self):
         # check if esign is disabled
-        if not get_registry_enabled():
+        if not get_esign_registry_enabled():
             return False
         # check if user has manage_session_perm on context
         if api.user.has_permission(manage_session_perm, obj=self.context):

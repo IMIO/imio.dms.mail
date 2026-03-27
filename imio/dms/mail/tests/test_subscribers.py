@@ -19,7 +19,7 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
-from imio.esign.config import set_registry_file_url
+from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import get_session_annotation
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
@@ -310,8 +310,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             mock_approval = Mock()
             MockAdapter.return_value = mock_approval
             mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
-            with patch("imio.dms.mail.subscribers.get_registry_seal_code", return_value=None):
-                with patch("imio.dms.mail.subscribers.get_registry_seal_email", return_value=u"sign@example.com"):
+            with patch("imio.dms.mail.subscribers.get_esign_registry_seal_code", return_value=None):
+                with patch("imio.dms.mail.subscribers.get_esign_registry_seal_email", return_value=u"sign@example.com"):
                     with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
                         dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
                         MockESV.assert_not_called()
@@ -327,8 +327,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             mock_approval = Mock()
             MockAdapter.return_value = mock_approval
             mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
-            with patch("imio.dms.mail.subscribers.get_registry_seal_code", return_value=None):
-                with patch("imio.dms.mail.subscribers.get_registry_seal_email", return_value=None):
+            with patch("imio.dms.mail.subscribers.get_esign_registry_seal_code", return_value=None):
+                with patch("imio.dms.mail.subscribers.get_esign_registry_seal_email", return_value=None):
                     with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
                         dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
                         MockESV.assert_not_called()
@@ -345,8 +345,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             mock_approval = Mock()
             MockAdapter.return_value = mock_approval
             mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
-            with patch("imio.dms.mail.subscribers.get_registry_seal_code", return_value=u"1234"):
-                with patch("imio.dms.mail.subscribers.get_registry_seal_email", return_value=None):
+            with patch("imio.dms.mail.subscribers.get_esign_registry_seal_code", return_value=u"1234"):
+                with patch("imio.dms.mail.subscribers.get_esign_registry_seal_email", return_value=None):
                     with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
                         dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
                         MockESV.assert_not_called()
@@ -362,8 +362,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             MockAdapter.return_value = mock_approval
             mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
             mock_approval.session_ids = [u"session-abc"]
-            with patch("imio.dms.mail.subscribers.get_registry_seal_code", return_value=u"1234"):
-                with patch("imio.dms.mail.subscribers.get_registry_seal_email", return_value=u"sign@example.com"):
+            with patch("imio.dms.mail.subscribers.get_esign_registry_seal_code", return_value=u"1234"):
+                with patch("imio.dms.mail.subscribers.get_esign_registry_seal_email", return_value=u"sign@example.com"):
                     with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
                         mock_esv_instance = Mock()
                         MockESV.return_value = mock_esv_instance
@@ -1148,7 +1148,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.portal.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
         )
-        set_registry_file_url("https://downloads.files.com")
+        set_esign_registry_file_url("https://downloads.files.com")
         intids = getUtility(IIntIds)
         params = {
             "title": u"Courrier sortant test",

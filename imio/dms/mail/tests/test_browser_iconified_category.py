@@ -13,7 +13,7 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import clean_borg_cache
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
-from imio.esign.config import set_registry_file_url
+from imio.esign.config import set_esign_registry_file_url
 from imio.helpers.content import uuidToCatalogBrain
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
@@ -37,7 +37,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.portal.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
         )
-        set_registry_file_url("https://downloads.files.com")
+        set_esign_registry_file_url("https://downloads.files.com")
 
         # TODO patch workflow to add to_print state
         # sva = OMToPrintAdaptation()
