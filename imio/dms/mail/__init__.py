@@ -10,7 +10,13 @@ from zope.component import queryUtility
 from zope.i18n.interfaces import ITranslationDomain
 from zope.i18nmessageid import MessageFactory
 
+import logging
 import os
+
+
+logger = logging.getLogger('imio.dms.mail')
+
+from imio.dms.mail import monkey  # noqa: apply monkey patches, must come after logger
 
 
 allow_module('imio.dms.mail.utils')
