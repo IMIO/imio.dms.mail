@@ -3,6 +3,8 @@ from AccessControl import getSecurityManager
 from borg.localrole.interfaces import ILocalRoleProvider
 from collective.classification.folder.interfaces import IServiceInCharge
 from collective.classification.folder.interfaces import IServiceInCopy
+from collective.collabora.interfaces import IStoredFile
+from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.indexers import contact_source
 from collective.contact.core.interfaces import IContactContent
@@ -15,6 +17,7 @@ from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator import _ as _dg
+from collective.documentgenerator.content.pod_template import IPODTemplate
 from collective.documentgenerator.utils import convert_and_save_file
 from collective.documentgenerator.utils import get_original_template
 from collective.documentgenerator.utils import odfsplit
@@ -1907,3 +1910,30 @@ class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
         base_infos["scan_id"] = getattr(self.obj, "scan_id", None)
         base_infos["conv_from_uid"] = getattr(self.obj, "conv_from_uid", None)
         return base_infos
+
+
+@adapter(IPODTemplate)
+@implementer(IStoredFile)
+class StoredPodTemplate(object):
+    """Access the file storage on a PODTemplate content object.
+
+    i.e. the file attribute on the content object.
+    """
+
+    def __init__(self, context):
+        self.context = context
+        self.filename = context.odt_file.filename
+        self.contentType = context.odt_file.contentType
+
+    @property
+    def data(self):
+        return self.context.odt_file.data
+
+    @data.setter
+    def data(self, data):
+        self.context.odt_file = NamedBlobFile(
+            data=data, filename=self.filename, contentType=self.contentType
+        )
+
+    def getSize(self):
+        return self.context.odt_file.getSize()
