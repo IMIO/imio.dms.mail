@@ -35,8 +35,28 @@ def actionspanelview_cachekey(
     return ret
 
 
-class DmsIMActionsPanelView(ActionsPanelView):
+class MultipleAnnexesMixin(object):
+    typeupload = None
 
+    """Mixin class for batch upload of dmsappendixfiles"""
+    def may_multiple_annexes(self):
+        """Method that defines if quickupload 'Annexes multiples' has to be displayed"""
+        if not self.isInFacetedNavigation() and self.member.has_permission("Add portal content", self.context):
+            return True
+        return False
+
+    def render_multiple_annexes_button(self):
+        """Renders quickupload 'Annexes multiples' button"""
+        if not self.typeupload:
+            raise NotImplementedError("typeupload is not defined")
+        if self.may_multiple_annexes():
+            return ViewPageTemplateFile("templates/actions_panel_multiple_annexes.pt")(self)
+        return ""
+
+
+class DmsIMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
+
+    typeupload = "dmsappendixfile"
     transitions = [
         "back_to_creation",
         "back_to_pre_manager",
@@ -66,6 +86,7 @@ class DmsIMActionsPanelView(ActionsPanelView):
         self.SECTIONS_TO_RENDER += (
             "renderReplyButton",
             "renderAssignUser",
+            "render_multiple_annexes_button",
         )
         self.ACCEPTABLE_ACTIONS = ["delete"]
         self.ogm = api.portal.get()["outgoing-mail"]
@@ -158,8 +179,50 @@ class DmsActionsPanelViewlet(ActionsPanelViewlet):
     }
 
 
-class DmsOMActionsPanelView(ActionsPanelView):
+class SigningFieldsetActionsPanelView(ActionsPanelView):
+    """Actions panel for signing actions located in outgoing mail signing fieldset"""
 
+    _fieldset = "signing"
+
+    def __init__(self, context, request):
+        super(SigningFieldsetActionsPanelView, self).__init__(context, request)
+        self.ACCEPTABLE_ACTIONS = ["edit", "manage-approvals", "session-annotation-info"]
+
+    @property
+    def fieldset(self):
+        return "#fieldsetlegend-" + self._fieldset
+
+    def renderEdit(self):
+        if self.showEdit and self.mayEdit():
+            # TODO adapt imio.actionspanel directly to handle this case and avoid to override template
+            return ViewPageTemplateFile("templates/fieldset_actions_panel_edit.pt")(self)
+        return ""
+
+    @ram.cache(actionspanelview_cachekey)
+    def SigningFieldsetActionsPanelView__call__(
+        self,
+        useIcons=True,
+        showEdit=True,
+        showOwnDelete=False,
+        showTransitions=False,
+        **kwargs
+    ):
+        super(SigningFieldsetActionsPanelView, self).__call__(
+            useIcons=useIcons,
+            showEdit=showEdit,
+            showOwnDelete=showOwnDelete,
+            showTransitions=showTransitions,
+            **kwargs
+        )
+        self.saveHasActions()  # To remove dash "-" when no actions available
+        return self.index()
+
+    __call__ = SigningFieldsetActionsPanelView__call__
+
+
+class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
+
+    typeupload = "dmsappendixfile"
     transitions = [
         "back_to_agent",
         "back_to_creation",
@@ -185,11 +248,12 @@ class DmsOMActionsPanelView(ActionsPanelView):
         super(DmsOMActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
-        self.ACCEPTABLE_ACTIONS = ["delete", 'approvals']
+        self.ACCEPTABLE_ACTIONS = ["delete"]
         self.SECTIONS_TO_RENDER += (
             "render_create_from_template_button",
             "render_create_new_message",
             "render_send_email",
+            "render_multiple_annexes_button",
         )
 
     def sortTransitions(self, lst):
@@ -277,14 +341,21 @@ class DmsOMActionsPanelView(ActionsPanelView):
 
 
 class DmsFileActionsPanelView(ActionsPanelView):
-
     def __init__(self, context, request):
         super(DmsFileActionsPanelView, self).__init__(context, request)
-        self.ACCEPTABLE_ACTIONS = ["edit", "external_edit", "mailing", "documentviewer_convert", "download", "delete"]
+        self.ACCEPTABLE_ACTIONS = [
+            "edit",
+            "external_edit",
+            "mailing",
+            "documentviewer_convert",
+            "download",
+            "view_element",
+            "delete",
+        ]
 
     def listObjectButtonsActions(self):
         actions = super(DmsFileActionsPanelView, self).listObjectButtonsActions()
-        actions.sort(key=lambda x: self.ACCEPTABLE_ACTIONS.index(x['id']))
+        actions.sort(key=lambda x: self.ACCEPTABLE_ACTIONS.index(x["id"]))
         return actions
 
 
@@ -350,21 +421,14 @@ class DmsTaskActionsPanelView(ActionsPanelView):
     __call__ = DmsTaskActionsPanelView__call__
 
 
-class ClassificationFolderActionsPanelView(ActionsPanelView):
+class ClassificationFolderActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
+
+    typeupload = "annex"
+
     def __init__(self, context, request):
         super(ClassificationFolderActionsPanelView, self).__init__(context, request)
         self.ACCEPTABLE_ACTIONS = ["cut", "copy", "paste", "delete"]
         self.SECTIONS_TO_RENDER += ("render_multiple_annexes_button",)
-
-    def may_multiple_annexes(self):
-        if not self.isInFacetedNavigation() and self.member.has_permission("Add portal content", self.context):
-            return True
-        return False
-
-    def render_multiple_annexes_button(self):
-        if self.may_multiple_annexes():
-            return ViewPageTemplateFile("templates/actions_panel_folder_annexes.pt")(self)
-        return ""
 
     @ram.cache(actionspanelview_cachekey)
     def ClassificationFolderActionsPanelView__call__(self, **kwargs):

@@ -714,7 +714,8 @@ class UtilsMethods(BrowserView):
             portal_type=self.mainfile_type, sort_on="scan_id", sort_order="descending"
         )
         if brains:
-            return "dmsmainfiles: '%d', highest scan_id: '%s'" % (len(brains), brains[0].scan_id)
+            return "dmsmainfiles: '%d', highest scan_id: '%s'" % (
+                len(brains), pc.getIndexDataForRID(brains[0].getRID())['scan_id'])
         else:  # pragma: no cover
             return "No scan id"
 
@@ -767,19 +768,20 @@ class VariousUtilsMethods(UtilsMethods):
         divisor = int(by)
         out = []
         for brain in brains:
-            if not brain.scan_id:
+            scan_id = pc.getIndexDataForRID(brain.getRID())['scan_id']
+            if not scan_id:
                 continue
             try:
-                nb = int(brain.scan_id[7:])
+                nb = int(scan_id[7:])
             except ValueError:
-                out.append("Invalid scan_id '{}' for item {}".format(brain.scan_id, brain.getURL()))
+                out.append("Invalid scan_id '{}' for item {}".format(scan_id, brain.getURL()))
                 continue
             if (nb % divisor) == 0:
                 ref = brain._unrestrictedGetObject().__parent__.internal_reference_no
                 if sort == "scan":
-                    res[brain.scan_id[2:3]][nb] = (os.path.dirname(brain.getURL()), ref)
+                    res[scan_id[2:3]][nb] = (os.path.dirname(brain.getURL()), ref)
                 else:
-                    res[brain.scan_id[2:3]][ref] = (os.path.dirname(brain.getURL()), nb)
+                    res[scan_id[2:3]][ref] = (os.path.dirname(brain.getURL()), nb)
         for flow in sorted(res):
             out.append("<h1>%s</h1>" % flow_titles[flow])
             for nb in natsorted(res[flow], reverse=True):
@@ -929,7 +931,7 @@ class VariousUtilsMethods(UtilsMethods):
             obj = brain._unrestrictedGetObject()
             mail = obj.getParentNode()
             out.append(
-                u"{} ({}) in {} ({})".format(brain.scan_id, obj.version, mail.internal_reference_no, object_link(mail))
+                u"{} ({}) in {} ({})".format(obj.scan_id, obj.version, mail.internal_reference_no, object_link(mail))
             )
         sep = u"\n<br />"
         return sep.join(out)
@@ -1402,11 +1404,22 @@ def update_solr_config():
     """Update config following buildout var"""
     if api.portal.get_registry_record("collective.solr.port", default=None) is None:
         return
-    for key, cast in (("host", u""), ("port", 0), ("base", u"")):
+    for key, cast in (
+        ("host", u""),
+        ("port", 0),
+        ("base", u""),
+        ("solr_login", u""),
+        ("solr_password", u""),
+        ("https_connection", True),
+        ("ignore_certificate_check", True),
+    ):
         full_key = "collective.solr.{}".format(key)
         value = api.portal.get_registry_record(full_key, default=None)
-        new_value = type(cast)(os.getenv("COLLECTIVE_SOLR_{}".format(key.upper()), cast))
-        if new_value and new_value != value:
+        new_value = os.getenv("COLLECTIVE_SOLR_{}".format(key.replace("solr_", "").upper()))
+        if new_value is None:
+            continue
+        new_value = (new_value == "true") if isinstance(cast, bool) else type(cast)(new_value)
+        if new_value != value:
             api.portal.set_registry_record(full_key, new_value)
 
 
@@ -1573,16 +1586,6 @@ def create_read_label_cron_task(userid, orgs, end, portal=None):
         cron_tasks["end"] = end
     orgs_set = cron_tasks.setdefault("orgs", set())
     orgs_set.update(orgs)
-
-
-def persistent_to_native(value):
-    """Convert persistent object to native object recursively. So can be used with pp (prettyprint)"""
-    if isinstance(value, (PersistentMapping, PersistentDict, dict)):
-        return {k: persistent_to_native(v) for k, v in value.items()}
-    elif isinstance(value, (PersistentList, list, tuple)):
-        return [persistent_to_native(v) for v in value]
-
-    return value
 
 
 def vocabularyname_to_terms(vocabulary_name, context=None, sort_on=None):

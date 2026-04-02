@@ -53,9 +53,10 @@ from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import update_approvers_settings
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
+from imio.esign.audit import audit as esign_audit
 from imio.esign.browser.views import ExternalSessionCreateView
-from imio.esign.config import get_registry_seal_code
-from imio.esign.config import get_registry_seal_email
+from imio.esign.config import get_esign_registry_seal_code
+from imio.esign.config import get_esign_registry_seal_email
 from imio.esign.utils import get_session_annotation
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.cache import invalidate_cachekey_volatile_for
@@ -129,6 +130,7 @@ except ImportError:
 
     class IReferenceable(Interface):
         pass
+
 
 logger = logging.getLogger("imio.dms.mail: events")
 
@@ -421,19 +423,26 @@ def dmsoutgoingmail_transition(mail, event):
         approval.start_approval_process()
     if not mail.esign:
         # if not mail.seal, we render odt to remove download subdocument comment
-        if (not mail.seal and event.transition
-                and event.transition.id in ("set_validated", "set_to_print", "propose_to_be_signed", "mark_as_sent")):
-            for afile in object_values(mail, ("ImioDmsFile", )):
+        if (
+            not mail.seal
+            and event.transition
+            and event.transition.id in ("set_validated", "set_to_print", "propose_to_be_signed", "mark_as_sent")
+        ):
+            for afile in object_values(mail, ("ImioDmsFile",)):
                 doc_annot = IAnnotations(afile).get("documentgenerator", {})
                 # if not a generated odt (or needing mailing) or already done, we pass
                 if doc_annot.get("need_mailing", True) is True or doc_annot.get("cleaned_download") is True:
                     continue
-                helper_view = getMultiAdapter((mail, mail.REQUEST), name='document_generation_helper_view')
+                helper_view = getMultiAdapter((mail, mail.REQUEST), name="document_generation_helper_view")
                 helper_view.pod_template = doc_annot.get("template_uid")
                 helper_view.output_format = "odt"
-                gen_context = {"context": mail, "portal": api.portal.get(), "view": helper_view,
-                               "render_download_barcode": True}
-                new_file_content = convert_odt(afile.file, fmt='odt', gen_context=gen_context)
+                gen_context = {
+                    "context": mail,
+                    "portal": api.portal.get(),
+                    "view": helper_view,
+                    "render_download_barcode": True,
+                }
+                new_file_content = convert_odt(afile.file, fmt="odt", gen_context=gen_context)
                 afile.file = NamedBlobFile(new_file_content, filename=afile.file.filename)
                 modified(afile, Attributes(ImioDmsFile, "file"))
                 doc_annot["cleaned_download"] = True
@@ -451,8 +460,8 @@ def dmsoutgoingmail_transition(mail, event):
                 type=added and "info" or "error",
             )
             if added:
-                seal_code = get_registry_seal_code()
-                seal_email = get_registry_seal_email()
+                seal_code = get_esign_registry_seal_code()
+                seal_email = get_esign_registry_seal_email()
                 if not seal_code:
                     api.portal.show_message(
                         message=_("Seal code must be defined in eSign settings before sending session"),
@@ -466,7 +475,8 @@ def dmsoutgoingmail_transition(mail, event):
                         type="error",
                     )
                 if seal_code and seal_email:
-                    ExternalSessionCreateView(mail, mail.REQUEST)(session_id=approval.session_id)
+                    for sid in approval.session_ids:
+                        ExternalSessionCreateView(mail, mail.REQUEST)(session_id=sid)
     else:
         # TODO check if to_sign and approved files have a pdf version
         pass
@@ -639,7 +649,7 @@ def task_transition(task, event):
 
 
 def _correct_to_sign(file_obj):
-    """"Correct to_sign value following mimetype.
+    """Correct to_sign value following mimetype.
 
     :param file_obj: dmsommainfile or dmsappendixfile
     :return: True if to_sign has been changed
@@ -652,12 +662,7 @@ def _correct_to_sign(file_obj):
         file_obj.to_approve = False
         category_object = get_category_object(file_obj, file_obj.content_category)
         update_categorized_elements(
-            file_obj.__parent__,
-            file_obj,
-            category_object,
-            limited=True,
-            sort=False,
-            logging=True
+            file_obj.__parent__, file_obj, category_object, limited=True, sort=False, logging=True
         )
         api.portal.show_message(
             message=_(
@@ -686,22 +691,19 @@ def _correct_to_approve(file_obj):
     new_value = False
     om_obj = file_obj.__parent__
     approval = OMApprovalAdapter(om_obj)
-    if (orig_value and getattr(file_obj, "to_sign", False) and approval.approvers
-            and not base_hasattr(file_obj, "conv_from_uid")
-            and not getattr(file_obj, "need_mailing", False)):
+    if (
+        orig_value
+        and getattr(file_obj, "to_sign", False)
+        and approval.approvers
+        and not base_hasattr(file_obj, "conv_from_uid")
+        and not getattr(file_obj, "need_mailing", False)
+    ):
         new_value = True
         approval.add_file_to_approval(file_obj.UID())
     if orig_value != new_value:  # only when passing from True to False normally
         file_obj.to_approve = new_value
         category_object = get_category_object(file_obj, file_obj.content_category)
-        update_categorized_elements(
-            om_obj,
-            file_obj,
-            category_object,
-            limited=True,
-            sort=False,
-            logging=True
-        )
+        update_categorized_elements(om_obj, file_obj, category_object, limited=True, sort=False, logging=True)
 
 
 def i_annex_added(obj, event):
@@ -772,8 +774,8 @@ def i_annex_will_be_removed(obj, event):
 def i_annex_removed(obj, event):
     """when an annex file is removed"""
     # if IObjectRemovedEvent.providedBy(event):
-    # if event.object.portal_type == "Plone Site":
-    #     return
+    if event.object.portal_type == "Plone Site":
+        return
     if not IReferenceable.providedBy(obj):
         try:
             referencedObjectRemoved(obj, event)
@@ -800,6 +802,10 @@ def i_annex_removed(obj, event):
                 raise Redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for "normal" delete
             # we remove this pdf_file from session and annotation
             getMultiAdapter((obj, obj.REQUEST), name="remove-item-from-esign-session").actions()
+            esign_audit(
+                "delete_file_1",
+                "mail={} session={} file={}".format(obj.__parent__.UID(), session_id, current_uid)
+            )
 
         # Case 2: We are removing a source file: odt or direct pdf
         if current_uid in approval.files_uids:
@@ -818,6 +824,10 @@ def i_annex_removed(obj, event):
             # The file may be a user-uploaded annex, try to remove it from session
             remove_files_from_session([current_uid])
             approval.remove_file_from_approval(current_uid)
+            esign_audit(
+                "delete_file_2",
+                "mail={} session=x file={}".format(obj.__parent__.UID(), current_uid)
+            )
 
 
 def dmsmainfile_modified(dmf, event):
@@ -862,7 +872,7 @@ def imiodmsfile_added(obj, event):
 
 def imiodmsfile_iconified_attr_changed(obj, event):
     """When an iconified attribute is changed. Not used for the moment."""
-    if event.attr_name == 'approved':
+    if event.attr_name == "approved":
         if event.is_created:
             return
         fil = event.object  # noqa F841
@@ -1344,10 +1354,13 @@ def organization_modified(obj, event):
 
 def held_position_modified(obj, event):
     if IPersonnelContact.providedBy(obj):
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
-        mod_attr = [at for at in getattr(event, "descriptions", []) if base_hasattr(at, "attributes")
-                    and "IUsagesBehavior.usages" in at.attributes]
+        mod_attr = [
+            at
+            for at in getattr(event, "descriptions", [])
+            if base_hasattr(at, "attributes") and "IUsagesBehavior.usages" in at.attributes
+        ]
         if mod_attr:
             update_approvers_settings()
 
@@ -1357,7 +1370,7 @@ def held_position_removed(obj, event):
         # at site removal
         if event.object.portal_type == "Plone Site":
             return
-        invalidate_cachekey_volatile_for('imio.dms.mail.vocabularies.OMSignersVocabulary')
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
 
 

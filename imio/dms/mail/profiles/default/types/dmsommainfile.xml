@@ -39,6 +39,11 @@
     visible="True">
   <permission value="View"/>
  </action>
+ <action title="View element" action_id="view_element" category="object_buttons" condition_expr=""
+    description="" icon_expr="string:${portal_url}/++resource++imio.annex/view_element.png" link_target="_blank"
+    url_expr="string:${object/absolute_url}/view" visible="True">
+  <permission value="Manage portal"/>
+ </action>
  <action title="Edit" action_id="edit" category="object" condition_expr=""
     description="" icon_expr="" link_target=""
     url_expr="string:${object_url}/edit" visible="True">

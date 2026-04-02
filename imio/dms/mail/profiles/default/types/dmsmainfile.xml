@@ -11,4 +11,9 @@
   <element value="view"/>
   <element value="documentviewer"/>
  </property>
+ <action title="View element" action_id="view_element" category="object_buttons" condition_expr=""
+    description="" icon_expr="string:${portal_url}/++resource++imio.annex/view_element.png" link_target="_blank"
+    url_expr="string:${object/absolute_url}/view" visible="True">
+  <permission value="Manage portal"/>
+ </action>
 </object>

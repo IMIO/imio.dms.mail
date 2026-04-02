@@ -113,22 +113,56 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.view.sortTransitions(to_sort)
         self.assertListEqual(to_sort, [{"id": "back_to_creation"}, {"id": "treat"}, {"id": "close"}, {"id": "unknown"}])
 
+    def test_multiple_annexes(self):
+        self.assertTrue(self.view.may_multiple_annexes())
+        self.view.useIcons = False
+        result = self.view.render_multiple_annexes_button()
+        self.assertIn("quick_upload?typeupload=dmsappendixfile", result)
+        self.assertIn("Multiple annexes", result)
+
+        # not shown when in faceted navigation
+        self.view.request["URL"] = "http://nohost/plone/@@faceted_query"
+        self.assertFalse(self.view.may_multiple_annexes())
+
     def test_im_actionspanel_cache(self):
         # TODO update this irrelevant test
         ret0 = self.view()
-        # we have 5 actions: edit, propose manager, propose agent, reply
-        self.assertEqual(ret0.count(u"<td "), 4)
+        # we have 5 actions: edit, propose manager, propose agent, reply, multiple_annexes
+        self.assertEqual(ret0.count(u"<td "), 6)
         api.content.transition(self.im2, "propose_to_agent")
         ret1 = self.view()
         # we have the same transitions because there is a cache on getTransitions
         # we have also assign but it starts with <td>
-        self.assertEqual(ret1.count(u"<td "), 4)
+        self.assertEqual(ret1.count(u"<td "), 6)
         # we add a reply
         om2 = get_object(oid="reponse2", ptype="dmsoutgoingmail")
         om2.reply_to = [RelationValue(self.intids.getId(self.im2))]
         modified(om2)
         ret2 = self.view()
-        self.assertEqual(ret2.count(u"<td "), 4)
+        self.assertEqual(ret2.count(u"<td "), 6)
+
+
+class TestDmsOMActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        change_user(self.portal)
+        self.portal.REQUEST["AUTHENTICATED_USER"] = api.user.get(username="siteadmin")
+        self.om = get_object(oid="reponse2", ptype="dmsoutgoingmail")
+        self.view = self.om.unrestrictedTraverse("@@actions_panel")
+
+    def test_multiple_annexes(self):
+        self.assertTrue(self.view.may_multiple_annexes())
+        self.view.useIcons = False
+        result = self.view.render_multiple_annexes_button()
+        self.assertIn("quick_upload?typeupload=dmsappendixfile", result)
+        self.assertIn("Multiple annexes", result)
+
+        # not shown when in faceted navigation
+        self.view.request["URL"] = "http://nohost/plone/@@faceted_query"
+        self.assertFalse(self.view.may_multiple_annexes())
 
 
 class TestContactActionsPanelView(unittest.TestCase):

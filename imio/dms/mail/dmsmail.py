@@ -398,7 +398,7 @@ class ImioDmsIncomingMailWfConditionsAdapter(object):
         return True
 
 
-InitializeClass(ImioDmsIncomingMailWfConditionsAdapter)
+InitializeClass(ImioDmsIncomingMailWfConditionsAdapter)  # needed for security.declare
 
 
 def updatewidgets_assigned_user_description(the_form):
@@ -1207,6 +1207,14 @@ class OMView(DmsDocumentView):
         super(OMView, self).updateWidgets()
         if not self.widgets["orig_sender_email"].value:
             self.widgets["orig_sender_email"].mode = HIDDEN_MODE
+
+    def legend_extra(self, group):
+        if group.__name__ == 'signing':
+            return self.context.restrictedTraverse('@@signing_actions_panel')()
+        # TODO do the same for email
+        # if group.__name__ == "email":
+        #     return xxx
+        return u""
 
 
 # Validators

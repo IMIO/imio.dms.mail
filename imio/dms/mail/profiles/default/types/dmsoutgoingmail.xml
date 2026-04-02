@@ -22,4 +22,16 @@
   <element value="task"/>
  </property>
  <alias from="edit" to="@@dmsdocument-edit"/>
+ <action title="Manage approvals" action_id="manage-approvals" category="object_buttons"
+         condition_expr="python: object.portal_workflow.getInfoFor(object, 'review_state') == 'to_approve' and object.has_approvings()"
+         description="" icon_expr="string:${portal_url}/++resource++imio.dms.mail/check-all.svg" link_target=""
+         url_expr="string:${object/absolute_url}/@@approvals" visible="True">
+  <permission value="cmf.ManagePortal"/>
+ </action>
+ <action title="Annotation info" action_id="session-annotation-info" category="object_buttons"
+         condition_expr="object/session-annotation-info/available"
+         description="" icon_expr="string:${portal_url}/info.png" link_target="_blank"
+         url_expr="string:${object/absolute_url}/@@session-annotation-info?context_uid=${object/UID}" visible="True">
+  <permission value="cmf.ManagePortal"/>
+ </action>
 </object>

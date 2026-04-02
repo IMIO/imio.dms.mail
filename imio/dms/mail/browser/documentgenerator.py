@@ -227,7 +227,8 @@ class OMDGHelper(BaseDGHelper):
         return separator.join(send_modes)
 
     def get_signers(self):
-        """Return a list of tuple (position, name, function) containing signers."""
+        """Return a list of tuple (position, name, function) containing signers.
+        For seal only, returns an ampty list"""
         return OMApprovalAdapter(self.real_context).signers_details
 
 

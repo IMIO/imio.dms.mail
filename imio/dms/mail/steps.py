@@ -36,15 +36,19 @@ from imio.dms.mail.wfadaptations import OMServiceValidation
 from imio.dms.mail.wfadaptations import OMToApproveAdaptation
 from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
-from imio.esign.config import set_registry_enabled
-from imio.esign.config import set_registry_file_url
-from imio.esign.config import set_registry_seal_code
-from imio.esign.config import set_registry_seal_email
-from imio.esign.config import set_registry_vat_number
+from imio.esign.config import get_esign_registry_external_watchers
+from imio.esign.config import get_esign_registry_file_url
+from imio.esign.config import set_esign_registry_enabled
+from imio.esign.config import set_esign_registry_external_watchers
+from imio.esign.config import set_esign_registry_file_url
+from imio.esign.config import set_esign_registry_seal_code
+from imio.esign.config import set_esign_registry_seal_email
+from imio.esign.config import set_esign_registry_vat_number
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.security import get_user_from_criteria
+from imio.helpers.setup import load_type_from_package
 from imio.helpers.setup import load_workflow_from_package
 from imio.helpers.workflow import do_transitions
 from imio.pyutils.system import read_csv
@@ -101,8 +105,23 @@ def activate_esigning(context):
         "profile-imio.dms.mail:default", "actions", run_dependencies=False
     )
     log = ["Installed imio.esign"]
+    load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # content category
+    load_type_from_package("PODTemplate", "profile-imio.dms.mail:default")  # views
+    load_type_from_package("SubTemplate", "profile-imio.dms.mail:default")  # views
 
-    set_registry_enabled(True)
+    # Configured imio.esign
+    set_esign_registry_enabled(True)
+    watchers = [
+        ("geulette", "stephan"),
+        ("leybaert", "benoit"),
+        # ("bruyer", "thomas"),
+        ("naisse", "joel"),
+        ("adam", "chris"),
+    ]
+    if not get_esign_registry_external_watchers():
+        set_esign_registry_external_watchers(u", ".join(["{}.{}@imio.be".format(name[1], name[0]) for name in watchers]))
+    if not get_esign_registry_file_url():
+        set_esign_registry_file_url(u"https://documents.imio-egov.be/esign")
 
     if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"):
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
@@ -137,6 +156,7 @@ def activate_esigning(context):
 
     # update approvers settings
     update_approvers_settings()
+
     return "\n".join(log)
 
 
@@ -701,7 +721,7 @@ d’un modèle prédéfini</li>
 une autre application, déjà imprimé et signé)</li>
 </ul>
 </li>
-<li>Signature électronique en lot des courriers sortants et/ou d'annexes, avec approbation préalable</li>
+<li>Signature électronique en lot des courriers sortants et/ou d'annexes (Paraphéo), avec approbation préalable</li>
 <li>Envoi possible d'un courrier sortant par email (avec pièces jointes, signature dynamique et modèle de message)</li>
 <li>Gestion d'un arbre de classement (pour la classification)</li>
 <li>Intégration d'une gestion de dossiers (avec les notions de farde et chemise), permettant de regrouper les courriers
@@ -828,6 +848,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         manage_addExternalMethod(site, "import_scanned", "", "imio.dms.mail.demo", "import_scanned")
     if "import_scanned2" not in site.objectIds():
         manage_addExternalMethod(site, "import_scanned2", "", "imio.dms.mail.demo", "import_scanned2")
+    if "import_sign_examples" not in site.objectIds():
+        manage_addExternalMethod(site, "import_sign_examples", "", "imio.dms.mail.demo", "import_sign_examples")
 
     # Add object_portlet actions to be displayed in "divers" portlet
     category = site.portal_actions.object_portlet
@@ -890,11 +912,10 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         site.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
         )
-        set_registry_vat_number(u"BE0000000097")
-        set_registry_file_url("https://fileserver.files.be")
-        set_registry_seal_code(u"PADES_SEAL")
-        set_registry_seal_email(u"sceau@imio.be")
-        # set_registry_sign_code(u"BULK_VISA")
+        set_esign_registry_vat_number(u"BE0000000097")
+        set_esign_registry_seal_code(u"PADES_SEAL")
+        set_esign_registry_seal_email(u"sceau@imio.be")
+        # set_esign_registry_sign_code(u"BULK_VISA")
 
         activated_orgs = get_registry_organizations()
         for dic in signer_rules:
@@ -1129,6 +1150,10 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         mailhost.smtp_host = "localhost"
         site.email_from_name = "Gestion courrier 3.1"
         site.email_from_address = "support-docs@imio.be"
+
+    # Removed template edition for OM editor
+    api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit",
+                                   False)
 
 
 def contact_import_pipeline(context):

@@ -87,7 +87,7 @@
    <property name="title">Document Viewer Convert</property>
    <property name="description"></property>
    <property
-      name="url_expr">string:object_url/@@convert-to-documentviewer</property>
+      name="url_expr">string:${object_url}/@@convert-to-documentviewer</property>
    <property name="icon_expr">string:${portal_url}/++resource++imio.dms.mail/dv_convert.svg</property>
    <property
       name="available_expr">object/@@various-utils/dv_conv_enabled</property>
@@ -107,18 +107,6 @@
       name="available_expr">python:context.portal_type == "dmsommainfile" and context.aq_parent.has_mailing(context)</property>
    <property name="permissions">
     <element value="View"/>
-   </property>
-   <property name="visible">True</property>
-  </object>
-
-  <object name="approvals" meta_type="CMF Action" i18n:domain="imio.dms.mail">
-   <property name="title">Manage approvals</property>
-   <property name="description"></property>
-   <property name="url_expr">string:${object_url}/@@approvals</property>
-   <property name="available_expr">python:object.portal_type=="dmsoutgoingmail" and object.portal_workflow.getInfoFor(object, 'review_state') == 'to_approve' and object.has_approvings()</property>
-   <property name="icon_expr">string:${portal_url}/++resource++imio.dms.mail/check-all.svg</property>
-   <property name="permissions">
-    <element value="Manage portal"/>
    </property>
    <property name="visible">True</property>
   </object>

@@ -72,6 +72,30 @@ body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBe
     font-weight: bold;
 }
 
+body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-seal span.selected-option::before {
+    content: "";
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 6px;
+    background-image: url("&dtml-portal_url;/++resource++imio.esign/seal.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+}
+
+body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esign span.selected-option::before {
+    content: "";
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 2px;
+    background-image: url("&dtml-portal_url;/++resource++imio.esign/parapheo.svg");
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 16px;
+    height: 16px;
+}
+
 /* Display description as multilines */
 .dms-description,
 .template-facetednavigation_view.portaltype-classificationfolder #faceted-results tbody  tr:nth-child(5) td.table_widget_value,
@@ -282,7 +306,7 @@ body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widget
 
 /* Display None */
 
-body.section-outgoing-mail .in_esign_sessions {
+body.section-outgoing-mail .mail-searches-in_esign_sessions {
     display: none;
 }
 
@@ -564,6 +588,25 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
 #content .iconified-listing td.iconified-approved a.totally-approved::before {
   content: "\f560";  /* check-double */
   color: #75ad0a;
+}
+
+/* esign PDF-generated version child rows - tree indentation */
+#fieldset-versions table.dv tr.pdf-child-row td a.version-link {
+    padding-left: 20px;
+    position: relative;
+}
+#fieldset-versions table.dv tr.pdf-child-row td a.version-link::before {
+    content: "\2937";
+    position: absolute;
+    left: 0;
+    color: #373737;
+    font-weight: bold;
+}
+#fieldset-versions table.dv tr a.pdf-session-badge {
+    color: #333;
+    background: #eee;
+    border-radius: 3px;
+    vertical-align: middle;
 }
 
 #collections-count-refresh {
@@ -1064,11 +1107,11 @@ div.faceted-session-info {
     padding-bottom: 0px;
 }
 
-#content table#context_viewlet_signers_table {
+#content table.context_viewlet_signers_table {
     margin-bottom: 0px;
 }
 
-#context_viewlet_signers_table td {
+.context_viewlet_signers_table td {
     padding-right: 10px;
 }
 

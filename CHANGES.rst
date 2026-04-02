@@ -1,8 +1,22 @@
 Changelog
 =========
 
-3.1 (unreleased)
-----------------
+3.1.2 (unreleased)
+------------------
+
+- Added download QR code page to docx and pdf files to be signed.
+  [chris-adam]
+
+3.1.1 (2026-03-27)
+------------------
+
+- Updated front page content.
+  [sgeulette]
+- Corrected esign activation by reloading documentgenerator types
+  [sgeulette]
+
+3.1.0 (2026-03-26)
+------------------
 
 - Added read mode.
   [chris-adam, sgeulette]
@@ -48,8 +62,16 @@ Changelog
   [chris-adam]
 - Replaced default actions bar by actionspanel for iconified categories.
   [chris-adam]
-- Added download QR code page to docx and pdf files to be signed.
+- Added esign fingerpointing.
   [chris-adam]
+- Added view to display esign annotations.
+  [chris-adam]
+- Added actions panel in signing fieldset.
+  [chris-adam,sgeulette]
+- Added tree struture on OMVersionsTable for eSigned files.
+  [chris-adam]
+- Added Session ID column on OMVersionsTable.
+  [chris-adam,sgeulette]
 
 3.0 (2021-09-30)
 ----------------

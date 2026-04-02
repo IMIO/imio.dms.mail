@@ -28,6 +28,7 @@ from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
+from imio.dms.mail.utils import update_solr_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.utils import UtilsMethods
@@ -41,6 +42,9 @@ from persistent.list import PersistentList
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from plone.registry import field as reg_field
+from plone.registry import Record
+from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
@@ -1026,3 +1030,42 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         with open(os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"), 'rb') as f1, \
                 open(blobs[0]._p_blob_uncommitted, 'rb') as f2:
             self.assertEqual(f1.read(), f2.read())
+
+    def test_update_solr_config(self):
+        # Early return when collective.solr is not configured (registry records absent)
+        self.assertEqual(api.portal.get_registry_record("collective.solr.host", default="not found"), "not found")
+        update_solr_config()  # must not raise
+        self.assertEqual(api.portal.get_registry_record("collective.solr.host", default="not found"), "not found")
+
+        # Setup: create the registry records collective.solr would normally provide
+        plone_registry = getUtility(IRegistry)
+        solr_records = {
+            "collective.solr.port": (reg_field.Int(title=u"port"), 8983),
+            "collective.solr.host": (reg_field.TextLine(title=u"host"), u"localhost"),
+            "collective.solr.base": (reg_field.TextLine(title=u"base"), u"/solr"),
+            "collective.solr.solr_login": (reg_field.TextLine(title=u"login"), u"login"),
+            "collective.solr.solr_password": (reg_field.TextLine(title=u"password"), u"pwd"),
+            "collective.solr.https_connection": (reg_field.Bool(title=u"https"), False),
+            "collective.solr.ignore_certificate_check": (reg_field.Bool(title=u"ignore cert"), True),
+        }
+        for key, (fld, value) in solr_records.items():
+            rec = Record(fld)
+            rec.value = value
+            plone_registry.records[key] = rec
+
+        os.environ["COLLECTIVE_SOLR_HOST"] = "newhost"
+        os.environ["COLLECTIVE_SOLR_PORT"] = "9000"
+        os.environ["COLLECTIVE_SOLR_HTTPS_CONNECTION"] = "true"
+        os.environ["COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK"] = "false"
+        update_solr_config()
+        self.assertEqual(api.portal.get_registry_record("collective.solr.host"), u"newhost")
+        self.assertEqual(api.portal.get_registry_record("collective.solr.port"), 9000)
+        self.assertEqual(api.portal.get_registry_record("collective.solr.https_connection"), True)
+        self.assertEqual(api.portal.get_registry_record("collective.solr.ignore_certificate_check"), False)
+        # Absent env vars → unchanged values
+        self.assertEqual(api.portal.get_registry_record("collective.solr.base"), u"/solr")
+        self.assertEqual(api.portal.get_registry_record("collective.solr.solr_login"), u"login")
+        # os.environ is process-level state, not rolled back by the test layer
+        for key in ("COLLECTIVE_SOLR_HOST", "COLLECTIVE_SOLR_PORT", "COLLECTIVE_SOLR_HTTPS_CONNECTION",
+                    "COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK"):
+            del os.environ[key]
