@@ -346,6 +346,7 @@ class DmsFileActionsPanelView(ActionsPanelView):
         self.ACCEPTABLE_ACTIONS = [
             "edit",
             "external_edit",
+            "rename",
             "mailing",
             "documentviewer_convert",
             "download",

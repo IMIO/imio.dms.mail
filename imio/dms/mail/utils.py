@@ -879,6 +879,10 @@ class VariousUtilsMethods(UtilsMethods):
         """Test if object is protected"""
         return not IProtectedItem.providedBy(self.context)
 
+    def is_zope_admin(self):
+        """Check if current user is a Zope admin (for template use)."""
+        return check_zope_admin()
+
     def kofax_orgs(self):
         """Return a list of orgs formatted for Kofax"""
         if not self.user_is_admin():
