@@ -16,9 +16,12 @@ from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator import _ as _dg
 from collective.documentgenerator.utils import convert_and_save_file
+from collective.documentgenerator.utils import convert_file
+from collective.documentgenerator.utils import convert_odt
 from collective.documentgenerator.utils import get_original_template
 from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
+from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
@@ -42,7 +45,6 @@ from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
 from imio.esign.utils import get_max_download_date
-from imio.esign.utils import get_suid_from_uuid
 from imio.helpers import EMPTY_DATE
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.cache import get_plone_groups_for_user
@@ -51,6 +53,7 @@ from imio.helpers.content import object_values
 from imio.helpers.content import uuidToCatalogBrain
 from imio.helpers.content import uuidToObject
 from imio.helpers.emailer import validate_email_address
+from imio.helpers.pdf import merge_pdf
 from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
@@ -1639,8 +1642,11 @@ class OMApprovalAdapter(object):
                 message=_(
                     u"The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files "
                     u"to approve on this mail.",
-                    mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname),
-                             "nb": len(yet_to_approve)},
+                    mapping={
+                        "file": safe_unicode(afile.Title()),
+                        "user": safe_unicode(fullname),
+                        "nb": len(yet_to_approve),
+                    },
                 ),
                 request=request,
                 type="info",
@@ -1657,8 +1663,10 @@ class OMApprovalAdapter(object):
             self.context.reindexObjectSecurity()  # to update local roles from adapter
             message += u"Next approval number is ${nb}."
             api.portal.show_message(
-                message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname),
-                                            "nb": c_a + 1}),
+                message=_(
+                    message,
+                    mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname), "nb": c_a + 1},
+                ),
                 request=request,
                 type="info",
             )
@@ -1750,54 +1758,42 @@ class OMApprovalAdapter(object):
         :param session_file_uids: list to append created pdf file uids
         :return: created pdf file object
         """
-        new_filename = u"{}.pdf".format(f_title)
-        if nbf.contentType == "application/pdf":
-            pdf_file = orig_fobj
-        elif nbf.contentType in get_allowed_omf_content_types(esign=True):
-            gen_context = {}
-            new_uid = uuid.uuid4().hex
-            download_url, s_uid = get_file_download_url(new_uid, short_uid=get_suid_from_uuid(new_uid))
-            orig_template = get_original_template(orig_fobj)
-            if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
-                helper_view = getMultiAdapter((self.context, self.context.REQUEST),
-                                              name='document_generation_helper_view')
-                helper_view.pod_template = orig_template.UID()
-                helper_view.output_format = "pdf"
-                gen_context = {"context": self.context, "portal": api.portal.get(), "view": helper_view}
-                # update_dict_with_validation(gen_context, self._get_context_variables(pod_template),
-                #                                   _("Error when merging context_variables in generation context"))
-                merge_templates = [dic["template"] for dic in orig_template.merge_templates
-                                   if dic["pod_context_name"] == "doc_cb_download"]
-                if merge_templates:
-                    download_template = uuidToObject(merge_templates[0])
-                    if download_template:
-                        gen_context["doc_cb_download"] = download_template
-                update_dict_with_validation(
-                    gen_context,
-                    {"download_barcode": generate_barcode(download_url).read(), "download_url": download_url,
-                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
-                     "render_download_barcode": True},
-                    _dg("Error when merging 'download_barcode' in generation context"),
-                )
 
-            # TODO which pdf format to choose ?
-            pdf_file = convert_and_save_file(
-                nbf,
-                self.context,
-                orig_fobj.portal_type,
-                new_filename,
-                fmt="pdf",
-                from_uid=f_uid,
-                attributes={
-                    "content_category": orig_fobj.content_category,
-                    "scan_id": orig_fobj.scan_id,
-                    "scan_user": hasattr(orig_fobj, "scan_user") and orig_fobj.scan_user or None,
-                    "_plone.uuid": new_uid,
-                },
-                renderer=bool(orig_template),
-                gen_context=gen_context,
-            )
-            # we must set attribute after creation
+        def render_download_template_to_pdf(uid):
+            """Render the download subtemplate (QR code page) to PDF bytes.
+
+            :param uid: uid of the document to generate the download link for
+            :return: PDF bytes, or empty string on failure
+            """
+            try:
+                download_template = api.portal.get().templates.om.get("download_barcode")
+                download_url, _short_uid = get_file_download_url(uid)
+                helper_view = getMultiAdapter(
+                    (self.context, self.context.REQUEST),
+                    name="document_generation_helper_view",
+                )
+                helper_view.pod_template = download_template.UID()
+                helper_view.output_format = "pdf"
+                gen_context = {
+                    "context": self.context,
+                    "portal": api.portal.get(),
+                    "view": helper_view,
+                    "download_barcode": generate_barcode(download_url).read(),
+                    "download_url": download_url,
+                    "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
+                    "render_download_barcode": True,
+                }
+                template_file = NamedBlobFile(download_template.get_file().data, filename=u"download_template.odt")
+                return convert_odt(template_file, fmt="pdf", gen_context=gen_context)
+            except Exception:
+                logger.exception(
+                    u"Could not render download template for pdf file {} ({})".format(
+                        u'/'.join(orig_fobj.getPhysicalPath()), f_title)
+                )
+                return ""
+
+        def update_esign_attributes(pdf_file, orig_fobj):
+            """Set required attributes on a newly created PDF file object."""
             pdf_file.to_sign = True
             pdf_file.to_approve = False
             pdf_file.approved = orig_fobj.approved
@@ -1809,10 +1805,74 @@ class OMApprovalAdapter(object):
                 sort=False,
                 logging=True,
             )
+
+        new_filename = u"{}.pdf".format(f_title)
+        if nbf.contentType in get_allowed_omf_content_types(esign=True):
+            gen_context = {}
+            orig_template = get_original_template(orig_fobj)
+            if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
+                new_uid = uuid.uuid4().hex
+                download_url, _s_uid = get_file_download_url(new_uid)
+                helper_view = getMultiAdapter(
+                    (self.context, self.context.REQUEST), name="document_generation_helper_view"
+                )
+                helper_view.pod_template = orig_template.UID()
+                helper_view.output_format = "pdf"
+                gen_context = {"context": self.context, "portal": api.portal.get(), "view": helper_view}
+                # update_dict_with_validation(gen_context, self._get_context_variables(pod_template),
+                #                                   _("Error when merging context_variables in generation context"))
+                merge_templates = [
+                    dic["template"]
+                    for dic in orig_template.merge_templates
+                    if dic["pod_context_name"] == "doc_cb_download"
+                ]
+                if merge_templates:
+                    download_template = uuidToObject(merge_templates[0])
+                    if download_template:
+                        gen_context["doc_cb_download"] = download_template
+                update_dict_with_validation(
+                    gen_context,
+                    {
+                        "download_barcode": generate_barcode(download_url).read(),
+                        "download_url": download_url,
+                        "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
+                        "render_download_barcode": True,
+                    },
+                    _dg("Error when merging 'download_barcode' in generation context"),
+                )
+
+                # TODO which pdf format to choose ?
+                pdf_file = convert_and_save_file(
+                    nbf,
+                    self.context,
+                    orig_fobj.portal_type,
+                    new_filename,
+                    fmt="pdf",
+                    from_uid=f_uid,
+                    attributes={
+                        "content_category": orig_fobj.content_category,
+                        "scan_id": orig_fobj.scan_id,
+                        "scan_user": hasattr(orig_fobj, "scan_user") and orig_fobj.scan_user or None,
+                        "_plone.uuid": new_uid,
+                    },
+                    renderer=bool(orig_template),
+                    gen_context=gen_context,
+                )
+                # we must set attribute after creation
+                update_esign_attributes(pdf_file, orig_fobj)
+            else:
+                pdf_file = orig_fobj
+                if nbf.contentType == "application/pdf":
+                    pdf_file_content = nbf.data
+                else:
+                    pdf_file_content = convert_file(nbf)
+                download_page = render_download_template_to_pdf(orig_fobj.UID())
+                if download_page:
+                    merged = merge_pdf(pdf_file_content, download_page)
+                    pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
+                    Converter(pdf_file)()  # Refresh pdf preview
         else:
-            raise NotImplementedError(
-                "Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType)
-            )
+            raise NotImplementedError("Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType))
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
@@ -1901,7 +1961,6 @@ class OMApprovalAdapter(object):
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
-
     def get_infos(self, category, limited=False):
         base_infos = super(DmsCategorizedObjectInfoAdapter, self).get_infos(category, limited=limited)
         base_infos["scan_id"] = getattr(self.obj, "scan_id", None)

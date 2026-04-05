@@ -206,7 +206,8 @@ class TestDocumentGenerator(unittest.TestCase):
         # Test get_signers
         self.assertEqual(view1.get_signers(), [(0, u'Maxime DG', u'Directeur Général'),
                                                (1, u'Paul BM', u'Bourgmestre')])
-        view1.real_context.signers.append({'signer': self.resp_grh.UID(), 'approvings': [u'_empty_'], 'number': 3, "editor": False})
+        view1.real_context.signers.append({'signer': self.resp_grh.UID(), 'approvings': [u'_empty_'], 'number': 3,
+                                           "editor": False})
         zope.event.notify(ObjectModifiedEvent(view1.real_context,
                                               Attributes(ISigningBehavior, "ISigningBehavior.signers")))
         self.assertEqual(view1.get_signers(), [(0, u'Maxime DG', u'Directeur Général'), (1, u'Paul BM', u'Bourgmestre'),
@@ -358,7 +359,8 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(view._get_title("", ""), u"Modèle de base")
 
         # Test generate_persistent_doc
-        doc = view.generate_persistent_doc(view.pod_template, "odt")
+        view.output_format = "odt"
+        doc = view.generate_persistent_doc(view.pod_template, view.output_format)
         self.assertEqual(doc.portal_type, "dmsommainfile")
         self.assertIsNone(doc.scan_user)
 

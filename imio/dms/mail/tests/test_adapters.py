@@ -34,6 +34,7 @@ from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import get_session_annotation
 from imio.helpers.test_helpers import ImioTestHelpers
+from imio.helpers.tests.test_pdf import _pdf_page_count
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
@@ -1241,7 +1242,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": -1,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_ids": [0],
-                "pdf_files": [[self.omail["reponse-salle.pdf"].UID()], [self.omail["reponse-salle-1.pdf"].UID()]],
+                "pdf_files": [[self.omail["file0"].UID()], [self.omail["file1"].UID()]],
                 "approval": [
                     [
                         {"status": "a", "approved_on": dirg_approval_datetime_1, "approved_by": "dirg"},
@@ -1282,7 +1283,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": -1,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_ids": [0],
-                "pdf_files": [[self.omail["reponse-salle.pdf"].UID()]],
+                "pdf_files": [[self.files[0].UID()]],
                 "approval": [
                     [
                         {"status": "a", "approved_on": dirg_approval_datetime, "approved_by": "dirg"},
@@ -1309,7 +1310,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_ids": [0],
-                "pdf_files": [[self.omail["reponse-salle.pdf"].UID()]],
+                "pdf_files": [[self.files[0].UID()]],
                 "approval": [
                     [{"status": "p", "approved_on": None, "approved_by": None}],
                     [
@@ -1339,7 +1340,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "current_nb": 0,
                 "approvers": [["dirg"], ["bourgmestre", "chef"]],
                 "session_ids": [0],
-                "pdf_files": [[self.omail["reponse-salle.pdf"].UID()]],
+                "pdf_files": [[self.files[0].UID()]],
                 "approval": [
                     [{"status": "p", "approved_on": None, "approved_by": None}],
                     [{"status": "w", "approved_on": None, "approved_by": None}],
@@ -1359,25 +1360,32 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.approval.remove_file_from_approval(self.files[1].UID())
         self.assertEqual(self.approval.add_mail_files_to_session(), (False, "No files"))
 
+        # generate from model
+        view = self.omail.restrictedTraverse("persistent-document-generation")
+        view.pod_template = self.portal["templates"]["om"]["main"]
+        view.output_format = "odt"
+        doc = view.generate_persistent_doc(view.pod_template, view.output_format)
+
         # Not all files approved
-        self.approval.add_file_to_approval(self.files[0].UID())
+        self.approval.add_file_to_approval(doc.UID())
         self.pw.doActionFor(self.omail, "propose_to_approve")
         self.assertEqual(self.approval.add_mail_files_to_session(), (False, "Not all files approved"))
 
         self.approval.annot["approval"][0][0]["status"] = "a"
         self.approval.annot["approval"][1][0]["status"] = "a"
 
+        orig_scanid = doc.scan_id
         # Bad scan_id
-        self.files[0].scan_id = "wrong"
+        doc.scan_id = "wrong"
         self.assertEqual(
             self.approval.add_mail_files_to_session(),
             (False, "Bad scan_id for file uid ${uid}"),
         )
-        self.files[0].scan_id = "012999900000601"
+        doc.scan_id = orig_scanid
 
         # Good case
-        self.assertEqual(len(self.omail.values()), 2)
-        self.assertNotIn("reponse-salle.pdf", self.omail)
+        self.assertEqual(len(self.omail.values()), 3)
+        self.assertIn(orig_scanid, self.omail)
         self.assertEqual(
             get_session_annotation(),
             {
@@ -1389,17 +1397,18 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         )
         self.assertEqual(self.approval.add_mail_files_to_session(),
                          (True, "${count} file(s) added to session(s) ${session_ids}"))
-        self.assertEqual(len(self.omail.values()), 3)
-        self.assertIn("reponse-salle.pdf", self.omail)
-        pdf_file = self.omail["reponse-salle.pdf"]
+        self.assertEqual(len(self.omail.values()), 4)
+        self.assertIn("modele-de-base-s0010-courrier-sortant-test.pdf", self.omail)
+        pdf_file = self.omail["modele-de-base-s0010-courrier-sortant-test.pdf"]
         self.assertEqual(self.approval.annot["pdf_files"], [[pdf_file.UID()]])
-        self.assertEqual(pdf_file.title, u"R\xe9ponse salle.pdf")
+        self.assertEqual(pdf_file.title, u"Modele de base S0010 Courrier sortant test.pdf")
         self.assertTrue(pdf_file.to_sign)
         self.assertFalse(pdf_file.to_approve)
         self.assertFalse(pdf_file.approved)
-        self.assertEqual(pdf_file.scan_id, "012999900000601")
+        self.assertEqual(pdf_file.scan_id, orig_scanid)
         self.assertIsNone(pdf_file.scan_user)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
+        self.assertEqual(pdf_file.conv_from_uid, doc.UID())
         last_update = get_session_annotation()["sessions"][0]["last_update"]
         self.assertEqual(
             get_session_annotation(),
@@ -1410,10 +1419,11 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                             {
                                 "status": "",
                                 "context_uid": self.omail.UID(),
-                                "scan_id": "012999900000601",
+                                "scan_id": orig_scanid,
                                 "uid": pdf_file.UID(),
-                                "title": u"R\xe9ponse salle.pdf",
-                                "filename": u"R\xe9ponse salle__{}.pdf".format(pdf_file.UID()),
+                                "title": u"Modele de base S0010 Courrier sortant test.pdf",
+                                "filename": u"Modele de base S0010 Courrier sortant test__{}.pdf".format(
+                                    pdf_file.UID()),
                             }
                         ],
                         "discriminators": (),
@@ -1467,10 +1477,11 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                             {
                                 "status": "",
                                 "context_uid": self.omail.UID(),
-                                "scan_id": "012999900000601",
+                                "scan_id": orig_scanid,
                                 "uid": pdf_file.UID(),
-                                "title": u"R\xe9ponse salle.pdf",
-                                "filename": u"R\xe9ponse salle__{}.pdf".format(pdf_file.UID()),
+                                "title": u"Modele de base S0010 Courrier sortant test.pdf",
+                                "filename": u"Modele de base S0010 Courrier sortant test__{}.pdf".format(
+                                    pdf_file.UID()),
                             }
                         ],
                         "discriminators": (),
@@ -1508,3 +1519,127 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "c_uids": {self.omail.UID(): [pdf_file.UID()]},
             },
         )
+
+    def test_create_pdf_file_from_pdf(self):
+        """Through the esignature process, a PDF file gets a QR barcode page appended."""
+
+        # Replace existing ODT files with a PDF file in the approval process
+        self.approval.remove_file_from_approval(self.files[0].UID())
+        self.approval.remove_file_from_approval(self.files[1].UID())
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        with open("%s/tests/files/example.pdf" % PRODUCT_DIR, "rb") as fo:
+            pdf_data = fo.read()
+        pdf_fobj = createContentInContainer(
+            self.omail,
+            "dmsommainfile",
+            id="pdffile",
+            scan_id="012999900000601",
+            file=NamedBlobFile(pdf_data, filename=u"example.pdf"),
+            content_category=calculate_category_id(ct),
+        )
+
+        self.pw.doActionFor(self.omail, "propose_to_approve")
+        self.approval.approve_file(pdf_fobj, "dirg")
+        self.approval.approve_file(pdf_fobj, "bourgmestre")
+
+        # 2 ODT originals + 1 PDF original and merged PDF
+        self.assertEqual(len(list(self.omail.objectIds())), 3)
+
+        # Locate the created PDF via the approval annotation
+        new_uid = self.approval.annot["pdf_files"][0][0]
+        self.assertEqual(new_uid, pdf_fobj.UID())  # PDF original != merged PDF
+
+        pdf_file = pdf_fobj
+        # Check page count: 6 pages (example.pdf) + 1 barcode page = 7
+        page_count = _pdf_page_count(pdf_file.file.data)
+        self.assertEqual(page_count, 7)
+
+        # Check all required attributes
+        self.assertTrue(pdf_file.to_sign)
+        self.assertFalse(pdf_file.signed)
+        self.assertTrue(pdf_file.to_approve)
+        self.assertTrue(pdf_file.approved)
+        self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
+        self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
+
+    def test_create_pdf_file_from_odt(self):
+        """Through the esignature process, a real ODT file is embedded
+        with the download code bar template then converted to PDF."""
+
+        # Keep self.files[0] (ODT) in approval; remove file1
+        self.approval.remove_file_from_approval(self.files[1].UID())
+
+        self.pw.doActionFor(self.omail, "propose_to_approve")
+        self.approval.approve_file(self.files[0], "dirg")
+        self.approval.approve_file(self.files[0], "bourgmestre")
+
+        # 2 ODT originals but the first one has been converted
+        self.assertEqual(len(list(self.omail.objectIds())), 2)
+        self.assertTrue(self.files[0].file.filename.endswith(u".pdf"))
+        self.assertTrue(self.files[1].file.filename.endswith(u".odt"))
+        pdf_file = self.files[0]
+
+        # Check page count: at least one page produced by the conversion
+        page_count = _pdf_page_count(pdf_file.file.data)
+        self.assertGreaterEqual(page_count, 1)
+
+        # Check all required attributes
+        self.assertTrue(pdf_file.to_sign)
+        self.assertFalse(pdf_file.signed)
+        self.assertTrue(pdf_file.to_approve)
+        self.assertTrue(pdf_file.approved)
+        self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
+        self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
+
+    def test_create_pdf_file_from_doc(self):
+        """Through the esignature process, a DOC file is converted to PDF
+        with a QR barcode page appended."""
+
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
+            ["odt", "pdf", "doc"],
+        )
+
+        try:
+            # Remove existing ODT files from approval, then add a DOC file
+            self.approval.remove_file_from_approval(self.files[0].UID())
+            self.approval.remove_file_from_approval(self.files[1].UID())
+            ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+            with open("%s/batchimport/toprocess/incoming-mail/in-courrier4.doc" % PRODUCT_DIR, "rb") as fo:
+                doc_data = fo.read()
+            doc_fobj = createContentInContainer(
+                self.omail,
+                "dmsommainfile",
+                id="docfile",
+                scan_id="012999900000601",
+                file=NamedBlobFile(doc_data, contentType="application/msword", filename=u"in-courrier4.doc"),
+                content_category=calculate_category_id(ct),
+            )
+
+            self.pw.doActionFor(self.omail, "propose_to_approve")
+            # Signer 0 (dirg) approves — no session creation yet
+            self.approval.approve_file(doc_fobj, "dirg")
+            # Signer 1 (bourgmestre) approves — triggers add_mail_files_to_session()
+            self.approval.approve_file(doc_fobj, "bourgmestre")
+        finally:
+            api.portal.set_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
+                ["odt", "pdf"],
+            )
+
+        # 2 ODT originals + 1 converted PDF tahts replaces doc
+        self.assertEqual(len(list(self.omail.objectIds())), 3)
+
+        # At least 1 converted content page + 1 barcode page
+        pdf_file = self.omail.values()[-1]
+        self.assertTrue(pdf_file.file.filename.endswith(".pdf"))
+        page_count = _pdf_page_count(pdf_file.file.data)
+        self.assertGreaterEqual(page_count, 2)
+
+        # Check all required attributes
+        self.assertTrue(pdf_file.to_sign)
+        self.assertFalse(pdf_file.signed)
+        self.assertTrue(pdf_file.to_approve)
+        self.assertTrue(pdf_file.approved)
+        self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
+        self.assertFalse(hasattr(pdf_file, "conv_from_uid"))

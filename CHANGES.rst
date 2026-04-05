@@ -4,8 +4,8 @@ Changelog
 3.1.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Added download QR code page to docx and pdf files to be signed.
+  [chris-adam]
 
 3.1.1 (2026-03-27)
 ------------------

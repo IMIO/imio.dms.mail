@@ -1181,19 +1181,23 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         filename = u"Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         files = []
-        for i in range(2):
-            with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-                file_object = NamedBlobFile(fo.read(), filename=filename)
-                files.append(
-                    createContentInContainer(
-                        omail,
-                        "dmsommainfile",
-                        id="file%s" % i,
-                        scan_id="012999900000601",
-                        file=file_object,
-                        content_category=calculate_category_id(ct),
-                    )
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=filename)
+            files.append(
+                createContentInContainer(
+                    omail,
+                    "dmsommainfile",
+                    id="file0",
+                    scan_id="012999900000601",
+                    file=file_object,
+                    content_category=calculate_category_id(ct),
                 )
+            )
+        view = omail.restrictedTraverse("persistent-document-generation")
+        view.pod_template = self.portal["templates"]["om"]["main"]
+        view.output_format = "odt"
+        files.append(view.generate_persistent_doc(view.pod_template, view.output_format))
+
         return omail, files, IOMApproval(omail)
 
     def _approve_all_files(self, omail, files, approval):
@@ -1212,12 +1216,12 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         omail, files, approval = self._setup_omail_with_esign()
         self._approve_all_files(omail, files, approval)
         self.assertEqual(api.content.get_state(omail), "to_be_signed")
-        # Get the generated PDF for files[0]
-        pdf_uid = approval.pdf_files_uids[0][0]
+        # Get the generated PDF for files[1]
+        pdf_uid = approval.pdf_files_uids[1][0]
         pdf_obj = uuidToObject(pdf_uid)
         self.assertIsNotNone(pdf_obj)
         # The PDF should have conv_from_uid pointing to the source
-        self.assertEqual(pdf_obj.conv_from_uid, files[0].UID())
+        self.assertEqual(pdf_obj.conv_from_uid, files[1].UID())
         session_annot = get_session_annotation()
         self.assertIn(pdf_uid, session_annot["uids"])
         self.assertEqual(session_annot["uids"][pdf_uid], 0)
@@ -1241,7 +1245,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         omail, files, approval = self._setup_omail_with_esign()
         self._approve_all_files(omail, files, approval)
         self.assertEqual(api.content.get_state(omail), "to_be_signed")
-        pdf_uid = approval.pdf_files_uids[0][0]
+        pdf_uid = approval.pdf_files_uids[1][0]
         pdf_obj = uuidToObject(pdf_uid)
         self.assertIsNotNone(pdf_obj)
 
@@ -1265,18 +1269,18 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self._approve_all_files(omail, files, approval)
         self.assertEqual(api.content.get_state(omail), "to_be_signed")
         # We should have PDF files generated
-        self.assertTrue(approval.pdf_files_uids[0])
-        pdf_uid_0 = approval.pdf_files_uids[0][0]
-        self.assertIsNotNone(uuidToObject(pdf_uid_0))
+        self.assertTrue(approval.pdf_files_uids[1])
+        pdf_uid_1 = approval.pdf_files_uids[1][0]
+        self.assertIsNotNone(uuidToObject(pdf_uid_1))
 
         # Attempting to delete a source file with linked PDFs must be blocked
-        event = ObjectRemovedEvent(files[0], omail, files[0].getId())
+        event = ObjectRemovedEvent(files[1], omail, files[1].getId())
         with self.assertRaises(Redirect):
-            i_annex_removed(files[0], event)
+            i_annex_removed(files[1], event)
 
         # Source file and its PDF remain in approval (deletion was blocked)
-        self.assertIn(files[0].UID(), approval.files_uids)
-        self.assertIsNotNone(uuidToObject(pdf_uid_0))
+        self.assertIn(files[1].UID(), approval.files_uids)
+        self.assertIsNotNone(uuidToObject(pdf_uid_1))
 
     def test_i_annex_removed_source_file_no_pdfs(self):
         """Test i_annex_removed Case 2: source file with no linked PDFs is removed from approval."""
