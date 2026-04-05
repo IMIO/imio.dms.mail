@@ -1807,33 +1807,12 @@ class OMApprovalAdapter(object):
             )
 
         new_filename = u"{}.pdf".format(f_title)
-        new_uid = uuid.uuid4().hex
-        if nbf.contentType == "application/pdf":
-            pdf_file = orig_fobj
-            download_page = render_download_template_to_pdf(new_uid)
-            if download_page:
-                merged = merge_pdf(nbf.data, download_page)
-                file_object = NamedBlobFile(merged, filename=safe_unicode(new_filename))
-                pdf_file.file = file_object
-                Converter(pdf_file)()  # Refresh pdf preview
-                # pdf_file = createContentInContainer(
-                #     self.context,
-                #     orig_fobj.portal_type,
-                #     title=safe_unicode(new_filename),
-                #     file=file_object,
-                #     content_category=orig_fobj.content_category,
-                #     scan_id=orig_fobj.scan_id,
-                #     conv_from_uid=f_uid,
-                #     **{"_plone.uuid": new_uid}
-                # )
-                # annot = IAnnotations(pdf_file)
-                # annot["documentgenerator"] = {"conv_from_uid": f_uid}
-            # update_esign_attributes(pdf_file, orig_fobj)
-        elif nbf.contentType in get_allowed_omf_content_types(esign=True):
+        if nbf.contentType in get_allowed_omf_content_types(esign=True):
             gen_context = {}
-            download_url, _s_uid = get_file_download_url(new_uid)
             orig_template = get_original_template(orig_fobj)
             if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
+                new_uid = uuid.uuid4().hex
+                download_url, _s_uid = get_file_download_url(new_uid)
                 helper_view = getMultiAdapter(
                     (self.context, self.context.REQUEST), name="document_generation_helper_view"
                 )
@@ -1883,8 +1862,11 @@ class OMApprovalAdapter(object):
                 update_esign_attributes(pdf_file, orig_fobj)
             else:
                 pdf_file = orig_fobj
-                pdf_file_content = convert_file(nbf)
-                download_page = render_download_template_to_pdf(new_uid)
+                if nbf.contentType == "application/pdf":
+                    pdf_file_content = nbf.data
+                else:
+                    pdf_file_content = convert_file(nbf)
+                download_page = render_download_template_to_pdf(orig_fobj.UID())
                 if download_page:
                     merged = merge_pdf(pdf_file_content, download_page)
                     pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
