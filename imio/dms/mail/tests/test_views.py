@@ -368,19 +368,22 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         filename = u"Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         files = []
-        for i in range(2):
-            with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-                file_object = NamedBlobFile(fo.read(), filename=filename)
-                files.append(
-                    createContentInContainer(
-                        omail,
-                        "dmsommainfile",
-                        id="file%s" % i,
-                        scan_id="012999900000601",
-                        file=file_object,
-                        content_category=calculate_category_id(ct),
-                    )
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=filename)
+            files.append(
+                createContentInContainer(
+                    omail,
+                    "dmsommainfile",
+                    id="file0",
+                    scan_id="012999900000601",
+                    file=file_object,
+                    content_category=calculate_category_id(ct),
                 )
+            )
+        view = omail.restrictedTraverse("persistent-document-generation")
+        view.pod_template = self.portal["templates"]["om"]["main"]
+        view.output_format = "odt"
+        files.append(view.generate_persistent_doc(view.pod_template, view.output_format))
         return omail, files, IOMApproval(omail)
 
     def _approve_all_files(self, omail, files, approval):
@@ -444,14 +447,14 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
   ],
   'files': [
     <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a>,
-    <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file1/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file1'>Réponse salle.odt</a>,
+    <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/012999900000602/view' title='/plone/outgoing-mail/{folder_name}/om-esign/012999900000602'>Modèle de base</a>,
   ],
   'pdf_files': [
     [
-      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle.pdf'>Réponse salle.pdf</a>,
+      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a>,
     ],
     [
-      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle-1.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle-1.pdf'>Réponse salle.pdf</a>,
+      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a>,
     ],
   ],
   'session_ids': [
@@ -469,7 +472,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
       u'Bourgmestre',
     ],
   ],
-}}""".format(
+}}""".format(  # noqa E501
                 repr(approval.annot["approval"][0][0]["approved_on"]),
                 repr(approval.annot["approval"][0][1]["approved_on"]),
                 repr(approval.annot["approval"][1][0]["approved_on"]),
@@ -498,16 +501,16 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
       'filename': u'R\\xe9ponse salle__{pdf1_uid}.pdf',
       'scan_id': '012999900000601',
       'status': '',
-      'title': u'R\\xe9ponse salle.pdf',
-      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle.pdf'>Réponse salle.pdf</a>,
+      'title': u'R\\xe9ponse salle.odt',
+      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a>,
     }},
     {{
       'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a>,
-      'filename': u'R\\xe9ponse salle__{pdf2_uid}.pdf',
-      'scan_id': '012999900000601',
+      'filename': u'Modele de base S0010 Courrier test esign__{pdf2_uid}.pdf',
+      'scan_id': '012999900000602',
       'status': '',
-      'title': u'R\\xe9ponse salle.pdf',
-      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle-1.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/reponse-salle-1.pdf'>Réponse salle.pdf</a>,
+      'title': u'Modele de base S0010 Courrier test esign.pdf',
+      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a>,
     }},
   ],
   'last_update': {last_update},
@@ -535,12 +538,14 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
   'state': 'draft',
   'title': u'[ia.docs] Session 012999900000',
   'watchers': [],
-}}""".format(
-                pdf1_uid=api.content.get(omail.absolute_url_path() + "/reponse-salle.pdf").UID(),
-                pdf2_uid=api.content.get(omail.absolute_url_path() + "/reponse-salle-1.pdf").UID(),
+}}""".format(  # noqa E501
+                pdf1_uid=api.content.get(omail.absolute_url_path() + "/file0").UID(),
+                pdf2_uid=api.content.get(omail.absolute_url_path()
+                                         + "/modele-de-base-s0010-courrier-test-esign.pdf").UID(),
                 folder_name=omail.__parent__.__name__,
                 last_update=repr(get_session_annotation()["sessions"][0]["last_update"]),
-                size=api.content.get(omail.absolute_url_path() + "/reponse-salle.pdf").file.size
-                + api.content.get(omail.absolute_url_path() + "/reponse-salle-1.pdf").file.size,
+                size=api.content.get(omail.absolute_url_path() + "/file0").file.size
+                + api.content.get(omail.absolute_url_path()
+                                  + "/modele-de-base-s0010-courrier-test-esign.pdf").file.size,
             ),
         )

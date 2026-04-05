@@ -810,7 +810,7 @@ def i_annex_removed(obj, event):
         # Case 2: We are removing a source file: odt or direct pdf
         if current_uid in approval.files_uids:
             file_index = approval.files_uids.index(current_uid)
-            if approval.pdf_files_uids[file_index]:
+            if approval.pdf_files_uids[file_index] and approval.pdf_files_uids[file_index][0] != current_uid:
                 api.portal.show_message(
                     message=_(
                         u"You cannot delete a file '${title}' when there are still linked pdf files !",

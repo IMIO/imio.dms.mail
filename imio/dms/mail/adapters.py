@@ -16,6 +16,7 @@ from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator import _ as _dg
 from collective.documentgenerator.utils import convert_and_save_file
+from collective.documentgenerator.utils import convert_file
 from collective.documentgenerator.utils import convert_odt
 from collective.documentgenerator.utils import get_original_template
 from collective.documentgenerator.utils import odfsplit
@@ -44,7 +45,6 @@ from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
 from imio.esign.utils import get_max_download_date
-from imio.esign.utils import get_suid_from_uuid
 from imio.helpers import EMPTY_DATE
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.cache import get_plone_groups_for_user
@@ -65,7 +65,6 @@ from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuI
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
-from plone.dexterity.utils import createContentInContainer
 from plone.indexer import indexer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
@@ -1768,7 +1767,7 @@ class OMApprovalAdapter(object):
             """
             try:
                 download_template = api.portal.get().templates.om.get("download_barcode")
-                download_url, _short_uid = get_file_download_url(uid, short_uid=get_suid_from_uuid(uid))
+                download_url, _short_uid = get_file_download_url(uid)
                 helper_view = getMultiAdapter(
                     (self.context, self.context.REQUEST),
                     name="document_generation_helper_view",
@@ -1787,7 +1786,10 @@ class OMApprovalAdapter(object):
                 template_file = NamedBlobFile(download_template.get_file().data, filename=u"download_template.odt")
                 return convert_odt(template_file, fmt="pdf", gen_context=gen_context)
             except Exception:
-                logger.exception("Could not render download template to PDF")
+                logger.exception(
+                    u"Could not render download template for pdf file {} ({})".format(
+                        u'/'.join(orig_fobj.getPhysicalPath()), f_title)
+                )
                 return ""
 
         def update_esign_attributes(pdf_file, orig_fobj):
@@ -1805,32 +1807,32 @@ class OMApprovalAdapter(object):
             )
 
         new_filename = u"{}.pdf".format(f_title)
+        new_uid = uuid.uuid4().hex
         if nbf.contentType == "application/pdf":
             pdf_file = orig_fobj
-            new_uid = uuid.uuid4().hex
             download_page = render_download_template_to_pdf(new_uid)
             if download_page:
                 merged = merge_pdf(nbf.data, download_page)
                 file_object = NamedBlobFile(merged, filename=safe_unicode(new_filename))
-                pdf_file = createContentInContainer(
-                    self.context,
-                    orig_fobj.portal_type,
-                    title=safe_unicode(new_filename),
-                    file=file_object,
-                    content_category=orig_fobj.content_category,
-                    scan_id=orig_fobj.scan_id,
-                    conv_from_uid=f_uid,
-                    **{"_plone.uuid": new_uid}
-                )
-                annot = IAnnotations(pdf_file)
-                annot["documentgenerator"] = {"conv_from_uid": f_uid}
-            update_esign_attributes(pdf_file, orig_fobj)
+                pdf_file.file = file_object
+                Converter(pdf_file)()  # Refresh pdf preview
+                # pdf_file = createContentInContainer(
+                #     self.context,
+                #     orig_fobj.portal_type,
+                #     title=safe_unicode(new_filename),
+                #     file=file_object,
+                #     content_category=orig_fobj.content_category,
+                #     scan_id=orig_fobj.scan_id,
+                #     conv_from_uid=f_uid,
+                #     **{"_plone.uuid": new_uid}
+                # )
+                # annot = IAnnotations(pdf_file)
+                # annot["documentgenerator"] = {"conv_from_uid": f_uid}
+            # update_esign_attributes(pdf_file, orig_fobj)
         elif nbf.contentType in get_allowed_omf_content_types(esign=True):
             gen_context = {}
-            new_uid = uuid.uuid4().hex
-            download_url, _s_uid = get_file_download_url(new_uid, short_uid=get_suid_from_uuid(new_uid))
+            download_url, _s_uid = get_file_download_url(new_uid)
             orig_template = get_original_template(orig_fobj)
-            doc_cb_download_added = False
             if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
                 helper_view = getMultiAdapter(
                     (self.context, self.context.REQUEST), name="document_generation_helper_view"
@@ -1849,7 +1851,6 @@ class OMApprovalAdapter(object):
                     download_template = uuidToObject(merge_templates[0])
                     if download_template:
                         gen_context["doc_cb_download"] = download_template
-                        doc_cb_download_added = True
                 update_dict_with_validation(
                     gen_context,
                     {
@@ -1861,33 +1862,32 @@ class OMApprovalAdapter(object):
                     _dg("Error when merging 'download_barcode' in generation context"),
                 )
 
-            # TODO which pdf format to choose ?
-            pdf_file = convert_and_save_file(
-                nbf,
-                self.context,
-                orig_fobj.portal_type,
-                new_filename,
-                fmt="pdf",
-                from_uid=f_uid,
-                attributes={
-                    "content_category": orig_fobj.content_category,
-                    "scan_id": orig_fobj.scan_id,
-                    "scan_user": hasattr(orig_fobj, "scan_user") and orig_fobj.scan_user or None,
-                    "_plone.uuid": new_uid,
-                },
-                renderer=bool(orig_template),
-                gen_context=gen_context,
-            )
-            # we must set attribute after creation
-            update_esign_attributes(pdf_file, orig_fobj)
-
-            # For non-ODT files (e.g. DOC, DOCX), the subtemplate cannot be merged during conversion.
-            # Render it to PDF separately and append it to the converted PDF.
-            if not doc_cb_download_added:
+                # TODO which pdf format to choose ?
+                pdf_file = convert_and_save_file(
+                    nbf,
+                    self.context,
+                    orig_fobj.portal_type,
+                    new_filename,
+                    fmt="pdf",
+                    from_uid=f_uid,
+                    attributes={
+                        "content_category": orig_fobj.content_category,
+                        "scan_id": orig_fobj.scan_id,
+                        "scan_user": hasattr(orig_fobj, "scan_user") and orig_fobj.scan_user or None,
+                        "_plone.uuid": new_uid,
+                    },
+                    renderer=bool(orig_template),
+                    gen_context=gen_context,
+                )
+                # we must set attribute after creation
+                update_esign_attributes(pdf_file, orig_fobj)
+            else:
+                pdf_file = orig_fobj
+                pdf_file_content = convert_file(nbf)
                 download_page = render_download_template_to_pdf(new_uid)
                 if download_page:
-                    merged = merge_pdf(pdf_file.file.data, download_page)
-                    pdf_file.file = NamedBlobFile(merged, filename=pdf_file.file.filename)
+                    merged = merge_pdf(pdf_file_content, download_page)
+                    pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
                     Converter(pdf_file)()  # Refresh pdf preview
         else:
             raise NotImplementedError("Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType))
