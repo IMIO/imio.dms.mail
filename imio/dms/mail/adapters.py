@@ -1807,72 +1807,71 @@ class OMApprovalAdapter(object):
             )
 
         new_filename = u"{}.pdf".format(f_title)
-        if nbf.contentType in get_allowed_omf_content_types(esign=True):
-            gen_context = {}
-            orig_template = get_original_template(orig_fobj)
-            if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
-                new_uid = uuid.uuid4().hex
-                download_url, _s_uid = get_file_download_url(new_uid)
-                helper_view = getMultiAdapter(
-                    (self.context, self.context.REQUEST), name="document_generation_helper_view"
-                )
-                helper_view.pod_template = orig_template.UID()
-                helper_view.output_format = "pdf"
-                gen_context = {"context": self.context, "portal": api.portal.get(), "view": helper_view}
-                # update_dict_with_validation(gen_context, self._get_context_variables(pod_template),
-                #                                   _("Error when merging context_variables in generation context"))
-                merge_templates = [
-                    dic["template"]
-                    for dic in orig_template.merge_templates
-                    if dic["pod_context_name"] == "doc_cb_download"
-                ]
-                if merge_templates:
-                    download_template = uuidToObject(merge_templates[0])
-                    if download_template:
-                        gen_context["doc_cb_download"] = download_template
-                update_dict_with_validation(
-                    gen_context,
-                    {
-                        "download_barcode": generate_barcode(download_url).read(),
-                        "download_url": download_url,
-                        "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
-                        "render_download_barcode": True,
-                    },
-                    _dg("Error when merging 'download_barcode' in generation context"),
-                )
-
-                # TODO which pdf format to choose ?
-                pdf_file = convert_and_save_file(
-                    nbf,
-                    self.context,
-                    orig_fobj.portal_type,
-                    new_filename,
-                    fmt="pdf",
-                    from_uid=f_uid,
-                    attributes={
-                        "content_category": orig_fobj.content_category,
-                        "scan_id": orig_fobj.scan_id,
-                        "scan_user": hasattr(orig_fobj, "scan_user") and orig_fobj.scan_user or None,
-                        "_plone.uuid": new_uid,
-                    },
-                    renderer=bool(orig_template),
-                    gen_context=gen_context,
-                )
-                # we must set attribute after creation
-                update_esign_attributes(pdf_file, orig_fobj)
-            else:
-                pdf_file = orig_fobj
-                if nbf.contentType == "application/pdf":
-                    pdf_file_content = nbf.data
-                else:
-                    pdf_file_content = convert_file(nbf)
-                download_page = render_download_template_to_pdf(orig_fobj.UID())
-                if download_page:
-                    merged = merge_pdf(pdf_file_content, download_page)
-                    pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
-                    Converter(pdf_file)()  # Refresh pdf preview
-        else:
+        if nbf.contentType not in get_allowed_omf_content_types(esign=True):
             raise NotImplementedError("Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType))
+        gen_context = {}
+        orig_template = get_original_template(orig_fobj)
+        if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
+            new_uid = uuid.uuid4().hex
+            download_url, _s_uid = get_file_download_url(new_uid)
+            helper_view = getMultiAdapter(
+                (self.context, self.context.REQUEST), name="document_generation_helper_view"
+            )
+            helper_view.pod_template = orig_template.UID()
+            helper_view.output_format = "pdf"
+            gen_context = {"context": self.context, "portal": api.portal.get(), "view": helper_view}
+            # update_dict_with_validation(gen_context, self._get_context_variables(pod_template),
+            #                                   _("Error when merging context_variables in generation context"))
+            merge_templates = [
+                dic["template"]
+                for dic in orig_template.merge_templates
+                if dic["pod_context_name"] == "doc_cb_download"
+            ]
+            if merge_templates:
+                download_template = uuidToObject(merge_templates[0])
+                if download_template:
+                    gen_context["doc_cb_download"] = download_template
+            update_dict_with_validation(
+                gen_context,
+                {
+                    "download_barcode": generate_barcode(download_url).read(),
+                    "download_url": download_url,
+                    "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
+                    "render_download_barcode": True,
+                },
+                _dg("Error when merging 'download_barcode' in generation context"),
+            )
+
+            # TODO which pdf format to choose ?
+            pdf_file = convert_and_save_file(
+                nbf,
+                self.context,
+                orig_fobj.portal_type,
+                new_filename,
+                fmt="pdf",
+                from_uid=f_uid,
+                attributes={
+                    "content_category": orig_fobj.content_category,
+                    "scan_id": orig_fobj.scan_id,
+                    "scan_user": hasattr(orig_fobj, "scan_user") and orig_fobj.scan_user or None,
+                    "_plone.uuid": new_uid,
+                },
+                renderer=bool(orig_template),
+                gen_context=gen_context,
+            )
+            # we must set attribute after creation
+            update_esign_attributes(pdf_file, orig_fobj)
+        else:
+            pdf_file = orig_fobj
+            if nbf.contentType == "application/pdf":
+                pdf_file_content = nbf.data
+            else:
+                pdf_file_content = convert_file(nbf)
+            download_page = render_download_template_to_pdf(orig_fobj.UID())
+            if download_page:
+                merged = merge_pdf(pdf_file_content, download_page)
+                pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
+                Converter(pdf_file)()  # Refresh pdf preview
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
