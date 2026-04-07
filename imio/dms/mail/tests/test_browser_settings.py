@@ -85,6 +85,62 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
             error_msg,
         )
 
+    def test_omail_signer_substitutes_validation(self):
+        """Check omail_signer_substitutes invariant validation."""
+        record_proxy = self.registry.forInterface(IImioDmsMailConfig)
+        invariants = validator.InvariantsValidator(record_proxy, None, None, IImioDmsMailConfig, None)
+
+        # a) Valid data with all None dates — no errors expected
+        data = {"omail_signer_substitutes": [
+            {"absent_signer": None, "substitute_signer": None, "valid_from": None, "valid_until": None}
+        ]}
+        self.assertFalse(invariants.validate(data))
+
+        # b) Invalid valid_from format — expect Invalid
+        data = {"omail_signer_substitutes": [
+            {"absent_signer": None, "substitute_signer": None, "valid_from": u"not-a-date", "valid_until": None}
+        ]}
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+
+        # c) Invalid valid_until format — expect Invalid
+        data = {"omail_signer_substitutes": [
+            {"absent_signer": None, "substitute_signer": None, "valid_from": None, "valid_until": u"2025-01-01"}
+        ]}
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+
+        # d) valid_until < valid_from — expect Invalid
+        data = {"omail_signer_substitutes": [
+            {"absent_signer": None, "substitute_signer": None, "valid_from": u"2025/01/01", "valid_until": u"2024/01/01"}
+        ]}
+        errors = invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+
+        # e) Valid date range — no errors expected
+        data = {"omail_signer_substitutes": [
+            {"absent_signer": None, "substitute_signer": None, "valid_from": u"2000/01/01", "valid_until": u"2100/01/01"}
+        ]}
+        self.assertFalse(invariants.validate(data))
+
+        # f) Empty substitutes list — no errors expected
+        data = {"omail_signer_substitutes": []}
+        self.assertFalse(invariants.validate(data))
+
+        # g) Real held positions — valid substitute, no dates — no errors expected
+        pf = self.portal["contacts"]["personnel-folder"]
+        bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
+        dirg_hp = pf["dirg"]["directeur-general"]
+        data = {"omail_signer_substitutes": [
+            {
+                "absent_signer": bourgmestre_hp.UID(),
+                "substitute_signer": dirg_hp.UID(),
+                "valid_from": None,
+                "valid_until": None,
+            }
+        ]}
+        self.assertFalse(invariants.validate(data))
+
     def test_validate_settings2(self):
         """Check invariant"""
         record_proxy = self.registry.forInterface(IImioDmsMailConfig)

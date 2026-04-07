@@ -494,6 +494,17 @@ def dmsoutgoingmail_modified(mail, event):
     if not mail.signers:
         mail.signers = []
         signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
+        substitutes = {}
+        signer_substitutes = api.portal.get_registry_record("omail_signer_substitutes", IImioDmsMailConfig, [])
+        for sub in signer_substitutes:
+            absent = sub["absent_signer"]
+            if absent is None or absent in substitutes:
+                continue
+            if sub["valid_until"] and datetime.datetime.strptime(sub["valid_until"], "%Y/%m/%d").date() < today:
+                continue
+            if sub["valid_from"] and datetime.datetime.strptime(sub["valid_from"], "%Y/%m/%d").date() > today:
+                continue
+            substitutes[absent] = sub["substitute_signer"]
         used_numbers = set()
         used_signers = set()
         for signer in signer_rules:
@@ -502,10 +513,6 @@ def dmsoutgoingmail_modified(mail, event):
             if signer["mail_types"] and mail.mail_type not in signer["mail_types"]:
                 continue
             if signer["send_modes"] and not (set(mail.send_modes) & set(signer["send_modes"])):
-                continue
-            if signer["valid_until"] and datetime.datetime.strptime(signer["valid_until"], "%Y/%m/%d").date() <= today:
-                continue
-            if signer["valid_from"] and datetime.datetime.strptime(signer["valid_from"], "%Y/%m/%d").date() >= today:
                 continue
             if not _evaluateExpression(mail, expression=signer["tal_condition"]):
                 continue
@@ -531,9 +538,13 @@ def dmsoutgoingmail_modified(mail, event):
             if signer["number"] == 0:
                 continue
 
+            effective_signer = signer["signer"]
+            if effective_signer != u"_empty_" and effective_signer in substitutes:
+                effective_signer = substitutes[effective_signer] or signer["signer"]
+
             person = None
-            if signer["signer"] != u"_empty_":
-                signer_hp = uuidToObject(signer["signer"], unrestricted=True)
+            if effective_signer != u"_empty_":
+                signer_hp = uuidToObject(effective_signer, unrestricted=True)
                 person = signer_hp.get_person()
             if person:
                 if person.UID() in used_signers:
@@ -549,7 +560,7 @@ def dmsoutgoingmail_modified(mail, event):
             mail.signers.append(
                 {
                     "number": signer["number"],
-                    "signer": signer["signer"],
+                    "signer": effective_signer,
                     "editor": signer["editor"],
                     "approvings": signer["approvings"],
                 }
