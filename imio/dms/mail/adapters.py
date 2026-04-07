@@ -1960,8 +1960,11 @@ class OMApprovalAdapter(object):
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
+    """Adds more information on categorized elements"""
+
     def get_infos(self, category, limited=False):
         base_infos = super(DmsCategorizedObjectInfoAdapter, self).get_infos(category, limited=limited)
         base_infos["scan_id"] = getattr(self.obj, "scan_id", None)
         base_infos["conv_from_uid"] = getattr(self.obj, "conv_from_uid", None)
+        base_infos["esigned"] = getattr(self.obj, "esigned", False)
         return base_infos
