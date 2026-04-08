@@ -1524,6 +1524,19 @@ def do_next_transition(mail, ptype, treating_group="", state=None, config=None):
         api.content.transition(mail, config[state][treating_group][0])
 
 
+def get_post_approval_transition(context):
+    """Return the transition to trigger when all approvals are done.
+
+    When OMToPrintAdaptation is applied (handsigned flow), the mail goes to
+    to_print after approval instead of directly to to_be_signed.
+    """
+    pw = api.portal.get().portal_workflow
+    trs = [tr['id'] for tr in pw.getTransitionsFor(context)]
+    if "set_to_print" in trs:
+        return "set_to_print"
+    return "propose_to_be_signed"
+
+
 def is_valid_identifier(identifier):
     idnormalizer = getUtility(IIDNormalizer)
     return idnormalizer.normalize(identifier) == identifier
