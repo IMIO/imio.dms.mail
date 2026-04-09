@@ -119,7 +119,8 @@ def activate_esigning(context):
         ("adam", "chris"),
     ]
     if not get_esign_registry_external_watchers():
-        set_esign_registry_external_watchers(u", ".join(["{}.{}@imio.be".format(name[1], name[0]) for name in watchers]))
+        set_esign_registry_external_watchers(u", ".join(["{}.{}@imio.be".format(name[1], name[0])
+                                                         for name in watchers]))
     if not get_esign_registry_file_url():
         set_esign_registry_file_url(u"https://documents.imio-egov.be/esign")
 
@@ -135,9 +136,9 @@ def activate_esigning(context):
         pos = om_fns.index("internal_reference_no")
         omf.insert(pos + 1,
                    {"field_name": "ISigningBehavior.signers", "read_tal_condition": u"", "write_tal_condition": u""})
+        # omf.insert(pos + 2,
+        #            {"field_name": "ISigningBehavior.seal", "read_tal_condition": u"", "write_tal_condition": u""})
         omf.insert(pos + 2,
-                   {"field_name": "ISigningBehavior.seal", "read_tal_condition": u"", "write_tal_condition": u""})
-        omf.insert(pos + 3,
                    {"field_name": "ISigningBehavior.esign", "read_tal_condition": u"", "write_tal_condition": u""})
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
                                        omf)
