@@ -6,6 +6,8 @@ Changelog
 
 - Added download QR code page to not generated file to be signed.
   [chris-adam, sgeulette]
+- Do not include seal field by default when activating esign
+  [sgeulette]
 
 3.1.1 (2026-03-27)
 ------------------
