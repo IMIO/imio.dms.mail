@@ -1128,40 +1128,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             omail.signers, [{"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
         )
 
-        # Test absent_signer=None -> entry skipped -> original signer
-        omail.signers = None
-        api.portal.set_registry_record(rk_rules, [base_rule])
-        api.portal.set_registry_record(
-            rk_subs,
-            [
-                {
-                    "absent_signer": None,
-                    "substitute_signer": dirg_hp.UID(),
-                    "valid_from": None,
-                    "valid_until": None,
-                }
-            ],
-        )
-        modified(omail)
-        self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
-        )
-
-        # substitute_signer=None -> fallback to original signer
-        omail.signers = None
-        api.portal.set_registry_record(rk_rules, [base_rule])
-        api.portal.set_registry_record(
-            rk_subs,
-            [{
-                "absent_signer": bourgmestre_hp.UID(),
-                "substitute_signer": None,
-                "valid_from": None,
-                "valid_until": None,
-            }],
-        )
-        modified(omail)
-        self.assertEqual(omail.signers[0]["signer"], bourgmestre_hp.UID())
-
     def test_dmsoutgoingmail_modified_approval_annot(self):
         dirg = self.pf["dirg"]
         dirg_hp = dirg["directeur-general"]

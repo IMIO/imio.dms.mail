@@ -92,34 +92,36 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
 
         # a) Valid data with all None dates — no errors expected
         data = {"omail_signer_substitutes": [
-            {"absent_signer": None, "substitute_signer": None, "valid_from": None, "valid_until": None}
+            {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": None, "valid_until": None}
         ]}
         self.assertFalse(invariants.validate(data))
 
         # b) Invalid valid_from format — expect Invalid
         data = {"omail_signer_substitutes": [
-            {"absent_signer": None, "substitute_signer": None, "valid_from": u"not-a-date", "valid_until": None}
+            {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": u"not-a-date", "valid_until": None}
         ]}
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
 
         # c) Invalid valid_until format — expect Invalid
         data = {"omail_signer_substitutes": [
-            {"absent_signer": None, "substitute_signer": None, "valid_from": None, "valid_until": u"2025-01-01"}
+            {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": None, "valid_until": u"2025-01-01"}
         ]}
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
 
         # d) valid_until < valid_from — expect Invalid
         data = {"omail_signer_substitutes": [
-            {"absent_signer": None, "substitute_signer": None, "valid_from": u"2025/01/01", "valid_until": u"2024/01/01"}
+            {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": u"2025/01/01",
+             "valid_until": u"2024/01/01"}
         ]}
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
 
         # e) Valid date range — no errors expected
         data = {"omail_signer_substitutes": [
-            {"absent_signer": None, "substitute_signer": None, "valid_from": u"2000/01/01", "valid_until": u"2100/01/01"}
+            {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": u"2000/01/01",
+             "valid_until": u"2100/01/01"}
         ]}
         self.assertFalse(invariants.validate(data))
 

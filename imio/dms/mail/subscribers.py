@@ -498,7 +498,7 @@ def dmsoutgoingmail_modified(mail, event):
         signer_substitutes = api.portal.get_registry_record("omail_signer_substitutes", IImioDmsMailConfig, [])
         for sub in signer_substitutes:
             absent = sub["absent_signer"]
-            if absent is None or absent in substitutes:
+            if absent in substitutes:
                 continue
             if sub["valid_until"] and datetime.datetime.strptime(sub["valid_until"], "%Y/%m/%d").date() < today:
                 continue

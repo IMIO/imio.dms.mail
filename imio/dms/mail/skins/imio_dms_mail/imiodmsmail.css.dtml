@@ -1084,9 +1084,9 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_substitutes .cell-
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_substitutes .cell-3 input,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_substitutes .cell-4 input {
-    width: 20ch;
-    min-width: 20ch;
-    max-width: 20ch;
+    width: 11ch;
+    min-width: 11ch;
+    max-width: 11ch;
 }
 
 /* session viewlet */

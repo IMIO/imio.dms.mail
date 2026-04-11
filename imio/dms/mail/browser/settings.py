@@ -411,7 +411,7 @@ class ISignerSubstituteSchema(Interface):
         title=_(u"Absent signer"),
         description=_(u"The signer who is absent."),
         source=signing_signers_substitute,
-        required=False,
+        required=True,
         default=None,
     )
 
@@ -419,7 +419,7 @@ class ISignerSubstituteSchema(Interface):
         title=_(u"Substitute signer"),
         description=_(u"The signer to use instead. (eg. DG ff)"),
         source=signing_signers_substitute,
-        required=False,
+        required=True,
         default=None,
     )
 
@@ -1041,25 +1041,19 @@ class IImioDmsMailConfig(model.Schema):
             for i, sub in enumerate(data.omail_signer_substitutes or [], start=1):
                 # Check self-substitution
                 if sub["absent_signer"] and sub["absent_signer"] == sub["substitute_signer"]:
-                    api.portal.show_message(
+                    raise Invalid(
                         _(
-                            u"${tab} tab: « ${field} », substitute ${rule} has the same signer and substitute. "
-                            u"Check if this is really what you want.",
+                            u"${tab} tab: « ${field} », substitute rule ${rule} has the same signer and substitute.",
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"), "rule": i},
                         ),
-                        request=getRequest(),
-                        type="warning",
                     )
                 # Check missing signer or substitute
                 if not sub["absent_signer"] or not sub["substitute_signer"]:
-                    api.portal.show_message(
+                    raise Invalid(
                         _(
-                            u"${tab} tab: « ${field} », substitute ${rule} has no signer or substitute defined. "
-                            u"This rule will be ignored.",
+                            u"${tab} tab: « ${field} », substitute rule ${rule} has no signer or substitute defined.",
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"), "rule": i},
                         ),
-                        request=getRequest(),
-                        type="warning",
                     )
                 # Check dates
                 parsed = {}
