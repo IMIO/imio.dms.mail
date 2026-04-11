@@ -407,8 +407,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -431,8 +429,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -456,8 +452,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": ["courrier"],
                     "approvings": [u"_empty_"],
@@ -487,83 +481,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": ["type2"],
-                    "approvings": [u"_empty_"],
-                    "esign": True,
-                    "number": 1,
-                    "treating_groups": [],
-                    "send_modes": [],
-                    "signer": bourgmestre_hp.UID(),
-                    "editor": False,
-                }
-            ],
-        )
-        modified(omail)
-        self.assertEqual(
-            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
-        )
-
-        # Test valid_from / valid_until
-        omail.signers = None
-        api.portal.set_registry_record(
-            rk,
-            [
-                {
-                    "valid_until": u"2100/01/01",
-                    "valid_from": u"2000/01/01",
-                    "tal_condition": None,
-                    "mail_types": [],
-                    "approvings": [u"_empty_"],
-                    "esign": True,
-                    "number": 1,
-                    "treating_groups": [],
-                    "send_modes": [],
-                    "signer": bourgmestre_hp.UID(),
-                    "editor": False,
-                }
-            ],
-        )
-        modified(omail)
-        self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
-        )
-
-        omail.signers = None
-        api.portal.set_registry_record(
-            rk,
-            [
-                {
-                    "valid_until": u"2100/01/01",
-                    "valid_from": u"2099/01/01",
-                    "tal_condition": None,
-                    "mail_types": [],
-                    "approvings": [u"_empty_"],
-                    "esign": True,
-                    "number": 1,
-                    "treating_groups": [],
-                    "send_modes": [],
-                    "signer": bourgmestre_hp.UID(),
-                    "editor": False,
-                }
-            ],
-        )
-        modified(omail)
-        self.assertEqual(
-            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
-        )
-
-        omail.signers = None
-        api.portal.set_registry_record(
-            rk,
-            [
-                {
-                    "valid_until": u"2001/01/01",
-                    "valid_from": u"2000/01/01",
-                    "tal_condition": None,
-                    "mail_types": [],
                     "approvings": [u"_empty_"],
                     "esign": True,
                     "number": 1,
@@ -585,8 +504,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": u"python:True",
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -609,8 +526,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": u"python:False",
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -634,8 +549,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -647,8 +560,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                     "editor": False,
                 },
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -672,8 +583,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -699,8 +608,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -712,8 +619,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                     "editor": False,
                 },
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -741,8 +646,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -754,8 +657,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                     "editor": False,
                 },
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -789,8 +690,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -802,8 +701,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                     "editor": False,
                 },
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -829,8 +726,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -842,8 +737,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                     "editor": False,
                 },
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -863,8 +756,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -876,8 +767,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                     "editor": False,
                 },
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -903,8 +792,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -930,8 +817,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -943,8 +828,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                     "editor": False,
                 },
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -976,8 +859,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -1010,8 +891,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [chef.UID()],
@@ -1023,8 +902,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                     "editor": True,
                 },
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [chef.UID()],
@@ -1051,8 +928,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -1064,8 +939,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                     "editor": True,
                 },
                 {
-                    "valid_until": None,
-                    "valid_from": None,
                     "tal_condition": None,
                     "mail_types": [],
                     "approvings": [u"_empty_"],
@@ -1097,6 +970,163 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         omail.signers = None
         modified(omail)
         self.assertIsNone(omail.signers)
+
+    def test_dmsoutgoingmail_modified_signer_substitutes(self):
+        dirg = self.pf["dirg"]
+        dirg_hp = dirg["directeur-general"]
+        bourgmestre = self.pf["bourgmestre"]
+        bourgmestre_hp = bourgmestre["bourgmestre"]
+        rk_rules = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+        rk_subs = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_substitutes"
+        omail = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-sub-id",
+            title="Substitute Test",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="courrier",
+        )
+        base_rule = {
+            "number": 1,
+            "signer": bourgmestre_hp.UID(),
+            "esign": True,
+            "approvings": [u"_empty_"],
+            "editor": False,
+            "treating_groups": [],
+            "mail_types": [],
+            "send_modes": [],
+            "tal_condition": None,
+        }
+
+        # Test no substitutes -> original signer used
+        omail.signers = None
+        api.portal.set_registry_record(rk_rules, [base_rule])
+        api.portal.set_registry_record(rk_subs, [])
+        modified(omail)
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
+
+        # Test substitute match -> substitute signer used (bourgmestre_hp -> dirg_hp)
+        omail.signers = None
+        api.portal.set_registry_record(rk_rules, [base_rule])
+        api.portal.set_registry_record(
+            rk_subs,
+            [
+                {
+                    "absent_signer": bourgmestre_hp.UID(),
+                    "substitute_signer": dirg_hp.UID(),
+                    "valid_from": None,
+                    "valid_until": None,
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(
+            omail.signers, [{"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
+
+        # First-match-wins: two substitutes for same absent_signer — first one applies
+        omail.signers = None
+        api.portal.set_registry_record(rk_rules, [base_rule])
+        api.portal.set_registry_record(
+            rk_subs,
+            [
+                {
+                    "absent_signer": bourgmestre_hp.UID(),
+                    "substitute_signer": dirg_hp.UID(),
+                    "valid_from": None,
+                    "valid_until": None,
+                },
+                {
+                    "absent_signer": bourgmestre_hp.UID(),
+                    "substitute_signer": bourgmestre_hp.UID(),  # different target, should be ignored
+                    "valid_from": None,
+                    "valid_until": None,
+                },
+            ],
+        )
+        modified(omail)
+        self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
+
+        # Test no match (different absent_signer) -> original signer kept
+        omail.signers = None
+        api.portal.set_registry_record(rk_rules, [base_rule])
+        api.portal.set_registry_record(
+            rk_subs,
+            [
+                {
+                    "absent_signer": dirg_hp.UID(),
+                    "substitute_signer": dirg_hp.UID(),
+                    "valid_from": None,
+                    "valid_until": None,
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
+
+        # Test substitute expired (valid_until in past) -> original signer
+        omail.signers = None
+        api.portal.set_registry_record(rk_rules, [base_rule])
+        api.portal.set_registry_record(
+            rk_subs,
+            [
+                {
+                    "absent_signer": bourgmestre_hp.UID(),
+                    "substitute_signer": dirg_hp.UID(),
+                    "valid_from": u"2000/01/01",
+                    "valid_until": u"2001/01/01",
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
+
+        # Test substitute not yet active (valid_from in future) -> original signer
+        omail.signers = None
+        api.portal.set_registry_record(rk_rules, [base_rule])
+        api.portal.set_registry_record(
+            rk_subs,
+            [
+                {
+                    "absent_signer": bourgmestre_hp.UID(),
+                    "substitute_signer": dirg_hp.UID(),
+                    "valid_from": u"2099/01/01",
+                    "valid_until": None,
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
+
+        # Test substitute within valid date range -> substitute used
+        omail.signers = None
+        api.portal.set_registry_record(rk_rules, [base_rule])
+        api.portal.set_registry_record(
+            rk_subs,
+            [
+                {
+                    "absent_signer": bourgmestre_hp.UID(),
+                    "substitute_signer": dirg_hp.UID(),
+                    "valid_from": u"2000/01/01",
+                    "valid_until": u"2100/01/01",
+                }
+            ],
+        )
+        modified(omail)
+        self.assertEqual(
+            omail.signers, [{"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
 
     def test_dmsoutgoingmail_modified_approval_annot(self):
         dirg = self.pf["dirg"]

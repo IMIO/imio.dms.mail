@@ -6,6 +6,8 @@ Changelog
 
 - Added download QR code page to not generated file to be signed.
   [chris-adam, sgeulette]
+- Added signer substitutes table.
+  [chris-adam]
 - Do not include seal field by default when activating esign
   [sgeulette]
 

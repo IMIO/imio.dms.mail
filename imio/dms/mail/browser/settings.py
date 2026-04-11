@@ -262,6 +262,16 @@ def signing_signers_with_seal(context):
     return SimpleVocabulary(terms)
 
 
+@provider(IContextSourceBinder)
+def signing_signers_substitute(context):
+    """Return held positions vocabulary for signer substitution (absent or substitute)."""
+    terms = [
+        SimpleTerm(value=None, title=_(u"Choose a value !")),
+    ]
+    terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
+    return SimpleVocabulary(terms)
+
+
 class IBaseRoutingRuleSchema(Interface):
 
     forward = schema.Choice(
@@ -364,18 +374,6 @@ class ISignerRuleSchema(Interface):
         default=False,
     )
 
-    valid_from = schema.TextLine(
-        title=_(u"Valid from"),
-        description=_(u"Affected from date. Format: YYYY/MM/DD."),
-        required=False,
-    )
-
-    valid_until = schema.TextLine(
-        title=_(u"Valid until"),
-        description=_(u"Affected until date. Format: YYYY/MM/DD."),
-        required=False,
-    )
-
     treating_groups = schema.List(
         title=_(u"Treating group"),
         description=_(u"Affected groups for this rule."),
@@ -402,6 +400,38 @@ class ISignerRuleSchema(Interface):
 
     tal_condition = schema.TextLine(
         title=_("TAL condition"),
+        required=False,
+    )
+
+
+class ISignerSubstituteSchema(Interface):
+    """Schema for outgoing mail signer substitute rule."""
+
+    absent_signer = schema.Choice(
+        title=_(u"Absent signer"),
+        description=_(u"The signer who is absent."),
+        source=signing_signers_substitute,
+        required=True,
+        default=None,
+    )
+
+    substitute_signer = schema.Choice(
+        title=_(u"Substitute signer"),
+        description=_(u"The signer to use instead. (eg. DG ff)"),
+        source=signing_signers_substitute,
+        required=True,
+        default=None,
+    )
+
+    valid_from = schema.TextLine(
+        title=_(u"Valid from"),
+        description=_(u"Substitute active from date. Format: YYYY/MM/DD."),
+        required=False,
+    )
+
+    valid_until = schema.TextLine(
+        title=_(u"Valid until"),
+        description=_(u"Substitute active until date. Format: YYYY/MM/DD."),
         required=False,
     )
 
@@ -594,6 +624,7 @@ class IImioDmsMailConfig(model.Schema):
             "omail_send_modes",
             "omail_post_mailing",
             "omail_signer_rules",
+            "omail_signer_substitutes",
             "omail_fields",
             "omail_group_encoder",
         ],
@@ -665,14 +696,29 @@ class IImioDmsMailConfig(model.Schema):
 
     omail_signer_rules = schema.List(
         title=_(u"${type} signers rules", mapping={"type": _("Outgoing mail")}),
-        description=_(u"Rules are read in order. Conditions must be left empty "
-                      u"if not relevant. Dates with format YYYY/MM/DD."),
+        description=_(u"Rules are read in order. Conditions must be left empty if not relevant."),
         value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
         required=False,
         default=[],
     )
     widget(
         "omail_signer_rules",
+        DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=False,
+    )
+
+    omail_signer_substitutes = schema.List(
+        title=_(u"${type} signer substitutes", mapping={"type": _(u"Outgoing mail")}),
+        description=_(u"Defines substitute signers when a default signer is absent. "
+                      u"Rules are read in order; for each signer the first match is used, next ones are ignored. "
+                      u"Dates with format YYYY/MM/DD."),
+        value_type=DictRow(title=_(u"Substitute"), schema=ISignerSubstituteSchema, required=False),
+        required=False,
+        default=[],
+    )
+    widget(
+        "omail_signer_substitutes",
         DataGridFieldFactory,
         allow_reorder=True,
         auto_append=False,
@@ -919,42 +965,6 @@ class IImioDmsMailConfig(model.Schema):
         if fieldset == "outgoingmail" or not fieldset:
             omail_signer_conditions = {}
             for i, rule in enumerate(data.omail_signer_rules or [], start=1):
-                # check dates
-                today = datetime.date.today()
-                for date_fld, date_title in (("valid_from", u"Valid from"), ("valid_until", u"Valid until")):
-                    if rule[date_fld]:
-                        try:
-                            datetime.datetime.strptime(rule[date_fld], "%Y/%m/%d")
-                        except ValueError:
-                            raise Invalid(
-                                _(
-                                    u"${tab} tab: « ${field} », rule ${rule} has an invalid date in « ${date} » field",
-                                    mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
-                                             "date": _(date_title)},
-                                )
-                            )
-                if (rule["valid_from"] and rule["valid_until"] and  # noqa W504
-                        datetime.datetime.strptime(rule["valid_until"], "%Y/%m/%d") <  # noqa W504
-                        datetime.datetime.strptime(rule["valid_from"], "%Y/%m/%d")):
-                    raise Invalid(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal "
-                            u"to « ${from} »",
-                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
-                                     "until": _(u"Valid until"), "from": _(u"Valid from")},
-                        )
-                    )
-                if rule["valid_until"] and datetime.datetime.strptime(rule["valid_until"], "%Y/%m/%d").date() < today:
-                    api.portal.show_message(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal "
-                            u"to today",
-                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
-                                     "until": _(u"Valid until")},
-                        ),
-                        request=getRequest(),
-                        type="warning",
-                    )
                 # check number
                 if rule["number"] == 0 and rule["signer"] not in (u"_seal_", u"_empty_"):
                     raise Invalid(
@@ -1009,8 +1019,6 @@ class IImioDmsMailConfig(model.Schema):
                 condition = (
                     signer_value,
                     rule["esign"],
-                    rule["valid_from"],
-                    rule["valid_until"],
                     tuple(rule["treating_groups"]),
                     tuple(rule["mail_types"]),
                     tuple(rule["send_modes"]),
@@ -1026,6 +1034,63 @@ class IImioDmsMailConfig(model.Schema):
                         )
                     )
                 omail_signer_conditions[condition] = i
+
+        # check omail_signer_substitutes
+        if fieldset == "outgoingmail" or not fieldset:
+            today = datetime.date.today()
+            for i, sub in enumerate(data.omail_signer_substitutes or [], start=1):
+                # Check self-substitution
+                if sub["absent_signer"] and sub["absent_signer"] == sub["substitute_signer"]:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », substitute rule ${rule} has the same signer and substitute.",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"), "rule": i},
+                        ),
+                    )
+                # Check missing signer or substitute
+                if not sub["absent_signer"] or not sub["substitute_signer"]:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », substitute rule ${rule} has no signer or substitute defined.",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"), "rule": i},
+                        ),
+                    )
+                # Check dates
+                parsed = {}
+                for date_fld, date_title in (("valid_from", u"Valid from"), ("valid_until", u"Valid until")):
+                    if sub[date_fld]:
+                        try:
+                            parsed[date_fld] = datetime.datetime.strptime(sub[date_fld], "%Y/%m/%d")
+                        except ValueError:
+                            raise Invalid(
+                                _(
+                                    u"${tab} tab: « ${field} », substitute ${rule} has an invalid date "
+                                    u"in « ${date} » field",
+                                    mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"),
+                                             "rule": i, "date": _(date_title)},
+                                )
+                            )
+                if ("valid_from" in parsed and "valid_until" in parsed and  # noqa W504
+                        parsed["valid_until"] < parsed["valid_from"]):
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », substitute ${rule}, date « ${until} » must be "
+                            u"higher or equal to « ${from} »",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"),
+                                     "rule": i, "until": _(u"Valid until"), "from": _(u"Valid from")},
+                        )
+                    )
+                if "valid_until" in parsed and parsed["valid_until"].date() < today:
+                    api.portal.show_message(
+                        _(
+                            u"${tab} tab: « ${field} », substitute ${rule}, date « ${until} » must be "
+                            u"higher or equal to today",
+                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"),
+                                     "rule": i, "until": _(u"Valid until")},
+                        ),
+                        request=getRequest(),
+                        type="warning",
+                    )
 
         # check fields
         constraints = {
