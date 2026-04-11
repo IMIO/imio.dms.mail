@@ -8,7 +8,8 @@ Changelog
   [chris-adam, sgeulette]
 - Added signer substitutes table.
   [chris-adam]
-
+- Do not include seal field by default when activating esign
+  [sgeulette]
 
 3.1.1 (2026-03-27)
 ------------------
