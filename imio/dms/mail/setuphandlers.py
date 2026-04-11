@@ -13,7 +13,6 @@ __docformat__ = "plaintext"
 
 from collections import OrderedDict
 from collective.ckeditortemplates.setuphandlers import FOLDER as DEFAULT_CKE_TEMPL_FOLDER
-from collective.quickupload.browser.quickupload_settings import IQuickUploadControlPanel
 from collective.documentgenerator.interfaces import IBelowContentBodyBatchActionsMarker
 from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
@@ -21,6 +20,7 @@ from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectio
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.eeafaceted.dashboard.utils import enableFacetedDashboardFor
 from collective.querynextprev.interfaces import INextPrevNotNavigable
+from collective.quickupload.browser.quickupload_settings import IQuickUploadControlPanel
 from dexterity.localroles.utils import add_fti_configuration
 from dexterity.localroles.utils import fti_configuration
 from ftw.labels.interfaces import ILabelJar
@@ -1993,7 +1993,7 @@ def adaptDefaultPortal(context):
         acquire=0,
     )
 
-    # CLassification tree: can get tree
+    # Classification tree: can get tree
     site.manage_permission("plone.restapi: Use REST API", ("Manager", "Site Administrator", "Member"), acquire=0)
 
     # Default roles for own permissions
