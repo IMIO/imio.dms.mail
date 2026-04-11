@@ -44,7 +44,6 @@ from zope.lifecycleevent import IObjectModifiedEvent
 import logging
 import OFS
 import os
-import transaction
 
 
 logger = logging.getLogger("imio.dms.mail")
@@ -59,26 +58,14 @@ class Migrate_To_3_1(Migrator):  # noqa
         self.contacts = self.portal["contacts"]
         self.batch_value = int(os.getenv("BATCH", "0"))
         self.commit_value = int(os.getenv("COMMIT", "0"))
-
-    def savepoint_flush(self):
-        transaction.savepoint(True)
-        self.portal._p_jar.cacheGC()
+        self.old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
+        self.new_version = safe_unicode(get_git_tag(BLDT_DIR))
 
     def run(self):
-        old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
-        new_version = safe_unicode(get_git_tag(BLDT_DIR))
-        logger.info("Migrating from version {} to {}".format(old_version, new_version))
-        self.log_mem("START")
+        self.run_initialization()
 
-        if self.is_in_part("a"):  # install and upgrade products
-            # check if oo port or solr port must be changed
-            active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
-            if active_solr:
-                self.upgradeProfile("collective.solr:default")
-                self.runProfileSteps("collective.solr", steps=["plone.app.registry"])
-                logger.info("Deactivating solr")
-                api.portal.set_registry_record("collective.solr.active", False)
-            update_solr_config()
+        if self.is_in_part("a"):
+            self.solr_deactivate()
 
         if self.is_in_part("b"):  # upgrade other products
             # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
@@ -297,58 +284,11 @@ class Migrate_To_3_1(Migrator):  # noqa
 
         if self.is_in_part("g"):  # final steps
             # finished = True  # can be eventually returned and set by batched method
-            if old_version != new_version:
-                zope_app = self.portal
-                while not isinstance(zope_app, OFS.Application.Application):
-                    zope_app = zope_app.aq_parent
-                update_oo_config()
-                if "cputils_install" not in zope_app.objectIds():
-                    manage_addExternalMethod(zope_app, "cputils_install", "", "CPUtils.utils", "install")
-                ret = zope_app.cputils_install(zope_app)
-                ret = ret.replace("<div>Those methods have been added: ", "").replace("</div>", "")
-                if ret:
-                    logger.info('CPUtils added methods: "{}"'.format(ret.replace("<br />", ", ")))
-                if message_status("doc", older=timedelta(days=90), to_state="inactive"):
-                    logger.info("doc message deactivated")
-                self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
-                cssr = self.portal.portal_css
-                if ARCHIVE_SITE and not cssr.getResource("imiodmsmail_archives.css").getEnabled():
-                    cssr.updateStylesheet("imiodmsmail_archives.css", enabled=True)
-                cssr.cookResources()
-                self.cleanRegistries()
-                # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
-                self.registry["collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete"] = False
-                # version
-                api.portal.set_registry_record("imio.dms.mail.product_version", new_version)
-                now = datetime.now()
-                end = (now + timedelta(days=30)).strftime("%Y%m%d-%H%M")
-                if old_version != new_version:
-                    if "new-version" in self.portal["messages-config"]:
-                        api.content.delete(self.portal["messages-config"]["new-version"])
-                    # with solr, bug in col.iconifiedcategory.content.events.categorized_content_container_moved
-                    # self.portal["messages-config"].REQUEST.set("defer_categorized_content_created_event", True)
-                    add_message(
-                        "new-version",
-                        "Maj version",
-                        u"<p><strong>iA.docs a été mis à jour le {} de la version {} à la version {}</strong>. Vous "
-                        u"pouvez consulter les changements en cliquant sur le numéro de version en bas de page."
-                        u"</p>".format(now.strftime("%d-%m-%Y"), old_version, new_version),
-                        msg_type="significant",
-                        can_hide=True,
-                        end=end,
-                        req_roles=["Authenticated"],
-                        activate=True,
-                    )
+            if self.old_version != self.new_version:
+                self.run_finalization()
                 # setting QuickUpload simultaneous uploads limit to 1
                 IQuickUploadControlPanel(self.portal).set_sim_upload_limit(1)
-                # model om mail
-                add_special_model_mail(self.portal)
-                # update templates
-                self.runProfileSteps(
-                    "imio.dms.mail",
-                    steps=["imiodmsmail-create-templates", "imiodmsmail-update-templates"],
-                    profile="singles",
-                )
+                # updated existing templates
                 brains = self.catalog.unrestrictedSearchResults(
                     portal_type=["ConfigurablePODTemplate"], path='/'.join(self.portal.templates.om.getPhysicalPath()))
                 doc_cb_download_uid = self.portal.templates.om["download_barcode"].UID()
@@ -364,59 +304,122 @@ class Migrate_To_3_1(Migrator):  # noqa
                             {"pod_context_name": u"doc_cb_download", "do_rendering": False,
                              "template": doc_cb_download_uid})
                         obj.merge_templates = merge_templates
-                # update front-page
-                frontpage = self.portal["front-page"]
-                if frontpage.Title() == "Gestion du courrier 3.0":
-                    frontpage.setTitle(_("front_page_title"))
-                    frontpage.setDescription(_("front_page_descr"))
-                    frontpage.setText(_("front_page_text"), mimetype="text/html")
-
-                # update portal title
-                self.portal.title = "Gestion du courrier 3.1"
-
-            # if active_solr:
-            #     logger.info("Activating solr")
-            #     api.portal.set_registry_record("collective.solr.active", True)
 
         if self.is_in_part("x"):  # clear solr
-            active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
-            if active_solr is not None:
-                if not active_solr:
-                    logger.info("Activating solr")
-                    api.portal.set_registry_record("collective.solr.active", True)
-                logger.info("Clearing solr on %s" % self.portal.absolute_url_path())
-                maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
-                maintenance.clear()
+            self.solr_clear()
 
         if self.is_in_part("y"):  # sync solr (long time, batchable)
-            active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
-            if active_solr is not None:
-                if not active_solr:
-                    logger.info("Activating solr")
-                    api.portal.set_registry_record("collective.solr.active", True)
-                self.sync_solr()
+            self.solr_sync()
 
+        self.run_finish()
+
+    def run_initialization(self):
+        """run method initialization"""
+        logger.info("Migrating from version {} to {}".format(self.old_version, self.new_version))
+        self.log_mem("START")
+
+    def run_finalization(self):
+        """run method finalization"""
+        zope_app = self.portal
+        while not isinstance(zope_app, OFS.Application.Application):
+            zope_app = zope_app.aq_parent
+        update_oo_config()
+        if "cputils_install" not in zope_app.objectIds():
+            manage_addExternalMethod(zope_app, "cputils_install", "", "CPUtils.utils", "install")
+        ret = zope_app.cputils_install(zope_app)
+        ret = ret.replace("<div>Those methods have been added: ", "").replace("</div>", "")
+        if ret:
+            logger.info('CPUtils added methods: "{}"'.format(ret.replace("<br />", ", ")))
+        if message_status("doc", older=timedelta(days=90), to_state="inactive"):
+            logger.info("doc message deactivated")
+        self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
+        cssr = self.portal.portal_css
+        if ARCHIVE_SITE and not cssr.getResource("imiodmsmail_archives.css").getEnabled():
+            cssr.updateStylesheet("imiodmsmail_archives.css", enabled=True)
+        cssr.cookResources()
+        self.cleanRegistries()
+        # set jqueryui autocomplete to False. If not, contact autocomplete doesn't work
+        self.registry["collective.js.jqueryui.controlpanel.IJQueryUIPlugins.ui_autocomplete"] = False
+        # version
+        api.portal.set_registry_record("imio.dms.mail.product_version", self.new_version)
+        now = datetime.now()
+        end = (now + timedelta(days=30)).strftime("%Y%m%d-%H%M")
+        if self.old_version != self.new_version:
+            if "new-version" in self.portal["messages-config"]:
+                api.content.delete(self.portal["messages-config"]["new-version"])
+            # with solr, bug in col.iconifiedcategory.content.events.categorized_content_container_moved
+            # self.portal["messages-config"].REQUEST.set("defer_categorized_content_created_event", True)
+            add_message(
+                "new-version",
+                "Maj version",
+                u"<p><strong>iA.docs a été mis à jour le {} de la version {} à la version {}</strong>. Vous "
+                u"pouvez consulter les changements en cliquant sur le numéro de version en bas de page."
+                u"</p>".format(now.strftime("%d-%m-%Y"), self.old_version, self.new_version),
+                msg_type="significant",
+                can_hide=True,
+                end=end,
+                req_roles=["Authenticated"],
+                activate=True,
+            )
+        # model om mail
+        add_special_model_mail(self.portal)
+        # update templates
+        self.runProfileSteps(
+            "imio.dms.mail",
+            steps=["imiodmsmail-create-templates", "imiodmsmail-update-templates"],
+            profile="singles",
+        )
+        # update front-page
+        frontpage = self.portal["front-page"]
+        if frontpage.Title() == "Gestion du courrier 3.0":
+            frontpage.setTitle(_("front_page_title"))
+            frontpage.setDescription(_("front_page_descr"))
+            frontpage.setText(_("front_page_text"), mimetype="text/html")
+        # update portal title
+        self.portal.title = "Gestion du courrier 3.1"
+
+    def run_finish(self):
+        """run method finish"""
         self.log_mem("END")
         logger.info("Really finished at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         self.finish()
 
-    def sync_solr(self):
-        full_key = "collective.solr.port"
-        configured_port = api.portal.get_registry_record(full_key, default=None)
-        if configured_port is None:
-            return
+    def solr_deactivate(self):
+        """Deactivates solr if activated and updates ports"""
         active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
-        if not active_solr:
-            logger.info("Activating solr")
-            api.portal.set_registry_record("collective.solr.active", True)
-        logger.info("Syncing solr on %s" % self.portal.absolute_url_path())
-        response = self.portal.REQUEST.RESPONSE
-        original = response.write
-        response.write = lambda x: x  # temporarily ignore output
-        maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
-        maintenance.sync()  # BATCHED
-        response.write = original
+        if active_solr:
+            self.upgradeProfile("collective.solr:default")
+            self.runProfileSteps("collective.solr", steps=["plone.app.registry"])
+            logger.info("Deactivating solr")
+            api.portal.set_registry_record("collective.solr.active", False)
+        update_solr_config()
+
+    def solr_clear(self):
+        """Reactivates and clears solr"""
+        active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
+        if active_solr is not None:
+            if not active_solr:
+                logger.info("Activating solr")
+                api.portal.set_registry_record("collective.solr.active", True)
+            logger.info("Clearing solr on %s" % self.portal.absolute_url_path())
+            maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
+            maintenance.clear()
+
+    def solr_sync(self):
+        """Reactivates and syncs solr"""
+        active_solr = api.portal.get_registry_record("collective.solr.active", default=None)
+        if active_solr is not None:
+            if not active_solr:
+                logger.info("Activating solr")
+                api.portal.set_registry_record("collective.solr.active", True)
+            logger.info("Syncing solr on %s" % self.portal.absolute_url_path())
+            response = self.portal.REQUEST.RESPONSE
+            original = response.write
+            response.write = lambda x: x  # temporarily ignore output
+            maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
+            maintenance.sync()  # BATCHED
+            response.write = original
 
 
-def migrate(context):
+def migrate(context):  # noqa
     Migrate_To_3_1(context).run()

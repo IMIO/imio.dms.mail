@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from imio.migrator.migrator import Migrator
+from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
 from plone import api
 
 import logging
@@ -8,14 +8,15 @@ import logging
 logger = logging.getLogger("imio.dms.mail")
 
 
-class Migrate_To_3_1_2(Migrator):  # noqa
-    def __init__(self, context, disable_linkintegrity_checks=False):
-        Migrator.__init__(self, context, disable_linkintegrity_checks=disable_linkintegrity_checks)
+class Migrate_To_3_1_2(Migrate_To_3_1):  # noqa
 
     def run(self):
-        logger.info("Migrating to 3.1.2")
+        self.run_initialization()
 
-        if self.is_in_part("a"):  # migrate signer substitutes
+        if self.is_in_part("b"):  # upgrade other products
+            self.upgradeAll(omit=[u"imio.dms.mail:default"])
+
+        if self.is_in_part("c"):  # migrate signer substitutes
             logger.info("Migrating omail_signer_rules dates to omail_signer_substitutes")
             self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry"])
             rk_rules = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
@@ -36,13 +37,13 @@ class Migrate_To_3_1_2(Migrator):  # noqa
                         # Find the first undated rule after this one with same conditions
                         absent_signer = None
                         for candidate in existing_rules[idx + 1:]:
-                            if (not candidate.get("valid_from") and not candidate.get("valid_until") and
-                                    candidate["signer"] != rule["signer"] and
-                                    candidate["number"] == rule["number"] and
-                                    candidate["treating_groups"] == rule["treating_groups"] and
-                                    candidate["mail_types"] == rule["mail_types"] and
-                                    candidate["send_modes"] == rule["send_modes"] and
-                                    candidate["tal_condition"] == rule["tal_condition"]):
+                            if (not candidate.get("valid_from") and not candidate.get("valid_until")
+                                    and candidate["signer"] != rule["signer"]
+                                    and candidate["number"] == rule["number"]
+                                    and candidate["treating_groups"] == rule["treating_groups"]
+                                    and candidate["mail_types"] == rule["mail_types"]
+                                    and candidate["send_modes"] == rule["send_modes"]
+                                    and candidate["tal_condition"] == rule["tal_condition"]):
                                 absent_signer = candidate["signer"]
                                 break
                         pair = (absent_signer, rule["signer"])
@@ -61,7 +62,12 @@ class Migrate_To_3_1_2(Migrator):  # noqa
                 api.portal.set_registry_record(rk_subs, substitutes)
                 logger.info("Created {} substitute stub(s) from signer rules".format(new_substitutes_count))
 
-        self.finish()
+        if self.is_in_part("g"):  # final steps
+            # finished = True  # can be eventually returned and set by batched method
+            if self.old_version != self.new_version:
+                self.run_finalization()
+
+        self.run_finish()
 
 
 def migrate(context):
