@@ -108,6 +108,8 @@ def activate_esigning(context):
     load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # content category
     load_type_from_package("PODTemplate", "profile-imio.dms.mail:default")  # views
     load_type_from_package("SubTemplate", "profile-imio.dms.mail:default")  # views
+    # Changed permission after plone.restapi installation
+    site.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
 
     # Configured imio.esign
     set_esign_registry_enabled(True)

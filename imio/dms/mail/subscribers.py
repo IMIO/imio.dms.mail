@@ -1591,6 +1591,12 @@ def zope_ready(event):
                 if ret:
                     logger.info('=> CPUtils added methods: "{}"'.format(ret.replace("<br />", ", ")))
                 change = True
+        # Changed permission after plone.restapi installation
+        if "Anonymous" in [dic["name"] for dic in site.rolesOfPermission("plone.restapi: Use REST API")
+                           if dic["selected"] == "SELECTED"]:
+            logger.warning("Permission 'plone.restapi: Use REST API' is still given to Anonymous !!")
+            # site.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
+
         # from Extensions.demo import disable_resources_debug_mode
         # disable_resources_debug_mode(site)
     if change:

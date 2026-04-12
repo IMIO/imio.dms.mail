@@ -61,6 +61,8 @@ class Migrate_To_3_1_2(Migrate_To_3_1):  # noqa
                 api.portal.set_registry_record(rk_rules, cleaned_rules)
                 api.portal.set_registry_record(rk_subs, substitutes)
                 logger.info("Created {} substitute stub(s) from signer rules".format(new_substitutes_count))
+            # Changed permission after plone.restapi installation
+            self.portal.manage_permission("plone.restapi: Use REST API", ("Member", ), acquire=0)
 
         if self.is_in_part("g"):  # final steps
             # finished = True  # can be eventually returned and set by batched method

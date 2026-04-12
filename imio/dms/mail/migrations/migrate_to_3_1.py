@@ -304,6 +304,8 @@ class Migrate_To_3_1(Migrator):  # noqa
                             {"pod_context_name": u"doc_cb_download", "do_rendering": False,
                              "template": doc_cb_download_uid})
                         obj.merge_templates = merge_templates
+                # Changed permission after plone.restapi installation
+                self.portal.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
 
         if self.is_in_part("x"):  # clear solr
             self.solr_clear()
