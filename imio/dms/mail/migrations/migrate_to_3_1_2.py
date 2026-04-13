@@ -63,6 +63,12 @@ class Migrate_To_3_1_2(Migrate_To_3_1):  # noqa
                 logger.info("Created {} substitute stub(s) from signer rules".format(new_substitutes_count))
             # Changed permission after plone.restapi installation
             self.portal.manage_permission("plone.restapi: Use REST API", ("Member", ), acquire=0)
+            # Corrected dmsoutgoingmail permissions
+            dom_fti = self.portal.portal_types["dmsoutgoingmail"]
+            for action in dom_fti.listActions():
+                if not action.permissions:  # empty tuple
+                    action.permissions = ("Manage portal", )
+                    logger.info("Correcting dmsoutgoingmail action id '{}' permission".format(action.id))
 
         if self.is_in_part("g"):  # final steps
             # finished = True  # can be eventually returned and set by batched method
