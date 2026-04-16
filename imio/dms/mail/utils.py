@@ -1647,3 +1647,31 @@ def get_allowed_omf_content_types(esign=False):
     for fmt in formats or []:
         res.extend(ct_by_type.get(fmt, ()))
     return res
+
+
+def is_hp_used_in_signer_rules(hp_obj, remaining_usages):
+    """Return True if hp_obj is referenced in omail_signer_rules/substitutes
+    in a way incompatible with remaining_usages.
+    Pass remaining_usages=[] to check all references (e.g. for deletion).
+    Note: omail_signer_rules approvings stores person UIDs (not held_position UIDs).
+    """
+    uid = hp_obj.UID()
+    rk_rules = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+    rk_substitutes = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_substitutes"
+    signer_rules = api.portal.get_registry_record(rk_rules, default=[])
+    signer_substitutes = api.portal.get_registry_record(rk_substitutes, default=[])
+    if "signer" not in remaining_usages:
+        for rule in signer_rules:
+            if rule["signer"] == uid:
+                return True
+        for sub in signer_substitutes:
+            if sub["absent_signer"] == uid or sub["substitute_signer"] == uid:
+                return True
+    if "approving" not in remaining_usages:
+        person = hp_obj.get_person()
+        person_uid = person.UID() if person is not None else None
+        if person_uid:
+            for rule in signer_rules:
+                if person_uid in (rule.get("approvings") or []):
+                    return True
+    return False
