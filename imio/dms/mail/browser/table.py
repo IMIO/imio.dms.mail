@@ -197,10 +197,16 @@ class OMVersionsTable(BaseVersionsTable):
         return result
 
     def setUpColumns(self):
-        """Removes SessionIdColumn if eSignature is disabled or this mail doesn't belong to any session"""
+        """
+        Manage columns depending on context state (eSign sesions, approval requested)
+        """
         columns = super(OMVersionsTable, self).setUpColumns()
+        # Removes SessionIdColumn if eSignature is disabled or this mail doesn't belong to multiple sessions
         if not get_esign_registry_enabled() or len(self._approval.session_ids) < 2:
             columns = [col for col in columns if col.__name__ != "session-id-column"]
+        # Removes ApprovedColumn if no approvers configured for this mail
+        if not self._approval.approvers:
+            columns = [col for col in columns if col.__name__ != "approved-column"]
         return columns
 
     def renderRow(self, row, cssClass=None):

@@ -10,6 +10,10 @@ Changelog
   [chris-adam]
 - Do not include seal field by default when activating esign
   [sgeulette]
+- Removed signing fieldset if no field inside.
+  [chris-adam]
+- Removed ApprovedColumn if no approvers.
+  [chris-adam]
 
 3.1.1 (2026-03-27)
 ------------------

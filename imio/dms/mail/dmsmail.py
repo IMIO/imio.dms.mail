@@ -76,6 +76,7 @@ from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
+from plone.z3cform.fieldsets.utils import remove
 from unidecode import unidecode
 from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
