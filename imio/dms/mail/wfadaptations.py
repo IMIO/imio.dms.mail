@@ -1040,6 +1040,14 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                         OrderedDict([('_n_plus_1', {'org': 'treating_groups', 'st': ['proposed_to_n_plus_1']})]))
         set_dms_config(["review_states", "dmsoutgoingmail"],
                         OrderedDict([('proposed_to_n_plus_1', {'org': 'treating_groups', 'group': '_n_plus_1'})]))
+
+        default settings for case 3
+        set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "from"], [("created", "back_to_creation")])
+        set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"],
+                       [('sent', 'mark_as_sent'), ('to_be_signed', 'propose_to_be_signed'),
+                       ('to_print', 'set_to_print')])
+        set_dms_config(["review_levels", "dmsoutgoingmail"], OrderedDict())
+        set_dms_config(["review_states", "dmsoutgoingmail"], OrderedDict())
         """
         # modify wf_from_to
         nplus_to = get_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"])
