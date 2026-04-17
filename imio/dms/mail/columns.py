@@ -513,6 +513,12 @@ class HPColumn(BaseColumn):
         if not hps:
             return "-"
         ret = []
+        signer_usage = "<img width='16' height='16' src='++resource++imio.esign/parapheo.svg' title='{}'>".format(
+            _tr("Signer")
+        )
+        approving_usage = "<img src='++resource++imio.dms.mail/check-all.svg' title='{}'>".format(
+            _tr("Approving")
+        )
         for hp in hps:
             org = hp.get_organization()
             is_plonegroup = IPloneGroupContact.providedBy(org) and 1 or 0
@@ -525,11 +531,13 @@ class HPColumn(BaseColumn):
             else:
                 ret.append(
                     u"<li class='plonegroup_{}'><a href='{}' target='_blank' class='pretty_link link-tooltip'>"
-                    u"<span class='pretty_link_content state-{}'>{}</span></a></li>".format(
+                    u"<span class='pretty_link_content state-{}'>{}</span></a>{}{}</li>".format(
                         is_plonegroup,
                         hp.absolute_url(),
                         api.content.get_state(obj=hp),
                         safe_unicode(escape(org.get_full_title(first_index=is_plonegroup))),
+                        signer_usage if "signer" in hp.usages else "",
+                        approving_usage if "approving" in hp.usages else "",
                     )
                 )
         if ret:
