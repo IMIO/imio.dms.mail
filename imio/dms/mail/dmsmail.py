@@ -905,14 +905,14 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
 
     def can_set_to_print(self):
         """Used in guard expression for to_print and back_to_print transitions."""
+        if self.context.esign:
+            return False
         brains = self.context.portal_catalog.unrestrictedSearchResults(
-            portal_type="dmsommainfile", path="/".join(self.context.getPhysicalPath()), b_size=1
+            portal_type="dmsommainfile", path="/".join(self.context.getPhysicalPath())
         )
         if not bool(brains):
             return False
         if self.context.has_approvings() and not self.context.has_approvings(all_done=True):
-            return False
-        if self.context.esign:
             return False
         return True
 
@@ -921,7 +921,7 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
     def can_be_signed(self):
         """Used in guard expression for to_be_signed transition."""
         brains = self.context.portal_catalog.unrestrictedSearchResults(
-            portal_type=["dmsommainfile", "dmsappendixfile"], path="/".join(self.context.getPhysicalPath()), b_size=1
+            portal_type=["dmsommainfile", "dmsappendixfile"], path="/".join(self.context.getPhysicalPath())
         )
         if not bool(brains):
             return False

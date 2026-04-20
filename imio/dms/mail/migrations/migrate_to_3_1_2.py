@@ -89,28 +89,6 @@ class Migrate_To_3_1_2(Migrate_To_3_1):  # noqa
                         actbox_category=tr.actbox_category,
                         props={"guard_permissions": "Review portal content", "guard_expr": new_signed_guard},
                     )
-            # Update guard expression on set_to_print/back_to_print wfa
-            applied_wfa_names = [dic["adaptation"] for dic in get_applied_adaptations()]
-            to_print_applied = "imio.dms.mail.wfadaptations.OMToPrintAdaptation" in applied_wfa_names
-            if to_print_applied:
-                new_guard = "python:object.wf_conditions().can_set_to_print()"
-                for tr_id in ("set_to_print", "back_to_print"):
-                    if tr_id not in wf.transitions:
-                        continue
-                    tr = wf.transitions[tr_id]
-                    if tr.guard.expr and tr.guard.expr.text == old_handsigned_guard:
-                        logger.info("Updating {} guard from can_be_handsigned to can_set_to_print".format(tr_id))
-                        tr.setProperties(
-                            title=tr.title,
-                            new_state_id=tr.new_state_id,
-                            trigger_type=tr.trigger_type,
-                            script_name=tr.script_name,
-                            actbox_name=tr.actbox_name,
-                            actbox_url=tr.actbox_url,
-                            actbox_icon=tr.actbox_icon,
-                            actbox_category=tr.actbox_category,
-                            props={"guard_permissions": "Review portal content", "guard_expr": new_guard},
-                        )
 
         if self.is_in_part("g"):  # final steps
             # finished = True  # can be eventually returned and set by batched method
