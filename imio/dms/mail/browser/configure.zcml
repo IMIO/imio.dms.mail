@@ -3,6 +3,7 @@
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:plone="http://namespaces.plone.org/plone"
     xmlns:i18n="http://namespaces.zope.org/i18n"
+    xmlns:z3c="http://namespaces.zope.org/z3c"
     i18n_domain="imio.dms.mail">
 
     <include package="plone.app.portlets"/>
@@ -1137,5 +1138,19 @@
         allowed_attributes="topLevelTabs"
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
     />
+
+    <!-- Expandable DataGrid widget templates -->
+    <z3c:widgetTemplate
+        template="templates/datagridfield_expandable_input.pt"
+        layer="collective.z3cform.datagridfield.interfaces.IDataGridFieldLayer"
+        mode="input"
+        widget="imio.dms.mail.browser.widgets.ExpandableDataGridField"
+        />
+    <z3c:widgetTemplate
+        template="templates/datagridfieldobject_expandable_input.pt"
+        layer="collective.z3cform.datagridfield.interfaces.IDataGridFieldLayer"
+        mode="input"
+        widget="imio.dms.mail.browser.widgets.ExpandableDataGridFieldObject"
+        />
 
 </configure>
