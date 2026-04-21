@@ -7,6 +7,7 @@ from plone import api
 from plone.memoize import ram
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from zope.component import getMultiAdapter
 
 
 def actionspanelview_cachekey(
@@ -570,6 +571,22 @@ class ContactActionsPanelViewlet(ActionsPanelViewlet):
         "showAddContent": True,
         "showActions": True,
     }
+
+    def __init__(self, context, request, view, manager=None):
+        super(ContactActionsPanelViewlet, self).__init__(context, request, view, manager)
+        if self.request.get("ajax_load", False):
+            self.params["useIcons"] = True
+            self.params["showAddContent"] = False
+            self.params["showActions"] = False
+            self.params["showTransitions"] = False
+
+    def show(self):
+        """
+        Will we show the viewlet on context?
+        Note: Stops ignoring ajax calls
+        """
+        context_state = getMultiAdapter((self.context, self.request), name=u'plone_context_state')
+        return context_state.is_view_template()
 
 
 class CategoryActionsPanelViewlet(ActionsPanelViewlet):
