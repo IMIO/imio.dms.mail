@@ -4,6 +4,7 @@ from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.basecontent.browser.listing import VersionsTitleColumn
 from collective.iconifiedcategory import utils as ic_utils
 from collective.iconifiedcategory.browser.tabview import CategorizedContent
+from collective.iconifiedcategory.browser.tabview import IconClickableColumn
 from collective.task import _ as _task
 from html import escape  # noqa F401
 from imio.dms.mail import _
@@ -122,6 +123,18 @@ class BaseVersionsTable(VersionsTable):
                 ][::-1])
             self._v_stored_values = data
         return self._v_stored_values
+
+    def is_edit_mode(self):
+        view_name = self.request.get('ACTUAL_URL', '').split('/')[-1]
+        return view_name in ('edit', '@@edit')
+
+    def setUpColumns(self):
+        """When in edit view, removes actionnable columns"""
+        columns = super(BaseVersionsTable, self).setUpColumns()
+        if self.is_edit_mode():
+            actionnable_cols = ["action-column"]
+            columns = [col for col in columns if col.__name__ not in actionnable_cols and not isinstance(col, IconClickableColumn)]
+        return columns
 
 
 class IMVersionsTable(BaseVersionsTable):
