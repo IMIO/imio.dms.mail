@@ -1465,6 +1465,13 @@ def manage_fields(the_form, config_key, mode):
             if field_name not in to_display:
                 group.fields = group.fields.omit(field_name)
 
+    # Remove signing fieldset if no field inside
+    signing_group = [gr for gr in the_form.groups if gr.__name__ == "signing"]
+    if signing_group:
+        signing_group = signing_group[0]
+        if not signing_group.fields.keys():
+            the_form.groups.remove(signing_group)
+
 
 def message_status(mid, older=None, to_state="inactive", transitions=["deactivate"], container="default"):
     site = api.portal.get()
