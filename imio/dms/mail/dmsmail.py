@@ -907,12 +907,12 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
         """Used in guard expression for to_print and back_to_print transitions."""
         if self.context.esign:
             return False
+        if self.context.has_approvings() and not self.context.has_approvings(all_done=True):
+            return False
         brains = self.context.portal_catalog.unrestrictedSearchResults(
-            portal_type="dmsommainfile", path="/".join(self.context.getPhysicalPath())
+            portal_type="dmsommainfile", path="/".join(self.context.getPhysicalPath()), b_size=1
         )
         if not bool(brains):
-            return False
-        if self.context.has_approvings() and not self.context.has_approvings(all_done=True):
             return False
         return True
 
@@ -920,12 +920,12 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
 
     def can_be_signed(self):
         """Used in guard expression for to_be_signed transition."""
+        if self.context.has_approvings() and not self.context.has_approvings(all_done=True):
+            return False
         brains = self.context.portal_catalog.unrestrictedSearchResults(
-            portal_type=["dmsommainfile", "dmsappendixfile"], path="/".join(self.context.getPhysicalPath())
+            portal_type=["dmsommainfile", "dmsappendixfile"], path="/".join(self.context.getPhysicalPath()), b_size=1
         )
         if not bool(brains):
-            return False
-        if self.context.has_approvings() and not self.context.has_approvings(all_done=True):
             return False
         # elif self.context.seal:
         #     return True
