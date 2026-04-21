@@ -138,13 +138,17 @@ def activate_esigning(context):
         pos = om_fns.index("internal_reference_no")
         omf.insert(pos + 1,
                    {"field_name": "ISigningBehavior.signers", "read_tal_condition": u"", "write_tal_condition": u""})
-        # omf.insert(pos + 2,
-        #            {"field_name": "ISigningBehavior.seal", "read_tal_condition": u"", "write_tal_condition": u""})
-        omf.insert(pos + 2,
+        om_fns = [dic["field_name"] for dic in omf]
+        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
+                                       omf)
+        log.append("Added signers to omail_fields registry record")
+    if "ISigningBehavior.esign" not in om_fns:
+        pos = om_fns.index("ISigningBehavior.signers")
+        omf.insert(pos + 1,
                    {"field_name": "ISigningBehavior.esign", "read_tal_condition": u"", "write_tal_condition": u""})
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
                                        omf)
-        log.append("Updated omail_fields registry record")
+        log.append("Added esign to omail_fields registry record")
 
     site.portal_setup.runImportStepFromProfile(
         "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False

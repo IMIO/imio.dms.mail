@@ -1009,9 +1009,9 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         possible cases:
         1) basic: created -> to_approve -> to_be_signed
         2) n+1 applied: created -> proposed_to_n_plus -> validated -> to_approve -> to_be_signed
-        3) to_print applied: created -> to_print -> to_approve -> to_be_signed
+        3) to_print applied: created -> to_approve -> to_print -> to_be_signed
         """
-        # TODO : Check cases 2 and 3
+        # TODO : Check case 2
         transitions = ["propose_to_be_signed", "back_to_creation"]
         # what is already applied ?
         already_applied = ""
@@ -1022,7 +1022,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
             transitions.append("back_to_validated")
         if u"imio.dms.mail.wfadaptations.OMToPrintAdaptation" in applied_wfa:
             already_applied = "to_print"
-            transitions.append("back_to_print")
+            transitions.append("set_to_print")
         """
         default settings for case 1
         set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "from"], [("created", "back_to_creation")])
@@ -1040,6 +1040,14 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                         OrderedDict([('_n_plus_1', {'org': 'treating_groups', 'st': ['proposed_to_n_plus_1']})]))
         set_dms_config(["review_states", "dmsoutgoingmail"],
                         OrderedDict([('proposed_to_n_plus_1', {'org': 'treating_groups', 'group': '_n_plus_1'})]))
+
+        default settings for case 3
+        set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "from"], [("created", "back_to_creation")])
+        set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"],
+                       [('sent', 'mark_as_sent'), ('to_be_signed', 'propose_to_be_signed'),
+                       ('to_print', 'set_to_print')])
+        set_dms_config(["review_levels", "dmsoutgoingmail"], OrderedDict())
+        set_dms_config(["review_states", "dmsoutgoingmail"], OrderedDict())
         """
         # modify wf_from_to
         nplus_to = get_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"])
@@ -1105,9 +1113,11 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         transitions.append(to_tr_id)
         wf.states["created"].transitions = tuple(transitions)
         if already_applied == "to_print":
-            transitions = list(wf.states["to_print"].transitions)
-            transitions.append(to_tr_id)
-            wf.states["to_print"].transitions = tuple(transitions)
+            # Add "set_to_print" from to_approve
+            transitions = list(state.transitions)
+            if "set_to_print" not in transitions:
+                transitions.append("set_to_print")
+            state.transitions = tuple(transitions)
         if already_applied == "n_plus":
             for st in ("proposed_to_n_plus_1", "validated"):
                 transitions = list(wf.states[st].transitions)
@@ -1115,16 +1125,34 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                 wf.states[st].transitions = tuple(transitions)
 
         # add new back_to transition on next states
-        for next_state_id in to_states:
-            if next_state_id not in wf.states:  # can be when wfadaptations are re-applied during migration
-                continue
-            if new_state_id == next_state_id or next_state_id == "validated":
-                continue
-            next_state = wf.states[next_state_id]
-            transitions = list(next_state.transitions)
-            if back_tr_id not in transitions:
-                transitions.append(back_tr_id)
-            next_state.transitions = tuple(transitions)
+        if already_applied == "to_print":
+            # Add "back_to_approve" from to_print
+            to_print_state = wf.states["to_print"]
+            tp_transitions = list(to_print_state.transitions)
+            if back_tr_id not in tp_transitions:
+                tp_transitions.append(back_tr_id)
+            to_print_state.transitions = tuple(tp_transitions)
+            # Add "back_to_approve" from to_be_signed
+            to_be_signed_state = wf.states["to_be_signed"]
+            tbs_transitions = list(to_be_signed_state.transitions)
+            if back_tr_id not in tbs_transitions:
+                # before "back_to_print" (earlier state in flow)
+                if "back_to_print" in tbs_transitions:
+                    tbs_transitions.insert(tbs_transitions.index("back_to_print"), back_tr_id)
+                else:
+                    tbs_transitions.append(back_tr_id)
+            to_be_signed_state.transitions = tuple(tbs_transitions)
+        else:
+            for next_state_id in to_states:
+                if next_state_id not in wf.states:  # can be when wfadaptations are re-applied during migration
+                    continue
+                if new_state_id == next_state_id or next_state_id == "validated" or next_state_id == "sent":
+                    continue
+                next_state = wf.states[next_state_id]
+                transitions = list(next_state.transitions)
+                if back_tr_id not in transitions:
+                    transitions.append(back_tr_id)
+                next_state.transitions = tuple(transitions)
 
         # ajouter config local roles
         lr, fti = fti_configuration(portal_type="dmsoutgoingmail")
@@ -1309,6 +1337,14 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             return False, "N+1 already in workflow. Validated state can be used as to_print"
             # transitions.append("back_to_n_plus_1")
             # has_n_plus_1 = True
+        if u"imio.dms.mail.wfadaptations.OMToApproveAdaptation" in applied_wfa:
+            transitions.append("back_to_approve")
+            # Add "set_to_print" from to_approve
+            ta_state = wf.states["to_approve"]
+            ta_transitions = list(ta_state.transitions)
+            if to_tr_id not in ta_transitions:
+                ta_transitions.append(to_tr_id)
+            ta_state.transitions = tuple(ta_transitions)
 
         # modify wf_from_to
         nplus_to = get_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"])
@@ -1350,7 +1386,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             actbox_category="workflow",
             props={
                 "guard_permissions": "Review portal content",
-                "guard_expr": "python:object.wf_conditions().can_be_handsigned()",
+                "guard_expr": "python:object.wf_conditions().can_set_to_print()",
             },
         )
         wf.transitions.addTransition(back_tr_id)
@@ -1365,7 +1401,7 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             actbox_category="workflow",
             props={
                 "guard_permissions": "Review portal content",
-                "guard_expr": "python:object.wf_conditions().can_be_handsigned()",
+                "guard_expr": "python:object.wf_conditions().can_set_to_print()",
             },
         )
 
@@ -1474,6 +1510,8 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             api.portal.set_registry_record(
                 "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions", lst
             )
+        invalidate_cachekey_volatile_for("imio.dms.mail.utils.list_wf_states.dmsoutgoingmail")
+
         # update remark states
         lst = (
             api.portal.get_registry_record(
@@ -1484,8 +1522,6 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
         if new_state_id not in lst:
             lst.insert(0, new_state_id)
             api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states", lst)
-
-        invalidate_cachekey_volatile_for("imio.dms.mail.utils.list_wf_states.dmsoutgoingmail")
 
         return True, ""
 

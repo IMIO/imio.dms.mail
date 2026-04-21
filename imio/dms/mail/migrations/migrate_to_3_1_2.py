@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collective.wfadaptations.api import get_applied_adaptations
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
 from plone import api
 
@@ -16,7 +17,8 @@ class Migrate_To_3_1_2(Migrate_To_3_1):  # noqa
         if self.is_in_part("b"):  # upgrade other products
             self.upgradeAll(omit=[u"imio.dms.mail:default"])
 
-        if self.is_in_part("c"):  # migrate signer substitutes
+        if self.is_in_part("c"):
+            # Migrate signer substitutes
             logger.info("Migrating omail_signer_rules dates to omail_signer_substitutes")
             self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry"])
             rk_rules = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
@@ -61,6 +63,7 @@ class Migrate_To_3_1_2(Migrate_To_3_1):  # noqa
                 api.portal.set_registry_record(rk_rules, cleaned_rules)
                 api.portal.set_registry_record(rk_subs, substitutes)
                 logger.info("Created {} substitute stub(s) from signer rules".format(new_substitutes_count))
+
             # Changed permission after plone.restapi installation
             self.portal.manage_permission("plone.restapi: Use REST API", ("Member", ), acquire=0)
             # Corrected dmsoutgoingmail permissions
@@ -69,6 +72,29 @@ class Migrate_To_3_1_2(Migrate_To_3_1):  # noqa
                 if not action.permissions:  # empty tuple
                     action.permissions = ("Manage portal", )
                     logger.info("Correcting dmsoutgoingmail action id '{}' permission".format(action.id))
+
+            # WFAs
+            # can_be_handsigned was renamed can_be_signed
+            wf = api.portal.get().portal_workflow["outgoingmail_workflow"]
+            old_handsigned_guard = "python:object.wf_conditions().can_be_handsigned()"
+            new_signed_guard = "python:object.wf_conditions().can_be_signed()"
+            for tr_id in ("propose_to_be_signed", "back_to_be_signed"):
+                if tr_id not in wf.transitions:
+                    continue
+                tr = wf.transitions[tr_id]
+                if tr.guard.expr and tr.guard.expr.text == old_handsigned_guard:
+                    logger.info("Updating {} guard from can_be_handsigned to can_be_signed".format(tr_id))
+                    tr.setProperties(
+                        title=tr.title,
+                        new_state_id=tr.new_state_id,
+                        trigger_type=tr.trigger_type,
+                        script_name=tr.script_name,
+                        actbox_name=tr.actbox_name,
+                        actbox_url=tr.actbox_url,
+                        actbox_icon=tr.actbox_icon,
+                        actbox_category=tr.actbox_category,
+                        props={"guard_permissions": "Review portal content", "guard_expr": new_signed_guard},
+                    )
 
         if self.is_in_part("g"):  # final steps
             # finished = True  # can be eventually returned and set by batched method

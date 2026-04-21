@@ -175,7 +175,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
                         afile=self.context,
                         userid=self.userid,
                         values=values,
-                        transition="propose_to_be_signed",
+                        transition=True,
                     )
                     status = int(ret)
                     values["approved"] = ret
