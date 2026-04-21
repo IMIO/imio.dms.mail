@@ -10,6 +10,8 @@ Changelog
   [chris-adam]
 - Do not include seal field by default when activating esign
   [sgeulette]
+- Added ExpandableDataGridField widget.
+  [chris-adam]
 
 3.1.1 (2026-03-27)
 ------------------
