@@ -103,6 +103,8 @@ class Migrate_To_3_1(Migrator):  # noqa
                 if reset:
                     logger.info("outgoingmail_workflow reloaded")
                     for name in applied_adaptations:
+                        if name == u"imio.dms.mail.wfadaptations.OMToPrint":
+                            name = u"imio.dms.mail.wfadaptations.OMToPrintAdaptation"
                         success, errors = apply_from_registry(reapply=True, name=name)
                         if errors:
                             raise Exception("Problem applying wf adaptations '%s': %d errors" % (name, errors))
