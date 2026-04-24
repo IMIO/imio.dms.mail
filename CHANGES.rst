@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.1.2 (unreleased)
+3.1.2 (2026-04-24)
 ------------------
 
 - Added download QR code page to not generated file to be signed.
