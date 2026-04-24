@@ -105,6 +105,14 @@ class Migrate_To_3_1(Migrator):  # noqa
                     for name in applied_adaptations:
                         if name == u"imio.dms.mail.wfadaptations.OMToPrint":
                             name = u"imio.dms.mail.wfadaptations.OMToPrintAdaptation"
+                            record = api.portal.get_registry_record("collective.wfadaptations.applied_adaptations")
+                            new_record = []
+                            for dic in record:
+                                new_dic = dict(dic)
+                                if new_dic["adaptation"] == u"imio.dms.mail.wfadaptations.OMToPrint":
+                                    new_dic["adaptation"] = name
+                                new_record.append(new_dic)
+                            api.portal.set_registry_record("collective.wfadaptations.applied_adaptations", new_record)
                         success, errors = apply_from_registry(reapply=True, name=name)
                         if errors:
                             raise Exception("Problem applying wf adaptations '%s': %d errors" % (name, errors))
