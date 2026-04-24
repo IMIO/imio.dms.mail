@@ -1420,8 +1420,9 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
                 continue
             next_state = wf.states[next_state_id]
             transitions = list(next_state.transitions)
-            if back_tr_id not in transitions:
-                transitions.append(back_tr_id)
+            if back_tr_id in transitions or next_state_id == new_state_id:
+                continue
+            transitions.append(back_tr_id)
             next_state.transitions = tuple(transitions)
 
         # ajouter config local roles
