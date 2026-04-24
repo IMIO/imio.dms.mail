@@ -11,11 +11,7 @@ logger = logging.getLogger("imio.dms.mail")
 
 class Migrate_To_3_1_2(Migrate_To_3_1):  # noqa
 
-    def run(self):
-        self.run_initialization()
-
-        if self.is_in_part("b"):  # upgrade other products
-            self.upgradeAll(omit=[u"imio.dms.mail:default"])
+    def run_parts(self):
 
         if self.is_in_part("c"):
             # Migrate signer substitutes
@@ -100,8 +96,6 @@ class Migrate_To_3_1_2(Migrate_To_3_1):  # noqa
             # finished = True  # can be eventually returned and set by batched method
             if self.old_version != self.new_version:
                 self.run_finalization()
-
-        self.run_finish()
 
 
 def migrate(context):
