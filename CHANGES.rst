@@ -4,8 +4,8 @@ Changelog
 3.1.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Do not release this package.
+  [sgeulette]
 
 3.1.2 (2026-04-24)
 ------------------
