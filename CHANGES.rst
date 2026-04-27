@@ -6,6 +6,8 @@ Changelog
 
 - Do not release this package.
   [sgeulette]
+- Avoided attribute error in template when classification_folders is missing.
+  [sgeulette]
 
 3.1.2 (2026-04-24)
 ------------------

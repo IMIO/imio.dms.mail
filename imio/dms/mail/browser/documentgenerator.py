@@ -47,7 +47,8 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
 
     def get_classification_folders(self, sep=u", "):
         obj = self.real_context
-        if not self.has_field('classification_folders') or not obj.classification_folders:
+        if (not self.has_field("classification_folders") or not hasattr(obj, "classification_folders") or
+                not obj.classification_folders):
             return []
         ret = []
         for fld in obj.classification_folders:
