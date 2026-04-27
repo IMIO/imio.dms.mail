@@ -8,6 +8,8 @@ Changelog
   [sgeulette]
 - Avoided attribute error in template when classification_folders is missing.
   [sgeulette]
+- Moved upgrade steps from profiles.zcml to upgrades.zcml
+  [sgeulette]
 
 3.1.2 (2026-04-24)
 ------------------
