@@ -254,6 +254,13 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         default=None,
     )
 
+    send_modes = schema.List(
+        title=_("Send modes"),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.IMActiveSendModesVocabulary"),
+        min_length=1,
+    )
+    directives.widget("send_modes", CheckBoxFieldWidget, multiple="multiple", size=5)
+
     document_in_service = schema.Bool(title=_(u"Original document in service"), default=False)
     directives.widget(document_in_service=RadioFieldWidget)
 
@@ -284,6 +291,7 @@ class ImioDmsIncomingMail(DmsIncomingMail):
 
     treating_groups = FieldProperty(IImioDmsIncomingMail[u"treating_groups"])
     recipient_groups = FieldProperty(IImioDmsIncomingMail[u"recipient_groups"])
+    send_modes = FieldProperty(IImioDmsIncomingMail[u"send_modes"])
 
     @ram.cache(object_modified_cachekey)
     def IM_get_back_or_again_icon(self):
@@ -494,6 +502,7 @@ class IMEdit(DmsDocumentEdit):
                     [
                         "sender",
                         "mail_type",
+                        "send_modes",
                         "reception_date",
                         "original_mail_date",
                         "IDmsMailCreatingGroup.creating_group",
@@ -572,6 +581,10 @@ class CustomAddForm(DefaultAddForm):
         imio_dmsincomingmail_updatewidgets(self)
         if self.portal_type == "dmsincomingmail":
             self.widgets["orig_sender_email"].mode = HIDDEN_MODE
+        if "send_modes" in self.widgets and not self.widgets["send_modes"].value:
+            self.widgets["send_modes"].value = (
+                [u"email"] if self.portal_type == "dmsincoming_email" else [u"post"]
+            )
         # Set a due date by default if it was set in the configuration
         due_date_extension = api.portal.get_registry_record(name="due_date_extension", interface=IImioDmsMailConfig)
         if due_date_extension > 0:

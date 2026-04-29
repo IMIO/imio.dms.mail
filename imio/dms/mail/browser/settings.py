@@ -501,6 +501,7 @@ class IImioDmsMailConfig(model.Schema):
             "original_mail_date_required",
             "due_date_extension",
             "imail_remark_states",
+            "imail_send_modes",
             "imail_fields",
             "imail_group_encoder",
         ],
@@ -568,6 +569,16 @@ class IImioDmsMailConfig(model.Schema):
         ),
         default=False,
     )
+
+    imail_send_modes = schema.List(
+        title=_(u"Send modes"),
+        description=_(
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
+        ),
+        value_type=DictRow(title=_("Send modes"), schema=ITableListSchema),
+    )
+
+    widget("imail_send_modes", DataGridFieldFactory, allow_reorder=True)
 
     # FIELDSET IEM
     model.fieldset(
@@ -860,6 +871,7 @@ class IImioDmsMailConfig(model.Schema):
         # check ITableListSchema id uniqueness
         for fs, tab, fieldname, title in (
             ("incomingmail", "Incoming mail", "mail_types", u"Types of incoming mail"),
+            ("incomingmail", "Incoming mail", "imail_send_modes", u"Send modes"),
             ("outgoingmail", "Outgoing mail", "omail_types", u"Types of outgoing mail"),
             ("outgoingmail", "Outgoing mail", "omail_send_modes", u"Send modes"),
         ):
@@ -942,6 +954,23 @@ class IImioDmsMailConfig(model.Schema):
                                              "user": safe_unicode(username), "tg": safe_unicode(tgname)},
                                 )
                             )
+        # check imail_send_modes id
+        if fieldset == "incomingmail" or not fieldset:
+            try:
+                for dic in data.imail_send_modes or []:
+                    if (
+                        not dic["value"].startswith("email")
+                        and not dic["value"].startswith("post")
+                        and not dic["value"].startswith("other")
+                    ):
+                        raise Invalid(
+                            _(
+                                u"${tab} tab: send_modes field must have values starting with « post », « email » or "
+                                u"« other »", mapping={"tab": _("Incoming mail")},
+                            )
+                        )
+            except NoInputData:
+                pass
         # check omail_send_modes id
         if fieldset == "outgoingmail" or not fieldset:
             try:
@@ -1108,6 +1137,7 @@ class IImioDmsMailConfig(model.Schema):
                     "recipient_groups",
                     "reception_date",
                     "mail_type",
+                    "send_modes",
                     "reply_to",
                     "internal_reference_no",
                 ],
@@ -1256,6 +1286,9 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName == "omail_types":
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMMailTypesVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary")
+    if event.record.fieldName == "imail_send_modes":
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.IMSendModesVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.IMActiveSendModesVocabulary")
     if event.record.fieldName == "omail_send_modes":
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSendModesVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSendModesVocabulary")

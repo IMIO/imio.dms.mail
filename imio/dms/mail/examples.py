@@ -983,6 +983,7 @@ def configure_imio_dms_mail(context):
             "reception_date",
             "ITask.due_date",
             "mail_type",
+            "send_modes",
             "reply_to",
             "ITask.task_description",
             "external_reference_no",
@@ -1038,6 +1039,12 @@ def configure_imio_dms_mail(context):
         ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"] = _(u"Response: ")
+    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_send_modes"):
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_send_modes"] = [
+            {"value": u"post", "dtitle": u"Courrier", "active": True},
+            {"value": u"post_registered", "dtitle": u"Courrier recommandé", "active": True},
+            {"value": u"email", "dtitle": u"Email", "active": True},
+        ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes"] = [
             {"value": u"post", "dtitle": u"Lettre", "active": True},

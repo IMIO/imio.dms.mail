@@ -60,6 +60,16 @@
         />
 
     <utility
+        name="imio.dms.mail.IMSendModesVocabulary"
+        factory="imio.dms.mail.vocabularies.IMSendModesVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.IMActiveSendModesVocabulary"
+        factory="imio.dms.mail.vocabularies.IMActiveSendModesVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.OMSignersVocabulary"
         factory="imio.dms.mail.vocabularies.OMSignersVocabulary"
         />

@@ -393,6 +393,30 @@ class OMActiveSendModesVocabulary(object):
     __call__ = OMActiveSendModesVocabulary__call__
 
 
+class IMSendModesVocabulary(object):
+    """All incoming send modes vocabulary"""
+
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def IMSendModesVocabulary__call__(self, context):
+        return get_settings_vta_table("imail_send_modes")
+
+    __call__ = IMSendModesVocabulary__call__
+
+
+class IMActiveSendModesVocabulary(object):
+    """Active incoming send modes vocabulary"""
+
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def IMActiveSendModesVocabulary__call__(self, context):
+        return get_settings_vta_table("imail_send_modes", active=[True])
+
+    __call__ = IMActiveSendModesVocabulary__call__
+
+
 class OMSignersVocabulary(object):
     """Signers vocabulary"""
 
