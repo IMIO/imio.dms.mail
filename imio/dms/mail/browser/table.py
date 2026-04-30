@@ -151,21 +151,19 @@ class OMVersionsTable(BaseVersionsTable):
 
     portal_types = ["dmsommainfile", "dmsappendixfile"]
 
-    @CachedProperty
-    def _approval(self):
-        return IOMApproval(self.context)
+    def __init__(self, context, request, portal_type=None):
+        """If received, this let's filter table for a given portal_type."""
+        super(OMVersionsTable, self).__init__(context, request, portal_type=portal_type)
+        self.approval = IOMApproval(self.context)
+        # Set of PDF-generated child file UIDs that are distinct from their source
+        self.pdf_child_uids = set(
+            uid for lst in self.approval.pdf_files_uids for uid in lst
+            if uid not in self.approval.files_uids
+        )
 
     @CachedProperty
     def _session_annotation(self):
         return get_session_annotation()
-
-    @CachedProperty
-    def _pdf_child_uids(self):
-        """Set of PDF-generated child file UIDs that are distinct from their source."""
-        return set(
-            uid for lst in self._approval.pdf_files_uids for uid in lst
-            if uid not in self._approval.files_uids
-        )
 
     @property
     def values(self):
@@ -178,16 +176,16 @@ class OMVersionsTable(BaseVersionsTable):
 
         # Build parent-to-children UID mapping
         parent_to_children_uids = {}
-        for i, source_uid in enumerate(self._approval.files_uids):
+        for i, source_uid in enumerate(self.approval.files_uids):
             parent_to_children_uids[source_uid] = [
-                uid for uid in self._approval.pdf_files_uids[i]
-                if uid in self._pdf_child_uids
+                uid for uid in self.approval.pdf_files_uids[i]
+                if uid in self.pdf_child_uids
             ]
 
         # Build list of values in parent order, but with children below their parent
         result = []
         for content in raw_data:
-            if content.UID in self._pdf_child_uids:
+            if content.UID in self.pdf_child_uids:
                 continue  # skip and insert later below parent
             result.append(content)
             for child_uid in parent_to_children_uids.get(content.UID, []):
@@ -202,17 +200,17 @@ class OMVersionsTable(BaseVersionsTable):
         """
         columns = super(OMVersionsTable, self).setUpColumns()
         # Removes SessionIdColumn if eSignature is disabled or this mail doesn't belong to multiple sessions
-        if not get_esign_registry_enabled() or len(self._approval.session_ids) < 2:
+        if not get_esign_registry_enabled() or len(self.approval.session_ids) < 2:
             columns = [col for col in columns if col.__name__ != "session-id-column"]
         # Removes ApprovedColumn if no approvers configured for this mail
-        if not self._approval.approvers:
+        if not self.approval.approvers:
             columns = [col for col in columns if col.__name__ != "approved-column"]
         return columns
 
     def renderRow(self, row, cssClass=None):
         """Render row with custom css class for children"""
         item = row[0][0]
-        if item.UID in self._pdf_child_uids:
+        if item.UID in self.pdf_child_uids:
             cssClass = (cssClass + ' pdf-child-row') if cssClass else 'pdf-child-row'
         return super(OMVersionsTable, self).renderRow(row, cssClass)
 
