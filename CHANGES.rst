@@ -10,6 +10,12 @@ Changelog
   [sgeulette]
 - Moved upgrade steps from profiles.zcml to upgrades.zcml
   [sgeulette]
+- Removed signing fieldset if no field inside.
+  [chris-adam]
+- Removed ApprovedColumn if no approvers.
+  [chris-adam]
+- Improved manage_fields to handle separately and correctly display and edit fields.
+  [sgeulette]
 
 3.1.2 (2026-04-24)
 ------------------

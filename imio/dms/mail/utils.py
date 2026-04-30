@@ -49,7 +49,6 @@ from natsort import natsorted
 from operator import attrgetter
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
-from persistent.mapping import PersistentMapping
 from plone import api
 from plone.api.exc import GroupNotFoundError
 from plone.dexterity.utils import addContentToContainer
@@ -1435,8 +1434,8 @@ def manage_fields(the_form, config_key, mode):
     )
     if not schema_config:
         return
-    to_input = []
-    to_display = []
+    to_input = set()
+    to_display = set()
 
     # configured_fields = [e["field_name"] for e in schema_config]
     for fields_schema in reversed(schema_config):
@@ -1444,26 +1443,35 @@ def manage_fields(the_form, config_key, mode):
         read_condition = fields_schema.get("read_tal_condition") or ""
         write_condition = fields_schema.get("write_tal_condition") or ""
         if _evaluateExpression(the_form.context, expression=read_condition):
-            to_display.append(field_name)
+            to_display.add(field_name)
         if mode != "view" and _evaluateExpression(the_form.context, expression=write_condition):
-            to_input.append(field_name)
+            to_input.add(field_name)
 
         field = remove(the_form, field_name)
-        if field is not None and field_name in to_display:
+        if field is not None:
+            if mode == "view" and field_name not in to_display:
+                continue
+            if mode != "view" and field_name not in to_input:
+                continue
             if field_name.startswith("email_"):
                 add(the_form, field, index=0, group="email")
             elif field_name.startswith("ISigningBehavior."):
                 add(the_form, field, index=0, group="signing")
             else:
                 add(the_form, field, index=0)
-            if mode != "view" and field_name not in to_input:
-                field.mode = "display"
 
-    # We remove fields not to display (not configured)
+    # We remove fields not configured
     for group in [the_form] + the_form.groups:
         for field_name in group.fields:
-            if field_name not in to_display:
+            if field_name not in to_display.union(to_input):
                 group.fields = group.fields.omit(field_name)
+
+    # Remove signing fieldset if no field inside
+    signing_group = [gr for gr in the_form.groups if gr.__name__ == "signing"]
+    if signing_group:
+        signing_group = signing_group[0]
+        if not signing_group.fields.keys():
+            the_form.groups.remove(signing_group)
 
 
 def message_status(mid, older=None, to_state="inactive", transitions=["deactivate"], container="default"):
