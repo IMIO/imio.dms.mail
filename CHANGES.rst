@@ -16,6 +16,8 @@ Changelog
   [chris-adam]
 - Improved manage_fields to handle separately and correctly display and edit fields.
   [sgeulette]
+- Added mnb and fnb parameters on import_sign_examples function
+  [sgeulette]
 
 3.1.2 (2026-04-24)
 ------------------
