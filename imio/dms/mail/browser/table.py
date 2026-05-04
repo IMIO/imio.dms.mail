@@ -301,6 +301,7 @@ class ApprovalTable(Table):
     cssClassOdd = u"odd"
     cssClasses = {"table": "listing"}
     sortOn = None
+    startBatchingAt = 100000
 
     def __init__(self, context, request):
         super(ApprovalTable, self).__init__(context, request)
