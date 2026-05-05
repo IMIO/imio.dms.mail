@@ -23,6 +23,8 @@ Changelog
   [sgeulette]
 - Replaced implements by implementer
   [sgeulette]
+- Added action RecreateSession.
+  [chris-adam]
 
 3.1.5 (2026-06-19)
 ------------------
