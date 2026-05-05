@@ -1428,7 +1428,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                         ],
                         "discriminators": (),
                         "watchers": [],
-                        "title": u'[ia.docs] Session 012999900000',
+                        "title": u'[iA.Docs] Session 012999900000',
                         "state": "draft",
                         "signers": [
                             {
@@ -1486,7 +1486,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                         ],
                         "discriminators": (),
                         "watchers": [],
-                        "title": u'[ia.docs] Session 012999900000',
+                        "title": u'[iA.Docs] Session 012999900000',
                         "state": "draft",
                         "signers": [
                             {

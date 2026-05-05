@@ -20,6 +20,8 @@ Changelog
   [sgeulette]
 - Do not limit approvals table results to batchSize
   [sgeulette]
+- Added action RecreateSession.
+  [chris-adam]
 
 3.1.2 (2026-04-24)
 ------------------

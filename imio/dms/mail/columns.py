@@ -247,23 +247,32 @@ class SessionIdColumn(BaseColumn):
         return u'<img src="++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID'
 
     def renderCell(self, content):
-        session_id = self.table._session_annotation.get("uids", {}).get(content.UID, None)
-        portal = api.portal.get()
-        dashboard_link = getMultiAdapter((portal, portal.REQUEST), name="parapheo").get_dashboard_link(
-            {"id": session_id}
+        if len(self.table._approval.session_ids) <= 1:
+            return u""
+        file_uid = content.UID
+        sessions_annot = self.table._session_annotation.get("sessions", {})
+        session_ids = sorted(
+            sid for sid, session in sessions_annot.items()
+            if any(f["uid"] == file_uid for f in session.get("files", []))
         )
-        if session_id is not None and len(self.table.approval.session_ids) > 1:
-            return u'<a href={dashboard_link} title="{title}" class="pdf-session-badge">{session_id}</span>'.format(
+        if not session_ids:
+            return u""
+        portal = api.portal.get()
+        parapheo = getMultiAdapter((portal, portal.REQUEST), name="parapheo")
+        badges = []
+        for sid in session_ids:
+            dashboard_link = parapheo.get_dashboard_link({"id": sid})
+            badges.append(u'<a href={dashboard_link} title="{title}" class="pdf-session-badge">{sid}</a>'.format(
                 dashboard_link=dashboard_link,
                 title=translate(
                     u"Paraphéo session ID: ${session_id}",
                     domain="imio.dms.mail",
                     context=content.REQUEST,
-                    mapping={'session_id': session_id},
+                    mapping={"session_id": sid},
                 ),
-                session_id=session_id,
-            )
-        return u""
+                sid=sid,
+            ))
+        return u", ".join(badges)
 
 
 class FileActionsColumn(AnnexActionsColumn):

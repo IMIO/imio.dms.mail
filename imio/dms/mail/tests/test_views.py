@@ -6,8 +6,11 @@ from collective.iconifiedcategory.utils import calculate_category_id
 from collective.MockMailHost.MockMailHost import MockMailHost
 from datetime import datetime
 from HTMLParser import HTMLParser
+from imio.dms.mail import _
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.browser.views import ImioRecreateSessionView
 from imio.dms.mail.browser.views import OMSessionAnnotationInfoView
 from imio.dms.mail.browser.views import parse_query
 from imio.dms.mail.interfaces import IOMApproval
@@ -16,11 +19,13 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
+from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import get_object
 from imio.helpers.content import richtextval
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.test_helpers import ImioTestHelpers
+from persistent.list import PersistentList
 from plone import api
 from plone.app.testing import login
 from plone.dexterity.utils import createContentInContainer
@@ -536,7 +541,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
   ],
   'size': {size},
   'state': 'draft',
-  'title': u'[ia.docs] Session 012999900000',
+  'title': u'[iA.Docs] Session 012999900000',
   'watchers': [],
 }}""".format(  # noqa E501
                 pdf1_uid=api.content.get(omail.absolute_url_path() + "/file0").UID(),
@@ -549,3 +554,106 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
                                   + "/modele-de-base-s0010-courrier-test-esign.pdf").file.size,
             ),
         )
+
+
+class TestImioRecreateSessionView(unittest.TestCase):
+    """Tests for the dms.mail override ImioRecreateSessionView."""
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.pf = self.portal["contacts"]["personnel-folder"]
+        self.pgof = self.portal["contacts"]["plonegroup-organization"]
+        login(self.layer["app"], "admin")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+        )
+        set_esign_registry_file_url("https://downloads.files.com")
+        self.portal.REQUEST.form.clear()
+
+    def _make_omail_with_session(self):
+        """Create an outgoing mail, directly build an esign session for one of its files, and
+        put the session in a non-draft state.  Also registers the session_id in the approval
+        annotation, mirroring what add_mail_files_to_session does during a real workflow."""
+        intids = getUtility(IIntIds)
+        params = {
+            "title": u"Courrier recreate test",
+            "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
+                DummyView(self.portal, self.portal.REQUEST)
+            ),
+            "mail_type": "courrier",
+            "treating_groups": self.pgof["direction-generale"]["grh"].UID(),
+            "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
+            "assigned_user": "agent",
+            "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
+            "send_modes": u"post",
+            "signers": [
+                {
+                    "number": 1,
+                    "signer": self.pf["dirg"]["directeur-general"].UID(),
+                    "approvings": [u"_themself_"],
+                    "editor": True,
+                },
+            ],
+            "esign": True,
+        }
+        omail = sub_create(
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-recreate", **params
+        )
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (
+            __import__("imio.dms.mail").dms.mail.PRODUCT_DIR, filename
+        ), "rb") as fo:
+            file_obj = createContentInContainer(
+                omail,
+                "dmsommainfile",
+                id="file0",
+                scan_id="012999900000603",
+                file=NamedBlobFile(fo.read(), filename=filename),
+                content_category=calculate_category_id(ct),
+            )
+
+        signers = [("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")]
+        old_id, _session = add_files_to_session(signers, [file_obj.UID()], title=_("[iA.Docs] Session {sign_id}"))
+        # Flip to a non-draft state
+        annot = get_session_annotation()
+        annot["sessions"][old_id]["state"] = "to_sign"
+        # Mirror what the approval adapter does: register session_id
+        approval = OMApprovalAdapter(omail)
+        if "session_ids" not in approval.annot:
+            approval.annot["session_ids"] = PersistentList()
+        approval.annot["session_ids"].append(old_id)
+        return omail, old_id
+
+    def test_call(self):
+        """Recreation appends new session id to approval.session_ids and reindexes the mail;
+        a failed recreation (bad session id) leaves session_ids unchanged."""
+        omail, old_id = self._make_omail_with_session()
+        approval = OMApprovalAdapter(omail)
+        pc = api.portal.get_tool("portal_catalog")
+
+        # --- Failed recreation: bad session id — session_ids unchanged ---
+        before = list(approval.session_ids)
+        self.portal.REQUEST.form["esign_session_id"] = "9999"
+        view = ImioRecreateSessionView(self.portal, self.portal.REQUEST)
+        view()
+        self.assertIsNone(view._new_session_id)
+        self.assertEqual(list(approval.session_ids), before)
+
+        # --- Successful recreation: new id appended, mail reindexed ---
+        self.portal.REQUEST.form["esign_session_id"] = str(old_id)
+        view = ImioRecreateSessionView(self.portal, self.portal.REQUEST)
+        view()
+        new_id = view._new_session_id
+        self.assertIsNotNone(new_id)
+        self.assertNotEqual(new_id, old_id)
+        self.assertIn(old_id, approval.session_ids)
+        self.assertIn(new_id, approval.session_ids)
+        brains = pc(UID=omail.UID())
+        self.assertEqual(len(brains), 1)
+        self.assertEqual(brains[0].UID, omail.UID())
+        annot = get_session_annotation()
+        self.assertEqual(annot['sessions'][0]['title'], u"[iA.Docs] Session 012999900000")
+        self.assertEqual(annot['sessions'][1]['title'], u"[iA.Docs] Session 012999900001")
