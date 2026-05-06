@@ -1519,7 +1519,7 @@ msgid "Your email has not been sent: ${error}."
 msgstr ""
 
 #: ./adapters.py:1954
-msgid "[ia.docs] Session {sign_id}"
+msgid "[iA.Docs] Session {sign_id}"
 msgstr ""
 
 #: ./setuphandlers.py:1760

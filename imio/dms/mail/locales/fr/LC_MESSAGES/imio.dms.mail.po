@@ -1521,8 +1521,8 @@ msgid "Your email has not been sent: ${error}."
 msgstr "Votre email n'a pas été envoyé: ${error}."
 
 #: ./adapters.py:1954
-msgid "[ia.docs] Session {sign_id}"
-msgstr "[ia.docs] Session {sign_id}"
+msgid "[iA.Docs] Session {sign_id}"
+msgstr "[iA.Docs] Session {sign_id}"
 
 #: ./setuphandlers.py:1760
 msgid "all_cls"

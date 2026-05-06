@@ -1951,7 +1951,7 @@ class OMApprovalAdapter(object):
         pdf_session_ids = set()
         for pdf_uid in session_file_uids:
             sid, _session = add_files_to_session(signers, [pdf_uid], bool(self.context.seal),
-                                                 title=_("[ia.docs] Session {sign_id}"),
+                                                 title=_("[iA.Docs] Session {sign_id}"),
                                                  watchers=watcher_emails)
             pdf_session_ids.add(sid)
             if sid not in self.annot["session_ids"]:

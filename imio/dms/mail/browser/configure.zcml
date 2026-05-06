@@ -1073,6 +1073,15 @@
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
+        <browser:page
+            name="esign-session-recreate"
+            for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+            class="imio.dms.mail.browser.views.ImioRecreateSessionView"
+            permission="zope2.View"
+            allowed_attributes="may_recreate_session"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
         <browser:view
             name="remove-item-from-esign-session"
             for="imio.dms.mail.dmsfile.IImioDmsFile"
