@@ -103,6 +103,17 @@ class AssignedGroupColumn(Column):
         return escape(safe_unicode(voc.getTerm(item.assigned_group).title))
 
 
+def _disable_icon_clickable(col):
+    """Render IconClickableColumn icon as a non-clickable <span>"""
+
+    def renderCell(content):
+        css = col.css_class(content).replace(' editable', '')
+        return u'<span class="iconified-action{0}" alt="{1}" title="{1}"></span>'.format(
+            css, col.alt(content)
+        )
+    col.renderCell = renderCell
+
+
 class BaseVersionsTable(VersionsTable):
     portal_types = []
 
@@ -125,15 +136,20 @@ class BaseVersionsTable(VersionsTable):
         return self._v_stored_values
 
     def is_edit_mode(self):
-        view_name = self.request.get('ACTUAL_URL', '').split('/')[-1]
+        """Is the table rendered when we are editing content ?"""
+        actual_url = self.request.get('ACTUAL_URL', '')
+        view_name = actual_url.split('?', 1)[0].rstrip('/').split('/')[-1]
         return view_name in ('edit', '@@edit')
 
     def setUpColumns(self):
-        """When in edit view, removes actionnable columns"""
+        """When in edit view, removes useless columns and disables IconClickableColumn links"""
         columns = super(BaseVersionsTable, self).setUpColumns()
         if self.is_edit_mode():
-            actionnable_cols = ["action-column"]
-            columns = [col for col in columns if col.__name__ not in actionnable_cols and not isinstance(col, IconClickableColumn)]
+            useless_cols = ("filesize-column", "action-column")
+            columns = [col for col in columns if col.__name__ not in useless_cols]
+            for col in columns:
+                if isinstance(col, IconClickableColumn):
+                    _disable_icon_clickable(col)
         return columns
 
 
