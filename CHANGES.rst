@@ -22,6 +22,8 @@ Changelog
   [sgeulette]
 - Added ExpandableDataGridField widget with a new manipulator button to expand/collapse a datagrid row.
   [chris-adam]
+- Added button to update categorized elements
+  [chris-adam]
 
 3.1.2 (2026-04-24)
 ------------------
