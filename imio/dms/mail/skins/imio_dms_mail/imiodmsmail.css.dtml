@@ -153,7 +153,7 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 
 .template-dmsdocument-edit #fieldset-versions {
     width: 65% !important;
-    padding-top: 4em;
+    margin-top: 5em;
 }
 
 #all-fields, .template-dmsdocument-edit #content-core #fieldset-default {
@@ -246,10 +246,9 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 
 .template-dmsdocument-edit #DV-container {
     width: 100% !important;
-    margin-top: 3em;
+    margin-top: 0;
 }
 
-.template-dmsdocument-edit #fieldset-versions table,
 .template-dmsdocument-edit #content-core > p.discreet,
 .template-dmsdocument-edit #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs {
     display: None;
@@ -546,12 +545,46 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     text-align: center;
 }
 
+/* original css with span replacing a in edit mode */
+#content .iconified-listing td.iconified-print span,
+#content .iconified-listing td.iconified-signed span,
+#content .iconified-listing td.iconified-approved span {
+    font-family: 'Font Awesome 5 Free';
+    font-size: 110%;
+    font-weight: bold;
+}
+#content .iconified-listing td.iconified-print span::before {
+    content: "\f02f";
+}
+#content .iconified-listing td.iconified-approved span::before {
+    content: "\f00c";
+}
+#content .iconified-listing td.iconified-print span,
+#content .iconified-listing td.iconified-signed span,
+#content .iconified-listing td.iconified-approved span {
+    color: #EA0000;
+}
+#content .iconified-listing td.iconified-print span.active,
+#content .iconified-listing td.iconified-signed span.active,
+#content .iconified-listing td.iconified-approved span.active {
+    color: #75ad0a;
+}
+#content .iconified-listing td.iconified-print span.deactivated,
+#content .iconified-listing td.iconified-approved span.deactivated {
+    color: silver;
+}
+/* end */
+
 #content .iconified-listing td.iconified-approved a.to-approve::before,
-#content .iconified-listing td.iconified-signed a.deactivated::before {
+#content .iconified-listing td.iconified-approved span.to-approve::before,
+#content .iconified-listing td.iconified-signed a.deactivated::before,
+#content .iconified-listing td.iconified-signed span.deactivated::before {
     content: "\f204";  /* toggle-off */
 }
 #content .iconified-listing td.iconified-approved a.to-approve,
-#content .iconified-listing td.iconified-signed a.deactivated {
+#content .iconified-listing td.iconified-approved span.to-approve,
+#content .iconified-listing td.iconified-signed a.deactivated,
+#content .iconified-listing td.iconified-signed span.deactivated {
     color: #999;
 }
 #content .iconified-listing td.iconified-approved a.to-approve:hover,
@@ -560,28 +593,34 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
 }
 
 #content .iconified-listing td.iconified-approved a.active.to-approve::before,
-#content .iconified-listing td.iconified-signed a::before {
+#content .iconified-listing td.iconified-approved span.active.to-approve::before,
+#content .iconified-listing td.iconified-signed a::before,
+#content .iconified-listing td.iconified-signed span::before {
     content: "\f205";  /* toggle-on */
 }
-#content .iconified-listing td.iconified-approved a.active.to-approve {
+#content .iconified-listing td.iconified-approved a.active.to-approve,
+#content .iconified-listing td.iconified-approved span.active.to-approve {
     color: #EA0000;
 }
 #content .iconified-listing td.iconified-approved a.active.to-approve:hover {
     color: #B50000 !important;
 }
 
-#content .iconified-listing td.iconified-signed a.active::before {
+#content .iconified-listing td.iconified-signed a.active::before,
+#content .iconified-listing td.iconified-signed span.active::before {
     content: "\f044";  /* pen-to-square */
 }
 
-#content .iconified-listing td.iconified-approved a.cant-approve::before
+#content .iconified-listing td.iconified-approved a.cant-approve::before,
+#content .iconified-listing td.iconified-approved span.cant-approve::before
 {
   content: "\f254";  /* hourglass */
   color: black;
   font-weight: initial;
 }
 
-#content .iconified-listing td.iconified-approved a.waiting::before
+#content .iconified-listing td.iconified-approved a.waiting::before,
+#content .iconified-listing td.iconified-approved span.waiting::before
 {
   /*content: "\f251";  /* hourglass-start */
   content: "\f254";  /* hourglass */
@@ -589,12 +628,14 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
   font-weight: initial;
 }
 
-#content .iconified-listing td.iconified-approved a.partially-approved::before {
+#content .iconified-listing td.iconified-approved a.partially-approved::before,
+#content .iconified-listing td.iconified-approved span.partially-approved::before {
   content: "\f252";  /* hourglass-half */
   color: #FFB627;
 }
 
-#content .iconified-listing td.iconified-approved a.totally-approved::before {
+#content .iconified-listing td.iconified-approved a.totally-approved::before,
+#content .iconified-listing td.iconified-approved span.totally-approved::before {
   content: "\f560";  /* check-double */
   color: #75ad0a;
 }
