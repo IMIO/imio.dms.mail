@@ -6,6 +6,7 @@ from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
+from imio.dms.mail.browser.widgets import ExpandableDataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localroles.utils import add_fti_configuration
 from imio.dms.mail import _
@@ -703,7 +704,7 @@ class IImioDmsMailConfig(model.Schema):
     )
     widget(
         "omail_signer_rules",
-        DataGridFieldFactory,
+        ExpandableDataGridFieldFactory,
         allow_reorder=True,
         auto_append=False,
     )
