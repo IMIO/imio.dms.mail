@@ -592,7 +592,7 @@ class CategoryActionsPanelView(ActionsPanelView):
 
     def __init__(self, context, request):
         super(CategoryActionsPanelView, self).__init__(context, request)
-        self.ACCEPTABLE_ACTIONS = ["copy", "delete", "rename"]
+        self.ACCEPTABLE_ACTIONS = ["copy", "delete", "rename", "update_and_sort_categorized_elements"]
 
 
 class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):
