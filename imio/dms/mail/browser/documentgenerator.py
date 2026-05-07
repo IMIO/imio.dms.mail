@@ -8,18 +8,26 @@ from collective.documentgenerator import _ as _dg
 from collective.documentgenerator import utils
 from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
+from collective.documentgenerator.browser.overrides import DGDXDocumentViewerView
+from collective.documentgenerator.browser.views import EditConfigurablePodTemplate
+from collective.documentgenerator.browser.views import ViewConfigurablePodTemplate
 from collective.documentgenerator.content.pod_template import ConfigurablePODTemplate
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
+from imio.dms.mail import _
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
 from imio.zamqp.core.utils import next_scan_id
 from plone import api
+from plone.dexterity.browser.add import DefaultAddForm
+from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import base_hasattr
@@ -27,9 +35,13 @@ from Products.CMFPlone.utils import safe_unicode
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.i18n import translate
+from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
 
+import copy
 import operator
+import zope.event
 
 
 # # # HELPERS # # #
@@ -479,6 +491,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
 
     def generate_persistent_doc(self, pod_template, output_format):
         """Create a dmsmainfile from the generated document"""
+        self._copy_template_signers(pod_template)
         doc, doc_name, gen_context = self._generate_doc(pod_template, output_format)
         need_mailing = not ("mailed_data" in gen_context or "mailing_list" in gen_context)
         file_object = NamedBlobFile(doc, filename=safe_unicode(doc_name))
@@ -507,6 +520,35 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
         return persisted_doc
+
+    def _copy_template_signers(self, pod_template):
+        """Copy signing fields from template to outgoing mail if template signers mode is enabled."""
+        if not api.portal.get_registry_record("omail_use_template_signers", IImioDmsMailConfig, False):
+            return
+        source = pod_template
+        if not isinstance(source, ConfigurablePODTemplate) and hasattr(self, "orig_template"):
+            source = self.orig_template
+        if not isinstance(source, ConfigurablePODTemplate):
+            return
+        template_signers = getattr(source, "signers", None)
+        if not template_signers:
+            return
+        mail = self.context
+        if mail.signers and not all(s.get("signer") == u"_empty_" for s in mail.signers):
+            if mail.signers != template_signers:
+                api.portal.show_message(
+                    message=translate(
+                        _(u"Warning: the mail already has signers configured that differ from the template. "
+                          u"The template signers were not applied."),
+                        context=self.request),
+                    request=self.request,
+                    type="warning",
+                )
+            return
+        mail.signers = copy.deepcopy(template_signers)
+        mail.seal = getattr(source, "seal", False) or False
+        mail.esign = getattr(source, "esign", False) or False
+        zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
 
     def redirects(self, persisted_doc):
         """
@@ -560,6 +602,50 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
             generation_context["page_break_after"] = True
 
         return generation_context
+
+# # # TEMPLATE FORM OVERRIDES # # #
+
+
+def _filter_signing_fieldset(form_instance):
+    """Remove the signing fieldset from form groups if template signers setting is disabled."""
+    if not api.portal.get_registry_record("omail_use_template_signers", IImioDmsMailConfig, False):
+        form_instance.groups = [gr for gr in form_instance.groups if gr.__name__ != "signing"]
+
+
+class DmsEditConfigurablePodTemplate(EditConfigurablePodTemplate):
+
+    def update(self):
+        super(DmsEditConfigurablePodTemplate, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsViewConfigurablePodTemplate(DGDXDocumentViewerView):
+
+    def update(self):
+        super(DmsViewConfigurablePodTemplate, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsPlainViewConfigurablePodTemplate(ViewConfigurablePodTemplate):
+
+    def update(self):
+        super(DmsPlainViewConfigurablePodTemplate, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsAddConfigurablePodTemplateForm(DefaultAddForm):
+
+    portal_type = "ConfigurablePODTemplate"
+
+    def update(self):
+        super(DmsAddConfigurablePodTemplateForm, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsAddConfigurablePodTemplate(DefaultAddView):
+
+    form = DmsAddConfigurablePodTemplateForm
+
 
 # # # VIEWLETS # # #
 

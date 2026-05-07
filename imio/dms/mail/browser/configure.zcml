@@ -695,6 +695,53 @@
         permission="zope2.View"
         />
 
+    <!-- ConfigurablePODTemplate form overrides -->
+    <browser:page
+        for="collective.documentgenerator.content.pod_template.IConfigurablePODTemplate"
+        name="edit"
+        class="imio.dms.mail.browser.documentgenerator.DmsEditConfigurablePodTemplate"
+        permission="cmf.ModifyPortalContent"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
+    <configure package="plone.app.dexterity.browser">
+        <browser:page
+            for="collective.documentgenerator.content.pod_template.IConfigurablePODTemplate"
+            name="view"
+            class="imio.dms.mail.browser.documentgenerator.DmsPlainViewConfigurablePodTemplate"
+            permission="zope2.View"
+            template="item.pt"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            />
+    </configure>
+
+    <!-- FIXME This view doesn't seem to be used -->
+    <configure package="collective.documentviewer">
+        <browser:page
+            name="documentviewer"
+            for="collective.documentgenerator.content.pod_template.IConfigurablePODTemplate"
+            class="imio.dms.mail.browser.documentgenerator.DmsViewConfigurablePodTemplate"
+            template="templates/documentviewerdx.pt"
+            permission="zope2.View"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            />
+    </configure>
+
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             imio.dms.mail.interfaces.IImioDmsMailLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".documentgenerator.DmsAddConfigurablePodTemplate"
+        name="ConfigurablePODTemplate"
+        />
+    <class class=".documentgenerator.DmsAddConfigurablePodTemplate">
+        <require
+            permission="cmf.AddPortalContent"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+
     <!-- Viewlets -->
     <!-- common for dmsincomingmail, dmsoutgoingmail and task -->
     <browser:viewlet
