@@ -37,6 +37,7 @@ from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import get_post_approval_transition
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
@@ -1496,7 +1497,7 @@ class OMApprovalAdapter(object):
                 self.approve_file(
                     uuidToObject(fuid, unrestricted=True),
                     backup_approval["approved_by"],
-                    transition="propose_to_be_signed",
+                    transition=True,
                     c_a=signer_index,
                 )
                 approved_on = backup_approval["approved_on"]
@@ -1598,13 +1599,13 @@ class OMApprovalAdapter(object):
             return False
         return True
 
-    def approve_file(self, afile, userid, values=None, transition=None, c_a=None):
+    def approve_file(self, afile, userid, values=None, transition=False, c_a=None):
         """Approve the current file.
 
         :param afile: file to approve
         :param userid: current user id
         :param values: optional dict to update
-        :param transition: optional transition to do after approval
+        :param transition: whether the post approval transition should be triggered if all files are approved
         :param c_a: overrides current approval number to mark approval, if None uses current_nb
         :return: approval status bool (True=ok), reload bool (True=reload page)
         """
@@ -1631,7 +1632,6 @@ class OMApprovalAdapter(object):
             "approve_file",
             "mail={} file={} signer={} approver={}".format(self.context.UID(), f_uid, self.signers[c_a], userid)
         )
-        pc = getToolByName(self.context, "portal_catalog")
         if self.is_file_approved(f_uid):
             afile.approved = True
             if values is not None:
@@ -1654,6 +1654,7 @@ class OMApprovalAdapter(object):
             return True, True
         message = u"The file '${file}' has been approved by ${user}. "
         c_a = self.current_nb  # current approval
+        pc = getToolByName(self.context, "portal_catalog")
         if c_a is not None and 0 <= c_a < len(self.annot["approval"]):
             for i in range(len(self.files_uids)):
                 if self.annot["approval"][c_a][i]["status"] != "a":
@@ -1702,7 +1703,8 @@ class OMApprovalAdapter(object):
                 # must use the following ?
                 # do_next_transition(self.context, self.context.portal_type, state="to_approve")
                 with api.env.adopt_roles(["Reviewer"]):
-                    do_transitions(self.context, [transition])
+                    post_approval_transition = get_post_approval_transition(self.context)
+                    do_transitions(self.context, [post_approval_transition])
                     # api.portal.show_message(
                     #     message=_(u"The mail has been automatically transitioned to state '${state}'.",
                     #               mapping={"state": self.context.portal_workflow.getInfoFor(self.context,

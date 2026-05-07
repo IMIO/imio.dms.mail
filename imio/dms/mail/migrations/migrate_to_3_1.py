@@ -61,20 +61,8 @@ class Migrate_To_3_1(Migrator):  # noqa
         self.old_version = api.portal.get_registry_record("imio.dms.mail.product_version", default=u"unknown")
         self.new_version = safe_unicode(get_git_tag(BLDT_DIR))
 
-    def run(self):
-        self.run_initialization()
-
-        if self.is_in_part("a"):
-            self.solr_deactivate()
-
-        if self.is_in_part("b"):  # upgrade other products
-            # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
-            # collective.contact.facetednav
-            # collective.iconifiedcategory (on existing objects, folders only if the first time)
-            # imio.pm.wsclient
-            # collective.contact.plonegroup
-            self.upgradeAll(omit=[u"imio.dms.mail:default"])
-
+    def run_parts(self):
+        """Run some parts between b and x."""
         if self.is_in_part("c"):  # various, update workflow, localroles and security
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
@@ -103,6 +91,16 @@ class Migrate_To_3_1(Migrator):  # noqa
                 if reset:
                     logger.info("outgoingmail_workflow reloaded")
                     for name in applied_adaptations:
+                        if name == u"imio.dms.mail.wfadaptations.OMToPrint":
+                            name = u"imio.dms.mail.wfadaptations.OMToPrintAdaptation"
+                            record = api.portal.get_registry_record("collective.wfadaptations.applied_adaptations")
+                            new_record = []
+                            for dic in record:
+                                new_dic = dict(dic)
+                                if new_dic["adaptation"] == u"imio.dms.mail.wfadaptations.OMToPrint":
+                                    new_dic["adaptation"] = name
+                                new_record.append(new_dic)
+                            api.portal.set_registry_record("collective.wfadaptations.applied_adaptations", new_record)
                         success, errors = apply_from_registry(reapply=True, name=name)
                         if errors:
                             raise Exception("Problem applying wf adaptations '%s': %d errors" % (name, errors))
@@ -306,6 +304,22 @@ class Migrate_To_3_1(Migrator):  # noqa
                         obj.merge_templates = merge_templates
                 # Changed permission after plone.restapi installation
                 self.portal.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
+
+    def run(self):
+        self.run_initialization()
+
+        if self.is_in_part("a"):
+            self.solr_deactivate()
+
+        if self.is_in_part("b"):  # upgrade other products
+            # upgrade all except 'imio.dms.mail:default'. Needed with bin/upgrade-portals
+            # collective.contact.facetednav
+            # collective.iconifiedcategory (on existing objects, folders only if the first time)
+            # imio.pm.wsclient
+            # collective.contact.plonegroup
+            self.upgradeAll(omit=[u"imio.dms.mail:default"])
+
+        self.run_parts()
 
         if self.is_in_part("x"):  # clear solr
             self.solr_clear()

@@ -35,6 +35,8 @@ from zope.interface import Invalid
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 
+from mock import patch
+
 import unittest
 
 
@@ -565,19 +567,37 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             u'"Dexter Morgan" <contak@electrabel.eb>, "Jean Courant" <jean.courant@electrabel.eb>',
         )
 
-    def test_ImioDmsOutgoingMailWfConditionsAdapter_can_be_handsigned(self):
+    def test_ImioDmsOutgoingMailWfConditionsAdapter_can_set_to_print(self):
         omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id")
         self.assertEqual(api.content.get_state(omail), "created")
         adapted = omail.wf_conditions()
-        self.assertFalse(adapted.can_be_handsigned())
+        self.assertFalse(adapted.can_set_to_print())
         createContentInContainer(omail, "task")
-        self.assertFalse(adapted.can_be_handsigned())
+        self.assertFalse(adapted.can_set_to_print())
         createContentInContainer(omail, "dmsappendixfile")
-        self.assertTrue(adapted.can_be_handsigned())
+        self.assertFalse(adapted.can_set_to_print())
+        createContentInContainer(omail, "dmsommainfile")
+        self.assertTrue(adapted.can_set_to_print())
+        # When approvings exist but are not done, cannot set to print
+        with patch.object(omail, "has_approvings", side_effect=lambda all_done=False: not all_done):
+            self.assertFalse(adapted.can_set_to_print())
+        # When all approvings are done, can set to print
+        with patch.object(omail, "has_approvings", return_value=True):
+            self.assertTrue(adapted.can_set_to_print())
+
+    def test_ImioDmsOutgoingMailWfConditionsAdapter_can_be_signed(self):
+        omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id")
+        self.assertEqual(api.content.get_state(omail), "created")
+        adapted = omail.wf_conditions()
+        self.assertFalse(adapted.can_be_signed())
+        createContentInContainer(omail, "task")
+        self.assertFalse(adapted.can_be_signed())
+        createContentInContainer(omail, "dmsappendixfile")
+        self.assertTrue(adapted.can_be_signed())
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             createContentInContainer(omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
-        self.assertTrue(adapted.can_be_handsigned())
+        self.assertTrue(adapted.can_be_signed())
 
     def test_ImioDmsOutgoingMailWfConditionsAdapter_can_be_sent(self):
         omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title=u"test")

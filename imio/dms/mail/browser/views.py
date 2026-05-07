@@ -604,7 +604,7 @@ class ApprovalTableView(BrowserView):
 
             # Approve only now to avoid unwanted transition
             for fobj, signer, i_signer in to_approve:
-                approval.approve_file(fobj, signer, c_a=i_signer, transition="propose_to_be_signed")
+                approval.approve_file(fobj, signer, c_a=i_signer, transition=True)
 
             IStatusMessage(self.request).addStatusMessage(_(u"Changes saved."), type="info")
             self.request.response.redirect(self.context.absolute_url())
