@@ -276,9 +276,9 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
 body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"] {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 4px;
     display: block;
-    background: #fff;
+    background: #d3d3d3;
 }
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
@@ -1006,9 +1006,9 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="wi
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-mail_types"],
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-send_modes"] {
     border: 1px solid #ddd;
-    padding: 8px;
+    padding: 4px;
     display: block;
-    background: #fff;
+    background: #d3d3d3;
 }
 /*span[id$="widgets-approvings"]::-webkit-scrollbar-corner {
     background: #f1f1f1;
