@@ -52,7 +52,7 @@
         </a>
     </td>
     <td class="datagridwidget-manipulator expand-row">
-        <a href="" class="expand-row-btn" title="Expand/Collapse row" i18n:attributes="title">
+        <a href="" class="expand-row-btn" title="Expand/Collapse row" i18n:domain="imio.dms.mail" i18n:attributes="title">
             <i class="fa fa-expand"></i>
         </a>
     </td>
