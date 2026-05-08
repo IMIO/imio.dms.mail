@@ -394,41 +394,83 @@ def clean_examples(self, doit="1"):
     """Clean created examples"""
     if not check_zope_admin():
         return "You must be a zope manager to run this script"
-    if doit == "1":
-        doit = True
-    else:
-        doit = False
+
+    doit = bool(doit)
     out = []
     portal = api.portal.getSite()
-    if doit:
-        portal.portal_properties.site_properties.enable_link_integrity_checks = False
+    catalog = portal.portal_catalog
     registry = getUtility(IRegistry)
 
-    # Delete om
+    def log(msg):
+        log_list(out, msg)
+
+    def safe_get_object(brain):
+        """Safely resolve object from brain"""
+        try:
+            return brain.getObject()
+        except Exception:
+            return None
+
+    def clean_brain(brain, delete=True, check_linkintegrity=False):
+        """Delete object or clean stale catalog entry"""
+        path = brain.getPath()
+        obj = safe_get_object(brain)
+
+        if obj is None:
+            log("Cleaning stale brain '%s'" % path)
+            if doit:
+                try:
+                    catalog.uncatalog_object(path)
+                except Exception as e:
+                    log("ERROR uncatalog '%s': %s" % (path, e))
+            return
+
+        if delete:
+            log("Deleting '%s'" % path)
+            if doit:
+                try:
+                    api.content.delete(obj=obj, check_linkintegrity=check_linkintegrity)
+                    catalog._catalog.uids.pop(path, None)
+                except Exception as e:
+                    log("ERROR deleting '%s': %s" % (path, e))
+                    # fallback: uncatalog if deletion failed badly
+                    try:
+                        catalog.uncatalog_object(path)
+                        log("Fallback uncatalog '%s'" % path)
+                    except Exception as e2:
+                        log("ERROR fallback uncatalog '%s': %s" % (path, e2))
+
+    # Disable link integrity temporarily
+    if doit:
+        portal.portal_properties.site_properties.enable_link_integrity_checks = False
+
+    # --- OUTGOING MAIL ---
     brains = find(unrestricted=True, portal_type="dmsoutgoingmail")
     for brain in brains:
-        log_list(out, "Deleting om '%s'" % brain.getPath())
-        if doit and brain.id != "test_creation_modele":
-            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
+        if brain.id == "test_creation_modele":
+            continue
+        clean_brain(brain, check_linkintegrity=False)
+
     if doit:
         registry["collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number"] = 1
-    # Delete im
+
+    # --- INCOMING MAIL ---
     brains = find(unrestricted=True, portal_type=["dmsincomingmail", "dmsincoming_email"])
     for brain in brains:
-        log_list(out, "Deleting im '%s'" % brain.getPath())
-        if doit:
-            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
+        clean_brain(brain, check_linkintegrity=False)
+
     if doit:
         registry["collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_number"] = 1
-    # Delete own personnel
+
+    # --- PERSONNEL ---
     pf = portal["contacts"]["personnel-folder"]
     brains = find(unrestricted=True, context=pf, portal_type="person")
     for brain in brains:
-        log_list(out, "Deleting person '%s'" % brain.getPath())
-        if doit:
-            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
-    # Deactivate own organizations
+        clean_brain(brain, check_linkintegrity=False)
+
+    # --- ORGANIZATIONS ---
     ownorg = portal["contacts"]["plonegroup-organization"]
+
     brains = find(
         unrestricted=True,
         context=ownorg,
@@ -436,31 +478,43 @@ def clean_examples(self, doit="1"):
         id=["plonegroup-organization", "college-communal"],
     )
     kept_orgs = [brain.UID for brain in brains]
-    log_list(out, "Activating only 'college-communal'")
+
+    log("Activating only 'college-communal'")
     if doit:
         set_registry_organizations([ownorg["college-communal"].UID()])
-    # Delete organization and template folders
+
     tmpl_folder = portal["templates"]["om"]
+
     brains = find(
-        unrestricted=True, context=ownorg, portal_type="organization", sort_on="path", sort_order="descending"
+        unrestricted=True,
+        context=ownorg,
+        portal_type="organization",
+        sort_on="path",
+        sort_order="descending",
     )
+
     for brain in brains:
         uid = brain.UID
         if uid in kept_orgs:
             continue
-        log_list(out, "Deleting organization '%s'" % brain.getPath())
-        if doit:
-            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
+
+        clean_brain(brain, check_linkintegrity=False)
+
+        # delete template folder if exists
         if uid in tmpl_folder:
-            log_list(out, "Deleting template folder '%s'" % "/".join(tmpl_folder[uid].getPhysicalPath()))
+            path = "/".join(tmpl_folder[uid].getPhysicalPath())
+            log("Deleting template folder '%s'" % path)
             if doit:
-                api.content.delete(obj=tmpl_folder[uid])
-    # Delete contacts
+                try:
+                    api.content.delete(obj=tmpl_folder[uid])
+                except Exception as e:
+                    log("ERROR deleting template folder '%s': %s" % (path, e))
+
+    # --- CONTACTS ---
     brains = find(unrestricted=True, context=portal["contacts"], portal_type="contact_list")
     for brain in brains:
-        log_list(out, "Deleting contact list '%s'" % brain.getPath())
-        if doit:
-            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
+        clean_brain(brain, check_linkintegrity=False)
+
     brains = find(
         unrestricted=True,
         context=portal["contacts"],
@@ -468,78 +522,128 @@ def clean_examples(self, doit="1"):
         id=["jeancourant", "sergerobinet", "bernardlermitte"],
     )
     for brain in brains:
-        log_list(out, "Deleting person '%s'" % brain.getPath())
-        if doit:
-            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
-    brains = find(unrestricted=True, context=portal["contacts"], portal_type="organization", id=["electrabel", "swde"])
+        clean_brain(brain, check_linkintegrity=False)
+
+    brains = find(
+        unrestricted=True,
+        context=portal["contacts"],
+        portal_type="organization",
+        id=["electrabel", "swde"],
+    )
     for brain in brains:
-        log_list(out, "Deleting organization '%s'" % brain.getPath())
-        if doit:
-            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
-    # Delete signer rules config
+        clean_brain(brain, check_linkintegrity=False)
+
+    # --- SIGNER RULES ---
+    log("Deleting signer rules config")
     rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
-    api.portal.set_registry_record(rk, [])
-    log_list(out, "Deleting signer rules config")
-    # Delete users
+    if doit:
+        api.portal.set_registry_record(rk, [])
+
+    # --- USERS ---
     for userid in ["encodeur", "dirg", "chef", "agent", "agent1", "lecteur", "bourgmestre"]:
         user = api.user.get(userid=userid)
-        for brain in find(unrestricted=True, Creator=userid, sort_on="path", sort_order="descending"):
-            log_list(out, "Deleting object '%s' created by '%s'" % (brain.getPath(), userid))
+
+        brains = find(unrestricted=True, Creator=userid, sort_on="path", sort_order="descending")
+        for brain in brains:
+            clean_brain(brain, check_linkintegrity=False)
+
+        if user:
+            for group in api.group.get_groups(user=user):
+                if group.id == "AuthenticatedUsers":
+                    continue
+                log("Removing user '%s' from group '%s'" % (userid, group.getProperty("title")))
+                if doit:
+                    try:
+                        api.group.remove_user(group=group, user=user)
+                    except Exception as e:
+                        log("ERROR removing user from group: %s" % e)
+
+            log("Deleting user '%s'" % userid)
             if doit:
-                api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
-        for group in api.group.get_groups(user=user):
-            if group.id == "AuthenticatedUsers":
-                continue
-            log_list(out, "Removing user '%s' from group '%s'" % (userid, group.getProperty("title")))
-            if doit:
-                api.group.remove_user(group=group, user=user)
-        log_list(out, "Deleting user '%s'" % userid)
-        if doit:
-            api.user.delete(user=user)
-    # Delete groups
+                try:
+                    api.user.delete(user=user)
+                except Exception as e:
+                    log("ERROR deleting user '%s': %s" % (userid, e))
+
+    # --- GROUPS ---
     functions = [dic["fct_id"] for dic in get_registry_functions()]
     groups = api.group.get_groups()
+
     for group in groups:
-        if "_" not in group.id or group.id in [
+        if "_" not in group.id:
+            continue
+
+        if group.id in [
             "createurs_dossier",
             "dir_general",
             "lecteurs_globaux_ce",
             "lecteurs_globaux_cs",
         ]:
             continue
+
         parts = group.id.split("_")
-        if len(parts) == 1:
-            continue
         org_uid = parts[0]
         function = "_".join(parts[1:])
+
         if org_uid in kept_orgs or function not in functions:
             continue
-        log_list(out, "Deleting group '%s'" % group.getProperty("title"))
+
+        log("Deleting group '%s'" % group.getProperty("title"))
         if doit:
-            api.group.delete(group=group)
-    # Delete folders
-    for brain in find(
+            try:
+                api.group.delete(group=group)
+            except Exception as e:
+                log("ERROR deleting group '%s': %s" % (group.id, e))
+
+    # --- CLASSIFICATION FOLDERS ---
+    brains = find(
         unrestricted=True,
         portal_type=("ClassificationFolder", "ClassificationSubfolder"),
         sort_on="path",
         sort_order="descending",
-    ):
-        log_list(out, "Deleting classification folder '%s'" % brain.getPath())
-        if doit:
-            api.content.delete(obj=brain._unrestrictedGetObject())
-    # Delete categories
-    caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree", portal["tree"].UID())
+    )
+    for brain in brains:
+        clean_brain(brain)
+
+    # --- CATEGORIES ---
+    caching.invalidate_cache(
+        "collective.classification.tree.utils.iterate_over_tree",
+        portal["tree"].UID(),
+    )
+
     res = iterate_over_tree(portal["tree"])
     for category in reversed(res):
-        log_list(out, "Deleting category '%s - %s'" % (safe_encode(category.identifier), safe_encode(category.title)))
+        log("Deleting category '%s - %s'" % (safe_encode(category.identifier), safe_encode(category.title)))
         if doit:
-            api.content.delete(objects=[category])
+            try:
+                api.content.delete(objects=[category])
+            except Exception as e:
+                log("ERROR deleting category: %s" % e)
+
     if doit:
-        caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree", portal["tree"].UID())
+        caching.invalidate_cache(
+            "collective.classification.tree.utils.iterate_over_tree",
+            portal["tree"].UID(),
+        )
         portal.portal_properties.site_properties.enable_link_integrity_checks = True
-    # Create test om
+
+    # # --- FINAL CLEANUP: REMOVE ANY REMAINING STALE BRAINS ---
+    # log("Running final catalog cleanup")
+    # if doit:
+    #     for brain in catalog():
+    #         try:
+    #             brain.getObject()
+    #         except Exception:
+    #             try:
+    #                 catalog.uncatalog_object(brain.getPath())
+    #                 log("Removed stale brain '%s'" % brain.getPath())
+    #             except Exception as e:
+    #                 log("ERROR final cleanup '%s': %s" % (brain.getPath(), e))
+
+    # --- RECREATE TEST DATA ---
     if doit:
         add_special_model_mail(portal)
+
     return "\n".join(out)
 
 
