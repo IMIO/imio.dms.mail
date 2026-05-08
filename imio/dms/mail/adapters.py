@@ -1780,7 +1780,9 @@ class OMApprovalAdapter(object):
                     "context": self.context,
                     "portal": api.portal.get(),
                     "view": helper_view,
-                    "download_barcode": generate_barcode(download_url).read(),
+                    "download_barcode": generate_barcode(
+                        download_url, scale=1, extra_args=["--secure=10", "--noquietzones"]
+                    ).read(),
                     "download_url": download_url,
                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
                     "render_download_barcode": True,
@@ -1836,7 +1838,9 @@ class OMApprovalAdapter(object):
             update_dict_with_validation(
                 gen_context,
                 {
-                    "download_barcode": generate_barcode(download_url).read(),
+                    "download_barcode": generate_barcode(
+                        download_url, scale=1, extra_args=["--secure=10", "--noquietzones"]
+                    ).read(),
                     "download_url": download_url,
                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
                     "render_download_barcode": True,
