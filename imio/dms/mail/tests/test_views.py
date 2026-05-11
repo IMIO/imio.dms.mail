@@ -25,6 +25,7 @@ from plone import api
 from plone.app.testing import login
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield import RelationValue
 from zope.component import getUtility
 from zope.i18n import translate
@@ -544,3 +545,62 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
                 + api.content.get(omail.absolute_url_path() + "/reponse-salle-1.pdf").file.size,
             ),
         )
+
+
+class TestObjectRenameTitleView(unittest.TestCase):
+    """Test ObjectRenameTitleView (replaces the legacy CMF skin form)."""
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        change_user(self.portal)
+
+    def test_call(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        omf = omail["1"]
+        original_title = omf.Title()
+        request = self.portal.REQUEST
+        token = omf.restrictedTraverse("@@authenticator").token()
+
+        # GET: form renders with current title pre-filled
+        request.form.clear()
+        request["HTTP_REFERER"] = omail.absolute_url() + "?foo=bar"
+        view = omf.restrictedTraverse("@@object_rename_title")
+        rendered = view()
+        self.assertIn(u'name="new_title"', rendered)
+        self.assertIn(original_title, rendered)
+        self.assertEqual(view.orig_template, omail.absolute_url())
+        self.assertEqual(omf.Title(), original_title)
+
+        # POST with empty title: re-renders with error, title unchanged
+        request.form.clear()
+        request.form.update({
+            "form.submitted": "1",
+            "_authenticator": token,
+            "new_title": u"   ",
+            "orig_template": omail.absolute_url(),
+            "form.button.RenameAll": "Rename All",
+        })
+        view = omf.restrictedTraverse("@@object_rename_title")
+        rendered = view()
+        self.assertTrue(view.error)
+        self.assertIn(u"field error", rendered)
+        self.assertEqual(omf.Title(), original_title)
+
+        # POST with new title: persists, reindexes, redirects
+        new_title = u"Nouveau titre éàü"
+        request.form.clear()
+        request.form.update({
+            "form.submitted": "1",
+            "_authenticator": token,
+            "new_title": new_title,
+            "orig_template": omail.absolute_url(),
+            "form.button.RenameAll": "Rename All",
+        })
+        view = omf.restrictedTraverse("@@object_rename_title")
+        view()
+        self.assertEqual(omf.Title(), new_title)
+        self.assertEqual(request.response.getHeader("Location"), omail.absolute_url())
+        brain = api.content.find(UID=omf.UID())[0]
+        self.assertEqual(safe_unicode(brain.Title), new_title)

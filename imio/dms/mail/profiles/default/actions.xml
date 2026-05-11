@@ -86,7 +86,7 @@
   <object name="rename_title" meta_type="CMF Action" i18n:domain="imio.dms.mail">
    <property name="title" i18n:translate="">Rename title</property>
    <property name="description" i18n:translate=""></property>
-   <property name="url_expr">string:$object_url/object_rename_title</property>
+   <property name="url_expr">string:$object_url/@@object_rename_title</property>
    <property name="icon_expr">string:$portal_url/rename_icon.gif</property>
    <property name="available_expr">python: not globals_view.isPortalOrPortalDefaultPage() and object.restrictedTraverse('@@various-utils').is_unprotected()</property>
    <property name="permissions">
