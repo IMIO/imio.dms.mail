@@ -346,6 +346,7 @@ class DmsFileActionsPanelView(ActionsPanelView):
         self.ACCEPTABLE_ACTIONS = [
             "edit",
             "external_edit",
+            "rename_title",
             "mailing",
             "documentviewer_convert",
             "download",
@@ -592,7 +593,7 @@ class CategoryActionsPanelView(ActionsPanelView):
 
     def __init__(self, context, request):
         super(CategoryActionsPanelView, self).__init__(context, request)
-        self.ACCEPTABLE_ACTIONS = ["copy", "delete", "rename"]
+        self.ACCEPTABLE_ACTIONS = ["copy", "delete", "rename", "update_categorized_elements"]
 
 
 class ActionsPanelViewletAllButTransitions(ActionsPanelViewlet):

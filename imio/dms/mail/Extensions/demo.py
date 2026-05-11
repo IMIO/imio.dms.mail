@@ -608,11 +608,13 @@ def approval_annot(self):
     return pprint.pformat(dic)
 
 
-def import_sign_examples(self, userid="", cases="1234567"):
+def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1"):
     """Create outgoing mail examples for electronic signing demo.
 
     :param userid: the user id of the signer (must have a held_position with 'signer' usage)
     :param cases: the cases to create
+    :param mnb: number of mails to create
+    :param fnb: number of files to create
     """
     if not check_role(self):
         return "You must be a manager to run this script"
@@ -621,6 +623,8 @@ def import_sign_examples(self, userid="", cases="1234567"):
         return ("You must call this script with the following parameters:\n"
                 "-> userid : mandatory userid used as signer\n"
                 "-> cases : create only specified cases\n"
+                "-> mnb : number of mails to create\n"
+                "-> fnb : number of files to create\n"
                 "Example: import_sign_examples?userid={}&cases=136\n\n"
                 "Cases:\n"
                 "-> 1 : signataire avec modèle\n"
@@ -638,6 +642,8 @@ def import_sign_examples(self, userid="", cases="1234567"):
     pf = contacts["personnel-folder"]
     pgo = contacts["plonegroup-organization"]
     intids = getUtility(IIntIds)
+    mnb = int(mnb)
+    fnb = int(fnb)
 
     # Find the signer's held_position (must have "signer" usage)
     if userid not in pf:
@@ -667,21 +673,24 @@ def import_sign_examples(self, userid="", cases="1234567"):
     except KeyError:
         return "Agent secretariat not found in personnel-folder"
 
-    def _om_generate_from_template(mail, template):
+    def _om_generate_from_template(mail, template, suffix=u""):
         """Generate a dmsommainfile on the outgoing mail from the given POD template."""
         view = mail.restrictedTraverse("persistent-document-generation")
         view.pod_template = template
         view.output_format = "odt"
-        view.generate_persistent_doc(view.pod_template, view.output_format)
+        doc = view.generate_persistent_doc(view.pod_template, view.output_format)
+        if suffix:
+            doc.title = u"{} ({})".format(doc.title, suffix)
 
-    def _om_add_signable_annex(mail, portal, annex_filename):
+    def _om_add_signable_annex(mail, portal, annex_filename, suffix=u""):
         """Add a signable appendix file on the outgoing mail."""
         with open(add_path("Extensions/%s" % annex_filename), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=annex_filename)
+        title = u"Annexe à signer" + (u" ({})".format(suffix) if suffix else u"")
         createContentInContainer(
             mail,
             "dmsappendixfile",
-            title=u"Annexe à signer",
+            title=title,
             file=file_object,
             content_category=calculate_category_id(
                 portal["annexes_types"]["outgoing_appendix_files"]["outgoing-signable-appendix-file"]
@@ -708,7 +717,6 @@ def import_sign_examples(self, userid="", cases="1234567"):
     params = dict(base_params)
     params.update({
         "title": u"Cas 7 => sans signature électronique avec modèle",
-        "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
         "signers": [{"number": 1, "signer": pf["dirg"]["directeur-general"].UID(), "approvings": [u"_empty_"],
                      "editor": False},
                     {"number": 2, "signer": pf["bourgmestre"]["bourgmestre"].UID(), "approvings": [u"_empty_"],
@@ -717,97 +725,134 @@ def import_sign_examples(self, userid="", cases="1234567"):
         "esign": False,
     })
     if "7" in cases:
-        oid = get_correct_id(container, "esign_case7")
-        container.invokeFactory("dmsoutgoingmail", id=oid, **params)
-        mail = container[oid]
-        _om_generate_from_template(mail, template)
+        base_title = params["title"]
+        for _m in range(mnb):
+            params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
+            if mnb > 1:
+                params["title"] = u"{} ({})".format(base_title, _m + 1)
+            oid = get_correct_id(container, "esign_case7")
+            container.invokeFactory("dmsoutgoingmail", id=oid, **params)
+            mail = container[oid]
+            for _f in range(fnb):
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
 
     # Case 6: signataire + modèle à publiposter
     params = dict(base_params)
     params.update({
         "title": u"Cas 6 => 1 signataire avec modèle à publiposter",
-        "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
         "signers": [{"number": 1, "signer": signer_hp_uid, "approvings": [u"_themself_"], "editor": False}],
         "esign": True,
         "recipients": [RelationValue(intids.getId(anniekordi)), RelationValue(intids.getId(contacts["electrabel"]))],
     })
     if "6" in cases:
-        oid = get_correct_id(container, "esign_case6")
-        container.invokeFactory("dmsoutgoingmail", id=oid, **params)
-        mail = container[oid]
-        _om_generate_from_template(mail, template)
+        base_title = params["title"]
+        for _m in range(mnb):
+            params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
+            if mnb > 1:
+                params["title"] = u"{} ({})".format(base_title, _m + 1)
+            oid = get_correct_id(container, "esign_case6")
+            container.invokeFactory("dmsoutgoingmail", id=oid, **params)
+            mail = container[oid]
+            for _f in range(fnb):
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
 
     # Case 5: signataire + seal + modèle
     params = dict(base_params)
     params.update({
         "title": u"Cas 5 => 1 signataire et seal avec modèle",
-        "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
         "signers": [{"number": 1, "signer": signer_hp_uid, "approvings": [u"_themself_"], "editor": False}],
         "seal": True,
         "esign": True,
     })
     if "5" in cases:
-        oid = get_correct_id(container, "esign_case5")
-        container.invokeFactory("dmsoutgoingmail", id=oid, **params)
-        mail = container[oid]
-        _om_generate_from_template(mail, template)
+        base_title = params["title"]
+        for _m in range(mnb):
+            params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
+            if mnb > 1:
+                params["title"] = u"{} ({})".format(base_title, _m + 1)
+            oid = get_correct_id(container, "esign_case5")
+            container.invokeFactory("dmsoutgoingmail", id=oid, **params)
+            mail = container[oid]
+            for _f in range(fnb):
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
 
     # Case 4: seal seul (pas de signataire, pas d'esign) + modèle
     params = dict(base_params)
     params.update({
         "title": u"Cas 4 => seal avec modèle",
-        "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
         "signers": [{"number": 1, "signer": u"_empty_", "approvings": [u"_empty_"], "editor": False}],
         "seal": True,
         "esign": False,
     })
     if "4" in cases:
-        oid = get_correct_id(container, "esign_case4")
-        container.invokeFactory("dmsoutgoingmail", id=oid, **params)
-        mail = container[oid]
-        _om_generate_from_template(mail, template)
+        base_title = params["title"]
+        for _m in range(mnb):
+            params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
+            if mnb > 1:
+                params["title"] = u"{} ({})".format(base_title, _m + 1)
+            oid = get_correct_id(container, "esign_case4")
+            container.invokeFactory("dmsoutgoingmail", id=oid, **params)
+            mail = container[oid]
+            for _f in range(fnb):
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
 
     # Case 3: signataire + modèle + annexe
     params = dict(base_params)
     params.update({
         "title": u"Cas 3 => 1 signataire avec modèle et annexe",
-        "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
         "signers": [{"number": 1, "signer": signer_hp_uid, "approvings": [u"_themself_"], "editor": False}],
         "esign": True,
     })
     if "3" in cases:
-        oid = get_correct_id(container, "esign_case3")
-        container.invokeFactory("dmsoutgoingmail", id=oid, **params)
-        mail = container[oid]
-        _om_generate_from_template(mail, template)
-        _om_add_signable_annex(mail, portal, annex_filename)
+        base_title = params["title"]
+        for _m in range(mnb):
+            params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
+            if mnb > 1:
+                params["title"] = u"{} ({})".format(base_title, _m + 1)
+            oid = get_correct_id(container, "esign_case3")
+            container.invokeFactory("dmsoutgoingmail", id=oid, **params)
+            mail = container[oid]
+            for _f in range(fnb):
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
+            for _f in range(fnb):
+                _om_add_signable_annex(mail, portal, annex_filename, _f + 1 if fnb > 1 else u"")
 
     # Case 2: signataire + annexe seule
     params = dict(base_params)
     params.update({
         "title": u"Cas 2 => 1 signataire avec annexe seule",
-        "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
         "signers": [{"number": 1, "signer": signer_hp_uid, "approvings": [u"_themself_"], "editor": False}],
         "esign": True,
     })
     if "2" in cases:
-        oid = get_correct_id(container, "esign_case2")
-        container.invokeFactory("dmsoutgoingmail", id=oid, **params)
-        mail = container[oid]
-        _om_add_signable_annex(mail, portal, annex_filename)
+        base_title = params["title"]
+        for _m in range(mnb):
+            params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
+            if mnb > 1:
+                params["title"] = u"{} ({})".format(base_title, _m + 1)
+            oid = get_correct_id(container, "esign_case2")
+            container.invokeFactory("dmsoutgoingmail", id=oid, **params)
+            mail = container[oid]
+            for _f in range(fnb):
+                _om_add_signable_annex(mail, portal, annex_filename, _f + 1 if fnb > 1 else u"")
 
     # Case 1: signataire + modèle
     params = dict(base_params)
     params.update({
         "title": u"Cas 1 => 1 signataire avec modèle",
-        "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
         "signers": [{"number": 1, "signer": signer_hp_uid, "approvings": [u"_themself_"], "editor": False}],
         "esign": True,
     })
     if "1" in cases:
-        oid = get_correct_id(container, "esign_case1")
-        container.invokeFactory("dmsoutgoingmail", id=oid, **params)
-        mail = container[oid]
-        _om_generate_from_template(mail, template)
+        base_title = params["title"]
+        for _m in range(mnb):
+            params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
+            if mnb > 1:
+                params["title"] = u"{} ({})".format(base_title, _m + 1)
+            oid = get_correct_id(container, "esign_case1")
+            container.invokeFactory("dmsoutgoingmail", id=oid, **params)
+            mail = container[oid]
+            for _f in range(fnb):
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
 
     return portal.REQUEST.response.redirect(ofld.absolute_url())

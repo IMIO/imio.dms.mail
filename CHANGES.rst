@@ -1,7 +1,41 @@
 Changelog
 =========
 
-3.1.2 (unreleased)
+3.1.4 (unreleased)
+------------------
+
+- Added "rename_title" action on dms files.
+  [chris-adam, sgeulette]
+- Added hp usages validators on modification and deletion.
+  [chris-adam]
+
+3.1.3 (2026-05-08)
+------------------
+
+- Do not release this package.
+  [sgeulette]
+- Avoided attribute error in template when classification_folders is missing.
+  [sgeulette]
+- Moved upgrade steps from profiles.zcml to upgrades.zcml
+  [sgeulette]
+- Removed signing fieldset if no field inside.
+  [chris-adam]
+- Removed ApprovedColumn if no approvers.
+  [chris-adam]
+- Improved manage_fields to handle separately and correctly display and edit fields.
+  [sgeulette]
+- Added mnb and fnb parameters on `import_sign_examples` function
+  [sgeulette]
+- Do not limit approvals table results to batchSize
+  [sgeulette]
+- Added ExpandableDataGridField widget with a new manipulator button to expand/collapse a datagrid row.
+  [chris-adam]
+- Added button to update categorized elements
+  [chris-adam]
+- Added versions table in edit mode, removed useless columns and made clickable columns not clickable
+  [chris-adam, sgeulette]
+
+3.1.2 (2026-04-24)
 ------------------
 
 - Added download QR code page to not generated file to be signed.
@@ -10,7 +44,7 @@ Changelog
   [chris-adam]
 - Do not include seal field by default when activating esign
   [sgeulette]
-- Added hp usages validators on modified and deletion.
+- Updated to_print adaptation to work with to_approve adaptation
   [chris-adam]
 
 3.1.1 (2026-03-27)

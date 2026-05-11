@@ -252,7 +252,7 @@ class SessionIdColumn(BaseColumn):
         dashboard_link = getMultiAdapter((portal, portal.REQUEST), name="parapheo").get_dashboard_link(
             {"id": session_id}
         )
-        if session_id is not None and len(self.table._approval.session_ids) > 1:
+        if session_id is not None and len(self.table.approval.session_ids) > 1:
             return u'<a href={dashboard_link} title="{title}" class="pdf-session-badge">{session_id}</span>'.format(
                 dashboard_link=dashboard_link,
                 title=translate(

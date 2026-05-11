@@ -129,6 +129,23 @@ function toggle_dms_document_view(element) {
   }
 }
 
+$(document).on('click', '.datagridwidget-expandable .expand-row-btn', function(e) {
+    e.preventDefault();
+    var $btn = $(this);
+    var $row = $btn.closest('tr');
+    if ($row.hasClass('datagridwidget-empty-row') || $row.hasClass('auto-append')) {
+        return;
+    }
+    var $table = $btn.closest('table.datagridwidget-table-view');
+    var isExpanded = $row.hasClass('datagridwidget-row-expanded');
+    $table.find('tr.datagridwidget-row-expanded').removeClass('datagridwidget-row-expanded');
+    $table.find('.expand-row-btn i').removeClass('fa-compress').addClass('fa-expand');
+    if (!isExpanded) {
+        $row.addClass('datagridwidget-row-expanded');
+        $btn.find('i').removeClass('fa-expand').addClass('fa-compress');
+    }
+});
+
 $(document).ready(function(){
 
     /* Remove this overlay causing error in overlayhelpers and ckeditor not loading */

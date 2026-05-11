@@ -3,8 +3,10 @@
 
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
@@ -13,7 +15,6 @@ from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.wfadaptations import IMPreManagerValidation
-from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import setRoles
@@ -31,7 +32,7 @@ import unittest
 import zope.event
 
 
-class TestOMToPrintAdaptation(unittest.TestCase):
+class BaseTestWFAdaptations(unittest.TestCase):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
@@ -40,22 +41,197 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         change_user(self.portal)
         self.pw = self.portal.portal_workflow
         self.omw = self.pw["outgoingmail_workflow"]
+        self.pgof = self.portal["contacts"]["plonegroup-organization"]
         api.group.create("abc_group_encoder", "ABC group encoder")
-        self.omail = sub_create(
-            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title=u"Test"
-        )
 
     def tearDown(self):
         # the modified dmsconfig is kept globally
         reset_dms_config()
 
+    def _get_transition_ids(self, obj):
+        return {tr["id"] for tr in self.pw.getTransitionsFor(obj)}
+
+    def common_toprint_toapprove(self):
+        # --- handsigned document, without approval ---
+        pf = self.portal["contacts"]["personnel-folder"]
+        bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
+        omail1 = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "id-1",
+            title="My title",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="courrier",
+            signers=[{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}],
+        )
+        self.assertSetEqual(self._get_transition_ids(omail1), {"mark_as_sent"})
+
+        filepath = "%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR
+        with open(filepath, "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=u"example.odt")
+            createContentInContainer(omail1, "dmsommainfile", id="1", title="Example", file=file_object)
+        self.assertSetEqual(self._get_transition_ids(omail1), {"set_to_print", "propose_to_be_signed", "mark_as_sent"})
+
+        self.pw.doActionFor(omail1, "set_to_print")
+        self.assertEqual(api.content.get_state(omail1), "to_print")
+        self.assertSetEqual(self._get_transition_ids(omail1), {"back_to_creation", "propose_to_be_signed"})
+
+        self.pw.doActionFor(omail1, "propose_to_be_signed")
+        self.assertEqual(api.content.get_state(omail1), "to_be_signed")
+        self.assertSetEqual(
+            self._get_transition_ids(omail1), {"back_to_creation", "back_to_print", "mark_as_signed", "mark_as_sent"}
+        )
+
+        self.pw.doActionFor(omail1, "mark_as_signed")
+        self.assertEqual(api.content.get_state(omail1), "signed")
+        self.assertSetEqual(
+            self._get_transition_ids(omail1),
+            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"},
+        )
+
+        self.pw.doActionFor(omail1, "mark_as_sent")
+        self.assertEqual(api.content.get_state(omail1), "sent")
+        self.assertSetEqual(
+            self._get_transition_ids(omail1),
+            {"back_to_creation", "back_to_print", "back_to_be_signed", "back_to_signed", "back_to_scanned"},
+        )
+
+        # --- handsigned document, with approval ---
+        omail2 = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "id-2",
+            title="My title",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="courrier",
+            signers=[{"signer": bourgmestre_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": False}],
+        )
+        self.assertSetEqual(self._get_transition_ids(omail2), {"mark_as_sent"})
+
+        filepath = "%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        with open(filepath, "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=u"example.odt")
+            file2 = createContentInContainer(
+                omail2,
+                "dmsommainfile",
+                id="2",
+                title="Example",
+                file=file_object,
+                content_category=calculate_category_id(ct),
+            )
+        self.assertSetEqual(self._get_transition_ids(omail2), {"propose_to_approve", "mark_as_sent"})
+
+        self.pw.doActionFor(omail2, "propose_to_approve")
+        self.assertEqual(api.content.get_state(omail2), "to_approve")
+        self.assertSetEqual(self._get_transition_ids(omail2), {"back_to_creation"})
+
+        IOMApproval(omail2).approve_file(file2, "bourgmestre", transition=True)
+        self.assertEqual(api.content.get_state(omail2), "to_print")
+        self.assertSetEqual(
+            self._get_transition_ids(omail2), {"back_to_creation", "back_to_approve", "propose_to_be_signed"}
+        )
+
+        self.pw.doActionFor(omail2, "propose_to_be_signed")
+        self.assertEqual(api.content.get_state(omail2), "to_be_signed")
+        self.assertSetEqual(
+            self._get_transition_ids(omail2),
+            {"back_to_creation", "back_to_approve", "back_to_print", "mark_as_signed", "mark_as_sent"},
+        )
+
+        self.pw.doActionFor(omail2, "mark_as_signed")
+        self.assertEqual(api.content.get_state(omail2), "signed")
+        self.assertSetEqual(
+            self._get_transition_ids(omail2),
+            {"back_to_creation", "back_to_be_signed", "back_to_scanned", "mark_as_sent"},
+        )
+
+        self.pw.doActionFor(omail2, "mark_as_sent")
+        self.assertEqual(api.content.get_state(omail2), "sent")
+        self.assertSetEqual(
+            self._get_transition_ids(omail2),
+            {"back_to_creation", "back_to_print", "back_to_be_signed", "back_to_signed", "back_to_scanned"},
+        )
+
+        # --- esigned document, with approval ---
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+        )
+        omail3 = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "id-3",
+            title="My title",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="courrier",
+            signers=[{"signer": bourgmestre_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": False}],
+            esign=True,
+        )
+        self.assertSetEqual(self._get_transition_ids(omail3), {"mark_as_sent"})
+
+        filepath = "%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        with open(filepath, "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=u"example.odt")
+            file3 = createContentInContainer(
+                omail3,
+                "dmsommainfile",
+                id="3",
+                title="Example",
+                file=file_object,
+                content_category=calculate_category_id(ct),
+            )
+        self.assertSetEqual(self._get_transition_ids(omail3), {"propose_to_approve", "mark_as_sent"})
+
+        self.pw.doActionFor(omail3, "propose_to_approve")
+        self.assertEqual(api.content.get_state(omail3), "to_approve")
+        self.assertSetEqual(self._get_transition_ids(omail3), {"back_to_creation"})
+
+        IOMApproval(omail3).approve_file(file3, "bourgmestre", transition=True)
+        self.assertEqual(api.content.get_state(omail3), "to_be_signed")
+        self.assertSetEqual(
+            self._get_transition_ids(omail3), {"back_to_creation", "back_to_approve", "mark_as_signed", "mark_as_sent"}
+        )
+
+        self.pw.doActionFor(omail3, "mark_as_signed")
+        self.assertEqual(api.content.get_state(omail3), "signed")
+        self.assertSetEqual(
+            self._get_transition_ids(omail3),
+            {"back_to_creation", "back_to_be_signed", "back_to_scanned", "mark_as_sent"},
+        )
+
+        self.pw.doActionFor(omail3, "mark_as_sent")
+        self.assertEqual(api.content.get_state(omail3), "sent")
+        self.assertSetEqual(
+            self._get_transition_ids(omail3),
+            {"back_to_creation", "back_to_be_signed", "back_to_signed", "back_to_scanned"},
+        )
+
+
+class TestOMToPrintAdaptation(BaseTestWFAdaptations):
+
+    def setUp(self):
+        super(TestOMToPrintAdaptation, self).setUp()
+        self.omail = sub_create(
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title=u"Test"
+        )
+
     def test_OMToPrintAdaptation(self):
         """Test wf adaptation modifications"""
-        tpa = OMToPrintAdaptation()
-        tpa.patch_workflow("outgoingmail_workflow")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_print_wfadaptation", run_dependencies=False
+        )
         # check workflow
-        self.assertSetEqual(set(self.omw.states),
-                            {"created", "scanned", "to_print", "to_be_signed", "signed", "sent"})
+        self.assertSetEqual(set(self.omw.states), {"created", "scanned", "to_print", "to_be_signed", "signed", "sent"})
         self.assertSetEqual(
             set(self.omw.transitions),
             {
@@ -80,15 +256,15 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.assertSetEqual(set(self.omw.states["to_print"].transitions), {"back_to_creation", "propose_to_be_signed"})
         self.assertSetEqual(
             set(self.omw.states["to_be_signed"].transitions),
-            {"back_to_creation", "back_to_print", "mark_as_sent", "mark_as_signed"}
+            {"back_to_creation", "back_to_print", "mark_as_sent", "mark_as_signed"},
         )
         self.assertSetEqual(
             set(self.omw.states["signed"].transitions),
-            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"}
+            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"},
         )
         self.assertSetEqual(
             set(self.omw.states["sent"].transitions),
-            {"back_to_print", "back_to_be_signed", "back_to_signed", "back_to_scanned", "back_to_creation"}
+            {"back_to_print", "back_to_be_signed", "back_to_signed", "back_to_scanned", "back_to_creation"},
         )
         # various
         fti = getUtility(IDexterityFTI, name="dmsoutgoingmail")
@@ -104,11 +280,15 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         factory = getUtility(IVocabularyFactory, u"imio.dms.mail.OMReviewStatesVocabulary")
         self.assertEqual(len(factory(self.portal)), 6)
 
+        # Add ToApprove adaptation
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
+        )
+        self.common_toprint_toapprove()
+
     def common_tests(self):
         # check workflow
-        self.assertSetEqual(
-            set(self.omw.states), {"created", "scanned", "to_print", "to_be_signed", "signed", "sent"}
-        )
+        self.assertSetEqual(set(self.omw.states), {"created", "scanned", "to_print", "to_be_signed", "signed", "sent"})
         self.assertSetEqual(
             set(self.omw.transitions),
             {
@@ -140,7 +320,7 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         )
         self.assertSetEqual(
             set(self.omw.states["signed"].transitions),
-            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"}
+            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"},
         )
         self.assertSetEqual(
             set(self.omw.states["sent"].transitions),
@@ -159,21 +339,175 @@ class TestOMToPrintAdaptation(unittest.TestCase):
         self.assertIsNone(self.omail.treating_groups)
 
     def test_OMToPrintAdaptationBeforeNp1(self):
-        """Test wf adaptation modifications"""
-        tpa = OMToPrintAdaptation()
-        tpa.patch_workflow("outgoingmail_workflow")
+        """Test wf adaptation is idempotent when applied twice"""
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_print_wfadaptation", run_dependencies=False
+        )
         self.portal.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-om_to_print_wfadaptation", run_dependencies=False
         )
         self.common_tests()
 
     def test_OMToPrintAdaptationAfterNp1(self):
-        """Test wf adaptation modifications"""
+        """Test wf adaptation is idempotent when applied twice"""
         self.portal.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-om_to_print_wfadaptation", run_dependencies=False
         )
-        tpa = OMToPrintAdaptation()
-        tpa.patch_workflow("outgoingmail_workflow")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_print_wfadaptation", run_dependencies=False
+        )
+        self.common_tests()
+
+
+class TestOMToApproveAdaptation(BaseTestWFAdaptations):
+
+    def setUp(self):
+        super(TestOMToApproveAdaptation, self).setUp()
+        self.omail = sub_create(
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title=u"Test"
+        )
+
+    def test_OMToApproveAdaptation(self):
+        """Test wf adaptation modifications"""
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
+        )
+        # check workflow
+        self.assertSetEqual(
+            set(self.omw.states), {"created", "scanned", "to_approve", "to_be_signed", "signed", "sent"}
+        )
+        self.assertSetEqual(
+            set(self.omw.transitions),
+            {
+                "back_to_creation",
+                "back_to_agent",
+                "back_to_scanned",
+                "back_to_approve",
+                "back_to_be_signed",
+                "back_to_signed",
+                "set_scanned",
+                "propose_to_approve",
+                "propose_to_be_signed",
+                "mark_as_sent",
+                "mark_as_signed",
+            },
+        )
+        self.assertSetEqual(
+            set(self.omw.states["created"].transitions),
+            {"set_scanned", "propose_to_be_signed", "mark_as_sent", "propose_to_approve"},
+        )
+        self.assertSetEqual(set(self.omw.states["scanned"].transitions), {"back_to_agent", "mark_as_sent"})
+        self.assertSetEqual(
+            set(self.omw.states["to_approve"].transitions), {"propose_to_be_signed", "back_to_creation"}
+        )
+        self.assertSetEqual(
+            set(self.omw.states["to_be_signed"].transitions),
+            {"back_to_creation", "back_to_approve", "mark_as_sent", "mark_as_signed"},
+        )
+        self.assertSetEqual(
+            set(self.omw.states["signed"].transitions),
+            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"},
+        )
+        self.assertSetEqual(
+            set(self.omw.states["sent"].transitions),
+            {"back_to_creation", "back_to_be_signed", "back_to_signed", "back_to_scanned"},
+        )
+        # various
+        fti = getUtility(IDexterityFTI, name="dmsoutgoingmail")
+        lr = getattr(fti, "localroles")
+        self.assertIn("to_approve", lr["static_config"])
+        self.assertIn("to_approve", lr["treating_groups"])
+        self.assertIn("to_approve", lr["recipient_groups"])
+        folder = self.portal["outgoing-mail"]["mail-searches"]
+        self.assertIn("searchfor_to_approve", folder)
+        self.assertIn("to_approve", folder)
+        self.assertIn("in_esign_sessions", folder)
+        self.assertIn(
+            "to_approve",
+            [dic["v"] for dic in folder["om_treating"].query if dic["i"] == "review_state"][0],
+        )
+        self.assertEqual(folder.getObjectPosition("searchfor_to_be_signed"), 13)
+        self.assertEqual(folder.getObjectPosition("searchfor_to_approve"), 12)
+        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.OMReviewStatesVocabulary")
+        self.assertEqual(len(factory(self.portal)), 6)
+
+        # Add ToPrint adaptation
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_print_wfadaptation", run_dependencies=False
+        )
+        self.common_toprint_toapprove()
+
+    def common_tests(self):
+        # check workflow
+        self.assertSetEqual(
+            set(self.omw.states), {"created", "scanned", "to_approve", "to_be_signed", "signed", "sent"}
+        )
+        self.assertSetEqual(
+            set(self.omw.transitions),
+            {
+                "back_to_creation",
+                "back_to_agent",
+                "back_to_scanned",
+                "back_to_approve",
+                "back_to_be_signed",
+                "back_to_signed",
+                "set_scanned",
+                "propose_to_approve",
+                "propose_to_be_signed",
+                "mark_as_sent",
+                "mark_as_signed",
+            },
+        )
+        self.assertSetEqual(
+            set(self.omw.states["created"].transitions),
+            {"set_scanned", "propose_to_be_signed", "mark_as_sent", "propose_to_approve"},
+        )
+        self.assertSetEqual(set(self.omw.states["scanned"].transitions), {"back_to_agent", "mark_as_sent"})
+        self.assertSetEqual(
+            set(self.omw.states["to_approve"].transitions), {"propose_to_be_signed", "back_to_creation"}
+        )
+        self.assertSetEqual(
+            set(self.omw.states["to_be_signed"].transitions),
+            {"back_to_creation", "back_to_approve", "mark_as_sent", "mark_as_signed"},
+        )
+        self.assertSetEqual(
+            set(self.omw.states["signed"].transitions),
+            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"},
+        )
+        self.assertSetEqual(
+            set(self.omw.states["sent"].transitions),
+            {"back_to_creation", "back_to_be_signed", "back_to_signed", "back_to_scanned"},
+        )
+        # check collection positions
+        folder = self.portal["outgoing-mail"]["mail-searches"]
+        self.assertEqual(folder.getObjectPosition("searchfor_to_be_signed"), 13)
+        self.assertEqual(folder.getObjectPosition("searchfor_to_approve"), 12)
+        res = [dic["v"] for dic in folder["om_treating"].query if dic["i"] == "review_state"][0]
+        self.assertIn("to_approve", res)
+        # check dms config
+        change_user(self.portal, "test-user")
+        setRoles(self.portal, TEST_USER_ID, ["Reviewer", "Manager"])
+        # no treating_groups: NOK
+        self.assertIsNone(self.omail.treating_groups)
+
+    def test_OMToApproveAdaptationBeforeNp1(self):
+        """Test wf adaptation is idempotent when applied twice"""
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
+        )
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
+        )
+        self.common_tests()
+
+    def test_OMToApproveAdaptationAfterNp1(self):
+        """Test wf adaptation is idempotent when applied twice"""
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
+        )
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
+        )
         self.common_tests()
 
 

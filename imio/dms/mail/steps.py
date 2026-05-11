@@ -47,6 +47,7 @@ from imio.esign.config import set_esign_registry_vat_number
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.emailer import get_mail_host
+from imio.helpers.path import is_test_url
 from imio.helpers.security import get_user_from_criteria
 from imio.helpers.setup import load_type_from_package
 from imio.helpers.setup import load_workflow_from_package
@@ -124,7 +125,10 @@ def activate_esigning(context):
         set_esign_registry_external_watchers(u", ".join(["{}.{}@imio.be".format(name[1], name[0])
                                                          for name in watchers]))
     if not get_esign_registry_file_url():
-        set_esign_registry_file_url(u"https://documents.imio-egov.be/esign")
+        if is_test_url():
+            set_esign_registry_file_url(u"https://documents.imio-egov.be/esign")
+        else:
+            set_esign_registry_file_url(u"https://documents.enwallonie.be/esign")
 
     if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"):
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
@@ -138,13 +142,17 @@ def activate_esigning(context):
         pos = om_fns.index("internal_reference_no")
         omf.insert(pos + 1,
                    {"field_name": "ISigningBehavior.signers", "read_tal_condition": u"", "write_tal_condition": u""})
-        # omf.insert(pos + 2,
-        #            {"field_name": "ISigningBehavior.seal", "read_tal_condition": u"", "write_tal_condition": u""})
-        omf.insert(pos + 2,
+        om_fns = [dic["field_name"] for dic in omf]
+        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
+                                       omf)
+        log.append("Added signers to omail_fields registry record")
+    if "ISigningBehavior.esign" not in om_fns:
+        pos = om_fns.index("ISigningBehavior.signers")
+        omf.insert(pos + 1,
                    {"field_name": "ISigningBehavior.esign", "read_tal_condition": u"", "write_tal_condition": u""})
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
                                        omf)
-        log.append("Updated omail_fields registry record")
+        log.append("Added esign to omail_fields registry record")
 
     site.portal_setup.runImportStepFromProfile(
         "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False

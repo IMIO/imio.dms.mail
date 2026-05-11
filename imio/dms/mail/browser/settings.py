@@ -6,6 +6,7 @@ from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
+from imio.dms.mail.browser.widgets import ExpandableDataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localroles.utils import add_fti_configuration
 from imio.dms.mail import _
@@ -703,7 +704,7 @@ class IImioDmsMailConfig(model.Schema):
     )
     widget(
         "omail_signer_rules",
-        DataGridFieldFactory,
+        ExpandableDataGridFieldFactory,
         allow_reorder=True,
         auto_append=False,
     )
@@ -1043,7 +1044,7 @@ class IImioDmsMailConfig(model.Schema):
                 if sub["absent_signer"] and sub["absent_signer"] == sub["substitute_signer"]:
                     raise Invalid(
                         _(
-                            u"${tab} tab: « ${field} », substitute rule ${rule} has the same signer and substitute.",
+                            u"${tab} tab: « ${field} », rule ${rule} has the same signer and substitute.",
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"), "rule": i},
                         ),
                     )
@@ -1051,7 +1052,7 @@ class IImioDmsMailConfig(model.Schema):
                 if not sub["absent_signer"] or not sub["substitute_signer"]:
                     raise Invalid(
                         _(
-                            u"${tab} tab: « ${field} », substitute rule ${rule} has no signer or substitute defined.",
+                            u"${tab} tab: « ${field} », rule ${rule} has no signer or substitute defined.",
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"), "rule": i},
                         ),
                     )
@@ -1064,7 +1065,7 @@ class IImioDmsMailConfig(model.Schema):
                         except ValueError:
                             raise Invalid(
                                 _(
-                                    u"${tab} tab: « ${field} », substitute ${rule} has an invalid date "
+                                    u"${tab} tab: « ${field} », rule ${rule} has an invalid date "
                                     u"in « ${date} » field",
                                     mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"),
                                              "rule": i, "date": _(date_title)},
@@ -1074,7 +1075,7 @@ class IImioDmsMailConfig(model.Schema):
                         parsed["valid_until"] < parsed["valid_from"]):
                     raise Invalid(
                         _(
-                            u"${tab} tab: « ${field} », substitute ${rule}, date « ${until} » must be "
+                            u"${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be "
                             u"higher or equal to « ${from} »",
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"),
                                      "rule": i, "until": _(u"Valid until"), "from": _(u"Valid from")},
@@ -1083,7 +1084,7 @@ class IImioDmsMailConfig(model.Schema):
                 if "valid_until" in parsed and parsed["valid_until"].date() < today:
                     api.portal.show_message(
                         _(
-                            u"${tab} tab: « ${field} », substitute ${rule}, date « ${until} » must be "
+                            u"${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be "
                             u"higher or equal to today",
                             mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer substitutes"),
                                      "rule": i, "until": _(u"Valid until")},

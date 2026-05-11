@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
+from AccessControl import Unauthorized
 from Acquisition import aq_inner
 from collective.ckeditortemplates.cktemplate import ICKTemplate
 from datetime import datetime
@@ -33,6 +34,7 @@ from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from plone import api
+from plone.protect import CheckAuthenticator
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone import utils
 from Products.CMFPlone.browser.navigation import CatalogNavigationTabs
@@ -604,7 +606,7 @@ class ApprovalTableView(BrowserView):
 
             # Approve only now to avoid unwanted transition
             for fobj, signer, i_signer in to_approve:
-                approval.approve_file(fobj, signer, c_a=i_signer, transition="propose_to_be_signed")
+                approval.approve_file(fobj, signer, c_a=i_signer, transition=True)
 
             IStatusMessage(self.request).addStatusMessage(_(u"Changes saved."), type="info")
             self.request.response.redirect(self.context.absolute_url())
@@ -683,3 +685,43 @@ class OMSessionAnnotationInfoView(SessionAnnotationInfoView):
         approval = IOMApproval(self.context)
         native = persistent_to_native(approval.annot)
         return self._render_value(native)
+
+
+class ObjectRenameTitleView(BrowserView):
+    """Single-object title rename form."""
+
+    def __call__(self):
+        sm = getSecurityManager()
+        if not sm.checkPermission("Modify portal content", self.context):
+            raise Unauthorized(
+                _(u"Permission denied to rename «${title}».",
+                  mapping={u"title": safe_unicode(self.context.title_or_id())})
+            )
+
+        form = self.request.form
+        if form.get("form.submitted"):
+            CheckAuthenticator(self.request)
+            target = form.get("orig_template") or self.context.absolute_url()
+            if "form.button.Cancel" in form:
+                return self.request.response.redirect(target)
+            new_title = safe_unicode(form.get("new_title", u"")).strip()
+            if not new_title:
+                IStatusMessage(self.request).addStatusMessage(
+                    _(u"Please provide a title."), type="error"
+                )
+                self.error = True
+                self.title = safe_unicode(self.context.Title())
+                self.orig_template = target
+                return self.index()
+            self.context.setTitle(new_title)
+            self.context.reindexObject(idxs=["Title", "sortable_title", "SearchableText"])
+            modified(self.context)
+            IStatusMessage(self.request).addStatusMessage(
+                _(u"Title changed."), type="info"
+            )
+            return self.request.response.redirect(target)
+
+        self.error = False
+        self.title = safe_unicode(self.context.Title())
+        self.orig_template = self.request.get("HTTP_REFERER", "").split("?")[0]
+        return self.index()
