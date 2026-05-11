@@ -6,6 +6,8 @@ Changelog
 
 - Added "rename_title" action on dms files.
   [chris-adam, sgeulette]
+- Added hp usages validators on modification and deletion.
+  [chris-adam]
 
 3.1.3 (2026-05-08)
 ------------------
