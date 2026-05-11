@@ -4,8 +4,8 @@ Changelog
 3.1.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Added "rename_title" action on dms files.
+  [chris-adam, sgeulette]
 
 3.1.3 (2026-05-08)
 ------------------

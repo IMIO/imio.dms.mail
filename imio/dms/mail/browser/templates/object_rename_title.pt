@@ -1,0 +1,79 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      metal:use-macro="context/main_template/macros/master"
+      i18n:domain="imio.dms.mail">
+
+  <metal:block fill-slot="top_slot"
+               tal:define="dummy python:request.set('disable_border',1)" />
+
+  <body>
+
+    <metal:main fill-slot="main">
+
+      <h1 class="documentFirstHeading"
+          i18n:translate="heading_rename_title_item">Rename title</h1>
+
+      <div id="content-core">
+
+        <form name="object_rename_title"
+              class="enableAutoFocus"
+              method="post"
+              tal:attributes="action string:${context/absolute_url}/@@object_rename_title">
+
+          <input type="hidden" name="form.submitted" value="1" />
+          <input type="hidden" name="orig_template"
+                 tal:attributes="value view/orig_template" />
+
+          <fieldset>
+
+            <legend>
+              <span i18n:translate="label_actual_title">
+                Actual title : «<span tal:content="view/title" i18n:name="obj_title" />»
+              </span>
+              <span class="discreet"
+                    i18n:translate="label_for_id">
+                (for id : «<span tal:content="context/getId" i18n:name="obj_id" />»)
+              </span>
+            </legend>
+
+            <div class="field"
+                 tal:attributes="class python:view.error and 'field error' or 'field'">
+
+              <label for="new_title" i18n:translate="label_new_title">New Title</label>
+
+              <input type="text"
+                     name="new_title"
+                     id="new_title"
+                     size="40"
+                     tal:attributes="value view/title" />
+
+            </div>
+
+          </fieldset>
+
+          <div class="formControls">
+
+            <input class="context"
+                   type="submit"
+                   value="Save"
+                   name="form.button.save"
+                   i18n:attributes="value label_save;" />
+            <input class="standalone"
+                   type="submit"
+                   value="Cancel"
+                   name="form.button.Cancel"
+                   i18n:attributes="value label_cancel;" />
+          </div>
+
+          <input tal:replace="structure context/@@authenticator/authenticator" />
+
+        </form>
+
+      </div>
+
+    </metal:main>
+
+  </body>
+</html>
