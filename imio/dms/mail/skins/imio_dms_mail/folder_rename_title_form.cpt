@@ -1,5 +1,3 @@
-<!-- Copy from `Products/CMFPlone/skins/plone_forms/folder_rename_form.cpt` -->
-
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"
       xmlns:tal="http://xml.zope.org/namespaces/tal"
       xmlns:metal="http://xml.zope.org/namespaces/metal"
@@ -18,18 +16,17 @@
                  tal:replace="python:context.redirectToReferrer('Please select one or more items to rename.')"/>
 
       <h1 class="documentFirstHeading"
-          i18n:translate="heading_rename_item">Rename item</h1>
+          i18n:translate="heading_rename_title_item">Rename title</h1>
 
       <div class="documentDescription"
-           i18n:translate="description_rename_item">Each item has a Short Name and a Title, which you can change
-           by entering the new details below.</div>
+           i18n:translate="description_rename_title_item">Each item has a Title, which you can change
+           by entering the new value below.</div>
 
       <div id="content-core">
           <tal:defines tal:define="paths request/paths|python:[];
                                    items python:context.getObjectsFromPathList(paths);
                                    errors options/state/getErrors;
-                                   checkPermission nocall: context/portal_membership/checkPermission;
-                                   is_zope_admin python: context.restrictedTraverse('@@various-utils').is_zope_admin();">
+                                   checkPermission nocall: context/portal_membership/checkPermission;">
 
               <tal:block tal:condition="python:paths and not items"
                          tal:replace="python:context.redirectToReferrer('The item(s) you selected are no longer available.')"/>
@@ -64,48 +61,13 @@
                       <div tal:condition="error"
                            tal:content="error">Validation error output</div>
 
-                      <tal:zope_admin_id tal:condition="is_zope_admin">
-                        <div tal:define="canRenameItem python:checkPermission('Delete objects', obj) and checkPermission('Copy or Move', obj);"
-                             tal:attributes="class python:test(canRenameItem, nothing, 'error')">
+                      <input type="hidden"
+                             name="paths:list"
+                             tal:attributes="value item_path" />
 
-                          <label tal:attributes="for string:${item}_id;"
-                                 i18n:translate="label_new_short_name">
-                            New Short Name
-                          </label><div></div>
-
-                          <div class="formHelp"
-                               i18n:translate="help_short_name_url">
-                          Short name is the part that shows up in the URL of the item.
-                          </div>
-                              <span tal:condition="not:canRenameItem"
-                                    i18n:translate="rename_item_not_allowed">
-                                  You are not allowed to modify the id of this item.
-                              </span>
-
-                              <input type="hidden"
-                                     name="paths:list"
-                                     value="fav_999816073"
-                                     tal:condition="canRenameItem"
-                                     tal:attributes="value item_path" />
-
-                              <input type="text"
-                                     name="new_ids:list"
-                                     id=""
-                                     value=""
-                                     size="40"
-                                     tal:condition="canRenameItem"
-                                     tal:attributes="value item;
-                                                     id string:${item}_id;" />
-
-                        </div>
-                      </tal:zope_admin_id>
-
-                      <tal:non_admin_id tal:condition="not: is_zope_admin">
-                        <input type="hidden" name="paths:list"
-                               tal:attributes="value item_path" />
-                        <input type="hidden" name="new_ids:list"
-                               tal:attributes="value item" />
-                      </tal:non_admin_id>
+                      <input type="hidden"
+                             name="new_ids:list"
+                             tal:attributes="value item" />
 
                       <div tal:define="canModifyItem python:checkPermission('Modify portal content', obj);"
                            tal:attributes="class python:test(canModifyItem, nothing, 'error')">
@@ -116,7 +78,7 @@
                         </label><div></div>
 
                             <span tal:condition="not:canModifyItem"
-                                  i18n:translate="change_id_for_item_not_allowed">
+                                  i18n:translate="change_title_for_item_not_allowed">
                                 You are not allowed to modify the title of this item.
                             </span>
 

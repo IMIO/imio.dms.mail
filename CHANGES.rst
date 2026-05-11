@@ -4,9 +4,8 @@ Changelog
 3.1.2 (unreleased)
 ------------------
 
-- Added "rename" action on dms files, only zope admins can edit id.
-  [chris-adam]
-
+- Added "rename_title" action on dms files.
+  [chris-adam, sgeulette]
 
 3.1.1 (2026-03-27)
 ------------------
