@@ -36,7 +36,6 @@ from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
-from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.dmsfile import ImioDmsFile
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -1476,7 +1475,7 @@ def personnel_contact_will_be_removed(del_obj, event):
     if pp.site_properties.enable_link_integrity_checks:
         if is_hp_used_in_signer_rules(del_obj, []):
             storage = ILinkIntegrityInfo(aq_get(del_obj, "REQUEST", None))
-            storage.addBreach(del_obj.__parent__, del_obj)
+            storage.addBreach(portal["outgoing-mail"], del_obj)
 
 
 def cktemplate_moved(obj, event):
