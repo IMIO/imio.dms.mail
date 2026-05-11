@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-05-07 09:41+0000\n"
+"POT-Creation-Date: 2026-05-11 09:40+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -97,7 +97,7 @@ msgstr "Onglet « ${tab} »: champ « ${field} », règle ${rule}, la date « ${
 msgid "${tab} tab: « ${field} », rule ${rule}, date « ${until} » must be higher or equal to « ${from} »"
 msgstr "Onglet « ${tab} »: champ « ${field} », règle ${rule}, la date « ${until} » doit être >= à la date « ${from} »"
 
-#: ./browser/views.py:65
+#: ./browser/views.py:67
 msgid "${title}: create from template"
 msgstr "${title}: créer à partir d'un modèle"
 
@@ -392,7 +392,7 @@ msgstr "Champ « Utilisé comme » (pour fonction occupée)"
 msgid "Cannot split odt file uid ${uid}"
 msgstr "Le fichier ODT avec UID ${uid} ne peut pas être fractionné"
 
-#: ./browser/views.py:263
+#: ./browser/views.py:265
 msgid "Cannot use localhost as smtp"
 msgstr "vous ne pouvez pas utiliser 'localhost' comme serveur smtp"
 
@@ -400,7 +400,7 @@ msgstr "vous ne pouvez pas utiliser 'localhost' comme serveur smtp"
 msgid "Category to apply on generated documents from this template."
 msgstr "Catégorie à appliquer sur les documents générés depuis ce modèle."
 
-#: ./browser/views.py:609
+#: ./browser/views.py:611
 msgid "Changes saved."
 msgstr "Changements sauvegardés."
 
@@ -426,7 +426,7 @@ msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le 
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
 
-#: ./browser/views.py:70
+#: ./browser/views.py:72
 msgid "Choose this template"
 msgstr "Choisir ce modèle"
 
@@ -484,7 +484,7 @@ msgstr "Créer depuis modèle"
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
-#: ./utils.py:894
+#: ./utils.py:898
 msgid "Creating groups : to be used in kofax index"
 msgstr "Groupes indicateur : à coller dans l'index de Kofax"
 
@@ -655,7 +655,7 @@ msgstr "Le fichier publiposté '${file}' ne peut être reséparé en documents d
 msgid "File '${file}' has no or a wrong scan id, it cannot be added to sign session."
 msgstr "Le fichier '${file}' a un identifiant de scan manquant ou invalide. Il ne peut être ajouté à la session de signature."
 
-#: ./browser/table.py:275
+#: ./browser/table.py:304
 msgid "File name"
 msgstr "Nom du fichier"
 
@@ -999,6 +999,10 @@ msgstr "Regroupement des fiches du dossier Courrier sortant (mont, week, day)"
 msgid "PDF Document (.pdf)"
 msgstr "Document Pdf (.pdf)"
 
+#: ./browser/views.py:697
+msgid "Permission denied to rename «${title}»."
+msgstr "Vous n'êtes pas autorisé à renommer «${title}»."
+
 #: ./migrations/migrate_to_2_1.py:410
 #: ./setuphandlers.py:377
 msgid "Persons"
@@ -1012,6 +1016,10 @@ msgstr "Recherches personnes"
 #: ./profiles/default/registry.xml
 msgid "Pipeline to use to import contacts"
 msgstr "Pipeline pour importer des contacts"
+
+#: ./browser/views.py:710
+msgid "Please provide a title."
+msgstr "Merci de fournir un titre."
 
 #: ./wfadaptations.py:150
 msgid "Please update manually ${type} local roles for creating_group !"
@@ -1061,6 +1069,10 @@ msgstr "Chemin relatif"
 #: ./adapters.py:
 msgid "Remark icon"
 msgstr "Le champ «description du travail» n'est pas vide"
+
+#: ./profiles/default/actions.xml
+msgid "Rename title"
+msgstr "Modifier le titre"
 
 #: ./browser/templates/actions_panel_reply.pt:5
 msgid "Reply"
@@ -1320,6 +1332,10 @@ msgstr "Ce contact ${title} a des champs d'adresse vides: ${keys}"
 msgid "This workflow adaptation is only valid for ${workflow} !"
 msgstr "Cette adaptation de workflow est seulement valable pour le workflow '${workflow}' !"
 
+#: ./browser/views.py:720
+msgid "Title changed."
+msgstr "Titre modifié."
+
 #: ./browser/templates/sections.pt:30
 msgid "Toggle preview read mode"
 msgstr "Activer/Désactiver le mode lecture des courriers"
@@ -1345,12 +1361,12 @@ msgid "Treating group value"
 msgstr "Valeur service traitant"
 
 #: ./browser/batchactions.py:49
-#: ./browser/table.py:94
+#: ./browser/table.py:95
 #: ./dmsmail.py:220
 msgid "Treating groups"
 msgstr "Service traitant"
 
-#: ./utils.py:898
+#: ./utils.py:902
 msgid "Treating groups : to be used in kofax index"
 msgstr "Services traitant : à coller dans l'index de Kofax"
 
@@ -1516,11 +1532,11 @@ msgstr "Vous devez sélectionner un utilisateur assigné car le nouveau service 
 msgid "You must select an assigned user before you can propose to an agent !"
 msgstr "Vous devez sélectionner un utilisateur assigné avant de pouvoir proposer le courrier à un agent !"
 
-#: ./browser/views.py:291
+#: ./browser/views.py:293
 msgid "Your email has been sent."
 msgstr "Votre email a été envoyé"
 
-#: ./browser/views.py:263
+#: ./browser/views.py:265
 msgid "Your email has not been sent: ${error}."
 msgstr "Votre email n'a pas été envoyé: ${error}."
 
@@ -1664,6 +1680,11 @@ msgstr "<p>L'application contient actuellement les <strong>fonctionnalités suiv
 msgid "front_page_title"
 msgstr "Gestion du courrier 3.1"
 
+#. Default: "Rename title"
+#: ./browser/templates/object_rename_title.pt:15
+msgid "heading_rename_title_item"
+msgstr "Modifier le titre"
+
 #: ./migrations/migrate_to_2_1.py:197
 #: ./setuphandlers.py:1126
 msgid "im_followed"
@@ -1742,13 +1763,30 @@ msgstr "courriers entrants"
 msgid "incoming_mail_tab"
 msgstr "Entrant"
 
+#. Default: "Actual title : «${obj_title}»"
+#: ./browser/templates/object_rename_title.pt:33
+msgid "label_actual_title"
+msgstr "Title actuel : «${obj_title}»"
+
 #. Default: "Cancel"
 #: ./browser/templates/approvals.pt:24
+#: ./browser/templates/object_rename_title.pt:63
 msgid "label_cancel"
 msgstr "Annuler"
 
+#. Default: "(for id : «${obj_id}»)"
+#: ./browser/templates/object_rename_title.pt:37
+msgid "label_for_id"
+msgstr "(id : «${obj_id}»)"
+
+#. Default: "New Title"
+#: ./browser/templates/object_rename_title.pt:44
+msgid "label_new_title"
+msgstr "Nouveau titre"
+
 #. Default: "Save"
 #: ./browser/templates/approvals.pt:22
+#: ./browser/templates/object_rename_title.pt:58
 msgid "label_save"
 msgstr "Sauvegarder"
 

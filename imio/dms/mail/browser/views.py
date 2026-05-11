@@ -694,7 +694,7 @@ class ObjectRenameTitleView(BrowserView):
         sm = getSecurityManager()
         if not sm.checkPermission("Modify portal content", self.context):
             raise Unauthorized(
-                _(u"Permission denied to rename ${title}.",
+                _(u"Permission denied to rename «${title}».",
                   mapping={u"title": safe_unicode(self.context.title_or_id())})
             )
 
