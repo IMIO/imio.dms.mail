@@ -971,6 +971,48 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         modified(omail)
         self.assertIsNone(omail.signers)
 
+    def test_dmsoutgoingmail_modified_template_signers(self):
+        rk_ts = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_use_template_signers"
+        dirg_hp = self.pf["dirg"]["directeur-general"]
+        bourgmestre_hp = self.pf["bourgmestre"]["bourgmestre"]
+        omail = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-ts-id",
+            title="Template Signers Test",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="courrier",
+        )
+
+        # Baseline: setting disabled, default signer rules apply on creation
+        self.assertEqual(len(omail.signers), 2)
+        self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
+        self.assertEqual(omail.signers[1]["signer"], bourgmestre_hp.UID())
+
+        # Enable use_template_signers: signer rules must be skipped, but empty placeholder is set
+        api.portal.set_registry_record(rk_ts, True)
+        omail.signers = None
+        modified(omail)
+        self.assertEqual(
+            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        )
+
+        # Existing signers are preserved
+        omail.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
+        modified(omail)
+        self.assertEqual(len(omail.signers), 1)
+        self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
+
+        # Disable setting: rules apply again
+        api.portal.set_registry_record(rk_ts, False)
+        omail.signers = None
+        modified(omail)
+        self.assertIsNotNone(omail.signers)
+        self.assertTrue(len(omail.signers) >= 1)
+
     def test_dmsoutgoingmail_modified_signer_substitutes(self):
         dirg = self.pf["dirg"]
         dirg_hp = dirg["directeur-general"]

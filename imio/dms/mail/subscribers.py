@@ -491,8 +491,9 @@ def dmsoutgoingmail_modified(mail, event):
 
     today = datetime.date.today()
     signers_update = False
+    use_template_signers = api.portal.get_registry_record("omail_use_template_signers", IImioDmsMailConfig, False)
     # Update signers field only if empty
-    if not mail.signers:
+    if not mail.signers and not use_template_signers:
         mail.signers = []
         signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
         substitutes = {}

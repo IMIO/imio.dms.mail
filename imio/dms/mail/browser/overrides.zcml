@@ -165,6 +165,17 @@
       /-->
     </unconfigure>
 
+    <configure package="collective.documentviewer">
+        <browser:page
+            name="documentviewer"
+            for="collective.documentgenerator.content.pod_template.IConfigurablePODTemplate"
+            class="imio.dms.mail.browser.documentgenerator.DmsViewConfigurablePodTemplate"
+            template="templates/documentviewerdx.pt"
+            permission="zope2.View"
+            layer=".interfaces.ILayer"
+            />
+    </configure>
+
     <configure package="collective.eeafaceted.dashboard.browser">
       <plone:portletRenderer
         portlet=".facetedcollectionportlet.IFacetedCollectionPortlet"
