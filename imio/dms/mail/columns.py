@@ -513,10 +513,10 @@ class HPColumn(BaseColumn):
         if not hps:
             return "-"
         ret = []
-        signer_usage = "<img width='16' height='16' src='++resource++imio.esign/parapheo.svg' title='{}'>".format(
+        signer_usage = "<span class='signer-icon' title='{}'> </span>".format(
             _tr("Signer")
         )
-        approving_usage = "<img src='++resource++imio.dms.mail/check-all.svg' title='{}'>".format(
+        approving_usage = "<span class='approving-icon' title='{}'> </span>".format(
             _tr("Approving")
         )
         for hp in hps:

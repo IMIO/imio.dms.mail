@@ -590,6 +590,22 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
   color: #75ad0a;
 }
 
+.template-personnel-listing td.td_cell_hps li span.signer-icon::before {
+    content: "\f044";
+    font-family: "Font Awesome 5 Free";
+    font-weight: bold;
+    color: #75ad0a;
+    padding-left: 3px;
+}
+
+.template-personnel-listing td.td_cell_hps li span.approving-icon::before {
+    content: "\f00c";
+    font-family: "Font Awesome 5 Free";
+    font-weight: bold;
+    color: #75ad0a;
+    padding-left: 3px;
+}
+
 /* esign PDF-generated version child rows - tree indentation */
 #fieldset-versions table.dv tr.pdf-child-row td a.version-link {
     padding-left: 20px;
