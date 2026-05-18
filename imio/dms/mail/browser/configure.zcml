@@ -695,6 +695,30 @@
         permission="zope2.View"
         />
 
+    <!-- ConfigurablePODTemplate form overrides -->
+    <browser:page
+        for="collective.documentgenerator.content.pod_template.IConfigurablePODTemplate"
+        name="edit"
+        class="imio.dms.mail.browser.documentgenerator.DmsEditConfigurablePodTemplate"
+        permission="cmf.ModifyPortalContent"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             imio.dms.mail.interfaces.IImioDmsMailLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".documentgenerator.DmsAddConfigurablePodTemplate"
+        name="ConfigurablePODTemplate"
+        />
+    <class class=".documentgenerator.DmsAddConfigurablePodTemplate">
+        <require
+            permission="cmf.AddPortalContent"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+
     <!-- Viewlets -->
     <!-- common for dmsincomingmail, dmsoutgoingmail and task -->
     <browser:viewlet

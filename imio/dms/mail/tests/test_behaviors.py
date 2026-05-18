@@ -381,3 +381,62 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         error_msg = (u"Vous ne pouvez pas modifier les signataires une fois le processus d'approbation commencé ou "
                      u"terminé. Revenez dans un état précédent ou demandez à votre référent.")
         self.assertEqual(_tr(errors[0].message), error_msg)
+
+        # Test template context: outgoing-mail-specific checks are skipped
+        self.change_user("siteadmin")
+        template = self.portal["templates"]["om"]["main"]
+        tpl_invariants = validator.InvariantsValidator(template, None, None, ISigningBehavior, None)
+
+        # Valid signers on template: no error
+        data = {
+            "signers": [
+                {"signer": dirg_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+            ],
+            "esign": True,
+            "seal": False,
+        }
+        errors = tpl_invariants.validate(data)
+        self.assertEqual(errors, ())
+
+        # Generic validations still apply on template: duplicate numbers
+        data = {
+            "signers": [
+                {"signer": dirg_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+                {"signer": bourgmestre_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+            ],
+        }
+        errors = tpl_invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+
+        # Seal without esign on template: still an error (generic check)
+        data = {
+            "signers": [
+                {"signer": dirg_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+            ],
+            "esign": False,
+            "seal": True,
+        }
+        errors = tpl_invariants.validate(data)
+        self.assertTrue(isinstance(errors[0], Invalid))
+
+        # Approval state check is skipped on template (only runs on IImioDmsOutgoingMail)
+        data = {
+            "signers": [
+                {"signer": dirg_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+            ],
+            "esign": True,
+            "seal": False,
+        }
+        errors = tpl_invariants.validate(data)
+        self.assertEqual(errors, ())
+
+        # File format validation is skipped on template (only runs on IImioDmsOutgoingMail)
+        data = {
+            "signers": [
+                {"signer": dirg_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+            ],
+            "esign": True,
+            "seal": False,
+        }
+        errors = tpl_invariants.validate(data)
+        self.assertEqual(errors, ())

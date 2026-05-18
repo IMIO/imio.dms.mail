@@ -1,13 +1,18 @@
 # -*- coding: utf-8 -*-
 """ documentgenerator.py tests for this package."""
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.browser.documentgenerator import _filter_signing_fieldset
 from imio.dms.mail.browser.documentgenerator import OutgoingMailLinksViewlet
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
+from mock import Mock
+from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
@@ -387,6 +392,86 @@ class TestDocumentGenerator(unittest.TestCase):
         view.document.title = u"Modèle de base"
         # Test title
         self.assertEqual(view._get_title("", ""), u"Publipostage, Modèle de base")
+
+    def test_copy_template_signers(self):
+        rk_ts = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_use_template_signers"
+        rep1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        view = rep1.restrictedTraverse("persistent-document-generation")
+        template = self.portal["templates"]["om"]["main"]
+        view.pod_template = template
+        pf = self.portal["contacts"]["personnel-folder"]
+        dirg_hp = pf["dirg"]["directeur-general"]
+        bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
+        request = self.portal.REQUEST
+
+        template_signers = [
+            {"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}
+        ]
+        original_mail_signers = rep1.signers
+
+        # Setting disabled: no copy
+        template.signers = template_signers
+        template.seal = True
+        template.esign = True
+        rep1.signers = None
+        view._copy_template_signers(template)
+        self.assertIsNone(rep1.signers)
+
+        # Setting enabled, template has no signers: no copy
+        api.portal.set_registry_record(rk_ts, True)
+        template.signers = None
+        rep1.signers = None
+        view._copy_template_signers(template)
+        self.assertIsNone(rep1.signers)
+
+        # Setting enabled, template has signers, mail empty: copy
+        template.signers = template_signers
+        template.seal = True
+        template.esign = True
+        rep1.signers = None
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers, template_signers)
+        self.assertTrue(rep1.seal)
+        self.assertTrue(rep1.esign)
+        self.assertIsNot(rep1.signers, template.signers)
+
+        # Mail has only _empty_ signers: treated as empty, copy applies
+        rep1.signers = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers, template_signers)
+
+        # Conflict: mail has different real signers: warning, no copy
+        IStatusMessage(request).show()  # consume existing messages
+        different_signers = [
+            {"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}
+        ]
+        rep1.signers = different_signers
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers, different_signers)
+        msgs = IStatusMessage(request).show()
+        self.assertEqual(len(msgs), 1)
+        self.assertEqual(msgs[0].type, u"warning")
+
+        # Same signers as template: no warning, no change
+        rep1.signers = list(template_signers)
+        view._copy_template_signers(template)
+        msgs = IStatusMessage(request).show()
+        self.assertEqual(len(msgs), 0)
+
+        # MailingLoopTemplate: uses orig_template
+        mailing_view = rep1.restrictedTraverse("mailing-loop-persistent-document-generation")
+        mailing_tpl = self.portal["templates"]["om"]["mailing"]
+        mailing_view.orig_template = template
+        rep1.signers = None
+        mailing_view._copy_template_signers(mailing_tpl)
+        self.assertEqual(rep1.signers, template_signers)
+
+        # Cleanup
+        api.portal.set_registry_record(rk_ts, False)
+        template.signers = None
+        template.seal = None
+        template.esign = None
+        rep1.signers = original_mail_signers
 
     def test_OutgoingMailLinksViewlet(self):
         """

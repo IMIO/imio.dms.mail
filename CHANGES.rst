@@ -10,6 +10,8 @@ Changelog
   [chris-adam]
 - Added Signer/Approving icon on personnel listing table.
   [chris-adam, sgeulette]
+- Added option to define signers from templates.
+  [chris-adam]
 
 3.1.3 (2026-05-08)
 ------------------

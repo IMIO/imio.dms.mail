@@ -6,7 +6,6 @@ from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
-from imio.dms.mail.browser.widgets import ExpandableDataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localroles.utils import add_fti_configuration
 from imio.dms.mail import _
@@ -16,6 +15,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
+from imio.dms.mail.browser.widgets import ExpandableDataGridFieldFactory
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
@@ -624,6 +624,7 @@ class IImioDmsMailConfig(model.Schema):
             "omail_fullname_used_form",
             "omail_send_modes",
             "omail_post_mailing",
+            "omail_use_template_signers",
             "omail_signer_rules",
             "omail_signer_substitutes",
             "omail_fields",
@@ -693,6 +694,12 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u"Post mailing"),
         description=_(u"Do mailing for each postal sending type."),
         default=True,
+    )
+
+    omail_use_template_signers = schema.Bool(
+        title=_(u"Use template signers"),
+        description=_(u"If checked, signer rules will be ignored, signers are defined from the mail template. If not checked, default signers are defined from signer rules."),
+        default=False,
     )
 
     omail_signer_rules = schema.List(
