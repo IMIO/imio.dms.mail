@@ -8,6 +8,8 @@ Changelog
   [chris-adam, sgeulette]
 - Added hp usages validators on modification and deletion.
   [chris-adam]
+- Added Signer/Approving icon on personnel listing table.
+  [chris-adam, sgeulette]
 
 3.1.3 (2026-05-08)
 ------------------
