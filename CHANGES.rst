@@ -36,6 +36,8 @@ Changelog
   [chris-adam]
 - Added versions table in edit mode, removed useless columns and made clickable columns not clickable
   [chris-adam, sgeulette]
+- Fixed clean_examples brains.
+  [chris-adam]
 
 3.1.2 (2026-04-24)
 ------------------
