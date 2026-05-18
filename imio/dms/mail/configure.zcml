@@ -274,6 +274,7 @@
             initialize_service_folder
             is_in_user_groups
             is_unprotected
+            is_zope_admin
             kofax_orgs
             list_last_scan
             order_table_list

@@ -49,7 +49,6 @@ from natsort import natsorted
 from operator import attrgetter
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
-from persistent.mapping import PersistentMapping
 from plone import api
 from plone.api.exc import GroupNotFoundError
 from plone.dexterity.utils import addContentToContainer
@@ -879,6 +878,10 @@ class VariousUtilsMethods(UtilsMethods):
         """Test if object is protected"""
         return not IProtectedItem.providedBy(self.context)
 
+    def is_zope_admin(self):
+        """Check if current user is a Zope admin (for template use)."""
+        return check_zope_admin()
+
     def kofax_orgs(self):
         """Return a list of orgs formatted for Kofax"""
         if not self.user_is_admin():
@@ -1435,8 +1438,8 @@ def manage_fields(the_form, config_key, mode):
     )
     if not schema_config:
         return
-    to_input = []
-    to_display = []
+    to_input = set()
+    to_display = set()
 
     # configured_fields = [e["field_name"] for e in schema_config]
     for fields_schema in reversed(schema_config):
@@ -1444,26 +1447,35 @@ def manage_fields(the_form, config_key, mode):
         read_condition = fields_schema.get("read_tal_condition") or ""
         write_condition = fields_schema.get("write_tal_condition") or ""
         if _evaluateExpression(the_form.context, expression=read_condition):
-            to_display.append(field_name)
+            to_display.add(field_name)
         if mode != "view" and _evaluateExpression(the_form.context, expression=write_condition):
-            to_input.append(field_name)
+            to_input.add(field_name)
 
         field = remove(the_form, field_name)
-        if field is not None and field_name in to_display:
+        if field is not None:
+            if mode == "view" and field_name not in to_display:
+                continue
+            if mode != "view" and field_name not in to_input:
+                continue
             if field_name.startswith("email_"):
                 add(the_form, field, index=0, group="email")
             elif field_name.startswith("ISigningBehavior."):
                 add(the_form, field, index=0, group="signing")
             else:
                 add(the_form, field, index=0)
-            if mode != "view" and field_name not in to_input:
-                field.mode = "display"
 
-    # We remove fields not to display (not configured)
+    # We remove fields not configured
     for group in [the_form] + the_form.groups:
         for field_name in group.fields:
-            if field_name not in to_display:
+            if field_name not in to_display.union(to_input):
                 group.fields = group.fields.omit(field_name)
+
+    # Remove signing fieldset if no field inside
+    signing_group = [gr for gr in the_form.groups if gr.__name__ == "signing"]
+    if signing_group:
+        signing_group = signing_group[0]
+        if not signing_group.fields.keys():
+            the_form.groups.remove(signing_group)
 
 
 def message_status(mid, older=None, to_state="inactive", transitions=["deactivate"], container="default"):
@@ -1522,6 +1534,19 @@ def do_next_transition(mail, ptype, treating_group="", state=None, config=None):
         treating_group = mail.treating_groups
     with api.env.adopt_roles(["Reviewer"]):
         api.content.transition(mail, config[state][treating_group][0])
+
+
+def get_post_approval_transition(context):
+    """Return the transition to trigger when all approvals are done.
+
+    When OMToPrintAdaptation is applied (handsigned flow), the mail goes to
+    to_print after approval instead of directly to to_be_signed.
+    """
+    pw = api.portal.get().portal_workflow
+    trs = [tr['id'] for tr in pw.getTransitionsFor(context)]
+    if "set_to_print" in trs:
+        return "set_to_print"
+    return "propose_to_be_signed"
 
 
 def is_valid_identifier(identifier):
@@ -1647,3 +1672,31 @@ def get_allowed_omf_content_types(esign=False):
     for fmt in formats or []:
         res.extend(ct_by_type.get(fmt, ()))
     return res
+
+
+def is_hp_used_in_signer_rules(hp_obj, remaining_usages):
+    """Return True if hp_obj is referenced in omail_signer_rules/substitutes
+    in a way incompatible with remaining_usages.
+    Pass remaining_usages=[] to check all references (e.g. for deletion).
+    Note: omail_signer_rules approvings stores person UIDs (not held_position UIDs).
+    """
+    uid = hp_obj.UID()
+    rk_rules = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+    rk_substitutes = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_substitutes"
+    signer_rules = api.portal.get_registry_record(rk_rules, default=[])
+    signer_substitutes = api.portal.get_registry_record(rk_substitutes, default=[])
+    if "signer" not in remaining_usages:
+        for rule in signer_rules:
+            if rule["signer"] == uid:
+                return True
+        for sub in signer_substitutes:
+            if sub["absent_signer"] == uid or sub["substitute_signer"] == uid:
+                return True
+    if "approving" not in remaining_usages:
+        person = hp_obj.get_person()
+        person_uid = person.UID() if person is not None else None
+        if person_uid:
+            for rule in signer_rules:
+                if person_uid in (rule.get("approvings") or []):
+                    return True
+    return False
