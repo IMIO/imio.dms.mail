@@ -1947,18 +1947,17 @@ class OMApprovalAdapter(object):
             signers.append((signer, email, name, label))
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
-        # Add one file at a time so max_session_size discrimination splits sessions naturally
         pdf_session_ids = set()
-        for pdf_uid in session_file_uids:
-            sid, _session = add_files_to_session(signers, [pdf_uid], bool(self.context.seal),
-                                                 title=_("[ia.docs] Session {sign_id}"),
-                                                 watchers=watcher_emails)
+        sessions_used = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
+                                             title=_("[ia.docs] Session {sign_id}"),
+                                             watchers=watcher_emails)
+        for sid, _session in sessions_used:
             pdf_session_ids.add(sid)
             if sid not in self.annot["session_ids"]:
                 self.annot["session_ids"].append(sid)
         return True, _("${count} file(s) added to session(s) ${session_ids}",
                        mapping={"count": str(len(session_file_uids)),
-                                "session_ids": u", ".join([str(sid) for sid in pdf_session_ids])})
+                                "session_ids": u", ".join([str(sid) for sid in sorted(pdf_session_ids)])})
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
