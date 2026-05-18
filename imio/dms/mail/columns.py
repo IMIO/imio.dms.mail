@@ -514,10 +514,10 @@ class HPColumn(BaseColumn):
             return "-"
         ret = []
         signer_usage = "<span class='signer-icon' title='{}'> </span>".format(
-            _tr("Signer")
+            safe_unicode(escape(_tr("Signer")))
         )
         approving_usage = "<span class='approving-icon' title='{}'> </span>".format(
-            _tr("Approving")
+            safe_unicode(escape(_tr("Approving")))
         )
         for hp in hps:
             org = hp.get_organization()
