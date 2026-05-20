@@ -140,10 +140,18 @@
      name="printable" />
 
   <adapter
+     for="imio.dms.mail.interfaces.IIMDashboard
+          zope.publisher.interfaces.browser.IBrowserRequest
+          collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+     factory=".columns.IMSendModesColumn"
+     provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+     name="send_modes" />
+
+  <adapter
      for="imio.dms.mail.interfaces.IOMDashboard
           zope.publisher.interfaces.browser.IBrowserRequest
           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
-     factory=".columns.SendModesColumn"
+     factory=".columns.OMSendModesColumn"
      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
      name="send_modes" />
 

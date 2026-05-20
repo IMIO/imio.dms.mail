@@ -216,11 +216,18 @@ class OutgoingDateColumn(DateColumn):
     # long_format = True
 
 
-class SendModesColumn(VocabularyColumn):
+class IMSendModesColumn(VocabularyColumn):
     """OM dashboard. xss ok"""
 
     attrName = "Subject"
-    vocabulary = u"imio.dms.mail.OMActiveSendModesVocabulary"
+    vocabulary = u"imio.dms.mail.IMSendModesVocabulary"
+
+
+class OMSendModesColumn(VocabularyColumn):
+    """OM dashboard. xss ok"""
+
+    attrName = "Subject"
+    vocabulary = u"imio.dms.mail.OMSendModesVocabulary"
 
 
 class ReviewStateColumn(I18nColumn):

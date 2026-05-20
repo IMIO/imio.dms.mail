@@ -6,7 +6,6 @@ from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
-from imio.dms.mail.browser.widgets import ExpandableDataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localroles.utils import add_fti_configuration
 from imio.dms.mail import _
@@ -16,6 +15,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
+from imio.dms.mail.browser.widgets import ExpandableDataGridFieldFactory
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
@@ -497,11 +497,11 @@ class IImioDmsMailConfig(model.Schema):
         label=_(u"Incoming mail"),
         fields=[
             "mail_types",
+            "imail_send_modes",
             "assigned_user_check",
             "original_mail_date_required",
             "due_date_extension",
             "imail_remark_states",
-            "imail_send_modes",
             "imail_fields",
             "imail_group_encoder",
         ],
@@ -626,6 +626,7 @@ class IImioDmsMailConfig(model.Schema):
         label=_(u"Outgoing mail"),
         fields=[
             "omail_types",
+            "omail_send_modes",
             "omail_remark_states",
             "omail_response_prefix",
             "omail_formats_mainfile",
@@ -633,10 +634,9 @@ class IImioDmsMailConfig(model.Schema):
             "omail_sender_firstname_sorting",
             "org_templates_encoder_can_edit",
             "omail_fullname_used_form",
-            "omail_send_modes",
             "omail_post_mailing",
-            "omail_signer_rules",
             "omail_signer_substitutes",
+            "omail_signer_rules",
             "omail_fields",
             "omail_group_encoder",
         ],
@@ -650,6 +650,16 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     widget("omail_types", DataGridFieldFactory)
+
+    omail_send_modes = schema.List(
+        title=_(u"Send modes"),
+        description=_(
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
+        ),
+        value_type=DictRow(title=_("Send modes"), schema=ITableListSchema),
+    )
+
+    widget("omail_send_modes", DataGridFieldFactory, allow_reorder=True)
 
     omail_remark_states = schema.List(
         title=_(u"States for which to display remark icon"),
@@ -690,34 +700,10 @@ class IImioDmsMailConfig(model.Schema):
         default="firstname",
     )
 
-    omail_send_modes = schema.List(
-        title=_(u"Send modes"),
-        description=_(
-            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
-        ),
-        value_type=DictRow(title=_("Send modes"), schema=ITableListSchema),
-    )
-
-    widget("omail_send_modes", DataGridFieldFactory, allow_reorder=True)
-
     omail_post_mailing = schema.Bool(
         title=_(u"Post mailing"),
         description=_(u"Do mailing for each postal sending type."),
         default=True,
-    )
-
-    omail_signer_rules = schema.List(
-        title=_(u"${type} signers rules", mapping={"type": _("Outgoing mail")}),
-        description=_(u"Rules are read in order. Conditions must be left empty if not relevant."),
-        value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
-        required=False,
-        default=[],
-    )
-    widget(
-        "omail_signer_rules",
-        ExpandableDataGridFieldFactory,
-        allow_reorder=True,
-        auto_append=False,
     )
 
     omail_signer_substitutes = schema.List(
@@ -732,6 +718,20 @@ class IImioDmsMailConfig(model.Schema):
     widget(
         "omail_signer_substitutes",
         DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=False,
+    )
+
+    omail_signer_rules = schema.List(
+        title=_(u"${type} signers rules", mapping={"type": _("Outgoing mail")}),
+        description=_(u"Rules are read in order. Conditions must be left empty if not relevant."),
+        value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
+        required=False,
+        default=[],
+    )
+    widget(
+        "omail_signer_rules",
+        ExpandableDataGridFieldFactory,
         allow_reorder=True,
         auto_append=False,
     )
@@ -1137,7 +1137,6 @@ class IImioDmsMailConfig(model.Schema):
                     "recipient_groups",
                     "reception_date",
                     "mail_type",
-                    "send_modes",
                     "reply_to",
                     "internal_reference_no",
                 ],

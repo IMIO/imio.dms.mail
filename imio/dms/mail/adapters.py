@@ -783,7 +783,7 @@ def task_state_group_index(obj):
     return state_group_index(obj)
 
 
-@indexer(IImioDmsOutgoingMail)
+@indexer(IDmsDocument)
 def send_modes_index(obj):
     """Indexer of 'Subject' for IImioDmsOutgoingMail. Stores send_modes !"""
     # No acquisition pb

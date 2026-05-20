@@ -291,7 +291,7 @@ class ImioDmsIncomingMail(DmsIncomingMail):
 
     treating_groups = FieldProperty(IImioDmsIncomingMail[u"treating_groups"])
     recipient_groups = FieldProperty(IImioDmsIncomingMail[u"recipient_groups"])
-    send_modes = FieldProperty(IImioDmsIncomingMail[u"send_modes"])
+    # send_modes = FieldProperty(IImioDmsIncomingMail[u"send_modes"])
 
     @ram.cache(object_modified_cachekey)
     def IM_get_back_or_again_icon(self):
