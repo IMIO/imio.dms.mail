@@ -943,7 +943,7 @@ class VariousUtilsMethods(UtilsMethods):
         """Order table list in settings"""
         if not self.user_is_admin():
             return
-        config = {"te": "mail_types", "ts": "omail_types", "fe": "omail_send_modes"}
+        config = {"te": "mail_types", "ts": "omail_types", "fee": "imail_send_modes", "fes": "omail_send_modes"}
         if table not in config:
             api.portal.show_message("Bad config name. Must be one of {}".format(", ".join(config.keys())), self.request)
             raise Redirect(self.context.absolute_url())
