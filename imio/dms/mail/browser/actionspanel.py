@@ -350,6 +350,7 @@ class DmsFileActionsPanelView(ActionsPanelView):
             "mailing",
             "documentviewer_convert",
             "download",
+            "add_to_custom_esign_session",
             "view_element",
             "delete",
         ]

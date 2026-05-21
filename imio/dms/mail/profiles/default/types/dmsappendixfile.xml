@@ -16,4 +16,10 @@
     url_expr="string:${object/absolute_url}/view" visible="True">
   <permission value="Manage portal"/>
  </action>
+ <action title="Add to custom esign session" action_id="add_to_custom_esign_session"
+    category="object_buttons" condition_expr="object/@@add-to-custom-esign-session/available"
+    description="" icon_expr="string:${portal_url}/++resource++imio.esign/add_to_esign_session.png"
+    link_target="" url_expr="string:${object/absolute_url}/@@add-to-custom-esign-session" visible="True">
+  <permission value="Manage portal"/>
+ </action>
 </object>
