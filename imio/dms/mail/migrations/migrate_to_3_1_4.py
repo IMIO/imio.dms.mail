@@ -22,8 +22,9 @@ class Migrate_To_3_1_4(Migrate_To_3_1):  # noqa
                     {"value": u"post_registered", "dtitle": u"Courrier recommandé", "active": True},
                     {"value": u"email", "dtitle": u"Email", "active": True},
                 ])
+            self.clean_catalog()
 
-        if self.is_in_part("g"):  # final steps
+        if self.is_in_part("t"):  # final steps
             # finished = True  # can be eventually returned and set by batched method
             if self.old_version != self.new_version:
                 self.run_finalization()
