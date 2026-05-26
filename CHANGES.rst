@@ -11,7 +11,9 @@ Changelog
 - Added Signer/Approving icon on personnel listing table.
   [chris-adam, sgeulette]
 - Added send_modes field on incoming (e)mails.
-  [chris-adam]
+  [chris-adam, sgeulette]
+- Improved download barcode (type, size).
+  [sgeulette, chris-adam]
 
 3.1.3 (2026-05-08)
 ------------------
