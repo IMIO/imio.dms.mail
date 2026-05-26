@@ -336,6 +336,12 @@
         />
 
     <subscriber
+        for=".interfaces.IPersonnelContact
+             OFS.interfaces.IObjectWillBeRemovedEvent"
+        handler=".subscribers.personnel_contact_will_be_removed"
+        />
+
+    <subscriber
         for="collective.ckeditortemplates.cktemplate.ICKTemplate
              zope.lifecycleevent.interfaces.IObjectMovedEvent"
         handler=".subscribers.cktemplate_moved"

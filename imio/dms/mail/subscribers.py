@@ -49,6 +49,7 @@ from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import invalidate_users_groups
+from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import update_approvers_settings
 from imio.dms.mail.utils import update_transitions_auc_config
@@ -1457,6 +1458,24 @@ def personnel_contact_removed(del_obj, event):
             storage.addBreach(brain._unrestrictedGetObject(), del_obj)
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
+
+
+def personnel_contact_will_be_removed(del_obj, event):
+    """
+    Check if a personnel held_position is used in omail_signer_rules or omail_signer_substitutes.
+    """
+    if del_obj.portal_type == "person":
+        return
+    try:
+        portal = api.portal.get()
+        pp = portal.portal_properties
+    except api.portal.CannotGetPortalError:
+        # When deleting site, the portal is no more found...
+        return
+    if pp.site_properties.enable_link_integrity_checks:
+        if is_hp_used_in_signer_rules(del_obj, []):
+            storage = ILinkIntegrityInfo(aq_get(del_obj, "REQUEST", None))
+            storage.addBreach(portal["outgoing-mail"], del_obj)
 
 
 def cktemplate_moved(obj, event):

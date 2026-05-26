@@ -12,6 +12,7 @@ from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.dmsmail import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import get_allowed_omf_content_types
+from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.content import find
 from imio.helpers.content import uuidToObject
@@ -380,6 +381,24 @@ class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
 
 
 validator.WidgetValidatorDiscriminators(PlonegroupUserLinkUseridValidator, field=IPlonegroupUserLink['userid'])
+
+
+class UsagesSignerRulesValidator(validator.SimpleFieldValidator):
+    """Raise Invalid when removing a signer/approving usage that is still
+    referenced in omail_signer_rules or omail_signer_substitutes."""
+
+    def validate(self, value, force=False):
+        super(UsagesSignerRulesValidator, self).validate(value, force=force)
+        if not IPersonnelContact.providedBy(self.context):
+            return
+        if is_hp_used_in_signer_rules(self.context, value or []):
+            raise Invalid(_(
+                u"This position is still referenced in the outgoing mail signer configuration. "
+                u"Please update the rules and substitutes before removing this usage."
+            ))
+
+
+validator.WidgetValidatorDiscriminators(UsagesSignerRulesValidator, field=IUsagesBehavior['usages'])
 
 
 @provider(IFormFieldProvider)

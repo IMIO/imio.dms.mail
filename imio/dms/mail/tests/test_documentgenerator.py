@@ -192,15 +192,15 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(ctx["send_mode"], None)
 
         # Test display_send_modes
-        self.assertEqual(view1.display_send_modes(), u'Lettre, Lettre recommand\xe9e')
-        self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Lettre')
+        self.assertEqual(view1.display_send_modes(), u'Courrier, Courrier recommand\xe9')
+        self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Courrier')
         self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'')
-        self.assertEqual(view1.display_send_modes(separator=' & '), u'Lettre & Lettre recommand\xe9e')
+        self.assertEqual(view1.display_send_modes(separator=' & '), u'Courrier & Courrier recommand\xe9')
         view1.real_context.send_modes = [u"post", u"post_registered", u"email"]
-        self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Lettre, Email')
-        self.assertEqual(view1.display_send_modes(filter_on=u'post_registered'), u'Lettre recommand\xe9e, Email')
+        self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Courrier, Email')
+        self.assertEqual(view1.display_send_modes(filter_on=u'post_registered'), u'Courrier recommand\xe9, Email')
         self.assertEqual(view1.display_send_modes(filter_on=[u'post', u'post_registered']),
-                         u'Lettre, Lettre recommand\xe9e, Email')
+                         u'Courrier, Courrier recommand\xe9, Email')
         self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'Email')
 
         # Test get_signers

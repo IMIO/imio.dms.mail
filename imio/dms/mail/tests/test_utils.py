@@ -24,6 +24,7 @@ from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import invalidate_users_groups
+from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import set_dms_config
@@ -1069,3 +1070,68 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         for key in ("COLLECTIVE_SOLR_HOST", "COLLECTIVE_SOLR_PORT", "COLLECTIVE_SOLR_HTTPS_CONNECTION",
                     "COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK"):
             del os.environ[key]
+
+    def test_is_hp_used_in_signer_rules(self):
+        pf = self.contacts["personnel-folder"]
+        bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
+        dirg_hp = pf["dirg"]["directeur-general"]
+        rk_rules = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+        rk_subs = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_substitutes"
+        base_rule = {
+            "number": 1,
+            "signer": bourgmestre_hp.UID(),
+            "esign": True,
+            "approvings": [u"_empty_"],
+            "editor": False,
+            "treating_groups": [],
+            "mail_types": [],
+            "send_modes": [],
+            "tal_condition": None,
+        }
+
+        # No rules, no substitutes: not referenced
+        api.portal.set_registry_record(rk_rules, [])
+        api.portal.set_registry_record(rk_subs, [])
+        self.assertFalse(is_hp_used_in_signer_rules(bourgmestre_hp, []))
+
+        # Signer in rules, remaining_usages=[]: referenced
+        api.portal.set_registry_record(rk_rules, [base_rule])
+        self.assertTrue(is_hp_used_in_signer_rules(bourgmestre_hp, []))
+        self.assertTrue(is_hp_used_in_signer_rules(bourgmestre_hp, ["approving"]))
+
+        # Signer in rules, remaining_usages=["signer"]: not a conflict
+        self.assertFalse(is_hp_used_in_signer_rules(bourgmestre_hp, ["signer"]))
+
+        # Signer in substitutes as absent_signer or substitute_signer: referenced
+        api.portal.set_registry_record(rk_rules, [])
+        api.portal.set_registry_record(
+            rk_subs,
+            [
+                {
+                    "absent_signer": bourgmestre_hp.UID(),
+                    "substitute_signer": dirg_hp.UID(),
+                    "valid_from": None,
+                    "valid_until": None,
+                }
+            ],
+        )
+        self.assertTrue(is_hp_used_in_signer_rules(bourgmestre_hp, []))
+        self.assertTrue(is_hp_used_in_signer_rules(dirg_hp, []))
+        self.assertTrue(is_hp_used_in_signer_rules(bourgmestre_hp, ["approving"]))
+        self.assertTrue(is_hp_used_in_signer_rules(dirg_hp, ["approving"]))
+
+        # Approver in rules (approvings stores person UIDs), remaining_usages=[]: referenced
+        api.portal.set_registry_record(rk_subs, [])
+        bourgmestre_person = pf["bourgmestre"]
+        bourgmestre_hp.usages = ["approving"]
+        bourgmestre_hp.reindexObject(idxs=["usages"])
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+        approving_rule = dict(base_rule)
+        approving_rule["signer"] = dirg_hp.UID()
+        approving_rule["approvings"] = [bourgmestre_person.UID()]
+        api.portal.set_registry_record(rk_rules, [approving_rule])
+        self.assertTrue(is_hp_used_in_signer_rules(bourgmestre_hp, []))
+        self.assertTrue(is_hp_used_in_signer_rules(bourgmestre_hp, ["signer"]))
+
+        # Approver in rules, remaining_usages=["approving"]: not a conflict
+        self.assertFalse(is_hp_used_in_signer_rules(bourgmestre_hp, ["approving"]))

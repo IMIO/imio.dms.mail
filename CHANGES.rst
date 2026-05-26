@@ -4,6 +4,14 @@ Changelog
 3.1.4 (unreleased)
 ------------------
 
+- Added "rename_title" action on dms files.
+  [chris-adam, sgeulette]
+- Added hp usages validators on modification and deletion.
+  [chris-adam]
+- Added Signer/Approving icon on personnel listing table.
+  [chris-adam, sgeulette]
+- Added send_modes field on incoming (e)mails.
+  [chris-adam, sgeulette]
 - Improved download barcode (type, size).
   [sgeulette, chris-adam]
 

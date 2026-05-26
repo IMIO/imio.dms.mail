@@ -36,6 +36,15 @@
         />
 
     <browser:page
+        name="object_rename_title"
+        for="*"
+        class=".views.ObjectRenameTitleView"
+        permission="cmf.ModifyPortalContent"
+        template="templates/object_rename_title.pt"
+        />
+
+
+    <browser:page
         for="*"
         name="server_sent_events"
         class=".views.ServerSentEvents"

@@ -216,11 +216,18 @@ class OutgoingDateColumn(DateColumn):
     # long_format = True
 
 
-class SendModesColumn(VocabularyColumn):
+class IMSendModesColumn(VocabularyColumn):
     """OM dashboard. xss ok"""
 
     attrName = "Subject"
-    vocabulary = u"imio.dms.mail.OMActiveSendModesVocabulary"
+    vocabulary = u"imio.dms.mail.IMSendModesVocabulary"
+
+
+class OMSendModesColumn(VocabularyColumn):
+    """OM dashboard. xss ok"""
+
+    attrName = "Subject"
+    vocabulary = u"imio.dms.mail.OMSendModesVocabulary"
 
 
 class ReviewStateColumn(I18nColumn):
@@ -513,6 +520,12 @@ class HPColumn(BaseColumn):
         if not hps:
             return "-"
         ret = []
+        signer_usage = "<span class='signer-icon' title='{}'> </span>".format(
+            safe_unicode(escape(_tr("Signer")))
+        )
+        approving_usage = "<span class='approving-icon' title='{}'> </span>".format(
+            safe_unicode(escape(_tr("Approving")))
+        )
         for hp in hps:
             org = hp.get_organization()
             is_plonegroup = IPloneGroupContact.providedBy(org) and 1 or 0
@@ -525,11 +538,13 @@ class HPColumn(BaseColumn):
             else:
                 ret.append(
                     u"<li class='plonegroup_{}'><a href='{}' target='_blank' class='pretty_link link-tooltip'>"
-                    u"<span class='pretty_link_content state-{}'>{}</span></a></li>".format(
+                    u"<span class='pretty_link_content state-{}'>{}</span></a>{}{}</li>".format(
                         is_plonegroup,
                         hp.absolute_url(),
                         api.content.get_state(obj=hp),
                         safe_unicode(escape(org.get_full_title(first_index=is_plonegroup))),
+                        signer_usage if "signer" in hp.usages else "",
+                        approving_usage if "approving" in hp.usages else "",
                     )
                 )
         if ret:
