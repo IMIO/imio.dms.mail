@@ -4,9 +4,8 @@ Changelog
 3.1.4 (unreleased)
 ------------------
 
-- Optimized download barcode size.
-  [chris-adam]
-
+- Improved download barcode (type, size).
+  [sgeulette, chris-adam]
 
 3.1.3 (2026-05-08)
 ------------------
