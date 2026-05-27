@@ -278,6 +278,16 @@
         />
 
     <adapter
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+        factory="imio.dms.mail.adapters.IMItemOrderProvider"
+        provides="imio.esign.interfaces.IItemOrderProvider"/>
+
+    <adapter
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        factory="imio.dms.mail.adapters.OMItemOrderProvider"
+        provides="imio.esign.interfaces.IItemOrderProvider"/>
+
+    <adapter
         for="collective.dms.basecontent.dmsfile.IDmsFile"
         provides="collective.iconifiedcategory.interfaces.IIconifiedInfos"
         factory="imio.dms.mail.adapters.DmsCategorizedObjectInfoAdapter"
