@@ -568,3 +568,55 @@ class PersonnelActionsColumn(DGActionsColumn):
         "edit_action_target": "_blank",
     }
     cssClasses = {"td": "actions-column"}
+
+
+class PersonnelUseridFacetedColumn(BaseColumn):
+    """Personnel dashboard. xss ok"""
+
+    the_object = True
+    escape = False
+    header = _cez("header_userid")
+    weight = 15
+    cssClasses = {"td": "userid-column"}
+
+    def renderCell(self, item):
+        obj = self._getObject(item)
+        if obj.userid:
+            purl = api.portal.get_tool("portal_url")()
+            return u'<a href="{}/@@usergroup-usermembership?userid={}" target="_blank">{}</a>'.format(
+                purl, safe_unicode(escape(obj.userid)), safe_unicode(escape(obj.userid))
+            )
+        return u"-"
+
+
+class PersonnelPrimaryOrgFacetedColumn(PrimaryOrganizationColumn):
+    """Personnel dashboard. xss ok"""
+
+    the_object = True
+
+
+class PersonnelHPFacetedColumn(HPColumn):
+    """Personnel dashboard. xss ok"""
+
+    the_object = True
+    escape = False
+
+    def renderCell(self, item):
+        return super(PersonnelHPFacetedColumn, self).renderCell(self._getObject(item))
+
+
+class PersonnelActionsFacetedColumn(ActionsColumn):
+    """Personnel dashboard. xss ok"""
+
+    weight = 70
+    params = {
+        "useIcons": True,
+        "showHistory": False,
+        "showActions": False,
+        "showOwnDelete": False,
+        "showArrows": False,
+        "showTransitions": False,
+        "edit_action_class": "dg_edit_action",
+        "edit_action_target": "_blank",
+    }
+    cssClasses = {"td": "actions-column"}

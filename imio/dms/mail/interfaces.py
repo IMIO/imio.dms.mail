@@ -100,6 +100,16 @@ class IContactListsDashboardBatchActions(IContactListsDashboard, IBatchActionsMa
     """Marker interface for contact lists dashboard with batch actions."""
 
 
+class IPersonnelDashboard(IContactsDashboard):
+
+    """Marker interface for personnel dashboard."""
+
+
+class IPersonnelDashboardBatchActions(IPersonnelDashboard, IBatchActionsMarker):
+
+    """Marker interface for personnel dashboard with batch actions."""
+
+
 class IClassificationFoldersDashboard(IDocsDashboard):
 
     """Marker interface for folders dashboard."""

@@ -398,6 +398,43 @@
       factory=".columns.PersonnelActionsColumn"
       />
 
+  <!-- personnel dashboard columns -->
+  <adapter
+      for="imio.dms.mail.interfaces.IPersonnelDashboard
+           zope.publisher.interfaces.browser.IBrowserRequest
+           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+      factory=".columns.PersonnelUseridFacetedColumn"
+      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+      name="userid"
+  />
+
+  <adapter
+      for="imio.dms.mail.interfaces.IPersonnelDashboard
+           zope.publisher.interfaces.browser.IBrowserRequest
+           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+      factory=".columns.PersonnelPrimaryOrgFacetedColumn"
+      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+      name="primary_organization"
+  />
+
+  <adapter
+      for="imio.dms.mail.interfaces.IPersonnelDashboard
+           zope.publisher.interfaces.browser.IBrowserRequest
+           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+      factory=".columns.PersonnelHPFacetedColumn"
+      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+      name="hps"
+  />
+
+  <adapter
+      for="imio.dms.mail.interfaces.IPersonnelDashboard
+           zope.publisher.interfaces.browser.IBrowserRequest
+           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+      factory=".columns.PersonnelActionsFacetedColumn"
+      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+      name="actions"
+  />
+
   <!-- collective.classification columns -->
 
   <adapter

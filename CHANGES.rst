@@ -14,6 +14,8 @@ Changelog
   [chris-adam, sgeulette]
 - Improved download barcode (type, size).
   [sgeulette, chris-adam]
+- Converted personnel-folder from z3c.table listing to faceted dashboard.
+  [chris-adam]
 
 3.1.3 (2026-05-08)
 ------------------

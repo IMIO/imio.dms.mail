@@ -11,6 +11,7 @@ from imio.dms.mail.browser.table import IMVersionsTable
 from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.dms.mail.interfaces import IPersonnelDashboard
 from imio.esign.browser.views import FacetedSessionInfoViewlet
 from imio.esign.browser.views import ItemSessionInfoViewlet
 from imio.helpers.content import richtextval
@@ -174,6 +175,11 @@ class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
         if "in_esign_sessions" not in om_searches_folder:
             return None
         return om_searches_folder["in_esign_sessions"].UID()
+
+    def render(self):
+        if IPersonnelDashboard.providedBy(self.context):
+            return u""
+        return super(ImioFacetedSessionInfoViewlet, self).render()
 
 
 class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):

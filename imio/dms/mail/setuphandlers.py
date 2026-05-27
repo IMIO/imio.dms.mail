@@ -18,6 +18,7 @@ from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
+from eea.facetednavigation.interfaces import IHidePloneLeftColumn
 from collective.eeafaceted.dashboard.utils import enableFacetedDashboardFor
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.quickupload.browser.quickupload_settings import IQuickUploadControlPanel
@@ -40,6 +41,7 @@ from imio.dms.mail.interfaces import IOMCKTemplatesFolder
 from imio.dms.mail.interfaces import IOMDashboardBatchActions
 from imio.dms.mail.interfaces import IOMTemplatesFolder
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
+from imio.dms.mail.interfaces import IPersonnelDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import IProtectedItem
@@ -396,7 +398,6 @@ def postInstall(context):
         alsoProvides(pf, IProtectedItem)
         alsoProvides(pf, IPersonnelFolder)
         alsoProvides(pf, IActionsPanelFolder)
-        pf.layout = "personnel-listing"
         blacklistPortletCategory(pf)
         api.content.transition(obj=pf, transition="show_internally")
         pf.manage_permission(
@@ -407,8 +408,19 @@ def postInstall(context):
         pf.manage_permission(
             "collective.contact.plonegroup: Write user link fields", ("Manager", "Site Administrator"), acquire=0
         )
+        # add personnel searches dashboard (before type constraints)
+        col_folder = add_db_col_folder(pf, "personnel-searches", _("Personnel searches"), _("Personnel"))
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IPersonnelDashboardBatchActions)
+        alsoProvides(col_folder, IHidePloneLeftColumn)
+        blacklistPortletCategory(col_folder)
+        createPersonnelCollections(col_folder)
+        configure_faceted_folder(
+            col_folder, xml="personnel-searches.xml", default_UID=col_folder["all_personnel"].UID()
+        )
+        pf.setDefaultPage("personnel-searches")
         pf.setConstrainTypesMode(1)
-        pf.setLocallyAllowedTypes(["person"])
+        pf.setLocallyAllowedTypes(["person", "Folder"])
         pf.setImmediatelyAddableTypes(["person"])
         # add contact list folder
         contacts.invokeFactory("Folder", "contact-lists-folder", title=u"Listes de contact")
@@ -1754,6 +1766,25 @@ def createPersonsCollections(folder):
             "cond": u"",
             "bypass": [],
             "flds": (u"select_row", u"pretty_link", u"review_state", u"CreationDate", u"actions"),
+            "sort": u"sortable_title",
+            "rev": False,
+            "count": False,
+        },
+    ]
+    createDashboardCollections(folder, collections)
+
+
+def createPersonnelCollections(folder):
+    """create dashboard collections for personnel listing"""
+    collections = [
+        {
+            "id": "all_personnel",
+            "tit": _("all_personnel"),
+            "subj": (u"search",),
+            "query": [{"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["person"]}],
+            "cond": u"",
+            "bypass": [],
+            "flds": (u"select_row", u"pretty_link", u"userid", u"primary_organization", u"hps", u"actions"),
             "sort": u"sortable_title",
             "rev": False,
             "count": False,

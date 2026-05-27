@@ -477,6 +477,12 @@
         class=".batchactions.DuplicatedBatchActionForm"
         permission="zope2.View" />
 
+    <browser:page
+        for="imio.dms.mail.interfaces.IPersonnelDashboardBatchActions"
+        name="duplicated-batch-action"
+        class=".batchactions.DuplicatedBatchActionForm"
+        permission="zope2.View" />
+
     <!-- BATCH ACTIONS IM MAILS -->
     <browser:page
         for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
