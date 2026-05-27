@@ -93,6 +93,8 @@ Changelog
   [chris-adam, sgeulette]
 - Improved download barcode (type, size).
   [sgeulette, chris-adam]
+- Improved file ordering in eSign session.
+  [chris-adam]
 
 3.1.3 (2026-05-08)
 ------------------

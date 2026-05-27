@@ -37,6 +37,7 @@ from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
+from imio.esign.interfaces import IItemOrderProvider
 from imio.esign.utils import get_session_annotation
 from imio.helpers.test_helpers import ImioTestHelpers
 from imio.helpers.tests.test_pdf import _pdf_page_count
@@ -45,6 +46,7 @@ from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
 from z3c.relationfield.relation import RelationValue
+from zope.component import getAdapter
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import Attributes
@@ -1722,3 +1724,43 @@ class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.approval.roles, {})
         self.pw.doActionFor(self.request, "propose_to_approve")
         self.assertEqual(self.approval.roles, {"dirg": ("Reader", "Reviewer", "Editor")})
+
+
+class TestOMItemOrderProvider(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+
+    def test_get_item_order(self):
+        """OMItemOrderProvider returns dmsommainfile recent-first, then dmsappendixfile recent-first."""
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-order")
+
+        filename = u"Réponse salle.odt"
+        created = []
+        for i, ptype in enumerate(["dmsommainfile", "dmsappendixfile", "dmsommainfile", "dmsappendixfile"]):
+            with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+                obj = createContentInContainer(
+                    omail,
+                    ptype,
+                    id="order-file%s" % i,
+                    scan_id="012999900000601",
+                    file=NamedBlobFile(fo.read(), filename=filename),
+                    content_category=calculate_category_id(ct),
+                )
+                created.append(obj)
+
+        # created: [main0, appendix1, main2, appendix3]
+        main0, appendix1, main2, appendix3 = created
+        provider = getAdapter(omail, IItemOrderProvider)
+        order = provider.get_item_order()
+
+        # mainfiles: reversed → main2 before main0
+        self.assertLess(order[main2.UID()], order[main0.UID()])
+        # appendixfiles: reversed → appendix3 before appendix1
+        self.assertLess(order[appendix3.UID()], order[appendix1.UID()])
+        # all mainfiles before all appendixfiles
+        self.assertLess(order[main0.UID()], order[appendix3.UID()])
