@@ -272,39 +272,40 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 
 /* edit mode of OMdmsmail */
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
-body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"] {
+#formfield-form-widgets-ISigningBehavior-signers {
+    max-width: 50em;
+}
+
+#formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"] {
     border: 1px solid #ddd;
     padding: 4px;
     display: block;
     background: #d3d3d3;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4,
-body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
-body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 {
+#formfield-form-widgets-ISigningBehavior-signers .cell-1,
+#formfield-form-widgets-ISigningBehavior-signers .cell-4 {
     width: 1%;
     white-space: nowrap;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2 {
+#formfield-form-widgets-ISigningBehavior-signers .cell-2 {
     width: 55%;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2 select {
+#formfield-form-widgets-ISigningBehavior-signers .cell-2 select {
     width: 100%;
     white-space: normal;
     word-wrap: break-word;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3 {
+#formfield-form-widgets-ISigningBehavior-signers .cell-3 {
     word-wrap: break-word;
     white-space: normal;
     width: 39%;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label {
+#formfield-form-widgets-ISigningBehavior-signers .cell-4 label {
     display: none;
 }
 
