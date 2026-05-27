@@ -57,6 +57,7 @@ from imio.pyutils.utils import safe_encode
 from plone import api
 from plone.app.controlpanel.markup import MarkupControlPanelAdapter
 from plone.dexterity.interfaces import IDexterityFTI
+from plone.namedfile.file import NamedBlobImage
 from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.ActionInformation import Action
@@ -642,6 +643,42 @@ def setup_iconified_categories(portal):
         alsoProvides(outgoing_appendix_files_category_group, IProtectedItem)
     else:
         outgoing_appendix_files_category_group = ccc["outgoing_appendix_files"]
+
+    # Create ContentCategory objects inside each category group
+    images_dir = pkg_resources.resource_filename('imio.dms.mail', 'profiles/examples/images')
+
+    def _create_category(group, oid, title, img, **kwargs):
+        if oid not in group:
+            icon_path = os.path.join(images_dir, img)
+            with open(icon_path, "rb") as fl:
+                icon = NamedBlobImage(fl.read(), filename=img)
+            cat = api.content.create(
+                type="ContentCategory",
+                title=title,
+                description=u"",
+                container=group,
+                icon=icon,
+                id=oid,
+                predefined_title=title,
+                **kwargs
+            )
+            alsoProvides(cat, IProtectedItem)
+
+    # Content Categories for incoming mails
+    _create_category(incoming_dms_files_category_group, "incoming-dms-file", _("Incoming DMS File"),
+                     u"file-alt-regular.png")
+    _create_category(incoming_appendix_files_category_group, "incoming-appendix-file", _("Incoming Appendix File"),
+                     u"attach.png")
+
+    # Content Categories for outgoing mails
+    _create_category(outgoing_dms_files_category_group, "outgoing-dms-file", _("Outgoing DMS File"),
+                     u"file-alt-regular.png", to_sign=True, to_approve=True)
+    _create_category(outgoing_dms_files_category_group, "outgoing-scanned-dms-file",
+                     _("Outgoing Scanned DMS File"), u"file-alt-regular.png", to_sign=True, to_approve=False)
+    _create_category(outgoing_appendix_files_category_group, "outgoing-appendix-file",
+                     _("Outgoing Appendix File"), u"attach.png", to_sign=False, to_approve=False)
+    _create_category(outgoing_appendix_files_category_group, "outgoing-signable-appendix-file",
+                     _("Outgoing Signable Appendix File"), u"attach-esign.png", to_sign=True, to_approve=True)
 
 
 def createStateCollections(folder, content_type):
