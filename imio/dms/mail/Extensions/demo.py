@@ -10,6 +10,7 @@ from collective.dms.batchimport.utils import createDocument
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import mailDateDefaultValue
+from collective.documentgenerator.utils import need_mailing_value
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import add_path
@@ -21,6 +22,7 @@ from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
 from imio.esign.utils import persistent_to_native
 from imio.helpers.content import find
+from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
 from imio.helpers.transmogrifier import get_correct_id
 from imio.helpers.workflow import do_transitions
@@ -608,13 +610,15 @@ def approval_annot(self):
     return pprint.pformat(dic)
 
 
-def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1"):
+def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", approve="0"):
     """Create outgoing mail examples for electronic signing demo.
 
     :param userid: the user id of the signer (must have a held_position with 'signer' usage)
     :param cases: the cases to create
     :param mnb: number of mails to create
     :param fnb: number of files to create
+    :param approve: if "1", run propose_to_approve and approve files for each signer (esign mails only,
+                    skipped for publipostage where files are not in approval)
     """
     if not check_role(self):
         return "You must be a manager to run this script"
@@ -625,6 +629,7 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1"):
                 "-> cases : create only specified cases\n"
                 "-> mnb : number of mails to create\n"
                 "-> fnb : number of files to create\n"
+                "-> approve : if '1', approve esign mails (propose_to_approve + approvings)\n"
                 "Example: import_sign_examples?userid={}&cases=136\n\n"
                 "Cases:\n"
                 "-> 1 : signataire avec modèle\n"
@@ -644,6 +649,7 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1"):
     intids = getUtility(IIntIds)
     mnb = int(mnb)
     fnb = int(fnb)
+    do_approve = approve == "1"
 
     # Find the signer's held_position (must have "signer" usage)
     if userid not in pf:
@@ -696,6 +702,36 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1"):
                 portal["annexes_types"]["outgoing_appendix_files"]["outgoing-signable-appendix-file"]
             ),
         )
+
+    def _trigger_mailing_loop(mail):
+        """Run mailing-loop generation on each dmsommainfile that needs mailing (publipostage)."""
+        view = mail.restrictedTraverse("mailing-loop-persistent-document-generation")
+        view.redirects = lambda persisted_doc: None
+        for f in list(mail.values()):
+            if f.portal_type != "dmsommainfile":
+                continue
+            if not need_mailing_value(document=f):
+                continue
+            view(document_uid=f.UID())
+
+    def _approve_mail(mail):
+        """Propose to approve then approve all files for each signer level."""
+        if not mail.esign:
+            return
+        approval = IOMApproval(mail)
+        if not approval.files_uids:
+            return
+        api.content.transition(obj=mail, transition="propose_to_approve")
+        for nb in range(len(approval.annot["signers"])):
+            approvers = list(approval.annot["approvers"][nb])
+            if not approvers:
+                continue
+            approver_userid = approvers[0]
+            for f_uid in list(approval.files_uids):
+                f_obj = uuidToObject(f_uid, unrestricted=True)
+                if f_obj is None:
+                    continue
+                approval.approve_file(f_obj, approver_userid, transition=True)
 
     data = DummyView(portal, portal.REQUEST)
     ofld = portal["outgoing-mail"]
@@ -755,6 +791,9 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1"):
             mail = container[oid]
             for _f in range(fnb):
                 _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
+            if do_approve:
+                _trigger_mailing_loop(mail)
+                _approve_mail(mail)
 
     # Case 5: signataire + seal + modèle
     params = dict(base_params)
@@ -775,6 +814,8 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1"):
             mail = container[oid]
             for _f in range(fnb):
                 _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
+            if do_approve:
+                _approve_mail(mail)
 
     # Case 4: seal seul (pas de signataire, pas d'esign) + modèle
     params = dict(base_params)
@@ -816,6 +857,8 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1"):
                 _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
             for _f in range(fnb):
                 _om_add_signable_annex(mail, portal, annex_filename, _f + 1 if fnb > 1 else u"")
+            if do_approve:
+                _approve_mail(mail)
 
     # Case 2: signataire + annexe seule
     params = dict(base_params)
@@ -835,6 +878,8 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1"):
             mail = container[oid]
             for _f in range(fnb):
                 _om_add_signable_annex(mail, portal, annex_filename, _f + 1 if fnb > 1 else u"")
+            if do_approve:
+                _approve_mail(mail)
 
     # Case 1: signataire + modèle
     params = dict(base_params)
@@ -854,5 +899,7 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1"):
             mail = container[oid]
             for _f in range(fnb):
                 _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
+            if do_approve:
+                _approve_mail(mail)
 
     return portal.REQUEST.response.redirect(ofld.absolute_url())
