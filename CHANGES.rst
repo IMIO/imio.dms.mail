@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.1.4 (unreleased)
+3.1.4 (2026-05-29)
 ------------------
 
 - Added "rename_title" action on dms files.
