@@ -407,7 +407,6 @@ class Migrate_To_3_1(Migrator):  # noqa
         pc = self.portal.portal_catalog
         _c = pc._catalog
         cleaned = 0
-        import ipdb; ipdb.set_trace()  # noqa
         for path in list(_c.uids.keys()):
             if pc.resolve_path(path) is None:
                 cleaned += 1
