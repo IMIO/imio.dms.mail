@@ -4,8 +4,8 @@ Changelog
 3.1.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Added temporary sub_templates_usage in Extensions/demo.py.
+  [sgeulette]
 
 3.1.4 (2026-05-29)
 ------------------

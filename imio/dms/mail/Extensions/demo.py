@@ -903,3 +903,92 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", app
                 _approve_mail(mail)
 
     return portal.REQUEST.response.redirect(ofld.absolute_url())
+
+
+def sub_templates_usage(self):
+    """TEMPORARY external method.
+
+    Display a HTML table listing, for each sub-template, the POD templates that
+    use it in their 'merge_templates' field.
+    Columns: sub-template | path of the using template | title of the using template.
+
+    To be removed once the dedicated viewlet in collective.documentgenerator is
+    available. All needed code is gathered here on purpose.
+    """
+    from Acquisition import aq_parent
+    from collective.documentgenerator.content.pod_template import IConfigurablePODTemplate
+
+    portal = api.portal.get()
+    catalog = getToolByName(portal, "portal_catalog")
+    portal_path = u"/".join(portal.getPhysicalPath())
+
+    def title_path(obj):
+        """Breadcrumb-like path made of the Title of each level between the
+           site root (excluded) and ``obj`` (included)."""
+        titles = []
+        current = obj.aq_inner
+        while current is not None:
+            current_path = u"/".join(current.getPhysicalPath())
+            if current_path == portal_path or not current_path.startswith(portal_path):
+                break
+            titles.append(safe_unicode(current.Title()))
+            current = aq_parent(current.aq_inner)
+        return u" / ".join(reversed(titles))
+
+    # Map each sub-template UID to its brain (kept to also list unused ones).
+    sub_templates = {}
+    for brain in catalog(portal_type="SubTemplate", sort_on="sortable_title"):
+        sub_templates[brain.UID] = brain
+
+    # Build sub_template_uid -> [using templates] from every merge_templates field.
+    usage = {}
+    for brain in catalog(object_provides=IConfigurablePODTemplate.__identifier__):
+        template = brain.getObject()
+        for line in getattr(template, "merge_templates", None) or []:
+            uid = line.get("template")
+            if uid in sub_templates:
+                usage.setdefault(uid, []).append(template)
+
+    # Build the HTML table.
+    rows = []
+    for uid in sorted(sub_templates, key=lambda u: safe_unicode(sub_templates[u].Title).lower()):
+        sub_brain = sub_templates[uid]
+        sub_label = u'<a href="{}">{}</a>'.format(sub_brain.getURL(), safe_unicode(sub_brain.Title))
+        using = usage.get(uid, [])
+        if not using:
+            rows.append(
+                u'<tr><td>{}</td><td colspan="2"><em>not used</em></td></tr>'.format(sub_label)
+            )
+            continue
+        # Group the using templates by the path of their container so that all
+        # templates living under the same path share a single cell, listed.
+        groups = {}
+        for template in using:
+            parent = template.aq_inner.aq_parent
+            key = u"/".join(parent.getPhysicalPath())
+            groups.setdefault(key, {"title_path": title_path(parent), "templates": []})
+            groups[key]["templates"].append(template)
+        for idx, key in enumerate(sorted(groups)):
+            group = groups[key]
+            items = u"".join(
+                u'<li><a href="{}">{}</a></li>'.format(t.absolute_url(), safe_unicode(t.Title()))
+                for t in sorted(group["templates"], key=lambda t: safe_unicode(t.Title()).lower())
+            )
+            cells = u"<td>{}</td><td><ul>{}</ul></td>".format(group["title_path"], items)
+            if idx == 0:
+                rows.append(
+                    u'<tr><td rowspan="{}">{}</td>{}</tr>'.format(len(groups), sub_label, cells)
+                )
+            else:
+                rows.append(u"<tr>{}</tr>".format(cells))
+
+    html = (
+        u"<html><head><title>Sub-templates usage</title></head><body>"
+        u"<h2>Sub-templates usage</h2>"
+        u'<table border="1" cellpadding="4" cellspacing="0">'
+        u"<thead><tr><th>Sub-template</th><th>Path</th><th>Using templates</th></tr></thead>"
+        u"<tbody>{}</tbody></table></body></html>"
+    ).format(u"".join(rows))
+
+    self.REQUEST.response.setHeader("Content-Type", "text/html;charset=utf-8")
+    return safe_encode(html)
