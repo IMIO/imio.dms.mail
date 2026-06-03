@@ -458,45 +458,6 @@ class CKTemplatesActionsColumn(DGActionsColumn):
     cssClasses = {"td": "actions-column"}
 
 
-class PersonTitleColumn(LinkColumn):
-    """Personnel table. xss ok"""
-
-    header = PMF("Title")
-    weight = 10
-    cssClasses = {"td": "title-column"}
-
-    def getLinkCSS(self, item):
-        return ' class="state-%s"' % (api.content.get_state(obj=item))
-
-    def getLinkContent(self, item):
-        return item.title
-
-
-class UseridColumn(LinkColumn):
-    """Personnel table. xss ok"""
-
-    header = _cez("header_userid")
-    weight = 15
-    cssClasses = {"td": "userid-column"}
-    linkTarget = "_blank"
-
-    def __init__(self, context, request, table):
-        super(UseridColumn, self).__init__(context, request, table)
-        self.purl = api.portal.get_tool("portal_url")()
-
-    def getLinkURL(self, item):
-        """Setup link url."""
-        return "{}/@@usergroup-usermembership?userid={}".format(self.purl, item.userid)
-
-    def getLinkContent(self, item):
-        return item.userid
-
-    def renderCell(self, item):
-        if item.userid:
-            return super(UseridColumn, self).renderCell(item)
-        return "-"
-
-
 class PrimaryOrganizationColumn(VocabularyColumn):
     """Personnel table. xss ok"""
 
@@ -553,8 +514,42 @@ class HPColumn(BaseColumn):
             return "-"
 
 
-class PersonnelActionsColumn(DGActionsColumn):
-    """Personnel table. xss ok"""
+class PersonnelUseridFacetedColumn(BaseColumn):
+    """Personnel dashboard. xss ok"""
+
+    the_object = True
+    escape = False
+    header = _cez("header_userid")
+    weight = 15
+    cssClasses = {"td": "userid-column"}
+
+    def renderCell(self, item):
+        obj = self._getObject(item)
+        if obj.userid:
+            return u'<a href="{}/@@usergroup-usermembership?userid={}" target="_blank">{}</a>'.format(
+                self.table.portal_url, safe_unicode(escape(obj.userid)), safe_unicode(escape(obj.userid))
+            )
+        return u"-"
+
+
+class PersonnelPrimaryOrgFacetedColumn(PrimaryOrganizationColumn):
+    """Personnel dashboard. xss ok"""
+
+    the_object = True
+
+
+class PersonnelHPFacetedColumn(HPColumn):
+    """Personnel dashboard. xss ok"""
+
+    the_object = True
+    escape = False
+
+    def renderCell(self, item):
+        return super(PersonnelHPFacetedColumn, self).renderCell(self._getObject(item))
+
+
+class PersonnelActionsFacetedColumn(ActionsColumn):
+    """Personnel dashboard. xss ok"""
 
     weight = 70
     params = {

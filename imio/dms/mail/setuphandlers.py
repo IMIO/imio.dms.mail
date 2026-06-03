@@ -43,7 +43,7 @@ from imio.dms.mail.interfaces import IOMCKTemplatesFolder
 from imio.dms.mail.interfaces import IOMDashboardBatchActions
 from imio.dms.mail.interfaces import IOMTemplatesFolder
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
-from imio.dms.mail.interfaces import IPersonnelFolder
+from imio.dms.mail.interfaces import IPersonnelDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.interfaces import IReqDashboard
@@ -426,9 +426,7 @@ def postInstall(context):
         # contacts.moveObjectToPosition('personnel-folder', 4)
         pf = contacts["personnel-folder"]
         alsoProvides(pf, IProtectedItem)
-        alsoProvides(pf, IPersonnelFolder)
         alsoProvides(pf, IActionsPanelFolder)
-        pf.layout = "personnel-listing"
         blacklistPortletCategory(pf)
         api.content.transition(obj=pf, transition="show_internally")
         pf.manage_permission(
@@ -439,8 +437,10 @@ def postInstall(context):
         pf.manage_permission(
             "collective.contact.plonegroup: Write user link fields", ("Manager", "Site Administrator"), acquire=0
         )
+        # add personnel searches dashboard
+        create_personnel_dashboard(pf)
         pf.setConstrainTypesMode(1)
-        pf.setLocallyAllowedTypes(["person"])
+        pf.setLocallyAllowedTypes(["person", "Folder"])
         pf.setImmediatelyAddableTypes(["person"])
         # add contact list folder
         contacts.invokeFactory("Folder", "contact-lists-folder", title=u"Listes de contact")
@@ -1940,6 +1940,40 @@ def createPersonsCollections(folder):
     createDashboardCollections(folder, collections)
 
 
+def create_personnel_dashboard(pf):
+    """Create the personnel-searches faceted dashboard inside the personnel folder.
+
+    Shared by postInstall and the 3.1.5 migration.
+    """
+    col_folder = add_db_col_folder(pf, "personnel-searches", _("Personnel searches"), _("Personnel"))
+    alsoProvides(col_folder, INextPrevNotNavigable)
+    alsoProvides(col_folder, IPersonnelDashboardBatchActions)
+    blacklistPortletCategory(col_folder)
+    collections = [
+        {
+            "id": "all_personnel",
+            "tit": _("all_personnel"),
+            "subj": (u"search",),
+            "query": [{"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["person"]}],
+            "cond": u"",
+            "bypass": [],
+            "flds": (u"select_row", u"pretty_link", u"userid", u"primary_organization", u"hps", u"actions"),
+            "sort": u"sortable_title",
+            "rev": False,
+            "count": False,
+        },
+    ]
+    createDashboardCollections(folder, collections)
+    configure_faceted_folder(
+        col_folder,
+        xml="personnel-searches.xml",
+        default_UID=col_folder["all_personnel"].UID(),
+        show_left_column=False,
+    )
+    pf.setDefaultPage("personnel-searches")
+    return col_folder
+
+
 def createContactListsCollections(folder):
     """create some dashboard collections"""
     collections = [
@@ -2763,9 +2797,13 @@ def configure_actions_panel(portal):
         ]
 
 
-def configure_faceted_folder(folder, xml=None, default_UID=None):
+def configure_faceted_folder(folder, xml=None, default_UID=None, show_left_column=True):
     """Configure faceted navigation on folder."""
-    enableFacetedDashboardFor(folder, xml and os.path.dirname(__file__) + "/faceted_conf/%s" % xml or None)
+    enableFacetedDashboardFor(
+        folder,
+        xml and os.path.dirname(__file__) + "/faceted_conf/%s" % xml or None,
+        show_left_column=show_left_column,
+    )
     if default_UID:
         _updateDefaultCollectionFor(folder, default_UID)
 
