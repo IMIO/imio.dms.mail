@@ -6,6 +6,8 @@ Changelog
 
 - Added temporary sub_templates_usage in Extensions/demo.py.
   [sgeulette]
+- Added defer_security_update parameter on IMPreManagerValidation wf adaptation
+  [sgeulette]
 
 3.1.4 (2026-05-29)
 ------------------
