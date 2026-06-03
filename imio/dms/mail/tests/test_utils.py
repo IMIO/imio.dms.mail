@@ -884,7 +884,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         intids = getUtility(IIntIds)
         params = {
             "title": "Courrier 10",
-            "mail_type": "courrier",
+            "mail_type": "certificat",
             "internal_reference_no": "E0010",
             "sender": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
@@ -995,7 +995,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         intids = getUtility(IIntIds)
         params = {
             "title": "Courrier 10",
-            "mail_type": "courrier",
+            "mail_type": "certificat",
             "internal_reference_no": "E0010",
             "sender": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),

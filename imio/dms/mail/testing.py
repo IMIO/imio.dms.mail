@@ -364,7 +364,7 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
                 scan_date = datetime.datetime.now() - datetime.timedelta(days=days)
                 params = {
                     "title": "Courrier %d" % i,
-                    "mail_type": "courrier",
+                    "mail_type": "certificat",
                     "internal_reference_no": "E{:04d}".format(i),
                     "reception_date": scan_date,
                     # 'sender': [RelationValue(senders_cycle.next())],

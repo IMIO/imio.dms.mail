@@ -61,7 +61,7 @@ def add_special_model_mail(portal):
         "title": u"Courrier test pour création de modèles (ne pas effacer)",
         "internal_reference_no": internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST)),
         "mail_date": datetime.date.today(),
-        "mail_type": "courrier",
+        "send_modes": ["post"],
     }
     pc = api.portal.get_tool("portal_catalog")
     brains = pc(portal_type="dmsoutgoingmail", id="test_creation_modele")
@@ -528,7 +528,7 @@ def add_test_mails(context):
             scan_date = receptionDateDefaultValue(data)
             params = {
                 "title": "Courrier %d" % i,
-                "mail_type": "courrier",
+                "mail_type": "certificat",
                 "internal_reference_no": internalReferenceIncomingMailDefaultValue(data),
                 "reception_date": scan_date,
                 "sender": [RelationValue(next(senders_cycle))],
@@ -962,13 +962,10 @@ def configure_imio_dms_mail(context):
     # IM
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types"] = [
-            {"value": u"courrier", "dtitle": u"Courrier", "active": True},
-            {"value": u"email", "dtitle": u"Email", "active": True},
-            {"value": u"recommande", "dtitle": u"Recommandé", "active": True},
             {"value": u"certificat", "dtitle": u"Certificat médical", "active": True},
-            {"value": u"fax", "dtitle": u"Fax", "active": True},
             {"value": u"retour-recommande", "dtitle": u"Retour recommandé", "active": True},
             {"value": u"facture", "dtitle": u"Facture", "active": True},
+            {"value": u"autre", "dtitle": u"Autre", "active": True},
         ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states"] = ["proposed_to_agent"]
@@ -1045,6 +1042,7 @@ def configure_imio_dms_mail(context):
             {"value": u"post", "dtitle": u"Courrier", "active": True},
             {"value": u"post_registered", "dtitle": u"Courrier recommandé", "active": True},
             {"value": u"email", "dtitle": u"Email", "active": True},
+            {"value": u"other_fax", "dtitle": u"Fax", "active": True},
         ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes"] = [
