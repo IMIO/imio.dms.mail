@@ -1748,6 +1748,8 @@ class OMApprovalAdapter(object):
             pc.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
             self.context.reindexObjectSecurity()  # to update local roles from adapter
 
+        # audit=False: restarting the workflow after an unapproval is internal bookkeeping,
+        # not a new approval, so we must not emit a start_approval_process audit event here.
         self.start_approval_process(audit=False)
 
     def _create_pdf_file(self, orig_fobj, nbf, f_title, f_uid, file_index, session_file_uids):
