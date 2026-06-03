@@ -6,6 +6,10 @@ Changelog
 
 - Added temporary sub_templates_usage in Extensions/demo.py.
   [sgeulette]
+- Fixed approver userid in @@manage-approvals.
+  [chris-adam]
+- Fixed start_approval_process audit log on unapprove_file.
+  [chris-adam]
 
 3.1.4 (2026-05-29)
 ------------------

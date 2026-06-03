@@ -595,18 +595,19 @@ class ApprovalTableView(BrowserView):
             approval = IOMApproval(self.context)
             to_approve = []
             for i_signer, signer in enumerate(approval.signers):
-                for i_fuid, fuid in enumerate(approval.files_uids):
+                for fuid in approval.files_uids:
                     key = "approvals.%s.%s" % (fuid, signer)
                     if key in form:
                         if not approval.is_file_approved(fuid, nb=i_signer):
-                            to_approve.append((uuidToObject(fuid), signer, i_signer))
+                            to_approve.append((uuidToObject(fuid), i_signer))
                     else:
                         if approval.is_file_approved(fuid, nb=i_signer):
                             approval.unapprove_file(uuidToObject(fuid), signer)
 
             # Approve only now to avoid unwanted transition
-            for fobj, signer, i_signer in to_approve:
-                approval.approve_file(fobj, signer, c_a=i_signer, transition=True)
+            userid = api.user.get_current().getId()
+            for fobj, i_signer in to_approve:
+                approval.approve_file(fobj, userid, c_a=i_signer, transition=True)
 
             IStatusMessage(self.request).addStatusMessage(_(u"Changes saved."), type="info")
             self.request.response.redirect(self.context.absolute_url())
