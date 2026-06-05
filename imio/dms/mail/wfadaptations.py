@@ -655,8 +655,11 @@ class OMServiceValidation(WorkflowAdaptationBase):
             return False, "State {} already in workflow".format(new_state_id)
         wf.states.addState(new_state_id)
         state = wf.states[new_state_id]
+        new_state_transitions = transitions
+        if val_set_tr_id not in new_state_transitions:
+            new_state_transitions += [val_set_tr_id]
         state.setProperties(
-            title=parameters["state_title"].encode("utf8"), description="", transitions=transitions + [val_set_tr_id]
+            title=parameters["state_title"].encode("utf8"), description="", transitions=new_state_transitions
         )
         # permissions
         perms = {
@@ -674,7 +677,11 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # add validated state
         wf.states.addState(val_state_id)
         val_state = wf.states[val_state_id]
-        val_transitions = list(transitions) + [back_tr_id]
+        val_transitions = list(transitions)
+        if back_tr_id not in val_transitions:
+            val_transitions += [back_tr_id]
+        if val_set_tr_id in new_state_transitions:
+            val_transitions.remove(val_set_tr_id)
         if not parameters["validated_from_created"]:
             val_transitions.remove("back_to_creation")
         val_state.setProperties(title="om_validated", description="", transitions=val_transitions)
