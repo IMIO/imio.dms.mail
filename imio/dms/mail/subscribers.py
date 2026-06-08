@@ -484,16 +484,10 @@ def dmsoutgoingmail_transition(mail, event):
         pass
 
 
-def apply_signer_rules(mail):
-    """Compute and set mail.signers / seal / esign from the configured signer rules.
-
-    Resets mail.signers to [] then appends matching rules. Returns True if at least one
-    signer rule was applied. May raise Invalid on inconsistent rules.
-    """
-    today = datetime.date.today()
-    signers_update = False
-    mail.signers = []
-    signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
+def get_active_signer_substitutes(today=None):
+    """Return a dict {absent_signer_uid: substitute_signer_uid} of substitutes valid at `today`."""
+    if today is None:
+        today = datetime.date.today()
     substitutes = {}
     signer_substitutes = api.portal.get_registry_record("omail_signer_substitutes", IImioDmsMailConfig, [])
     for sub in signer_substitutes:
@@ -505,6 +499,37 @@ def apply_signer_rules(mail):
         if sub["valid_from"] and datetime.datetime.strptime(sub["valid_from"], "%Y/%m/%d").date() > today:
             continue
         substitutes[absent] = sub["substitute_signer"]
+    return substitutes
+
+
+def apply_substitutes_to_signers(signers, substitutes=None):
+    """Replace each signer by its active substitute (when one is defined).
+
+    Returns a new list of signer dicts. The _empty_ placeholder is left untouched.
+    """
+    if substitutes is None:
+        substitutes = get_active_signer_substitutes()
+    result = []
+    for signer in signers:
+        new_signer = dict(signer)
+        effective = new_signer.get("signer")
+        if effective and effective != u"_empty_" and effective in substitutes:
+            new_signer["signer"] = substitutes[effective] or effective
+        result.append(new_signer)
+    return result
+
+
+def apply_signer_rules(mail):
+    """Compute and set mail.signers / seal / esign from the configured signer rules.
+
+    Resets mail.signers to [] then appends matching rules. Returns True if at least one
+    signer rule was applied. May raise Invalid on inconsistent rules.
+    """
+    today = datetime.date.today()
+    rules_applied = False
+    mail.signers = []
+    signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
+    substitutes = get_active_signer_substitutes(today)
     used_numbers = set()
     used_signers = set()
     for signer in signer_rules:
@@ -516,6 +541,7 @@ def apply_signer_rules(mail):
             continue
         if not _evaluateExpression(mail, expression=signer["tal_condition"]):
             continue
+        rules_applied = True
 
         # Once a signer number is already applied, this number must be skipped
         if signer["number"] in used_numbers:
@@ -565,8 +591,7 @@ def apply_signer_rules(mail):
                 "approvings": signer["approvings"],
             }
         )
-        signers_update = True
-    return signers_update
+    return rules_applied
 
 
 def dmsoutgoingmail_modified(mail, event):
@@ -590,8 +615,10 @@ def dmsoutgoingmail_modified(mail, event):
     # Update signers field only if empty. In "template_first" mode, signers are defined later, at
     # the first template generation (see browser.documentgenerator._copy_template_signers).
     if not mail.signers and signers_origin in (u"rules", u"rules_first"):
-        signers_update = apply_signer_rules(mail)
-
+        rules_applied = apply_signer_rules(mail)
+        if rules_applied and not mail.signers:
+            mail.signers = get_empty_signers_value()
+        signers_update = rules_applied or bool(mail.signers)
     if not mail.signers and signers_origin == u"rules":
         # if no signers, we add an empty one to not do again automatic assignment at next modification
         mail.signers = get_empty_signers_value()

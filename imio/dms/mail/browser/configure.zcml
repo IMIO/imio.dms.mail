@@ -719,6 +719,30 @@
             />
     </class>
 
+    <!-- SubTemplate form overrides -->
+    <browser:page
+        for="collective.documentgenerator.content.pod_template.ISubTemplate"
+        name="edit"
+        class="imio.dms.mail.browser.documentgenerator.DmsEditSubTemplate"
+        permission="cmf.ModifyPortalContent"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             imio.dms.mail.interfaces.IImioDmsMailLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".documentgenerator.DmsAddSubTemplate"
+        name="SubTemplate"
+        />
+    <class class=".documentgenerator.DmsAddSubTemplate">
+        <require
+            permission="cmf.AddPortalContent"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+
     <!-- Viewlets -->
     <!-- common for dmsincomingmail, dmsoutgoingmail and task -->
     <browser:viewlet

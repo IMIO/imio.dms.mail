@@ -22,6 +22,7 @@ from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.subscribers import apply_signer_rules
+from imio.dms.mail.subscribers import apply_substitutes_to_signers
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
@@ -29,6 +30,7 @@ from imio.zamqp.core.utils import next_scan_id
 from plone import api
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
+from plone.dexterity.browser.edit import DefaultEditForm
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import base_hasattr
@@ -46,6 +48,22 @@ import zope.event
 
 
 # # # HELPERS # # #
+
+
+def get_template_signers_source(pod_template):
+    """Return the template object defining the signers to apply for pod_template.
+
+    Signers are taken from pod_template itself. If it defines none, its merge_templates
+    sub-templates are looked up in order and the first one defining signers is returned.
+    Returns None when neither the template nor its sub-templates define signers.
+    """
+    if bool(getattr(pod_template, "signers", None)):
+        return pod_template
+    for line in getattr(pod_template, "merge_templates", None) or []:
+        sub = uuidToObject(line.get("template"), unrestricted=True)
+        if sub is not None and bool(getattr(sub, "signers", None)):
+            return sub
+    return None
 
 
 class BaseDGHelper(DXDocumentGenerationHelperView):
@@ -543,15 +561,15 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         if not isinstance(source, ConfigurablePODTemplate):
             return
         mail = self.context
-        mail_has_signers = bool(mail.signers) and not all(s.get("signer") == u"_empty_" for s in mail.signers)
+        mail_has_signers = bool(mail.signers)
 
         # "rules_first": when the rules already produced signers, the template configuration is ignored.
         if mode == u"rules_first" and mail_has_signers:
             return
 
-        template_signers = getattr(source, "signers", None)
+        signers_source = get_template_signers_source(source)
+        template_signers = getattr(signers_source, "signers", None) if signers_source is not None else None
         if not template_signers:
-            # No signers on the template.
             if mode == u"template_first":
                 # fall back to the signer rules
                 apply_signer_rules(mail)
@@ -561,8 +579,11 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
             zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
             return
 
+        # copy the template signers, applying the active signer substitutes (as the rules do)
+        resolved_signers = apply_substitutes_to_signers(copy.deepcopy(template_signers))
+
         # "template_first": warn (and skip) if the mail already has different signers (manual edit).
-        if mail_has_signers and mail.signers != template_signers:
+        if mail_has_signers and mail.signers != resolved_signers:
             api.portal.show_message(
                 message=translate(
                     _(u"Warning: the mail already has signers configured that differ from the template. "
@@ -572,9 +593,9 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 type="warning",
             )
             return
-        mail.signers = copy.deepcopy(template_signers)
-        mail.seal = getattr(source, "seal", False) or False
-        mail.esign = getattr(source, "esign", False) or False
+        mail.signers = resolved_signers
+        mail.seal = getattr(signers_source, "seal", False) or False
+        mail.esign = getattr(signers_source, "esign", False) or False
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
 
     def redirects(self, persisted_doc):
@@ -665,6 +686,38 @@ class DmsAddConfigurablePodTemplateForm(DefaultAddForm):
 class DmsAddConfigurablePodTemplate(DefaultAddView):
 
     form = DmsAddConfigurablePodTemplateForm
+
+
+# SubTemplate form overrides. Plain Dexterity base forms are used here (no children_pod_template
+# provider, which only exists on ConfigurablePODTemplate).
+
+
+class DmsEditSubTemplate(DefaultEditForm):
+
+    def update(self):
+        super(DmsEditSubTemplate, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsViewSubTemplate(DGDXDocumentViewerView):
+
+    def update(self):
+        super(DmsViewSubTemplate, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsAddSubTemplateForm(DefaultAddForm):
+
+    portal_type = "SubTemplate"
+
+    def update(self):
+        super(DmsAddSubTemplateForm, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsAddSubTemplate(DefaultAddView):
+
+    form = DmsAddSubTemplateForm
 
 
 # # # VIEWLETS # # #

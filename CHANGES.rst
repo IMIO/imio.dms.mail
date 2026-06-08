@@ -11,7 +11,7 @@ Changelog
 - Added Signer/Approving icon on personnel listing table.
   [chris-adam, sgeulette]
 - Added "omail_signers_origin" option with 3 modes to define outgoing mail signers.
-  [chris-adam, sgeulette]
+  [sgeulette, chris-adam]
 
 3.1.3 (2026-05-08)
 ------------------

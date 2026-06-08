@@ -1225,6 +1225,8 @@ class SettingsEditForm(RegistryEditForm):
             if grp.__name__ not in filt_groups:
                 continue
             wdg = grp.widgets[filt_groups[grp.__name__]]
+            if wdg.value is None:
+                continue
             def_values = [row["field_name"] for row in wdg.value]
             voc_name = wdg.field.value_type.schema["field_name"].vocabularyName
             voc = getUtility(IVocabularyFactory, voc_name)(self.context)

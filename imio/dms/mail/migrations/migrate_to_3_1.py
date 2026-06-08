@@ -222,7 +222,8 @@ class Migrate_To_3_1(Migrator):  # noqa
                 load_type_from_package("dmsommainfile", "imio.dms.mail:default")  # iconified
                 load_type_from_package("dmsappendixfile", "imio.dms.mail:default")  # iconified
                 load_type_from_package("dmsappendixfile", "imio.dms.mail:default")  # iconified
-                load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # content category
+                load_type_from_package("ConfigurablePODTemplate", "imio.dms.mail:default")  # content category, behavior
+                load_type_from_package("SubTemplate", "imio.dms.mail:default")  # behavior
                 setup_iconified_categories(self.portal)
                 a_t_f["annexes"].title = _("Folders Appendix Files")
                 alsoProvides(a_t_f["annexes"], IProtectedItem)

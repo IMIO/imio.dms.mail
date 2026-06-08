@@ -272,6 +272,12 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 
 /* edit mode of OMdmsmail */
 
+/*#content li.formTab a.required span::after, */
+#content-core li.formTab a#fieldsetlegend-signing.required span::after {
+    content: none !important;
+    padding-left: 0;
+}
+
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
 body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"] {
     border: 1px solid #ddd;

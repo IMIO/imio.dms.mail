@@ -426,13 +426,20 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertTrue(rep1.esign)
         self.assertIsNot(rep1.signers, template.signers)
 
-        # "template_first", mail has only _empty_ signers or is None: treated as empty, copy applies
-        rep1.signers = list(empty_value)
-        view._copy_template_signers(template)
-        self.assertEqual(rep1.signers, template_signers)
+        # "template_first", mail is empty (None): copy applies
         rep1.signers = None
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers, template_signers)
+
+        # "template_first", mail holds the _empty_ placeholder: considered as a defined value,
+        # so the template is not applied (warning).
+        IStatusMessage(request).show()  # consume existing messages
+        rep1.signers = list(empty_value)
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers, empty_value)
+        msgs = IStatusMessage(request).show()
+        self.assertEqual(len(msgs), 1)
+        self.assertEqual(msgs[0].type, u"warning")
 
         # "template_first", template has no signers: fall back to signer rules.
         # With empty rules, nothing is found anywhere: an _empty_ value is set.
@@ -476,13 +483,18 @@ class TestDocumentGenerator(unittest.TestCase):
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers, template_signers)
 
-        # "rules_first", mail has only _empty_ value or empty list: treated as empty, copy applies
-        rep1.signers = list(empty_value)
-        view._copy_template_signers(template)
-        self.assertEqual(rep1.signers, template_signers)
+        # "rules_first", mail is an empty list (rules produced nothing): fall back to the template
         rep1.signers = []
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers, template_signers)
+
+        # "rules_first", mail holds the _empty_ placeholder: considered as a defined value,
+        # template is ignored (no copy, no warning).
+        IStatusMessage(request).show()  # consume existing messages
+        rep1.signers = list(empty_value)
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers, empty_value)
+        self.assertEqual(len(IStatusMessage(request).show()), 0)
 
         # "rules_first", neither rules nor template provide signers: _empty_ value is set
         # (consistent with template_first)
@@ -508,6 +520,145 @@ class TestDocumentGenerator(unittest.TestCase):
         template.seal = None
         template.esign = None
         rep1.signers = original_mail_signers
+
+    def test_get_template_signers_source(self):
+        from imio.dms.mail.browser.documentgenerator import get_template_signers_source
+
+        templates = self.portal["templates"]["om"]
+        template = templates["main"]
+        pf = self.portal["contacts"]["personnel-folder"]
+        dirg_hp = pf["dirg"]["directeur-general"]
+        bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
+        tpl_signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
+        sub_signers = [{"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}]
+        empty_value = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
+        original_signers = template.signers
+        original_merge = list(template.merge_templates or [])
+
+        sub = templates["ending"]
+        sub.signers = sub_signers
+
+        # template defines its own signers: returned directly
+        template.signers = tpl_signers
+        template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
+        self.assertEqual(get_template_signers_source(template).UID(), template.UID())
+
+        # template has no signers but a merge sub-template defines them: sub-template returned
+        template.signers = None
+        self.assertEqual(get_template_signers_source(template).UID(), sub.UID())
+
+        # an _empty_ placeholder on the template counts as a defined value: template returned
+        template.signers = empty_value
+        self.assertEqual(get_template_signers_source(template).UID(), template.UID())
+
+        # neither template nor sub-template define signers: None
+        template.signers = None
+        sub.signers = None
+        self.assertIsNone(get_template_signers_source(template))
+
+        # no merge_templates at all: None
+        template.merge_templates = []
+        self.assertIsNone(get_template_signers_source(template))
+
+        # end-to-end: template_first, template empty, sub-template provides signers/seal/esign
+        rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
+        rep1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        view = rep1.restrictedTraverse("persistent-document-generation")
+        original_rep1_signers = rep1.signers
+        sub.signers = sub_signers
+        sub.seal = False
+        sub.esign = True
+        template.signers = None
+        template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
+        api.portal.set_registry_record(rk_so, u"template_first")
+        rep1.signers = None
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers, sub_signers)
+        self.assertTrue(rep1.esign)
+        self.assertFalse(rep1.seal)
+
+        # Cleanup
+        api.portal.set_registry_record(rk_so, u"rules")
+        template.signers = original_signers
+        template.merge_templates = original_merge
+        rep1.signers = original_rep1_signers
+
+    def test_copy_template_signers_substitutes(self):
+        rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
+        rk_subs = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_substitutes"
+        rep1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        view = rep1.restrictedTraverse("persistent-document-generation")
+        template = self.portal["templates"]["om"]["main"]
+        view.pod_template = template
+        pf = self.portal["contacts"]["personnel-folder"]
+        dirg_hp = pf["dirg"]["directeur-general"]
+        bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
+        original_signers = template.signers
+        original_subs = api.portal.get_registry_record(rk_subs, default=[])
+        original_rep1_signers = rep1.signers
+
+        template.signers = [
+            {"number": 1, "signer": bourgmestre_hp.UID(), "editor": True, "approvings": [u"_empty_"]}
+        ]
+        api.portal.set_registry_record(rk_so, u"template_first")
+
+        # An active substitute replaces the template signer when copied to the mail
+        api.portal.set_registry_record(
+            rk_subs,
+            [{"absent_signer": bourgmestre_hp.UID(), "substitute_signer": dirg_hp.UID(),
+              "valid_from": None, "valid_until": None}],
+        )
+        rep1.signers = None
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers[0]["signer"], dirg_hp.UID())
+        self.assertEqual(rep1.signers[0]["editor"], True)
+
+        # Re-generating with the mail already holding the substituted signers: no warning, idempotent
+        request = self.portal.REQUEST
+        IStatusMessage(request).show()  # consume existing messages
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers[0]["signer"], dirg_hp.UID())
+        self.assertEqual(len(IStatusMessage(request).show()), 0)
+
+        # No active substitute: the template signer is kept as-is
+        api.portal.set_registry_record(rk_subs, [])
+        rep1.signers = None
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers[0]["signer"], bourgmestre_hp.UID())
+
+        # Cleanup
+        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_subs, original_subs)
+        template.signers = original_signers
+        rep1.signers = original_rep1_signers
+
+    def test_filter_signing_fieldset(self):
+        from imio.dms.mail.browser.documentgenerator import _filter_signing_fieldset
+
+        rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
+
+        class _Group(object):
+            def __init__(self, name):
+                self.__name__ = name
+
+        class _Form(object):
+            def __init__(self):
+                self.groups = [_Group("default"), _Group("signing")]
+
+        # "rules" mode: the signing fieldset is removed
+        api.portal.set_registry_record(rk_so, u"rules")
+        form = _Form()
+        _filter_signing_fieldset(form)
+        self.assertEqual([gr.__name__ for gr in form.groups], ["default"])
+
+        # other modes: the signing fieldset is kept
+        for mode in (u"template_first", u"rules_first"):
+            api.portal.set_registry_record(rk_so, mode)
+            form = _Form()
+            _filter_signing_fieldset(form)
+            self.assertEqual([gr.__name__ for gr in form.groups], ["default", "signing"])
+
+        api.portal.set_registry_record(rk_so, u"rules")
 
     def test_OutgoingMailLinksViewlet(self):
         """
