@@ -971,8 +971,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         modified(omail)
         self.assertIsNone(omail.signers)
 
-    def test_dmsoutgoingmail_modified_template_signers(self):
-        rk_ts = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_use_template_signers"
+    def test_dmsoutgoingmail_modified_signers_origin(self):
+        rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
         dirg_hp = self.pf["dirg"]["directeur-general"]
         bourgmestre_hp = self.pf["bourgmestre"]["bourgmestre"]
         omail = sub_create(
@@ -987,18 +987,16 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             mail_type="courrier",
         )
 
-        # Baseline: setting disabled, default signer rules apply on creation
+        # Baseline: "rules" mode (default), default signer rules apply on creation
         self.assertEqual(len(omail.signers), 2)
         self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
         self.assertEqual(omail.signers[1]["signer"], bourgmestre_hp.UID())
 
-        # Enable use_template_signers: signer rules must be skipped, but empty placeholder is set
-        api.portal.set_registry_record(rk_ts, True)
+        # "template_first": signer rules are skipped and no value is set.
+        api.portal.set_registry_record(rk_so, u"template_first")
         omail.signers = None
         modified(omail)
-        self.assertEqual(
-            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
-        )
+        self.assertIsNone(omail.signers)
 
         # Existing signers are preserved
         omail.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
@@ -1006,12 +1004,34 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(len(omail.signers), 1)
         self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
 
-        # Disable setting: rules apply again
-        api.portal.set_registry_record(rk_ts, False)
+        # "rules_first": rules apply on creation (template is only a fallback at generation time)
+        api.portal.set_registry_record(rk_so, u"rules_first")
         omail.signers = None
         modified(omail)
-        self.assertIsNotNone(omail.signers)
-        self.assertTrue(len(omail.signers) >= 1)
+        self.assertEqual(len(omail.signers), 2)
+        self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
+        self.assertEqual(omail.signers[1]["signer"], bourgmestre_hp.UID())
+
+        # "rules" mode: rules apply again
+        api.portal.set_registry_record(rk_so, u"rules")
+        omail.signers = None
+        modified(omail)
+        self.assertEqual(len(omail.signers), 2)
+        self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
+        self.assertEqual(omail.signers[1]["signer"], bourgmestre_hp.UID())
+        # empty rules
+        rk_osr = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+        api.portal.set_registry_record(rk_osr, [])
+        omail.signers = None
+        modified(omail)
+        self.assertEqual(len(omail.signers), 1)
+        self.assertEqual(omail.signers[0]["signer"], u"_empty_")
+
+        # "rules_first": rules apply on creation (template is only a fallback at generation time)
+        api.portal.set_registry_record(rk_so, u"rules_first")
+        omail.signers = None
+        modified(omail)
+        self.assertFalse(omail.signers)
 
     def test_dmsoutgoingmail_modified_signer_substitutes(self):
         dirg = self.pf["dirg"]

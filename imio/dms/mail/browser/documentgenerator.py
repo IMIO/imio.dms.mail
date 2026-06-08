@@ -10,7 +10,6 @@ from collective.documentgenerator.browser.generation_view import MailingLoopPers
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
 from collective.documentgenerator.browser.overrides import DGDXDocumentViewerView
 from collective.documentgenerator.browser.views import EditConfigurablePodTemplate
-from collective.documentgenerator.browser.views import ViewConfigurablePodTemplate
 from collective.documentgenerator.content.pod_template import ConfigurablePODTemplate
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
@@ -18,9 +17,11 @@ from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
 from imio.dms.mail import _
+from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.subscribers import apply_signer_rules
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
@@ -59,8 +60,8 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
 
     def get_classification_folders(self, sep=u", "):
         obj = self.real_context
-        if (not self.has_field("classification_folders") or not hasattr(obj, "classification_folders") or
-                not obj.classification_folders):
+        if (not self.has_field("classification_folders") or not hasattr(obj, "classification_folders")
+                or not obj.classification_folders):
             return []
         ret = []
         for fld in obj.classification_folders:
@@ -522,28 +523,54 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         return persisted_doc
 
     def _copy_template_signers(self, pod_template):
-        """Copy signing fields from template to outgoing mail if template signers mode is enabled."""
-        if not api.portal.get_registry_record("omail_use_template_signers", IImioDmsMailConfig, False):
+        """Set outgoing mail signers from the template, depending on the omail_signers_origin mode.
+
+        - "rules": signers come from the signer rules only, nothing is done here.
+        - "template_first": copy the template signers; if the template defines none, fall back to
+          the signer rules.
+        - "rules_first": rules are authoritative; the template is only used as a fallback when the
+          rules produced no signer (empty or only the _empty_ placeholder).
+
+        In both non-"rules" modes, when neither the template nor the rules provide any signer, an
+        _empty_ placeholder is set so the field is no longer reprocessed on next modification.
+        """
+        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
+        if mode == u"rules":
             return
         source = pod_template
         if not isinstance(source, ConfigurablePODTemplate) and hasattr(self, "orig_template"):
             source = self.orig_template
         if not isinstance(source, ConfigurablePODTemplate):
             return
+        mail = self.context
+        mail_has_signers = bool(mail.signers) and not all(s.get("signer") == u"_empty_" for s in mail.signers)
+
+        # "rules_first": when the rules already produced signers, the template configuration is ignored.
+        if mode == u"rules_first" and mail_has_signers:
+            return
+
         template_signers = getattr(source, "signers", None)
         if not template_signers:
+            # No signers on the template.
+            if mode == u"template_first":
+                # fall back to the signer rules
+                apply_signer_rules(mail)
+            if not mail.signers:
+                # nothing from the template nor the rules: set an _empty_ value
+                mail.signers = get_empty_signers_value()
+            zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
             return
-        mail = self.context
-        if mail.signers and not all(s.get("signer") == u"_empty_" for s in mail.signers):
-            if mail.signers != template_signers:
-                api.portal.show_message(
-                    message=translate(
-                        _(u"Warning: the mail already has signers configured that differ from the template. "
-                          u"The template signers were not applied."),
-                        context=self.request),
-                    request=self.request,
-                    type="warning",
-                )
+
+        # "template_first": warn (and skip) if the mail already has different signers (manual edit).
+        if mail_has_signers and mail.signers != template_signers:
+            api.portal.show_message(
+                message=translate(
+                    _(u"Warning: the mail already has signers configured that differ from the template. "
+                      u"The template signers were not applied."),
+                    context=self.request),
+                request=self.request,
+                type="warning",
+            )
             return
         mail.signers = copy.deepcopy(template_signers)
         mail.seal = getattr(source, "seal", False) or False
@@ -607,8 +634,8 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
 
 
 def _filter_signing_fieldset(form_instance):
-    """Remove the signing fieldset from form groups if template signers setting is disabled."""
-    if not api.portal.get_registry_record("omail_use_template_signers", IImioDmsMailConfig, False):
+    """Remove the signing fieldset from template form groups when signers come from rules only."""
+    if api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules") == u"rules":
         form_instance.groups = [gr for gr in form_instance.groups if gr.__name__ != "signing"]
 
 

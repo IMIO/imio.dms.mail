@@ -186,7 +186,7 @@ class ISigningBehavior(model.Schema):
                     raise Invalid(_(u"You cannot modify signers once the approval process has started or is done. "
                                     u"You may go back to a previous state or ask your admin."))
 
-        if data.seal and not data.esign and any([s["signer"] != u"_empty_" for s in data.signers]):
+        if data.seal and not data.esign and any([s["signer"] != u"_empty_" for s in (data.signers or [])]):
             raise Invalid(_(u"You cannot have a seal and signers but no electronic signature !"))
 
         if not data.signers or []:
@@ -363,7 +363,7 @@ class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
                 if found >= 10:
                     break
                 mail_added = False
-                for signer_dic in mail.signers:
+                for signer_dic in (mail.signers or []):
                     if not signer_dic.get("signer") or signer_dic.get("signer") == "_empty_":
                         continue
                     for approving in signer_dic.get("approvings", []):

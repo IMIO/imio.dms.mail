@@ -86,10 +86,10 @@
         profile="imio.dms.mail:default" /-->
 
     <genericsetup:upgradeStep
-        title="Go to imio.dms.mail 3.1.4"
+        title="Go to imio.dms.mail 3.1.5"
         description=""
         source="3.0"
-        destination="3.1.4"
+        destination="3.1.5"
         handler="imio.dms.mail.migrations.migrate_to_3_1.migrate"
         profile="imio.dms.mail:default" />
 
@@ -99,7 +99,7 @@
         source="3.1"
         destination="3.1.2a"
         handler="imio.dms.mail.migrations.migrate_to_3_1_2.migrate"
-        profile="imio.dms.mail:default" /-->
+        profile="imio.dms.mail:default" />
 
     <genericsetup:upgradeStep
         title="Go to imio.dms.mail 3.1.4a"
@@ -107,6 +107,14 @@
         source="3.1.2"
         destination="3.1.4a"
         handler="imio.dms.mail.migrations.migrate_to_3_1_4.migrate"
+        profile="imio.dms.mail:default" /-->
+
+    <genericsetup:upgradeStep
+        title="Go to imio.dms.mail 3.1.5a"
+        description=""
+        source="3.1.4"
+        destination="3.1.5a"
+        handler="imio.dms.mail.migrations.migrate_to_3_1_5.migrate"
         profile="imio.dms.mail:default" />
 
 </configure>
