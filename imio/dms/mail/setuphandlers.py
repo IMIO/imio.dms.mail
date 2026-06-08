@@ -2372,26 +2372,26 @@ def configure_task_rolefields(context, force=False):
             "to_do": {
                 "editeur": {
                     "roles": ["Contributor", "Editor"],
-                    "rel": "{'collective.task.related_taskcontainer':['Reader']}",
+                    "rel": '{"collective.task.related_taskcontainer":["Reader"]}',
                 },
                 "lecteur": {"roles": ["Reader"]},
             },
             "in_progress": {
                 "editeur": {
                     "roles": ["Contributor", "Editor"],
-                    "rel": "{'collective.task.related_taskcontainer':['Reader']}",
+                    "rel": '{"collective.task.related_taskcontainer":["Reader"]}',
                 },
                 "lecteur": {"roles": ["Reader"]},
             },
             "realized": {
                 "editeur": {
                     "roles": ["Contributor", "Editor"],
-                    "rel": "{'collective.task.related_taskcontainer':['Reader']}",
+                    "rel": '{"collective.task.related_taskcontainer":["Reader"]}',
                 },
                 "lecteur": {"roles": ["Reader"]},
             },
             "closed": {
-                "editeur": {"roles": ["Reader"], "rel": "{'collective.task.related_taskcontainer':['Reader']}"},
+                "editeur": {"roles": ["Reader"], "rel": '{"collective.task.related_taskcontainer":["Reader"]}'},
                 "lecteur": {"roles": ["Reader"]},
             },
         },

@@ -1617,7 +1617,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
                     {
                         new_id: {
                             "roles": ["Contributor", "Editor", "Reviewer"],
-                            "rel": "{'collective.task.related_taskcontainer':['Reader']}",
+                            "rel": '{"collective.task.related_taskcontainer":["Reader"]}',
                         }
                     }
                 )
@@ -1625,7 +1625,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
                 {
                     new_id: {
                         "roles": ["Editor", "Reviewer"],
-                        "rel": "{'collective.task.related_taskcontainer':['Reader']}",
+                        "rel": '{"collective.task.related_taskcontainer":["Reader"]}',
                     }
                 }
             )
