@@ -783,7 +783,7 @@ def task_state_group_index(obj):
     return state_group_index(obj)
 
 
-@indexer(IImioDmsOutgoingMail)
+@indexer(IDmsDocument)
 def send_modes_index(obj):
     """Indexer of 'Subject' for IImioDmsOutgoingMail. Stores send_modes !"""
     # No acquisition pb
@@ -1776,11 +1776,13 @@ class OMApprovalAdapter(object):
                 )
                 helper_view.pod_template = download_template.UID()
                 helper_view.output_format = "pdf"
+                # QR code, with borders
                 gen_context = {
                     "context": self.context,
                     "portal": api.portal.get(),
                     "view": helper_view,
-                    "download_barcode": generate_barcode(download_url).read(),
+                    "download_barcode": generate_barcode(download_url, barcode=58, scale=3, resize=0.5,
+                                                         extra_args=["--vwhitesp=2", "--whitesp=2"]).read(),
                     "download_url": download_url,
                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
                     "render_download_barcode": True,
@@ -1836,7 +1838,8 @@ class OMApprovalAdapter(object):
             update_dict_with_validation(
                 gen_context,
                 {
-                    "download_barcode": generate_barcode(download_url).read(),
+                    "download_barcode": generate_barcode(download_url, barcode=58, scale=3, resize=0.5,
+                                                         extra_args=["--vwhitesp=2", "--whitesp=2"]).read(),
                     "download_url": download_url,
                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
                     "render_download_barcode": True,
@@ -1947,18 +1950,17 @@ class OMApprovalAdapter(object):
             signers.append((signer, email, name, label))
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
-        # Add one file at a time so max_session_size discrimination splits sessions naturally
         pdf_session_ids = set()
-        for pdf_uid in session_file_uids:
-            sid, _session = add_files_to_session(signers, [pdf_uid], bool(self.context.seal),
-                                                 title=_("[ia.docs] Session {sign_id}"),
-                                                 watchers=watcher_emails)
+        sessions_used = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
+                                             title=_("[ia.docs] Session {sign_id}"),
+                                             watchers=watcher_emails)
+        for sid, _session in sessions_used:
             pdf_session_ids.add(sid)
             if sid not in self.annot["session_ids"]:
                 self.annot["session_ids"].append(sid)
         return True, _("${count} file(s) added to session(s) ${session_ids}",
                        mapping={"count": str(len(session_file_uids)),
-                                "session_ids": u", ".join([str(sid) for sid in pdf_session_ids])})
+                                "session_ids": u", ".join([str(sid) for sid in sorted(pdf_session_ids)])})
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):

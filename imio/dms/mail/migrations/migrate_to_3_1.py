@@ -184,6 +184,8 @@ class Migrate_To_3_1(Migrator):  # noqa
                     values.append("dmsoutgoingmail.back_to_signed|")
                     api.portal.set_registry_record(key, values)
 
+            # clean catalog
+            self.clean_catalog()
             # update permissions, roles and reindex allowedRolesAndUsers
             finished = self.reindexIndexes(['allowedRolesAndUsers'], portal_types=['dmsoutgoingmail'])
             logger.info("Part c is {}finished".format("" if finished else "not "))
@@ -281,7 +283,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             if can_delete_batch_files(batch_keys, batch_config):
                 batch_delete_files(batch_keys, batch_config, log=True)
 
-        if self.is_in_part("g"):  # final steps
+        if self.is_in_part("t"):  # final steps
             # finished = True  # can be eventually returned and set by batched method
             if self.old_version != self.new_version:
                 self.run_finalization()
@@ -400,6 +402,28 @@ class Migrate_To_3_1(Migrator):  # noqa
         self.log_mem("END")
         logger.info("Really finished at {}".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         self.finish()
+
+    def clean_catalog(self):
+        """clean catalog for bad unindexed entries"""
+        pc = self.portal.portal_catalog
+        _c = pc._catalog
+        cleaned = 0
+        for path in list(_c.uids.keys()):
+            if pc.resolve_path(path) is None:
+                cleaned += 1
+                rid = _c.uids.get(path)
+                logger.warn("Removing stale entry '{}'".format(path))
+                try:
+                    # get a "ExtendedPathIndex Attempt to unindex nonexistent object" message but do the job
+                    pc.uncatalog_object(path)
+                except Exception:
+                    if rid is not None:
+                        if rid in _c.data:
+                            del _c.data[rid]
+                        if rid in _c.paths:
+                            del _c.paths[rid]
+                        del _c.uids[path]
+                        _c._length.change(-1)
 
     def solr_deactivate(self):
         """Deactivates solr if activated and updates ports"""

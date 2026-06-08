@@ -6,6 +6,7 @@ from collective.contact.plonegroup.config import set_registry_functions
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 from dexterity.localroles.utils import fti_configuration
+from dexterity.localroles.utils import get_affected_portal_types
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
 from imio.dms.mail import _tr
@@ -26,6 +27,11 @@ from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
+import logging
+
+
+logger = logging.getLogger("imio.dms.mail.wfadaptations")
+
 
 """
   incomingmail_workflow adaptation
@@ -42,6 +48,12 @@ class IIMPreValidationParameters(Interface):
 
     backward_transition_title = schema.TextLine(
         title=u"Backward transition title", default=u"Renvoyer pour prévalidation DG", required=True
+    )
+
+    defer_security_update = schema.Bool(
+        title=u"Defer security update",
+        default=False,
+        required=False,
     )
 
 
@@ -137,6 +149,10 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             portal["contacts"]["contact-lists-folder"].manage_addLocalRoles(
                 "pre_manager", ["Contributor", "Editor", "Reader"]
             )
+        if parameters["defer_security_update"]:
+            portal.REQUEST.set("DEFER_SECURITY_UPDATE", True)
+        # clear portal types storage
+        get_affected_portal_types(portal.REQUEST, clear=True)
 
         # TODO : include n+ levels if necessary
         # ajouter config local roles
@@ -167,7 +183,20 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             for st in next_states:
                 updates.update({st: {"pre_manager": {"roles": ["Reader"]}}})
             if update_roles_in_fti(ptype, updates):
-                update_security_index([ptype])
+                if not parameters["defer_security_update"]:
+                    update_security_index([ptype])
+
+        affected = get_affected_portal_types(portal.REQUEST)
+        if affected:
+            if parameters["defer_security_update"]:
+                msg = u"Portal types for which security must be updated : {}".format(u", ".join(sorted(affected)))
+                m_typ = "warn"
+            else:
+                msg = u"Portal types that have been concerned by security updates : {}".format(
+                    u", ".join(sorted(affected)))
+                m_typ = "info"
+            logger.info(msg)
+            api.portal.show_message(msg, portal.REQUEST, type=m_typ)
 
         # add collection
         folder = portal["incoming-mail"]["mail-searches"]

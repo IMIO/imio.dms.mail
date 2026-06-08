@@ -497,6 +497,7 @@ class IImioDmsMailConfig(model.Schema):
         label=_(u"Incoming mail"),
         fields=[
             "mail_types",
+            "imail_send_modes",
             "assigned_user_check",
             "original_mail_date_required",
             "due_date_extension",
@@ -569,6 +570,16 @@ class IImioDmsMailConfig(model.Schema):
         default=False,
     )
 
+    imail_send_modes = schema.List(
+        title=_(u"Send modes"),
+        description=_(
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
+        ),
+        value_type=DictRow(title=_("Send modes"), schema=ITableListSchema),
+    )
+
+    widget("imail_send_modes", DataGridFieldFactory, allow_reorder=True)
+
     # FIELDSET IEM
     model.fieldset(
         "incoming_email",
@@ -608,6 +619,7 @@ class IImioDmsMailConfig(model.Schema):
         label=_(u"Outgoing mail"),
         fields=[
             "omail_types",
+            "omail_send_modes",
             "omail_remark_states",
             "omail_response_prefix",
             "omail_formats_mainfile",
@@ -615,11 +627,10 @@ class IImioDmsMailConfig(model.Schema):
             "omail_sender_firstname_sorting",
             "org_templates_encoder_can_edit",
             "omail_fullname_used_form",
-            "omail_send_modes",
             "omail_post_mailing",
             "omail_signers_origin",
-            "omail_signer_rules",
             "omail_signer_substitutes",
+            "omail_signer_rules",
             "omail_fields",
             "omail_group_encoder",
         ],
@@ -633,6 +644,16 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     widget("omail_types", DataGridFieldFactory)
+
+    omail_send_modes = schema.List(
+        title=_(u"Send modes"),
+        description=_(
+            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
+        ),
+        value_type=DictRow(title=_("Send modes"), schema=ITableListSchema),
+    )
+
+    widget("omail_send_modes", DataGridFieldFactory, allow_reorder=True)
 
     omail_remark_states = schema.List(
         title=_(u"States for which to display remark icon"),
@@ -673,16 +694,6 @@ class IImioDmsMailConfig(model.Schema):
         default="firstname",
     )
 
-    omail_send_modes = schema.List(
-        title=_(u"Send modes"),
-        description=_(
-            u"Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
-        ),
-        value_type=DictRow(title=_("Send modes"), schema=ITableListSchema),
-    )
-
-    widget("omail_send_modes", DataGridFieldFactory, allow_reorder=True)
-
     omail_post_mailing = schema.Bool(
         title=_(u"Post mailing"),
         description=_(u"Do mailing for each postal sending type."),
@@ -694,20 +705,6 @@ class IImioDmsMailConfig(model.Schema):
         description=_(u"Defines how outgoing mail signers are set."),
         vocabulary=signers_origin_modes,
         default=u"rules",
-    )
-
-    omail_signer_rules = schema.List(
-        title=_(u"${type} signers rules", mapping={"type": _("Outgoing mail")}),
-        description=_(u"Rules are read in order. Conditions must be left empty if not relevant."),
-        value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
-        required=False,
-        default=[],
-    )
-    widget(
-        "omail_signer_rules",
-        ExpandableDataGridFieldFactory,
-        allow_reorder=True,
-        auto_append=False,
     )
 
     omail_signer_substitutes = schema.List(
@@ -722,6 +719,20 @@ class IImioDmsMailConfig(model.Schema):
     widget(
         "omail_signer_substitutes",
         DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=False,
+    )
+
+    omail_signer_rules = schema.List(
+        title=_(u"${type} signers rules", mapping={"type": _("Outgoing mail")}),
+        description=_(u"Rules are read in order. Conditions must be left empty if not relevant."),
+        value_type=DictRow(title=_(u"Routing"), schema=ISignerRuleSchema, required=False),
+        required=False,
+        default=[],
+    )
+    widget(
+        "omail_signer_rules",
+        ExpandableDataGridFieldFactory,
         allow_reorder=True,
         auto_append=False,
     )
@@ -861,6 +872,7 @@ class IImioDmsMailConfig(model.Schema):
         # check ITableListSchema id uniqueness
         for fs, tab, fieldname, title in (
             ("incomingmail", "Incoming mail", "mail_types", u"Types of incoming mail"),
+            ("incomingmail", "Incoming mail", "imail_send_modes", u"Send modes"),
             ("outgoingmail", "Outgoing mail", "omail_types", u"Types of outgoing mail"),
             ("outgoingmail", "Outgoing mail", "omail_send_modes", u"Send modes"),
         ):
@@ -943,6 +955,23 @@ class IImioDmsMailConfig(model.Schema):
                                              "user": safe_unicode(username), "tg": safe_unicode(tgname)},
                                 )
                             )
+        # check imail_send_modes id
+        if fieldset == "incomingmail" or not fieldset:
+            try:
+                for dic in data.imail_send_modes or []:
+                    if (
+                        not dic["value"].startswith("email")
+                        and not dic["value"].startswith("post")
+                        and not dic["value"].startswith("other")
+                    ):
+                        raise Invalid(
+                            _(
+                                u"${tab} tab: send_modes field must have values starting with « post », « email » or "
+                                u"« other »", mapping={"tab": _("Incoming mail")},
+                            )
+                        )
+            except NoInputData:
+                pass
         # check omail_send_modes id
         if fieldset == "outgoingmail" or not fieldset:
             try:
@@ -1259,6 +1288,9 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName == "omail_types":
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMMailTypesVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveMailTypesVocabulary")
+    if event.record.fieldName == "imail_send_modes":
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.IMSendModesVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.IMActiveSendModesVocabulary")
     if event.record.fieldName == "omail_send_modes":
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSendModesVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSendModesVocabulary")

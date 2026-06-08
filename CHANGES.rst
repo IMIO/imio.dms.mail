@@ -1,7 +1,17 @@
 Changelog
 =========
 
-3.1.4 (unreleased)
+3.1.5 (unreleased)
+------------------
+
+- Added temporary sub_templates_usage in Extensions/demo.py.
+  [sgeulette]
+- Added defer_security_update parameter on IMPreManagerValidation wf adaptation
+  [sgeulette]
+- Added "omail_signers_origin" option with 3 modes to define outgoing mail signers.
+  [sgeulette, chris-adam]
+
+3.1.4 (2026-05-29)
 ------------------
 
 - Added "rename_title" action on dms files.
@@ -10,7 +20,9 @@ Changelog
   [chris-adam]
 - Added Signer/Approving icon on personnel listing table.
   [chris-adam, sgeulette]
-- Added "omail_signers_origin" option with 3 modes to define outgoing mail signers.
+- Added send_modes field on incoming (e)mails.
+  [chris-adam, sgeulette]
+- Improved download barcode (type, size).
   [sgeulette, chris-adam]
 
 3.1.3 (2026-05-08)
