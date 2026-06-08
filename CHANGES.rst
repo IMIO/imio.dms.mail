@@ -8,6 +8,8 @@ Changelog
   [sgeulette]
 - Added defer_security_update parameter on IMPreManagerValidation wf adaptation
   [sgeulette]
+- Added "omail_signers_origin" option with 3 modes to define outgoing mail signers.
+  [sgeulette, chris-adam]
 
 3.1.4 (2026-05-29)
 ------------------
