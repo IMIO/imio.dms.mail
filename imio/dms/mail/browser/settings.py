@@ -684,7 +684,7 @@ class IImioDmsMailConfig(model.Schema):
 
     org_templates_encoder_can_edit = schema.Bool(
         title=_(u"Enable edition of service office templates for encoder"),
-        description=_(u"Check if a service encoder can edit his service office templates."),
+        # description=_(u"Check if a service encoder can edit his service office templates."),
         default=True,
     )
 
@@ -702,7 +702,7 @@ class IImioDmsMailConfig(model.Schema):
 
     omail_signers_origin = schema.Choice(
         title=_(u"Signers set origin"),
-        description=_(u"Defines how outgoing mail signers are set."),
+        # description=_(u"Defines how outgoing mail signers are set."),
         vocabulary=signers_origin_modes,
         default=u"rules",
     )
@@ -781,7 +781,7 @@ class IImioDmsMailConfig(model.Schema):
 
     org_email_templates_encoder_can_edit = schema.Bool(
         title=_(u"Enable edition of service email templates for encoder"),
-        description=_(u"Check if a service encoder can edit his service email templates."),
+        # description=_(u"Check if a service encoder can edit his service email templates."),
         default=True,
     )
 

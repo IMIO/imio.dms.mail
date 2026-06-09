@@ -10,6 +10,8 @@ Changelog
   [sgeulette]
 - Added "omail_signers_origin" option with 3 modes to define outgoing mail signers.
   [sgeulette, chris-adam]
+- Removed useless settings descriptions
+  [sgeulette]
 
 3.1.4 (2026-05-29)
 ------------------
