@@ -15,6 +15,7 @@ from collective.documentgenerator.helper.archetypes import ATDocumentGenerationH
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
+from collective.documentviewer.views import DXDocumentViewerView
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
 from imio.dms.mail import _
 from imio.dms.mail import get_empty_signers_value
@@ -699,7 +700,7 @@ class DmsEditSubTemplate(DefaultEditForm):
         _filter_signing_fieldset(self)
 
 
-class DmsViewSubTemplate(DGDXDocumentViewerView):
+class DmsViewSubTemplate(DXDocumentViewerView):
 
     def update(self):
         super(DmsViewSubTemplate, self).update()
