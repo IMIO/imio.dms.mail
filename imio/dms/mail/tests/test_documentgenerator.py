@@ -408,6 +408,9 @@ class TestDocumentGenerator(unittest.TestCase):
         empty_value = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
         original_mail_signers = rep1.signers
         original_rules = api.portal.get_registry_record(rk_rules, default=[])
+        different_signers = [
+            {"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}
+        ]
 
         # "rules" mode (default): no copy from template
         template.signers = template_signers
@@ -420,16 +423,13 @@ class TestDocumentGenerator(unittest.TestCase):
         # "template_first", template has signers, mail empty: copy
         api.portal.set_registry_record(rk_so, u"template_first")
         rep1.signers = None
+        rep1.seal = False
+        rep1.esign = False
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers, template_signers)
         self.assertTrue(rep1.seal)
         self.assertTrue(rep1.esign)
         self.assertIsNot(rep1.signers, template.signers)
-
-        # "template_first", mail is empty (None): copy applies
-        rep1.signers = None
-        view._copy_template_signers(template)
-        self.assertEqual(rep1.signers, template_signers)
 
         # "template_first", mail holds the _empty_ placeholder: considered as a defined value,
         # so the template is not applied (warning).
@@ -441,10 +441,17 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(len(msgs), 1)
         self.assertEqual(msgs[0].type, u"warning")
 
-        # "template_first", template has no signers: fall back to signer rules.
+        # "template_first", template has no signers
+        template.signers = None
+        # fall back to signer rules if mail has no signers
+        rep1.signers = different_signers
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers, different_signers)
+        rep1.signers = None
+        view._copy_template_signers(template)
+        self.assertEqual(len(rep1.signers), 2)  # rules applied
         # With empty rules, nothing is found anywhere: an _empty_ value is set.
         api.portal.set_registry_record(rk_rules, [])
-        template.signers = None
         rep1.signers = None
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers, empty_value)
@@ -453,9 +460,6 @@ class TestDocumentGenerator(unittest.TestCase):
 
         # "template_first", conflict: mail has different real signers: warning, no copy
         IStatusMessage(request).show()  # consume existing messages
-        different_signers = [
-            {"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}
-        ]
         rep1.signers = different_signers
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers, different_signers)
@@ -465,9 +469,11 @@ class TestDocumentGenerator(unittest.TestCase):
 
         # "template_first", same signers as template: no warning, no change
         rep1.signers = list(template_signers)
+        rep1.esign = False
         view._copy_template_signers(template)
         msgs = IStatusMessage(request).show()
         self.assertEqual(len(msgs), 0)
+        self.assertFalse(rep1.esign)  # no change at all
 
         # "rules_first", mail already has real signers (from rules): template ignored, no warning
         api.portal.set_registry_record(rk_so, u"rules_first")

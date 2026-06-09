@@ -571,8 +571,11 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         signers_source = get_template_signers_source(source)
         template_signers = getattr(signers_source, "signers", None) if signers_source is not None else None
         if not template_signers:
+            if mail_has_signers:
+                return
+            # we are in rules_first or template_first and mail has not signer
             if mode == u"template_first":
-                # fall back to the signer rules
+                # fall back to the signer rules to set signers
                 apply_signer_rules(mail)
             if not mail.signers:
                 # nothing from the template nor the rules: set an _empty_ value
@@ -584,15 +587,16 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         resolved_signers = apply_substitutes_to_signers(copy.deepcopy(template_signers))
 
         # "template_first": warn (and skip) if the mail already has different signers (manual edit).
-        if mail_has_signers and mail.signers != resolved_signers:
-            api.portal.show_message(
-                message=translate(
-                    _(u"Warning: the mail already has signers configured that differ from the template. "
-                      u"The template signers were not applied."),
-                    context=self.request),
-                request=self.request,
-                type="warning",
-            )
+        if mail_has_signers:
+            if mail.signers != resolved_signers:
+                api.portal.show_message(
+                    message=translate(
+                        _(u"Warning: the mail already has signers configured that differ from the template. "
+                          u"The template signers were not applied."),
+                        context=self.request),
+                    request=self.request,
+                    type="warning",
+                )
             return
         mail.signers = resolved_signers
         mail.seal = getattr(signers_source, "seal", False) or False
