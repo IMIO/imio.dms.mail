@@ -19,6 +19,7 @@ from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategor
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.eeafaceted.dashboard.utils import enableFacetedDashboardFor
+from collective.iconifiedcategory.utils import calculate_category_id
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.quickupload.browser.quickupload_settings import IQuickUploadControlPanel
 from dexterity.localroles.utils import add_fti_configuration
@@ -573,76 +574,41 @@ def setup_iconified_categories(portal):
         )
     ccc = portal["annexes_types"]
 
+    def _create_category_group(oid, title, **kwargs):
+        if oid not in ccc:
+            group = api.content.create(
+                type="ContentCategoryGroup",
+                title=title,
+                container=ccc,
+                id=oid,
+                **kwargs
+            )
+            do_transitions(group, ["show_internally"])
+            alsoProvides(group, IProtectedItem)
+        else:
+            group = ccc[oid]
+        return group
+
+    activated = {
+        "to_be_printed_activated": True,
+        "signed_activated": True,
+        "approved_activated": True,
+    }
+
     # Content Category Group for classification folders
-    if "annexes" not in ccc:
-        annexes_category_group = api.content.create(
-            type="ContentCategoryGroup",
-            title=_("Folders Appendix Files"),
-            container=ccc,
-            id="annexes",
-        )
-        do_transitions(annexes_category_group, ["show_internally"])
-        alsoProvides(annexes_category_group, IProtectedItem)
-    else:
-        annexes_category_group = ccc["annexes"]
-
+    _create_category_group("annexes", _("Folders Appendix Files"))
     # Content Category Group for dms main files in incoming mails
-    if "incoming_dms_files" not in ccc:
-        incoming_dms_files_category_group = api.content.create(
-            type="ContentCategoryGroup",
-            title=_("Incoming DMS Files"),
-            container=ccc,
-            id="incoming_dms_files",
-        )
-        do_transitions(incoming_dms_files_category_group, ["show_internally"])
-        alsoProvides(incoming_dms_files_category_group, IProtectedItem)
-    else:
-        incoming_dms_files_category_group = ccc["incoming_dms_files"]
-
+    incoming_dms_files_category_group = _create_category_group(
+        "incoming_dms_files", _("Incoming DMS Files"))
     # Content Category Group for appendix files in incoming mails
-    if "incoming_appendix_files" not in ccc:
-        incoming_appendix_files_category_group = api.content.create(
-            type="ContentCategoryGroup",
-            title=_("Incoming Appendix Files"),
-            container=ccc,
-            id="incoming_appendix_files",
-        )
-        do_transitions(incoming_appendix_files_category_group, ["show_internally"])
-        alsoProvides(incoming_appendix_files_category_group, IProtectedItem)
-    else:
-        incoming_appendix_files_category_group = ccc["incoming_appendix_files"]
-
+    incoming_appendix_files_category_group = _create_category_group(
+        "incoming_appendix_files", _("Incoming Appendix Files"))
     # Content Category Group for dms main files in outgoing mails
-    if "outgoing_dms_files" not in ccc:
-        outgoing_dms_files_category_group = api.content.create(
-            type="ContentCategoryGroup",
-            title=_("Outgoing DMS Files"),
-            container=ccc,
-            id="outgoing_dms_files",
-            to_be_printed_activated=True,
-            signed_activated=True,
-            approved_activated=True,
-        )
-        do_transitions(outgoing_dms_files_category_group, ["show_internally"])
-        alsoProvides(outgoing_dms_files_category_group, IProtectedItem)
-    else:
-        outgoing_dms_files_category_group = ccc["outgoing_dms_files"]
-
+    outgoing_dms_files_category_group = _create_category_group(
+        "outgoing_dms_files", _("Outgoing DMS Files"), **activated)
     # Content Category Group for appendix files in outgoing mails
-    if "outgoing_appendix_files" not in ccc:
-        outgoing_appendix_files_category_group = api.content.create(
-            type="ContentCategoryGroup",
-            title=_("Outgoing Appendix Files"),
-            container=ccc,
-            id="outgoing_appendix_files",
-            to_be_printed_activated=True,
-            signed_activated=True,
-            approved_activated=True,
-        )
-        do_transitions(outgoing_appendix_files_category_group, ["show_internally"])
-        alsoProvides(outgoing_appendix_files_category_group, IProtectedItem)
-    else:
-        outgoing_appendix_files_category_group = ccc["outgoing_appendix_files"]
+    outgoing_appendix_files_category_group = _create_category_group(
+        "outgoing_appendix_files", _("Outgoing Appendix Files"), **activated)
 
     # Create ContentCategory objects inside each category group
     images_dir = pkg_resources.resource_filename('imio.dms.mail', 'profiles/examples/images')
@@ -2653,6 +2619,8 @@ def add_templates(site):
                 ret.append(dic)
         return ret
 
+    category_id = calculate_category_id(site["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"])
+
     data = {
         10: {
             "title": _(u"Mail listing template"),
@@ -2745,6 +2713,7 @@ def add_templates(site):
                     {"name": u"actions", "value": u""},
                     {"name": u"extras", "value": u"UID,PATH,CTX_PATH,CASE"},
                 ],
+                "default_content_category": category_id,
             },
         },
         90: {"title": _(u"Style template"), "type": "StyleTemplate", "trans": ["show_internally"]},
@@ -2826,6 +2795,7 @@ def add_templates(site):
                 "style_template": [cids[90].UID()],
                 "mailing_loop_template": cids[150].UID(),
                 "rename_page_styles": False,
+                "default_content_category": category_id,
             },
         },
         #                       'context_variables': [{'name': u'do_mailing', 'value': u'1'}]}},
@@ -2851,6 +2821,7 @@ def add_templates(site):
                     {"name": u"PVS", "value": u"False"},
                 ],
                 "rename_page_styles": False,
+                "default_content_category": category_id,
             },
         },
     }

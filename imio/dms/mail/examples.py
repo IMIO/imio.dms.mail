@@ -132,14 +132,6 @@ def add_test_annexes_types(context):
             predefined_title=title,
         )
 
-    # Assign default content category to templates
-    templates = site.portal_catalog.unrestrictedSearchResults(portal_type=["ConfigurablePODTemplate"])
-    category_id = calculate_category_id(site["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"])
-    for template in templates:
-        obj = template.getObject()
-        if not obj.default_content_category:
-            obj.default_content_category = category_id
-
 
 def add_test_contact_lists(context):
     """
