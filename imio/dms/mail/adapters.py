@@ -1334,15 +1334,16 @@ class OMApprovalAdapter(object):
             return True
         return False
 
-    def start_approval_process(self):
+    def start_approval_process(self, audit=True):
         """Update the annotation to start the approval process."""
         orig_nb = self.calculate_current_nb()
-        esign_audit(
-            "start_approval_process",
-            "mail={} signers={} approvers={}".format(
-                self.context.UID(), "|".join(self.signers), "|".join([",".join(sublist) for sublist in
-                                                                      self.annot["approvers"]]))
-        )
+        if audit:
+            esign_audit(
+                "start_approval_process",
+                "mail={} signers={} approvers={}".format(
+                    self.context.UID(), "|".join(self.signers), "|".join([",".join(sublist) for sublist in
+                                                                          self.annot["approvers"]]))
+            )
         if self.approvers:
             # first time transition, set the first level to "proposed"
             if orig_nb is None:
@@ -1747,7 +1748,9 @@ class OMApprovalAdapter(object):
             pc.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
             self.context.reindexObjectSecurity()  # to update local roles from adapter
 
-        self.start_approval_process()
+        # audit=False: restarting the workflow after an unapproval is internal bookkeeping,
+        # not a new approval, so we must not emit a start_approval_process audit event here.
+        self.start_approval_process(audit=False)
 
     def _create_pdf_file(self, orig_fobj, nbf, f_title, f_uid, file_index, session_file_uids):
         """Create a pdf version file.

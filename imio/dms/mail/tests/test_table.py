@@ -200,6 +200,14 @@ class TestTable(unittest.TestCase):
         self.assertFalse(table.approval.is_file_approved(files[0].UID(), nb=1))
         self.assertTrue(table.approval.is_file_approved(files[1].UID(), nb=1))
 
+        # Assert annotation approved_by
+        approval = table.approval
+        # files[0] at level dirg was approved by a direct adapter call above: signer kept
+        self.assertEqual(approval.annot["approval"][0][0]["approved_by"], "dirg")
+        # files[1] at levels dirg and bourgmestre were approved via the form: current user
+        self.assertEqual(approval.annot["approval"][0][1]["approved_by"], "siteadmin")
+        self.assertEqual(approval.annot["approval"][1][1]["approved_by"], "siteadmin")
+
         # Unapprove files in a weird pattern
         form_data = {
             "form.button.Save": "Save",
