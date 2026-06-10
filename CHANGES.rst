@@ -6,6 +6,14 @@ Changelog
 
 - Added temporary sub_templates_usage in Extensions/demo.py.
   [sgeulette]
+- Added defer_security_update parameter on IMPreManagerValidation wf adaptation
+  [sgeulette]
+- Added "omail_signers_origin" option with 3 modes to define outgoing mail signers.
+  [sgeulette, chris-adam]
+- Removed useless settings descriptions
+  [sgeulette]
+- Refactored ContentCategoryGroup and ContentCategory creation
+  [chris-adam, sgeulette]
 - Fixed approver userid in @@manage-approvals.
   [chris-adam]
 - Fixed start_approval_process audit log on unapprove_file.

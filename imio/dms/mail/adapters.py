@@ -1408,7 +1408,7 @@ class OMApprovalAdapter(object):
         self.reset()
 
         signer_emails = set()
-        signers = sorted(self.context.signers, key=lambda s: s["number"])
+        signers = sorted(self.context.signers or [], key=lambda s: s["number"])
         for signer in signers:
             if signer["signer"] == "_empty_":
                 continue
