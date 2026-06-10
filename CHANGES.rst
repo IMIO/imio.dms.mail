@@ -12,6 +12,8 @@ Changelog
   [sgeulette, chris-adam]
 - Removed useless settings descriptions
   [sgeulette]
+- Refactored ContentCategoryGroup and ContentCategory creation
+  [chris-adam, sgeulette]
 
 3.1.4 (2026-05-29)
 ------------------
