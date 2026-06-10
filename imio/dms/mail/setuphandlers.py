@@ -1963,7 +1963,7 @@ def create_personnel_dashboard(pf):
             "count": False,
         },
     ]
-    createDashboardCollections(folder, collections)
+    createDashboardCollections(col_folder, collections)
     configure_faceted_folder(
         col_folder,
         xml="personnel-searches.xml",
