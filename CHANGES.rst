@@ -26,6 +26,8 @@ Changelog
   [sgeulette]
 - Updated incoming mail_types and send_modes examples.
   [chris-adam, sgeulette]
+- Fixed duplicate transitions on wfa reapply in migration 3.1.
+  [chris-adam]
 
 3.1.4 (2026-05-29)
 ------------------

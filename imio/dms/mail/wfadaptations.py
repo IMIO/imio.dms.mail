@@ -644,7 +644,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         val_back_tr_id = "back_to_validated"
 
         transitions = [tr for (st, tr) in wf_from_to["from"]] + [tr for (st, tr) in wf_from_to["to"]]
-        to_states = [st for (st, tr) in wf_from_to["to"]]
+        to_states = [st for (st, tr) in wf_from_to["to"] if st != val_state_id]
         # store current level in dms_config
         # wf_from_to['to'] += [(new_state_id, propose_tr_id)]
         # set_dms_config(['wf_from_to', 'dmsoutgoingmail', 'n_plus'], wf_from_to)
@@ -655,9 +655,9 @@ class OMServiceValidation(WorkflowAdaptationBase):
             return False, "State {} already in workflow".format(new_state_id)
         wf.states.addState(new_state_id)
         state = wf.states[new_state_id]
-        new_state_transitions = transitions
+        new_state_transitions = list(transitions)
         if val_set_tr_id not in new_state_transitions:
-            new_state_transitions += [val_set_tr_id]
+            new_state_transitions.append(val_set_tr_id)
         state.setProperties(
             title=parameters["state_title"].encode("utf8"), description="", transitions=new_state_transitions
         )
@@ -677,11 +677,9 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # add validated state
         wf.states.addState(val_state_id)
         val_state = wf.states[val_state_id]
-        val_transitions = list(transitions)
+        val_transitions = [tr for tr in transitions if tr != val_set_tr_id]
         if back_tr_id not in val_transitions:
-            val_transitions += [back_tr_id]
-        if val_set_tr_id in new_state_transitions:
-            val_transitions.remove(val_set_tr_id)
+            val_transitions.append(back_tr_id)
         if not parameters["validated_from_created"]:
             val_transitions.remove("back_to_creation")
         val_state.setProperties(title="om_validated", description="", transitions=val_transitions)
@@ -1156,7 +1154,11 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
             state.transitions = tuple(transitions)
         if already_applied == "n_plus":
             for st in ("proposed_to_n_plus_1", "validated"):
+                if st not in wf.states:
+                    continue
                 transitions = list(wf.states[st].transitions)
+                if to_tr_id in transitions:
+                    continue
                 transitions.append(to_tr_id)
                 wf.states[st].transitions = tuple(transitions)
 
