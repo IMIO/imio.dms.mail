@@ -20,6 +20,10 @@ Changelog
   [chris-adam]
 - Improved import_sign_examples to handle multiple signers
   [sgeulette]
+- Do not display ownership fieldset
+  [sgeulette]
+- Removed IScanFields on annex type
+  [sgeulette]
 
 3.1.4 (2026-05-29)
 ------------------

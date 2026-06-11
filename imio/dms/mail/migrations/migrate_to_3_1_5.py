@@ -16,6 +16,7 @@ class Migrate_To_3_1_5(Migrate_To_3_1):  # noqa
             # update settings
             self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry"])
             # reload types for behavior
+            load_type_from_package("annex", "imio.dms.mail:default")  # behavior
             load_type_from_package("ConfigurablePODTemplate", "imio.dms.mail:default")  # behavior
             load_type_from_package("SubTemplate", "imio.dms.mail:default")  # behavior
 
