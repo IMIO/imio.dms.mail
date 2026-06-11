@@ -18,6 +18,8 @@ Changelog
   [chris-adam]
 - Fixed start_approval_process audit log on unapprove_file.
   [chris-adam]
+- Improved import_sign_examples to handle multiple signers
+  [sgeulette]
 
 3.1.4 (2026-05-29)
 ------------------

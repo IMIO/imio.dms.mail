@@ -610,10 +610,10 @@ def approval_annot(self):
     return pprint.pformat(dic)
 
 
-def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", approve="0"):
+def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", approve="0"):
     """Create outgoing mail examples for electronic signing demo.
 
-    :param userid: the user id of the signer (must have a held_position with 'signer' usage)
+    :param userids: the user ids of the signers (must have a held_position with 'signer' usage), separated by comma
     :param cases: the cases to create
     :param mnb: number of mails to create
     :param fnb: number of files to create
@@ -622,15 +622,15 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", app
     """
     if not check_role(self):
         return "You must be a manager to run this script"
-    if not userid:
+    if not userids:
         user = api.user.get_current()
         return ("You must call this script with the following parameters:\n"
-                "-> userid : mandatory userid used as signer\n"
+                "-> userids : mandatory userids used as signers, separated by comma\n"
                 "-> cases : create only specified cases\n"
                 "-> mnb : number of mails to create\n"
                 "-> fnb : number of files to create\n"
                 "-> approve : if '1', approve esign mails (propose_to_approve + approvings)\n"
-                "Example: import_sign_examples?userid={}&cases=136\n\n"
+                "Example: import_sign_examples?userids={}&cases=136\n\n"
                 "Cases:\n"
                 "-> 1 : signataire avec modèle\n"
                 "-> 2 : signataire avec annexe seule\n"
@@ -651,15 +651,19 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", app
     fnb = int(fnb)
     do_approve = approve == "1"
 
+    user_ids = [u.strip() for u in userids.split(",") if u.strip()]
     # Find the signer's held_position (must have "signer" usage)
-    if userid not in pf:
-        return "User '{}' not found in personnel-folder".format(userid)
-    signer_hp_uid = None
-    brains = pc.unrestrictedSearchResults(userid=userid, portal_type="held_position", usages="signer")
-    for brain in brains:
-        signer_hp_uid = brain.UID
-    if signer_hp_uid is None:
-        return "No held_position with 'signer' usage found for userid '{}'".format(userid)
+    signer_hp_uids = []
+    for userid in user_ids:
+        if userid not in pf:
+            return "User '{}' not found in personnel-folder".format(userid)
+        brains = pc.unrestrictedSearchResults(userid=userid, portal_type="held_position", usages="signer")
+        for brain in brains:
+            signer_hp_uid = brain.UID
+            break
+        else:
+            return "No held_position with 'signer' usage found for userid '{}'".format(userid)
+        signer_hp_uids.append(signer_hp_uid)
 
     # Find treating_groups: direction générale / secrétariat
     try:
@@ -750,17 +754,17 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", app
     }
 
     # Case 7: sans signature électronique (2 signataires manuels) + modèle
-    params = dict(base_params)
-    params.update({
-        "title": u"Cas 7 => sans signature électronique avec modèle",
-        "signers": [{"number": 1, "signer": pf["dirg"]["directeur-general"].UID(), "approvings": [u"_empty_"],
-                     "editor": False},
-                    {"number": 2, "signer": pf["bourgmestre"]["bourgmestre"].UID(), "approvings": [u"_empty_"],
-                     "editor": False}],
-        "seal": False,
-        "esign": False,
-    })
     if "7" in cases:
+        params = dict(base_params)
+        params.update({
+            "title": u"Cas 7 => sans signature électronique avec modèle",
+            "signers": [{"number": 1, "signer": pf["dirg"]["directeur-general"].UID(), "approvings": [u"_empty_"],
+                         "editor": False},
+                        {"number": 2, "signer": pf["bourgmestre"]["bourgmestre"].UID(), "approvings": [u"_empty_"],
+                         "editor": False}],
+            "seal": False,
+            "esign": False,
+        })
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
@@ -773,14 +777,16 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", app
                 _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
 
     # Case 6: signataire + modèle à publiposter
-    params = dict(base_params)
-    params.update({
-        "title": u"Cas 6 => 1 signataire avec modèle à publiposter",
-        "signers": [{"number": 1, "signer": signer_hp_uid, "approvings": [u"_themself_"], "editor": False}],
-        "esign": True,
-        "recipients": [RelationValue(intids.getId(anniekordi)), RelationValue(intids.getId(contacts["electrabel"]))],
-    })
     if "6" in cases:
+        params = dict(base_params)
+        params.update({
+            "title": u"Cas 6 => 1 signataire avec modèle à publiposter",
+            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
+                        for i, shp in enumerate(signer_hp_uids, start=1)],
+            "esign": True,
+            "recipients": [RelationValue(intids.getId(anniekordi)),
+                           RelationValue(intids.getId(contacts["electrabel"]))],
+        })
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
@@ -796,14 +802,15 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", app
                 _approve_mail(mail)
 
     # Case 5: signataire + seal + modèle
-    params = dict(base_params)
-    params.update({
-        "title": u"Cas 5 => 1 signataire et seal avec modèle",
-        "signers": [{"number": 1, "signer": signer_hp_uid, "approvings": [u"_themself_"], "editor": False}],
-        "seal": True,
-        "esign": True,
-    })
     if "5" in cases:
+        params = dict(base_params)
+        params.update({
+            "title": u"Cas 5 => 1 signataire et seal avec modèle",
+            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
+                        for i, shp in enumerate(signer_hp_uids, start=1)],
+            "seal": True,
+            "esign": True,
+        })
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
@@ -818,14 +825,15 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", app
                 _approve_mail(mail)
 
     # Case 4: seal seul (pas de signataire, pas d'esign) + modèle
-    params = dict(base_params)
-    params.update({
-        "title": u"Cas 4 => seal avec modèle",
-        "signers": [{"number": 1, "signer": u"_empty_", "approvings": [u"_empty_"], "editor": False}],
-        "seal": True,
-        "esign": False,
-    })
     if "4" in cases:
+        params = dict(base_params)
+        params.update({
+            "title": u"Cas 4 => seal avec modèle",
+            "signers": [{"number": 1, "signer": u"_empty_", "approvings": [u"_empty_"], "editor": False}],
+
+            "seal": True,
+            "esign": False,
+        })
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
@@ -838,13 +846,14 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", app
                 _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
 
     # Case 3: signataire + modèle + annexe
-    params = dict(base_params)
-    params.update({
-        "title": u"Cas 3 => 1 signataire avec modèle et annexe",
-        "signers": [{"number": 1, "signer": signer_hp_uid, "approvings": [u"_themself_"], "editor": False}],
-        "esign": True,
-    })
     if "3" in cases:
+        params = dict(base_params)
+        params.update({
+            "title": u"Cas 3 => 1 signataire avec modèle et annexe",
+            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
+                        for i, shp in enumerate(signer_hp_uids, start=1)],
+            "esign": True,
+        })
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
@@ -861,13 +870,14 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", app
                 _approve_mail(mail)
 
     # Case 2: signataire + annexe seule
-    params = dict(base_params)
-    params.update({
-        "title": u"Cas 2 => 1 signataire avec annexe seule",
-        "signers": [{"number": 1, "signer": signer_hp_uid, "approvings": [u"_themself_"], "editor": False}],
-        "esign": True,
-    })
     if "2" in cases:
+        params = dict(base_params)
+        params.update({
+            "title": u"Cas 2 => 1 signataire avec annexe seule",
+            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
+                        for i, shp in enumerate(signer_hp_uids, start=1)],
+            "esign": True,
+        })
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
@@ -882,13 +892,14 @@ def import_sign_examples(self, userid="", cases="1234567", mnb="1", fnb="1", app
                 _approve_mail(mail)
 
     # Case 1: signataire + modèle
-    params = dict(base_params)
-    params.update({
-        "title": u"Cas 1 => 1 signataire avec modèle",
-        "signers": [{"number": 1, "signer": signer_hp_uid, "approvings": [u"_themself_"], "editor": False}],
-        "esign": True,
-    })
     if "1" in cases:
+        params = dict(base_params)
+        params.update({
+            "title": u"Cas 1 => 1 signataire avec modèle",
+            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
+                        for i, shp in enumerate(signer_hp_uids, start=1)],
+            "esign": True,
+        })
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
