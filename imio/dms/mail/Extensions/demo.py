@@ -489,6 +489,8 @@ def clean_examples(self, doit="1"):
             log_list(out, "Deleting object '%s' created by '%s'" % (brain.getPath(), userid))
             if doit:
                 api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
+        if user is None:
+            continue
         for group in api.group.get_groups(user=user):
             if group.id == "AuthenticatedUsers":
                 continue
