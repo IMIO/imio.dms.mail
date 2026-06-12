@@ -8,8 +8,24 @@ Changelog
   [sgeulette]
 - Added defer_security_update parameter on IMPreManagerValidation wf adaptation
   [sgeulette]
-- Updated incoming mail_types and send_modes examples.
+- Added "omail_signers_origin" option with 3 modes to define outgoing mail signers.
+  [sgeulette, chris-adam]
+- Removed useless settings descriptions
+  [sgeulette]
+- Refactored ContentCategoryGroup and ContentCategory creation
+  [chris-adam, sgeulette]
+- Fixed approver userid in @@manage-approvals.
   [chris-adam]
+- Fixed start_approval_process audit log on unapprove_file.
+  [chris-adam]
+- Improved import_sign_examples to handle multiple signers
+  [sgeulette]
+- Do not display ownership fieldset
+  [sgeulette]
+- Removed IScanFields on annex type
+  [sgeulette]
+- Updated incoming mail_types and send_modes examples.
+  [chris-adam, sgeulette]
 
 3.1.4 (2026-05-29)
 ------------------

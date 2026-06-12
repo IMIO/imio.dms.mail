@@ -8,18 +8,30 @@ from collective.documentgenerator import _ as _dg
 from collective.documentgenerator import utils
 from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
+from collective.documentgenerator.browser.overrides import DGDXDocumentViewerView
+from collective.documentgenerator.browser.views import EditConfigurablePodTemplate
 from collective.documentgenerator.content.pod_template import ConfigurablePODTemplate
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
+from collective.documentviewer.views import DXDocumentViewerView
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
+from imio.dms.mail import _
+from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.subscribers import apply_signer_rules
+from imio.dms.mail.subscribers import apply_substitutes_to_signers
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
 from imio.zamqp.core.utils import next_scan_id
 from plone import api
+from plone.dexterity.browser.add import DefaultAddForm
+from plone.dexterity.browser.add import DefaultAddView
+from plone.dexterity.browser.edit import DefaultEditForm
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import base_hasattr
@@ -27,12 +39,32 @@ from Products.CMFPlone.utils import safe_unicode
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.i18n import translate
+from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
 
+import copy
 import operator
+import zope.event
 
 
 # # # HELPERS # # #
+
+
+def get_template_signers_source(pod_template):
+    """Return the template object defining the signers to apply for pod_template.
+
+    Signers are taken from pod_template itself. If it defines none, its merge_templates
+    sub-templates are looked up in order and the first one defining signers is returned.
+    Returns None when neither the template nor its sub-templates define signers.
+    """
+    if bool(getattr(pod_template, "signers", None)):
+        return pod_template
+    for line in getattr(pod_template, "merge_templates", None) or []:
+        sub = uuidToObject(line.get("template"), unrestricted=True)
+        if sub is not None and bool(getattr(sub, "signers", None)):
+            return sub
+    return None
 
 
 class BaseDGHelper(DXDocumentGenerationHelperView):
@@ -47,8 +79,8 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
 
     def get_classification_folders(self, sep=u", "):
         obj = self.real_context
-        if (not self.has_field("classification_folders") or not hasattr(obj, "classification_folders") or
-                not obj.classification_folders):
+        if (not self.has_field("classification_folders") or not hasattr(obj, "classification_folders")
+                or not obj.classification_folders):
             return []
         ret = []
         for fld in obj.classification_folders:
@@ -479,6 +511,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
 
     def generate_persistent_doc(self, pod_template, output_format):
         """Create a dmsmainfile from the generated document"""
+        self._copy_template_signers(pod_template)
         doc, doc_name, gen_context = self._generate_doc(pod_template, output_format)
         need_mailing = not ("mailed_data" in gen_context or "mailing_list" in gen_context)
         file_object = NamedBlobFile(doc, filename=safe_unicode(doc_name))
@@ -507,6 +540,68 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
         return persisted_doc
+
+    def _copy_template_signers(self, pod_template):
+        """Set outgoing mail signers from the template, depending on the omail_signers_origin mode.
+
+        - "rules": signers come from the signer rules only, nothing is done here.
+        - "template_first": copy the template signers; if the template defines none, fall back to
+          the signer rules.
+        - "rules_first": rules are authoritative; the template is only used as a fallback when the
+          rules produced no signer (empty or only the _empty_ placeholder).
+
+        In both non-"rules" modes, when neither the template nor the rules provide any signer, an
+        _empty_ placeholder is set so the field is no longer reprocessed on next modification.
+        """
+        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
+        if mode == u"rules":
+            return
+        source = pod_template
+        if not isinstance(source, ConfigurablePODTemplate) and hasattr(self, "orig_template"):
+            source = self.orig_template
+        if not isinstance(source, ConfigurablePODTemplate):
+            return
+        mail = self.context
+        mail_has_signers = bool(mail.signers)
+
+        # "rules_first": when the rules already produced signers, the template configuration is ignored.
+        if mode == u"rules_first" and mail_has_signers:
+            return
+
+        signers_source = get_template_signers_source(source)
+        template_signers = getattr(signers_source, "signers", None) if signers_source is not None else None
+        if not template_signers:
+            if mail_has_signers:
+                return
+            # we are in rules_first or template_first and mail has not signer
+            if mode == u"template_first":
+                # fall back to the signer rules to set signers
+                apply_signer_rules(mail)
+            if not mail.signers:
+                # nothing from the template nor the rules: set an _empty_ value
+                mail.signers = get_empty_signers_value()
+            zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+            return
+
+        # copy the template signers, applying the active signer substitutes (as the rules do)
+        resolved_signers = apply_substitutes_to_signers(copy.deepcopy(template_signers))
+
+        # "template_first": warn (and skip) if the mail already has different signers (manual edit).
+        if mail_has_signers:
+            if mail.signers != resolved_signers:
+                api.portal.show_message(
+                    message=translate(
+                        _(u"Warning: the mail already has signers configured that differ from the template. "
+                          u"The template signers were not applied."),
+                        context=self.request),
+                    request=self.request,
+                    type="warning",
+                )
+            return
+        mail.signers = resolved_signers
+        mail.seal = getattr(signers_source, "seal", False) or False
+        mail.esign = getattr(signers_source, "esign", False) or False
+        zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
 
     def redirects(self, persisted_doc):
         """
@@ -560,6 +655,75 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
             generation_context["page_break_after"] = True
 
         return generation_context
+
+# # # TEMPLATE FORM OVERRIDES # # #
+
+
+def _filter_signing_fieldset(form_instance):
+    """Remove the signing fieldset from template form groups when signers come from rules only."""
+    if api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules") == u"rules":
+        form_instance.groups = [gr for gr in form_instance.groups if gr.__name__ != "signing"]
+
+
+class DmsEditConfigurablePodTemplate(EditConfigurablePodTemplate):
+
+    def update(self):
+        super(DmsEditConfigurablePodTemplate, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsViewConfigurablePodTemplate(DGDXDocumentViewerView):
+
+    def update(self):
+        super(DmsViewConfigurablePodTemplate, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsAddConfigurablePodTemplateForm(DefaultAddForm):
+
+    portal_type = "ConfigurablePODTemplate"
+
+    def update(self):
+        super(DmsAddConfigurablePodTemplateForm, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsAddConfigurablePodTemplate(DefaultAddView):
+
+    form = DmsAddConfigurablePodTemplateForm
+
+
+# SubTemplate form overrides. Plain Dexterity base forms are used here (no children_pod_template
+# provider, which only exists on ConfigurablePODTemplate).
+
+
+class DmsEditSubTemplate(DefaultEditForm):
+
+    def update(self):
+        super(DmsEditSubTemplate, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsViewSubTemplate(DXDocumentViewerView):
+
+    def update(self):
+        super(DmsViewSubTemplate, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsAddSubTemplateForm(DefaultAddForm):
+
+    portal_type = "SubTemplate"
+
+    def update(self):
+        super(DmsAddSubTemplateForm, self).update()
+        _filter_signing_fieldset(self)
+
+
+class DmsAddSubTemplate(DefaultAddView):
+
+    form = DmsAddSubTemplateForm
+
 
 # # # VIEWLETS # # #
 

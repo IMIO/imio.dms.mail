@@ -15,6 +15,7 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
             "state_title": u"À valider avant le DG",
             "forward_transition_title": u"Proposer pour prévalidation DG",
             "backward_transition_title": u"Renvoyer pour prévalidation DG",
+            "defer_security_update": False,
         }
         pmva = IMPreManagerValidation()
         pmva.patch_workflow("incomingmail_workflow", **params)

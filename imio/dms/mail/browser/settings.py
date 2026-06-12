@@ -452,19 +452,19 @@ fullname_forms = SimpleVocabulary(
     ]
 )
 
-# iemail_manual_forward_transitions = SimpleVocabulary(
-#     [
-#         SimpleTerm(value=u"created", title=_(u"A user forwarded email will stay at creation level")),
-#         SimpleTerm(value=u"manager", title=_(u"A user forwarded email will go to manager level")),
-#         SimpleTerm(
-#             value=u"n_plus_h", title=_(u"A user forwarded email will go to highest N+ level, otherwise to agent")
-#         ),
-#         SimpleTerm(
-#             value=u"n_plus_l", title=_(u"A user forwarded email will go to lowest N+ level, otherwise to agent")
-#         ),
-#         SimpleTerm(value=u"agent", title=_(u"A user forwarded email will go to agent level")),
-#     ]
-# )
+signers_origin_modes = SimpleVocabulary(
+    [
+        SimpleTerm(value=u"rules", title=_(u"Signers are only defined from signer rules")),
+        SimpleTerm(
+            value=u"template_first",
+            title=_(u"Signers are defined from the mail template, falling back to signer rules"),
+        ),
+        SimpleTerm(
+            value=u"rules_first",
+            title=_(u"Signers are defined from signer rules, falling back to the mail template"),
+        ),
+    ]
+)
 
 oemail_sender_email_values = SimpleVocabulary(
     [
@@ -586,13 +586,6 @@ class IImioDmsMailConfig(model.Schema):
         label=_(u"Incoming email"),
         fields=["iemail_routing", "iemail_state_set"],)
 
-    # iemail_manual_forward_transition = schema.Choice(
-    #     title=_(u"Email manual forward transition"),
-    #     description=_(u"Choose to which state a manually forwarded email will go."),
-    #     vocabulary=iemail_manual_forward_transitions,
-    #     default=u"agent",
-    # )
-    #
     iemail_routing = schema.List(
         title=_(u"${type} routing", mapping={"type": _("Incoming email")}),
         description=_(u"Configure rules carefully. You can order with arrows. Only first matched rule is used."),
@@ -635,6 +628,7 @@ class IImioDmsMailConfig(model.Schema):
             "org_templates_encoder_can_edit",
             "omail_fullname_used_form",
             "omail_post_mailing",
+            "omail_signers_origin",
             "omail_signer_substitutes",
             "omail_signer_rules",
             "omail_fields",
@@ -690,7 +684,7 @@ class IImioDmsMailConfig(model.Schema):
 
     org_templates_encoder_can_edit = schema.Bool(
         title=_(u"Enable edition of service office templates for encoder"),
-        description=_(u"Check if a service encoder can edit his service office templates."),
+        # description=_(u"Check if a service encoder can edit his service office templates."),
         default=True,
     )
 
@@ -704,6 +698,13 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u"Post mailing"),
         description=_(u"Do mailing for each postal sending type."),
         default=True,
+    )
+
+    omail_signers_origin = schema.Choice(
+        title=_(u"Signers set origin"),
+        # description=_(u"Defines how outgoing mail signers are set."),
+        vocabulary=signers_origin_modes,
+        default=u"rules",
     )
 
     omail_signer_substitutes = schema.List(
@@ -780,7 +781,7 @@ class IImioDmsMailConfig(model.Schema):
 
     org_email_templates_encoder_can_edit = schema.Bool(
         title=_(u"Enable edition of service email templates for encoder"),
-        description=_(u"Check if a service encoder can edit his service email templates."),
+        # description=_(u"Check if a service encoder can edit his service email templates."),
         default=True,
     )
 
@@ -1253,6 +1254,8 @@ class SettingsEditForm(RegistryEditForm):
             if grp.__name__ not in filt_groups:
                 continue
             wdg = grp.widgets[filt_groups[grp.__name__]]
+            if wdg.value is None:
+                continue
             def_values = [row["field_name"] for row in wdg.value]
             voc_name = wdg.field.value_type.schema["field_name"].vocabularyName
             voc = getUtility(IVocabularyFactory, voc_name)(self.context)

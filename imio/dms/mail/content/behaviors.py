@@ -9,6 +9,7 @@ from imio.dms.mail.browser.settings import ExpandableDataGridFieldFactory
 from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
+from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.dmsmail import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import get_allowed_omf_content_types
@@ -175,7 +176,7 @@ class ISigningBehavior(model.Schema):
     @invariant
     def validate_signing(data):
         context = data.__context__
-        if context:
+        if context and IImioDmsOutgoingMail.providedBy(context):
             is_user_admin = api.user.has_permission("Manage portal")
             approval = IOMApproval(context)
             if not is_user_admin and (approval.is_state_after_or_approve() or approval.current_nb == -1):
@@ -185,7 +186,7 @@ class ISigningBehavior(model.Schema):
                     raise Invalid(_(u"You cannot modify signers once the approval process has started or is done. "
                                     u"You may go back to a previous state or ask your admin."))
 
-        if data.seal and not data.esign and any([s["signer"] != u"_empty_" for s in data.signers]):
+        if data.seal and not data.esign and any([s["signer"] != u"_empty_" for s in (data.signers or [])]):
             raise Invalid(_(u"You cannot have a seal and signers but no electronic signature !"))
 
         if not data.signers or []:
@@ -286,8 +287,8 @@ class ISigningBehavior(model.Schema):
                     )
                 approvers[userid] = signer["number"]
 
-        # Validate file formats if eSignature is enabled
-        if context and data.esign:
+        # Validate file formats if eSignature is enabled (only on outgoing mail, not on templates)
+        if context and data.esign and IImioDmsOutgoingMail.providedBy(context):
             for afile in context.values():
                 # Skip files already converted for esign
                 if base_hasattr(afile, "conv_from_uid"):
@@ -362,7 +363,7 @@ class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
                 if found >= 10:
                     break
                 mail_added = False
-                for signer_dic in mail.signers:
+                for signer_dic in (mail.signers or []):
                     if not signer_dic.get("signer") or signer_dic.get("signer") == "_empty_":
                         continue
                     for approving in signer_dic.get("approvings", []):

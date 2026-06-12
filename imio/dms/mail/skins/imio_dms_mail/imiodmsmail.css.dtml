@@ -34,8 +34,7 @@
 
 .template-view.portaltype-dmsincomingmail #fieldset-versions,
 .template-view.portaltype-dmsoutgoingmail #fieldset-versions,
-.template-view.portaltype-dmsincoming_email #fieldset-versions,
-.template-view.portaltype-dmsoutgoing_email #fieldset-versions {
+.template-view.portaltype-dmsincoming_email #fieldset-versions {
     display:table-cell;
     min-width: 60%;
     max-width: 60%;
@@ -44,8 +43,7 @@
 
 .template-view.portaltype-dmsincomingmail #fields,
 .template-view.portaltype-dmsoutgoingmail #fields,
-.template-view.portaltype-dmsincoming_email #fields,
-.template-view.portaltype-dmsoutgoing_email #fields {
+.template-view.portaltype-dmsincoming_email #fields {
     display:table-cell;
     float:none !important;
 }
@@ -272,6 +270,12 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 
 /* edit mode of OMdmsmail */
 
+/*#content li.formTab a.required span::after, */
+#content-core li.formTab a#fieldsetlegend-signing.required span::after {
+    content: none !important;
+    padding-left: 0;
+}
+
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
 body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"] {
     border: 1px solid #ddd;
@@ -353,10 +357,12 @@ body.section-outgoing-mail .mail-searches-in_esign_sessions {
 .template-dmsincomingmail #fieldsetlegend-categorization, .template-dmsincomingmail #fieldsetlegend-dates, .template-dmsincomingmail #fieldsetlegend-ownership,
 .template-dmsincoming_email #fieldsetlegend-categorization, .template-dmsincoming_email #fieldsetlegend-dates, .template-dmsincoming_email #fieldsetlegend-ownership,
 .template-dmsoutgoingmail #fieldsetlegend-categorization, .template-dmsoutgoingmail #fieldsetlegend-dates, .template-dmsoutgoingmail #fieldsetlegend-ownership,
-.template-dmsoutgoing_email #fieldsetlegend-categorization, .template-dmsoutgoing_email #fieldsetlegend-dates, .template-dmsoutgoing_email #fieldsetlegend-ownership,
 .template-reply #fieldsetlegend-categorization, .template-reply #fieldsetlegend-dates, .template-reply #fieldsetlegend-ownership,
 .template-multiple-reply #fieldsetlegend-categorization, .template-multiple-reply #fieldsetlegend-dates, .template-multiple-reply #fieldsetlegend-ownership,
-.template-edit.portaltype-cktemplate #fieldsetlegend-categorization, .template-edit.portaltype-cktemplate #fieldsetlegend-dates, .template-edit.portaltype-cktemplate #fieldsetlegend-ownership {
+.template-edit.portaltype-cktemplate #fieldsetlegend-categorization, .template-edit.portaltype-cktemplate #fieldsetlegend-dates, .template-edit.portaltype-cktemplate #fieldsetlegend-ownership,
+.template-edit.portaltype-dmsmainfile #fieldsetlegend-ownership,
+.template-edit.portaltype-dmsommainfile #fieldsetlegend-ownership,
+.template-edit.portaltype-dmsappendixfile #fieldsetlegend-ownership {
     display: none !important;
 }
 
@@ -369,7 +375,9 @@ body.section-outgoing-mail .mail-searches-in_esign_sessions {
 }
 
 .template-dmsmainfile #content-core ul.formTabs li:nth-child(2),
-.template-dmsommainfile #content-core ul.formTabs li:nth-child(2) {
+.template-dmsommainfile #content-core ul.formTabs li:nth-child(2),
+.template-dmsappendixfile #content-core ul.formTabs li:nth-child(2)
+{
     display: None;
 }
 
@@ -416,7 +424,6 @@ table.faceted-table-results a.contact-list + div.tooltip.pb-ajax {
 body.template-view.portaltype-dmsincomingmail h1#parent-fieldname-title:not(.keep-it),
 body.template-view.portaltype-dmsincoming_email h1#parent-fieldname-title:not(.keep-it),
 body.template-view.portaltype-dmsoutgoingmail h1#parent-fieldname-title:not(.keep-it),
-body.template-view.portaltype-dmsoutgoing_email h1#parent-fieldname-title:not(.keep-it),
 body.template-item_view.portaltype-task h1#parent-fieldname-title:not(.keep-it),
 body.portaltype-classificationfolders h1.documentFirstHeading:not(.keep-it),
 body.portaltype-classificationfolder h1.documentFirstHeading:not(.keep-it),
