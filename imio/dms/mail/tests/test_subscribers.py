@@ -67,7 +67,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             "c1",
             **{
                 "sender": [RelationValue(self.intids.getId(self.portal.contacts["electrabel"]))],
-                "mail_type": u"certificat",
+                "mail_type": u"courrier",
                 "title": u"title",
             }
         )

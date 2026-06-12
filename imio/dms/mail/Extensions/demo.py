@@ -90,7 +90,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
     docs = {
         "dmsincomingmail": {  # i_e ok
             "59.PDF": {
-                "c": {"mail_type": "autre", "file_title": "010500000000001.pdf", "recipient_groups": []},
+                "c": {"mail_type": "courrier", "file_title": "010500000000001.pdf", "recipient_groups": []},
                 "f": {
                     "scan_id": "010500000000001",
                     "pages_number": 1,
@@ -102,7 +102,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                 },
             },
             "60.PDF": {
-                "c": {"mail_type": "autre", "file_title": "010500000000002.pdf", "recipient_groups": []},
+                "c": {"mail_type": "courrier", "file_title": "010500000000002.pdf", "recipient_groups": []},
                 "f": {
                     "scan_id": "010500000000002",
                     "pages_number": 1,
@@ -121,7 +121,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     {
                         "c": {
                             "title": u"Organisation de la braderie annuelle début septembre",
-                            "mail_type": u"autre",
+                            "mail_type": u"courrier",
                             "file_title": u"email.pdf",
                             "recipient_groups": [],
                             "orig_sender_email": u"josiane@gmail.com",
@@ -145,7 +145,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     {
                         "c": {
                             "title": u"Facture 3P XX12345",
-                            "mail_type": u"facture",
+                            "mail_type": u"courrier",
                             "file_title": u"email.pdf",
                             "recipient_groups": [],
                             "orig_sender_email": u"facturation@3p.be",
@@ -167,7 +167,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     {
                         "c": {
                             "title": u"Réservation de la salle Le Foyer",
-                            "mail_type": u"autre",
+                            "mail_type": u"courrier",
                             "file_title": u"email.pdf",
                             "recipient_groups": [],
                             "orig_sender_email": u"s.geul@mail.com",
@@ -191,7 +191,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     {
                         "c": {
                             "title": u"Où se situe votre entité par rapport aux Objectifs de développement durable ?",
-                            "mail_type": u"autre",
+                            "mail_type": u"courrier",
                             "file_title": u"email.pdf",
                             "recipient_groups": [],
                             "orig_sender_email": u"m.bou@rw.be",

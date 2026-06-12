@@ -146,10 +146,11 @@ class TestPerformance(unittest.TestCase):
         self.assertListEqual(
             voc_list,
             [
+                (u"courrier", u"Courrier"),
                 (u"certificat", u"Certificat médical"),
-                (u"retour-recommande", u"Retour recommandé"),
                 (u"facture", u"Facture"),
-                (u"autre", u"Autre"),
+                (u"retour-recommande", u"Retour recommandé"),
+                (u"retour-ar", u"Retour AR"),
             ],
         )
 

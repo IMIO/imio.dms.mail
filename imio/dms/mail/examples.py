@@ -61,6 +61,7 @@ def add_special_model_mail(portal):
         "title": u"Courrier test pour création de modèles (ne pas effacer)",
         "internal_reference_no": internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST)),
         "mail_date": datetime.date.today(),
+        "mail_type": "courrier",
         "send_modes": ["post"],
     }
     pc = api.portal.get_tool("portal_catalog")
@@ -528,14 +529,14 @@ def add_test_mails(context):
             scan_date = receptionDateDefaultValue(data)
             params = {
                 "title": "Courrier %d" % i,
-                "mail_type": "certificat",
+                "mail_type": "courrier",
+                "send_modes": ["post"],
                 "internal_reference_no": internalReferenceIncomingMailDefaultValue(data),
                 "reception_date": scan_date,
                 "sender": [RelationValue(next(senders_cycle))],
                 "treating_groups": next(orgas_cycle),
                 "recipient_groups": [],
                 "description": "Ceci est la description du courrier %d" % i,
-                "send_modes": ["post"],
             }
             mail = sub_create(ifld, "dmsincomingmail", scan_date, "courrier%d" % i, **params)
             filename = next(files_cycle)
@@ -962,10 +963,18 @@ def configure_imio_dms_mail(context):
     # IM
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types"] = [
+            {"value": u"courrier", "dtitle": u"Courrier", "active": True},
             {"value": u"certificat", "dtitle": u"Certificat médical", "active": True},
-            {"value": u"retour-recommande", "dtitle": u"Retour recommandé", "active": True},
             {"value": u"facture", "dtitle": u"Facture", "active": True},
-            {"value": u"autre", "dtitle": u"Autre", "active": True},
+            {"value": u"retour-recommande", "dtitle": u"Retour recommandé", "active": True},
+            {"value": u"retour-ar", "dtitle": u"Retour AR", "active": True},
+        ]
+    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_send_modes"):
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_send_modes"] = [
+            {"value": u"post", "dtitle": u"Courrier postal", "active": True},
+            {"value": u"post_registered", "dtitle": u"Courrier recommandé", "active": True},
+            {"value": u"post_registered_dr", "dtitle": u"Courrier recommandé avec AR", "active": True},
+            {"value": u"email", "dtitle": u"Email", "active": True},
         ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states"] = ["proposed_to_agent"]
@@ -1037,17 +1046,11 @@ def configure_imio_dms_mail(context):
         ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"] = _(u"Response: ")
-    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_send_modes"):
-        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_send_modes"] = [
-            {"value": u"post", "dtitle": u"Courrier", "active": True},
-            {"value": u"post_registered", "dtitle": u"Courrier recommandé", "active": True},
-            {"value": u"email", "dtitle": u"Email", "active": True},
-            {"value": u"other_fax", "dtitle": u"Fax", "active": True},
-        ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes"] = [
-            {"value": u"post", "dtitle": u"Courrier", "active": True},
+            {"value": u"post", "dtitle": u"Courrier postal", "active": True},
             {"value": u"post_registered", "dtitle": u"Courrier recommandé", "active": True},
+            {"value": u"post_registered_dr", "dtitle": u"Courrier recommandé avec AR", "active": True},
             {"value": u"email", "dtitle": u"Email", "active": True},
         ]
     if registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send") is None:

@@ -153,7 +153,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(adapted.can_close())
         intids = getUtility(IIntIds)
         imail.sender = [RelationValue(intids.getId(self.portal.contacts["electrabel"]))]
-        imail.mail_type = u"certificat"
+        imail.mail_type = u"courrier"
         self.assertFalse(adapted.can_close())  # not part of treating group editors
         self.add_principal_to_groups("agent", ["{}_editeur".format(imail.treating_groups)])
         self.assertTrue(adapted.can_close())

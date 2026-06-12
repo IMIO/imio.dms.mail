@@ -250,7 +250,7 @@ CE manuel
     Input text  name=form.widgets.sender.widgets.query  Non encod
     Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
     Click element  css=.ac_results:not([style*="display: none"]) li
-    Select from list by value  id=form-widgets-mail_type  autre
+    Select from list by value  id=form-widgets-mail_type  courrier
     Select from list by index  id=form-widgets-treating_groups  10
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
@@ -1359,7 +1359,7 @@ Annexes dossiers
     Click Element  id=form-widgets-treating_groups
     Select from list by index  id=form-widgets-treating_groups  3
     # Others fields
-    Select from list by value  id=form-widgets-mail_type  autre
+    Select from list by value  id=form-widgets-mail_type  courrier
     Click element  css=#formfield-form-widgets-original_mail_date label
     Select from list by value  id=form-widgets-original_mail_date-day  6
     Select from list by value  id=form-widgets-original_mail_date-month  6

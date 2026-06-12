@@ -414,25 +414,25 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
             "dmsincomingmail",
             datetime.now(),
             "my-id",
-            **{"title": u"My title", "mail_type": u"certificat", "assigned_user": u"agent"}
+            **{"title": u"My title", "mail_type": u"courrier", "assigned_user": u"agent"}
         )
         view = imail.restrictedTraverse("@@view")
         view.update()
         # the title from the vocabulary is well rendered
-        self.assertIn("Certificat", view.widgets["mail_type"].render())
-        # We deactivate the certificat mail type, the missing value is managed
+        self.assertIn("Courrier", view.widgets["mail_type"].render())
+        # We deactivate the courrier mail type, the missing value is managed
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.mail_types
         mail_types[0]["active"] = False
         settings.mail_types = mail_types
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMActiveMailTypesVocabulary")
-        self.assertNotIn("certificat", [t.value for t in voc_inst(imail)])
+        self.assertNotIn("courrier", [t.value for t in voc_inst(imail)])
         view.updateWidgets()
-        self.assertIn("Certificat", view.widgets["mail_type"].render())
-        # We remove the certificat mail type, the missing value cannot be managed anymore
+        self.assertIn("Courrier", view.widgets["mail_type"].render())
+        # We remove the courrier mail type, the missing value cannot be managed anymore
         settings.mail_types = settings.mail_types[1:]
         view.updateWidgets()
-        self.assertNotIn("Certificat", view.widgets["mail_type"].render())
+        self.assertNotIn("Courrier", view.widgets["mail_type"].render())
         self.assertIn("Missing", view.widgets["mail_type"].render())
 
     def test_OMMCTV(self):
