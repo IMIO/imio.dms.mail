@@ -365,6 +365,7 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
                 params = {
                     "title": "Courrier %d" % i,
                     "mail_type": "courrier",
+                    "send_modes": ["post"],
                     "internal_reference_no": "E{:04d}".format(i),
                     "reception_date": scan_date,
                     # 'sender': [RelationValue(senders_cycle.next())],

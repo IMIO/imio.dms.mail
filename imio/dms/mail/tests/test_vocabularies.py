@@ -167,12 +167,10 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (u"courrier", u"Courrier"),
-                (u"email", u"Email"),
-                (u"recommande", u"Recommandé"),
                 (u"certificat", u"Certificat médical"),
-                (u"fax", u"Fax"),
-                (u"retour-recommande", u"Retour recommandé"),
                 (u"facture", u"Facture"),
+                (u"retour-recommande", u"Retour recommandé"),
+                (u"retour-ar", u"Retour AR"),
             ],
         )
         voc_list = [(t.value, t.title) for t in get_settings_vta_table("omail_send_modes", choose=True)]
@@ -200,12 +198,10 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (u"courrier", u"Courrier"),
-                (u"email", u"Email"),
-                (u"recommande", u"Recommandé"),
                 (u"certificat", u"Certificat médical"),
-                (u"fax", u"Fax"),
-                (u"retour-recommande", u"Retour recommandé"),
                 (u"facture", u"Facture"),
+                (u"retour-recommande", u"Retour recommandé"),
+                (u"retour-ar", u"Retour AR"),
             ],
         )
 
@@ -214,7 +210,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         voc_list = [t.value for t in voc_inst(self.imail)]
         self.assertListEqual(
             voc_list,
-            [None, u"courrier", u"email", u"recommande", u"certificat", u"fax", u"retour-recommande", u"facture"]
+            [None, u"courrier", u"certificat", u"facture", u"retour-recommande", u"retour-ar"]
         )
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.mail_types
@@ -224,7 +220,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         voc_list = [t.value for t in voc_inst(self.imail)]
         self.assertListEqual(
             voc_list,
-            [None, u"email", u"recommande", u"certificat", u"fax", u"retour-recommande", u"facture"]
+            [None, u"certificat", u"facture", u"retour-recommande", u"retour-ar"]
         )
 
     def test_PloneGroupInterfacesVocabulary(self):

@@ -24,6 +24,8 @@ Changelog
   [sgeulette]
 - Removed IScanFields on annex type
   [sgeulette]
+- Updated incoming mail_types and send_modes examples.
+  [chris-adam, sgeulette]
 
 3.1.4 (2026-05-29)
 ------------------
