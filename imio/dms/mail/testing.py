@@ -42,7 +42,9 @@ from zope.ramcache.interfaces.ram import IRAMCache
 import datetime
 import imio.dms.mail
 import inspect
+import logging
 import os
+import sys
 
 
 try:
@@ -109,6 +111,11 @@ class DmsmailLayer(PloneWithPackageLayer):
     defaultBases = (PLONE_DMS_FIXTURE,)  # testing_locales.zcml inclusion
 
     def setUpPloneSite(self, portal):
+        debug_level = int(os.getenv("DEBUG", "0"))
+        if debug_level:
+            logging.getLogger().setLevel(debug_level)
+            logging.getLogger().addHandler(logging.StreamHandler(sys.stderr))
+
         portal.portal_registration.addMember(id="siteadmin", password="SiteAdm!n0")
         api.group.add_user(groupname="Administrators", username="siteadmin")
         setLocal("request", portal.REQUEST)
