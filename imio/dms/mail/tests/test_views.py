@@ -447,15 +447,15 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
     False,
   ],
   'files': [
-    <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a>,
-    <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/012999900000602/view' title='/plone/outgoing-mail/{folder_name}/om-esign/012999900000602'>Modèle de base</a>,
+    <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({uid1}),
+    <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/012999900000602/view' title='/plone/outgoing-mail/{folder_name}/om-esign/012999900000602'>Modèle de base</a> ({uid2}),
   ],
   'pdf_files': [
     [
-      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a>,
+      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({puid1}),
     ],
     [
-      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a>,
+      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a> ({puid2}),
     ],
   ],
   'session_ids': [
@@ -479,6 +479,10 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
                 repr(approval.annot["approval"][1][0]["approved_on"]),
                 repr(approval.annot["approval"][1][1]["approved_on"]),
                 folder_name=omail.__parent__.__name__,
+                uid1=approval.files_uids[0],
+                uid2=approval.files_uids[1],
+                puid1=approval.pdf_files_uids[0][0],
+                puid2=approval.pdf_files_uids[1][0],
             ),
         )
 
@@ -498,20 +502,20 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
   'discriminators': [],
   'files': [
     {{
-      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a>,
+      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
       'filename': u'R\\xe9ponse salle__{pdf1_uid}.pdf',
       'scan_id': '012999900000601',
       'status': '',
       'title': u'R\\xe9ponse salle.odt',
-      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a>,
+      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({pdf1_uid}),
     }},
     {{
-      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a>,
+      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
       'filename': u'Modele de base S0010 Courrier test esign__{pdf2_uid}.pdf',
       'scan_id': '012999900000602',
       'status': '',
       'title': u'Modele de base S0010 Courrier test esign.pdf',
-      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a>,
+      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a> ({pdf2_uid}),
     }},
   ],
   'last_update': {last_update},
@@ -540,6 +544,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
   'title': u'[ia.docs] Session 012999900000',
   'watchers': [],
 }}""".format(  # noqa E501
+                c_uid=omail.UID(),
                 pdf1_uid=api.content.get(omail.absolute_url_path() + "/file0").UID(),
                 pdf2_uid=api.content.get(omail.absolute_url_path()
                                          + "/modele-de-base-s0010-courrier-test-esign.pdf").UID(),
