@@ -789,6 +789,22 @@ class DmsPrimaryOrganizationsVocabulary(PrimaryOrganizationsVocabulary):
 
 
 @implementer(IVocabularyFactory)
+class PersonnelPrimaryOrganizationsFacetedVocabulary(object):
+    """Primary organizations for the personnel dashboard faceted filter.
+
+    Prepends a "* Sans valeur" sentinel term so persons without a primary organization
+    can be filtered (matches the '_empty_' value emitted by person_primary_organization_index).
+    """
+
+    def __call__(self, context):
+        factory = getUtility(IVocabularyFactory, "imio.dms.mail.TreatingGroupsForFacetedFilterVocabulary")
+        vocab = factory(context)
+        return SimpleVocabulary(
+            [SimpleTerm(value=u"_empty_", title=_("* Sans valeur"))] + list(vocab._terms)
+        )
+
+
+@implementer(IVocabularyFactory)
 class ActiveInactiveStatesVocabulary(object):
     """States of active_inactive_workflow"""
 

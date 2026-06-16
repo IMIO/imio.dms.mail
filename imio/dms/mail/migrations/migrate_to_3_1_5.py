@@ -38,7 +38,11 @@ class Migrate_To_3_1_5(Migrate_To_3_1):  # noqa
             load_type_from_package("ConfigurablePODTemplate", "imio.dms.mail:default")  # behavior
             load_type_from_package("SubTemplate", "imio.dms.mail:default")  # behavior
             # DMS-995: convert personnel-folder to faceted dashboard
+            self.runProfileSteps("imio.dms.mail", steps=["catalog"])
             setup_personnel_dashboard(self.portal)
+            catalog = self.portal.portal_catalog
+            for brain in catalog.unrestrictedSearchResults(portal_type="person"):
+                brain._unrestrictedGetObject().reindexObject(idxs=["usages", "primary_organization"])
 
         if self.is_in_part("g"):  # final steps
             # finished = True  # can be eventually returned and set by batched method

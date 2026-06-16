@@ -40,6 +40,11 @@
         />
 
     <utility
+        name="imio.dms.mail.PersonnelPrimaryOrganizationsFacetedVocabulary"
+        factory="imio.dms.mail.vocabularies.PersonnelPrimaryOrganizationsFacetedVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.AssignedUsersWithDeactivatedVocabulary"
         factory="imio.dms.mail.vocabularies.AssignedUsersWithDeactivatedVocabulary"
         />

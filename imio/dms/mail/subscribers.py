@@ -1506,6 +1506,18 @@ def organization_modified(obj, event):
         brain._unrestrictedGetObject().reindexObject(idxs=["sortable_title"])
 
 
+def reindex_person_usages(hp):
+    """Reindex the 'usages' index of the held position's person (personnel dashboard filter)."""
+    person = hp.get_person()
+    if person is not None:
+        person.reindexObject(idxs=["usages"])
+
+
+def held_position_added(obj, event):
+    if IPersonnelContact.providedBy(obj):
+        reindex_person_usages(obj)
+
+
 def held_position_modified(obj, event):
     if IPersonnelContact.providedBy(obj):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
@@ -1518,6 +1530,7 @@ def held_position_modified(obj, event):
         ]
         if mod_attr:
             update_approvers_settings()
+            reindex_person_usages(obj)
 
 
 def held_position_removed(obj, event):
@@ -1528,6 +1541,7 @@ def held_position_removed(obj, event):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
+        reindex_person_usages(obj)
 
 
 def mark_contact(contact, event):

@@ -1957,7 +1957,7 @@ def create_personnel_dashboard(pf):
             "query": [{"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["person"]}],
             "cond": u"",
             "bypass": [],
-            "flds": (u"select_row", u"pretty_link", u"userid", u"primary_organization", u"hps", u"actions"),
+            "flds": (u"select_row", u"pretty_link", u"userid", u"primary_organization", u"actions", u"hps"),
             "sort": u"sortable_title",
             "rev": False,
             "count": False,
