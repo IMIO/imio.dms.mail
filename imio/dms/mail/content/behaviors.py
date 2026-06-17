@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collective.contact.core.interfaces import IHeldPosition
 from collective.contact.plonegroup import _ as _ccp
 from collective.contact.plonegroup.behaviors import IPlonegroupUserLink
 from collective.z3cform.datagridfield.registry import DictRow
@@ -390,7 +391,7 @@ class UsagesSignerRulesValidator(validator.SimpleFieldValidator):
 
     def validate(self, value, force=False):
         super(UsagesSignerRulesValidator, self).validate(value, force=force)
-        if not IPersonnelContact.providedBy(self.context):
+        if not IHeldPosition.providedBy(self.context):
             return
         if is_hp_used_in_signer_rules(self.context, value or []):
             raise Invalid(_(
