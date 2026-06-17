@@ -26,6 +26,8 @@ Changelog
   [sgeulette]
 - Updated incoming mail_types and send_modes examples.
   [chris-adam, sgeulette]
+- Allow removal of userid on a person if he's not in any group.
+  [chris-adam]
 
 3.1.4 (2026-05-29)
 ------------------
