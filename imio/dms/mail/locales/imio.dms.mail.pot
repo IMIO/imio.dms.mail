@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-06-18 08:16+0000\n"
+"POT-Creation-Date: 2026-06-18 09:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -126,7 +126,7 @@ msgid "'${field}': position ${position}"
 msgstr ""
 
 #: ./browser/settings.py:259
-#: ./content/behaviors.py:98
+#: ./content/behaviors.py:99
 msgid "* No signature"
 msgstr ""
 
@@ -194,7 +194,7 @@ msgstr ""
 msgid "<span class='unconfigured-fields'>Unconfigured fields are: ${list}</span>"
 msgstr ""
 
-#: ./content/behaviors.py:232
+#: ./content/behaviors.py:233
 msgid "A signer is missing at position: ${positions} !"
 msgstr ""
 
@@ -307,7 +307,7 @@ msgid "Approving"
 msgstr ""
 
 #: ./browser/settings.py:362
-#: ./content/behaviors.py:122
+#: ./content/behaviors.py:123
 #: ./profiles/default/registry.xml
 msgid "Approvings"
 msgstr ""
@@ -396,7 +396,7 @@ msgstr ""
 msgid "Cannot use localhost as smtp"
 msgstr ""
 
-#: ./content/behaviors.py:411
+#: ./content/behaviors.py:417
 msgid "Category to apply on generated documents from this template."
 msgstr ""
 
@@ -421,7 +421,7 @@ msgid "Check if there is an assigned user before proposing incoming mail to an a
 msgstr ""
 
 #: ./browser/settings.py:194
-#: ./content/behaviors.py:97
+#: ./content/behaviors.py:98
 #: ./vocabularies.py:208
 msgid "Choose a value !"
 msgstr ""
@@ -480,7 +480,7 @@ msgstr ""
 msgid "Create from template"
 msgstr ""
 
-#: ./content/behaviors.py:46
+#: ./content/behaviors.py:47
 msgid "Creating group"
 msgstr ""
 
@@ -496,7 +496,7 @@ msgstr ""
 msgid "Daily listing"
 msgstr ""
 
-#: ./content/behaviors.py:63
+#: ./content/behaviors.py:64
 msgid "Data transfer"
 msgstr ""
 
@@ -504,7 +504,7 @@ msgstr ""
 msgid "Default bcc emails"
 msgstr ""
 
-#: ./content/behaviors.py:410
+#: ./content/behaviors.py:416
 msgid "Default content category"
 msgstr ""
 
@@ -573,12 +573,12 @@ msgid "Due date extension"
 msgstr ""
 
 #: ./browser/settings.py:372
-#: ./content/behaviors.py:132
+#: ./content/behaviors.py:133
 msgid "Editor"
 msgstr ""
 
 #: ./browser/settings.py:356
-#: ./content/behaviors.py:172
+#: ./content/behaviors.py:173
 msgid "Electronic signature"
 msgstr ""
 
@@ -611,7 +611,7 @@ msgid "Enable edition of service office templates for encoder"
 msgstr ""
 
 #: ./browser/settings.py:373
-#: ./content/behaviors.py:133
+#: ./content/behaviors.py:134
 msgid "Enable edition when approving."
 msgstr ""
 
@@ -813,7 +813,7 @@ msgstr ""
 msgid "Linked objects: ${list}"
 msgstr ""
 
-#: ./content/behaviors.py:154
+#: ./content/behaviors.py:155
 msgid "List of users who have to sign this document"
 msgstr ""
 
@@ -895,7 +895,7 @@ msgid "Not all files approved"
 msgstr ""
 
 #: ./browser/settings.py:341
-#: ./content/behaviors.py:108
+#: ./content/behaviors.py:109
 msgid "Number"
 msgstr ""
 
@@ -1062,7 +1062,7 @@ msgid "Refresh tab count"
 msgstr ""
 
 #: ./browser/settings.py:349
-#: ./content/behaviors.py:116
+#: ./content/behaviors.py:117
 msgid "Related userid will be the signer. Position name of the held position will be used."
 msgstr ""
 
@@ -1106,7 +1106,7 @@ msgstr ""
 msgid "Scanner"
 msgstr ""
 
-#: ./content/behaviors.py:167
+#: ./content/behaviors.py:168
 msgid "Seal"
 msgstr ""
 
@@ -1165,17 +1165,17 @@ msgid "Set None"
 msgstr ""
 
 #: ./browser/settings.py:348
-#: ./content/behaviors.py:115
+#: ./content/behaviors.py:116
 #: ./vocabularies.py:132
 msgid "Signer"
 msgstr ""
 
-#: ./content/behaviors.py:196
+#: ./content/behaviors.py:197
 msgid "Signer line ${nb} has a duplicate approver with themself."
 msgstr ""
 
 #: ./browser/settings.py:342
-#: ./content/behaviors.py:109
+#: ./content/behaviors.py:110
 msgid "Signer number on the document."
 msgstr ""
 
@@ -1187,7 +1187,7 @@ msgstr ""
 msgid "Signer substitutes"
 msgstr ""
 
-#: ./content/behaviors.py:153
+#: ./content/behaviors.py:154
 msgid "Signers"
 msgstr ""
 
@@ -1207,7 +1207,7 @@ msgstr ""
 msgid "Signers set origin"
 msgstr ""
 
-#: ./content/behaviors.py:144
+#: ./content/behaviors.py:145
 msgid "Signing fieldset"
 msgstr ""
 
@@ -1288,7 +1288,7 @@ msgid "Technical specifications"
 msgstr ""
 
 #: ./adapters.py:1445
-#: ./content/behaviors.py:279
+#: ./content/behaviors.py:280
 msgid "The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
 msgstr ""
 
@@ -1296,7 +1296,7 @@ msgstr ""
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr ""
 
-#: ./content/behaviors.py:271
+#: ./content/behaviors.py:272
 msgid "The approving with UID ${uid} does not exist !"
 msgstr ""
 
@@ -1320,7 +1320,7 @@ msgstr ""
 msgid "The file '${file}' has been approved by ${user}. Next approval number is ${nb}."
 msgstr ""
 
-#: ./content/behaviors.py:210
+#: ./content/behaviors.py:211
 msgid "The signer '${signer_title}' has no userid, you cannot use it !"
 msgstr ""
 
@@ -1348,7 +1348,7 @@ msgstr ""
 msgid "This contact '${title}' has missing address fields: ${keys}"
 msgstr ""
 
-#: ./content/behaviors.py:397
+#: ./content/behaviors.py:403
 msgid "This position is still referenced in the outgoing mail signer configuration. Please update the rules and substitutes before removing this usage."
 msgstr ""
 
@@ -1410,7 +1410,7 @@ msgstr ""
 msgid "Update preview"
 msgstr ""
 
-#: ./content/behaviors.py:76
+#: ./content/behaviors.py:77
 msgid "Usages"
 msgstr ""
 
@@ -1419,7 +1419,7 @@ msgid "User fullname used format"
 msgstr ""
 
 #: ./browser/settings.py:363
-#: ./content/behaviors.py:123
+#: ./content/behaviors.py:124
 msgid "User(s) that can approve the item before the signing session."
 msgstr ""
 
@@ -1459,7 +1459,7 @@ msgstr ""
 msgid "You cannot add a group in a group !"
 msgstr ""
 
-#: ./content/behaviors.py:379
+#: ./content/behaviors.py:385
 msgid "You cannot change the userid because the user is in approvals on following objects ${paths}"
 msgstr ""
 
@@ -1499,11 +1499,11 @@ msgstr ""
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr ""
 
-#: ./content/behaviors.py:302
+#: ./content/behaviors.py:303
 msgid "You cannot enable electronic signature because the file '${filename}' is of type '${mimetype}' which is not allowed. Allowed formats are: ${formats}."
 msgstr ""
 
-#: ./content/behaviors.py:190
+#: ./content/behaviors.py:191
 msgid "You cannot have a seal and signers but no electronic signature !"
 msgstr ""
 
@@ -1515,20 +1515,20 @@ msgstr ""
 msgid "You cannot have an approving number ${c} with status ${status} <=> w"
 msgstr ""
 
-#: ./content/behaviors.py:242
+#: ./content/behaviors.py:243
 msgid "You cannot have empty and defined approvings at the same time !"
 msgstr ""
 
 #: ./adapters.py:1427
-#: ./content/behaviors.py:255
+#: ./content/behaviors.py:256
 msgid "You cannot have the same email (${email}) for multiple signers !"
 msgstr ""
 
-#: ./content/behaviors.py:222
+#: ./content/behaviors.py:223
 msgid "You cannot have the same number for multiple signers !"
 msgstr ""
 
-#: ./content/behaviors.py:203
+#: ./content/behaviors.py:204
 msgid "You cannot have the same signer (${signer_title}) multiple times !"
 msgstr ""
 
@@ -1536,19 +1536,19 @@ msgstr ""
 msgid "You cannot have the same signer (${signer_title}) multiple times ! You have to adapt the rules !"
 msgstr ""
 
-#: ./content/behaviors.py:186
+#: ./content/behaviors.py:187
 msgid "You cannot modify signers once the approval process has started or is done. You may go back to a previous state or ask your admin."
 msgstr ""
 
-#: ./content/behaviors.py:331
-msgid "You cannot remove a userid once it is set."
+#: ./content/behaviors.py:336
+msgid "You cannot remove a userid from the person while the user is still in a group."
 msgstr ""
 
 #: ./browser/settings.py:230
 msgid "You cannot select approvings and no validation at the same time."
 msgstr ""
 
-#: ./content/behaviors.py:240
+#: ./content/behaviors.py:241
 msgid "You have to define approvings for each signer if electronic signature is used !"
 msgstr ""
 
