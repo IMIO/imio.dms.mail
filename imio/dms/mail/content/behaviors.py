@@ -333,7 +333,7 @@ class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
             groups = user and [g for g in get_plone_groups_for_user(user=user)
                                if g not in ("AuthenticatedUsers", "Anonymous")] or []
             if groups:
-                raise Invalid(_(u"You cannot remove a userid while the user is still in a group."))
+                raise Invalid(_(u"You cannot remove a userid from the person while the user is still in a group."))
             return
 
         if not IPersonnelContact.providedBy(self.context):
