@@ -26,6 +26,10 @@ Changelog
   [sgeulette]
 - Updated incoming mail_types and send_modes examples.
   [chris-adam, sgeulette]
+- Fixed AttributeError (get_person) raised in is_hp_used_in_signer_rules (PARAF-477).
+  [chris-adam]
+- Allow removal of userid on a person if he's not in any group.
+  [chris-adam]
 - Fixed duplicate transitions on wfa reapply in migration 3.1.
   [chris-adam]
 

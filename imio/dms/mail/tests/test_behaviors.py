@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+from collective.contact.plonegroup.behaviors import IPlonegroupUserLink
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import _tr
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.content.behaviors import IUsagesBehavior
+from imio.dms.mail.content.behaviors import PlonegroupUserLinkUseridValidator
+from imio.dms.mail.content.behaviors import UsagesSignerRulesValidator
 from imio.dms.mail.Extensions.demo import activate_signing
+from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.test_helpers import ImioTestHelpers
@@ -33,6 +38,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.change_user("siteadmin")
         activate_signing(self.portal)
         self.pw = self.portal.portal_workflow
+        self.dir = self.portal["contacts"]
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
         self.pf = self.portal["contacts"]["personnel-folder"]
 
@@ -440,3 +446,62 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = tpl_invariants.validate(data)
         self.assertEqual(errors, ())
+
+    def test_plonegroup_user_link_userid_validator(self):
+        """Emptying userid is forbidden only while the linked user is still in a group."""
+        request = self.portal.REQUEST
+        field = IPlonegroupUserLink["userid"]
+
+        def _validate(context, value):
+            return PlonegroupUserLinkUseridValidator(context, request, None, field, None).validate(value)
+
+        # User still in a real group -> cannot empty the userid
+        api.group.create("real_group", "Real group")
+        api.user.create(email="withgroup@example.be", username="user_with_group", password="Password123!")
+        api.group.add_user(groupname="real_group", username="user_with_group")
+        person_g = createContentInContainer(self.pf, "person", id="person_g", lastname=u"WithGroup",
+                                            use_parent_address=False)
+        person_g.userid = "user_with_group"
+        with self.assertRaises(Invalid):
+            _validate(person_g, "")
+
+        # User only in the virtual AuthenticatedUsers group -> emptying is allowed
+        api.user.create(email="lonely@example.be", username="lonely_user", password="Password123!")
+        person_l = createContentInContainer(self.pf, "person", id="person_l", lastname=u"Lonely",
+                                            use_parent_address=False)
+        person_l.userid = "lonely_user"
+        self.assertIsNone(_validate(person_l, ""))
+
+    def test_usages_signer_rules_validator(self):
+        bourgmestre = self.pf["bourgmestre"]
+        bourgmestre_hp = bourgmestre["bourgmestre"]
+        self.assertTrue(IPersonnelContact.providedBy(bourgmestre))
+        field = IUsagesBehavior["usages"]
+        request = self.portal.REQUEST
+        rk_rules = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+
+        # Add-form scenario: context is the Person container
+        person_validator = UsagesSignerRulesValidator(bourgmestre, request, None, field, None)
+        self.assertIsNone(person_validator.validate(["signer"]))
+        # held position is outside personnel folder
+        outside_hp_validator = UsagesSignerRulesValidator(
+            self.dir["sergerobinet"]["agent-swde"], request, None, field, None)
+        self.assertIsNone(outside_hp_validator.validate(["signer"]))
+
+        # Edit scenario: context is the HeldPosition
+        api.portal.set_registry_record(rk_rules, [{
+            "number": 1,
+            "signer": bourgmestre_hp.UID(),
+            "esign": True,
+            "approvings": [u"_empty_"],
+            "editor": False,
+            "treating_groups": [],
+            "mail_types": [],
+            "send_modes": [],
+            "tal_condition": None,
+        }])
+        hp_validator = UsagesSignerRulesValidator(bourgmestre_hp, request, None, field, None)
+        self.assertRaises(Invalid, hp_validator.validate, [])
+        # Keeping the signer usage: no conflict.
+        self.assertIsNone(hp_validator.validate(["signer"]))
+        api.portal.set_registry_record(rk_rules, [])

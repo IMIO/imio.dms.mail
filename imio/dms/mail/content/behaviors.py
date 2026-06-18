@@ -15,6 +15,7 @@ from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import vocabularyname_to_terms
+from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import find
 from imio.helpers.content import uuidToObject
 from operator import itemgetter
@@ -326,9 +327,14 @@ class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
         if not hasattr(self.context, "userid") or getattr(self.context, "userid", None) is None:
             return
 
-        # Raise if trying to remove an existing userid
+        # Raise if trying to remove an existing userid while the linked user is still in a group
         if not value:
-            raise Invalid(_(u"You cannot remove a userid once it is set."))
+            user = api.user.get(self.context.userid)
+            groups = user and [g for g in get_plone_groups_for_user(user=user)
+                               if g not in ("AuthenticatedUsers", "Anonymous")] or []
+            if groups:
+                raise Invalid(_(u"You cannot remove a userid from the person while the user is still in a group."))
+            return
 
         if not IPersonnelContact.providedBy(self.context):
             return
@@ -390,7 +396,8 @@ class UsagesSignerRulesValidator(validator.SimpleFieldValidator):
 
     def validate(self, value, force=False):
         super(UsagesSignerRulesValidator, self).validate(value, force=force)
-        if not IPersonnelContact.providedBy(self.context):
+        if self.context.portal_type == "person" or not IPersonnelContact.providedBy(self.context):
+            # on addition or outside personnel, we skip check
             return
         if is_hp_used_in_signer_rules(self.context, value or []):
             raise Invalid(_(

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-06-09 08:53+0000\n"
+"POT-Creation-Date: 2026-06-18 09:04+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,7 +17,7 @@ msgstr ""
 "Language: fr\n"
 "X-Generator: Poedit 1.8.4\n"
 
-#: ./adapters.py:1961
+#: ./adapters.py:1964
 msgid "${count} file(s) added to session(s) ${session_ids}"
 msgstr "${count} fichier(s) ajouté(s) dans session(s) ${session_ids}"
 
@@ -126,7 +126,7 @@ msgid "'${field}': position ${position}"
 msgstr "'${field}': position ${position}"
 
 #: ./browser/settings.py:259
-#: ./content/behaviors.py:98
+#: ./content/behaviors.py:99
 msgid "* No signature"
 msgstr "* Aucune signature"
 
@@ -150,39 +150,39 @@ msgstr "Cet élément passe à nouveau par cet état dans le workflow."
 msgid "++resource++imio.dms.mail/wf_back.png"
 msgstr "Cet élément est revenu en arrière dans le workflow."
 
-#: ./setuphandlers.py:2978
+#: ./setuphandlers.py:2987
 msgid "1 Contacts audit"
 msgstr "1 Audit contacts"
 
-#: ./setuphandlers.py:2974
+#: ./setuphandlers.py:2983
 msgid "1 Duplicate contacts management"
 msgstr "1 Gestion doublons contacts"
 
-#: ./setuphandlers.py:2976
+#: ./setuphandlers.py:2985
 msgid "1 Folders creators"
 msgstr "1 Créateurs dossiers"
 
-#: ./setuphandlers.py:2961
+#: ./setuphandlers.py:2970
 msgid "1 General manager"
 msgstr "1 Directeur général"
 
-#: ./setuphandlers.py:2954
+#: ./setuphandlers.py:2963
 msgid "1 IM encoders"
 msgstr "1 Encodeurs courrier entrant"
 
-#: ./setuphandlers.py:2968
+#: ./setuphandlers.py:2977
 msgid "1 OM dispatch"
 msgstr "1 Expédition courrier sortant"
 
-#: ./setuphandlers.py:2984
+#: ./setuphandlers.py:2993
 msgid "2 External signing watchers"
 msgstr "2 Observateurs module signature"
 
-#: ./setuphandlers.py:2980
+#: ./setuphandlers.py:2989
 msgid "2 IM global readers"
 msgstr "2 Lecteurs Globaux CE"
 
-#: ./setuphandlers.py:2982
+#: ./setuphandlers.py:2991
 msgid "2 OM global readers"
 msgstr "2 Lecteurs Globaux CS"
 
@@ -194,7 +194,7 @@ msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 msgid "<span class='unconfigured-fields'>Unconfigured fields are: ${list}</span>"
 msgstr "<span class='unconfigured-fields'>Les champs non configurés et donc non affichés sont: ${list}</span>"
 
-#: ./content/behaviors.py:232
+#: ./content/behaviors.py:233
 msgid "A signer is missing at position: ${positions} !"
 msgstr "Un signataire est manquant aux positions ${positions} !"
 
@@ -202,7 +202,7 @@ msgstr "Un signataire est manquant aux positions ${positions} !"
 msgid "A signer is missing at position: ${positions} ! You have to adapt the rules !"
 msgstr "Un signataire est manquant aux positions ${positions} ! Il faut adapter les règles dans la configuration !"
 
-#: ./adapters.py:1698
+#: ./adapters.py:1699
 msgid "A signing session has been created: ${msg}."
 msgstr "Une session de signature a été créée: ${msg}."
 
@@ -270,7 +270,7 @@ msgstr "Agent"
 msgid "All"
 msgstr "Tout"
 
-#: ./setuphandlers.py:2669
+#: ./setuphandlers.py:2675
 msgid "All contacts export"
 msgstr "Exportation de tous les contacts"
 
@@ -290,11 +290,11 @@ msgstr "Formats de fichier autorisés comme fichier ged"
 msgid "An assigned user is not in this new treating group. Mail \"${mail}\" !"
 msgstr "Un utilisateur assigné n'est pas dans le nouveau service traitant. Courrier « ${mail} » !"
 
-#: ./examples.py:113
+#: ./examples.py:114
 msgid "Annex"
 msgstr "Annexe"
 
-#: ./setuphandlers.py:569
+#: ./setuphandlers.py:571
 msgid "Annexes Types"
 msgstr "Types d'annexes"
 
@@ -307,7 +307,7 @@ msgid "Approving"
 msgstr "Approbateur"
 
 #: ./browser/settings.py:362
-#: ./content/behaviors.py:122
+#: ./content/behaviors.py:123
 #: ./profiles/default/registry.xml
 msgid "Approvings"
 msgstr "Approbateurs"
@@ -332,11 +332,11 @@ msgstr "Utilisateur obligatoire seulement au niveau n+1"
 msgid "Assigned user value"
 msgstr "Valeur utilisateur assigné"
 
-#: ./adapters.py:1921
+#: ./adapters.py:1924
 msgid "Bad scan_id for file uid ${uid}"
 msgstr "Mauvais scan ID pour le fichier avec UID ${uid}"
 
-#: ./setuphandlers.py:2776
+#: ./setuphandlers.py:2783
 msgid "Base template"
 msgstr "Modèle de base"
 
@@ -388,7 +388,7 @@ msgstr "Changement de service traitant par lot"
 msgid "Can choose possible usages (on held position)"
 msgstr "Champ « Utilisé comme » (pour fonction occupée)"
 
-#: ./adapters.py:1936
+#: ./adapters.py:1939
 msgid "Cannot split odt file uid ${uid}"
 msgstr "Le fichier ODT avec UID ${uid} ne peut pas être fractionné"
 
@@ -396,11 +396,11 @@ msgstr "Le fichier ODT avec UID ${uid} ne peut pas être fractionné"
 msgid "Cannot use localhost as smtp"
 msgstr "vous ne pouvez pas utiliser 'localhost' comme serveur smtp"
 
-#: ./content/behaviors.py:410
+#: ./content/behaviors.py:417
 msgid "Category to apply on generated documents from this template."
 msgstr "Catégorie à appliquer sur les documents générés depuis ce modèle."
 
-#: ./browser/views.py:611
+#: ./browser/views.py:612
 msgid "Changes saved."
 msgstr "Changements sauvegardés."
 
@@ -421,7 +421,7 @@ msgid "Check if there is an assigned user before proposing incoming mail to an a
 msgstr "Vérifier s'il y a un utilisateur assigné avant de pouvoir proposer le courrier entrant à un agent."
 
 #: ./browser/settings.py:194
-#: ./content/behaviors.py:97
+#: ./content/behaviors.py:98
 #: ./vocabularies.py:208
 msgid "Choose a value !"
 msgstr "Choisir une valeur !"
@@ -442,7 +442,7 @@ msgstr "Clôturer la fiche courrier sortant lors de l'expédition de l'email"
 msgid "Comment"
 msgstr "Commentaire"
 
-#: ./setuphandlers.py:2575
+#: ./setuphandlers.py:2579
 msgid "Common templates"
 msgstr "Modèles communs"
 
@@ -455,12 +455,12 @@ msgid "Configure this carefully. You can order with arrows."
 msgstr "<span class='beware'>À modifier en toute connaissance de cause !</span><br />L'ordre se gère via les flèches. Configurer les conditions précautionneusement (expression <a href='https://pagetemplates.readthedocs.io/en/latest/tal.html' target='_blank'>TAL</a> avec les variables: portal, context, member, etc.)"
 
 #: ./migrations/migrate_to_2_1.py:418
-#: ./setuphandlers.py:385
+#: ./setuphandlers.py:387
 msgid "Contact list searches"
 msgstr "recherches listes de contact"
 
 #: ./migrations/migrate_to_2_1.py:418
-#: ./setuphandlers.py:385
+#: ./setuphandlers.py:387
 msgid "Contact lists"
 msgstr "Listes de contact"
 
@@ -468,7 +468,7 @@ msgstr "Listes de contact"
 msgid "Contacts"
 msgstr "Contacts"
 
-#: ./setuphandlers.py:2697
+#: ./setuphandlers.py:2703
 msgid "Contacts audit"
 msgstr "Audit contacts"
 
@@ -480,7 +480,7 @@ msgstr "Export des contacts"
 msgid "Create from template"
 msgstr "Créer depuis modèle"
 
-#: ./content/behaviors.py:46
+#: ./content/behaviors.py:47
 msgid "Creating group"
 msgstr "Groupe indicateur"
 
@@ -496,7 +496,7 @@ msgstr "Version actuelle du produit"
 msgid "Daily listing"
 msgstr "Listing journalier"
 
-#: ./content/behaviors.py:63
+#: ./content/behaviors.py:64
 msgid "Data transfer"
 msgstr "Reprise de données"
 
@@ -504,7 +504,7 @@ msgstr "Reprise de données"
 msgid "Default bcc emails"
 msgstr "Valeurs par défaut du champ 'Emails des destinataires en copie cachée'"
 
-#: ./content/behaviors.py:409
+#: ./content/behaviors.py:416
 msgid "Default content category"
 msgstr "Catégorie par défaut"
 
@@ -524,7 +524,7 @@ msgstr "Définit le mode selon lequel les signataires de courrier sortant sont d
 msgid "Defines substitute signers when a default signer is absent. Rules are read in order; for each signer the first match is used, next ones are ignored. Dates with format YYYY/MM/DD."
 msgstr "Les règles sont lues dans l'ordre. Pour chaque signataire, la première règle valide s'applique. Les dates sont au format AAAA/MM/JJ."
 
-#: ./examples.py:114
+#: ./examples.py:115
 msgid "Deliberation"
 msgstr "Déliberation"
 
@@ -564,7 +564,7 @@ msgstr "Date de conservation pour les prévisualisations"
 msgid "Document viewer preservation days number"
 msgstr "Nombre de jours de conservation pour les prévisualisations"
 
-#: ./setuphandlers.py:2746
+#: ./setuphandlers.py:2753
 msgid "Download barcode subtemplate"
 msgstr "Sous-document avec QR code de téléchargement"
 
@@ -573,16 +573,16 @@ msgid "Due date extension"
 msgstr "Échéance par défaut"
 
 #: ./browser/settings.py:372
-#: ./content/behaviors.py:132
+#: ./content/behaviors.py:133
 msgid "Editor"
 msgstr "Éditeur"
 
 #: ./browser/settings.py:356
-#: ./content/behaviors.py:172
+#: ./content/behaviors.py:173
 msgid "Electronic signature"
 msgstr "Signature élec."
 
-#: ./setuphandlers.py:2876
+#: ./setuphandlers.py:2885
 msgid "Email general template"
 msgstr "Modèle générique"
 
@@ -611,7 +611,7 @@ msgid "Enable edition of service office templates for encoder"
 msgstr "Un rédacteur de courrier sortant peut éditer les modèles bureautiques de son service."
 
 #: ./browser/settings.py:373
-#: ./content/behaviors.py:133
+#: ./content/behaviors.py:134
 msgid "Enable edition when approving."
 msgstr "Permet l'édition pour l'approbateur"
 
@@ -623,7 +623,7 @@ msgstr "Active la signature électronique pour cette règle."
 msgid "Enabled"
 msgstr "Activé"
 
-#: ./setuphandlers.py:2740
+#: ./setuphandlers.py:2747
 msgid "Ending template"
 msgstr "Sous-document de fin"
 
@@ -635,7 +635,7 @@ msgstr "Entrez une expression régulière python"
 msgid "Expand/Collapse row"
 msgstr "Augmenter/réduire la hauteur de ligne"
 
-#: ./setuphandlers.py:2683
+#: ./setuphandlers.py:2689
 msgid "Export users and groups"
 msgstr "Exportation des utilisateurs et groupes"
 
@@ -651,11 +651,11 @@ msgstr "Champ"
 msgid "Field name"
 msgstr "Nom du champ"
 
-#: ./adapters.py:1929
+#: ./adapters.py:1932
 msgid "File '${file}' cannot be split for signing: ${error}."
 msgstr "Le fichier publiposté '${file}' ne peut être reséparé en documents différents: ${error}."
 
-#: ./adapters.py:1914
+#: ./adapters.py:1917
 msgid "File '${file}' has no or a wrong scan id, it cannot be added to sign session."
 msgstr "Le fichier '${file}' a un identifiant de scan manquant ou invalide. Il ne peut être ajouté à la session de signature."
 
@@ -668,16 +668,16 @@ msgid "Firstname Lastname"
 msgstr "Prénom Nom"
 
 #: ./browser/batchactions.py:236
-#: ./setuphandlers.py:186
+#: ./setuphandlers.py:188
 msgid "Folders"
 msgstr "Dossiers"
 
-#: ./migrations/migrate_to_3_1.py:230
-#: ./setuphandlers.py:579
+#: ./migrations/migrate_to_3_1.py:231
+#: ./setuphandlers.py:599
 msgid "Folders Appendix Files"
 msgstr "Annexes dossiers"
 
-#: ./setuphandlers.py:186
+#: ./setuphandlers.py:188
 msgid "Folders searches"
 msgstr "Recherches dossiers et chemises"
 
@@ -685,7 +685,7 @@ msgstr "Recherches dossiers et chemises"
 msgid "Following held position"
 msgstr "* Suivant fonction occ. via email"
 
-#: ./setuphandlers.py:2728
+#: ./setuphandlers.py:2735
 msgid "Footer template"
 msgstr "Sous-document de pied de page"
 
@@ -717,17 +717,17 @@ msgstr "Services à ne pas afficher dans les filtres «Service traitant», «Ser
 msgid "Has response icon"
 msgstr "Une réponse est liée"
 
-#: ./setuphandlers.py:2722
+#: ./setuphandlers.py:2729
 msgid "Header template"
 msgstr "Sous-document d'entête"
 
 #: ./migrations/migrate_to_2_1.py:402
-#: ./setuphandlers.py:369
+#: ./setuphandlers.py:371
 msgid "Held positions"
 msgstr "Fonctions occupées"
 
 #: ./migrations/migrate_to_2_1.py:402
-#: ./setuphandlers.py:369
+#: ./setuphandlers.py:371
 msgid "Held positions searches"
 msgstr "Recherches fonctions occupées"
 
@@ -739,7 +739,7 @@ msgstr "* Vers N++, ou agent"
 msgid "Imio Dms Mail testing profile"
 msgstr "Profil de testing pour imio.dms.mail"
 
-#: ./examples.py:154
+#: ./setuphandlers.py:636
 msgid "Incoming Appendix File"
 msgstr "Annexe CE"
 
@@ -747,11 +747,11 @@ msgstr "Annexe CE"
 msgid "Incoming Appendix Files"
 msgstr "Annexes CE"
 
-#: ./examples.py:137
+#: ./setuphandlers.py:634
 msgid "Incoming DMS File"
 msgstr "Fichier ged CE"
 
-#: ./setuphandlers.py:592
+#: ./setuphandlers.py:602
 msgid "Incoming DMS Files"
 msgstr "Fichiers ged CE"
 
@@ -772,12 +772,12 @@ msgid "Incoming mail listing"
 msgstr "Listing des courriers entrants"
 
 #: ./migrations/migrate_to_1_0.py:70
-#: ./setuphandlers.py:244
+#: ./setuphandlers.py:246
 msgid "Incoming mail searches"
 msgstr "Recherches courriers entrants"
 
 #: ./migrations/migrate_to_1_0.py:70
-#: ./setuphandlers.py:244
+#: ./setuphandlers.py:246
 msgid "Incoming mails"
 msgstr "Courrier entrant"
 
@@ -789,7 +789,7 @@ msgstr "Regroupement des fiches du dossier Courrier entrant (mont, week, day)"
 msgid "Installs the imio.dms.mail package"
 msgstr "Profil de base pour mio.dms.mail"
 
-#: ./setuphandlers.py:2734
+#: ./setuphandlers.py:2741
 msgid "Intro template"
 msgstr "Sous-document d'introduction"
 
@@ -797,7 +797,7 @@ msgstr "Sous-document d'introduction"
 msgid "Invalid file format. Allowed formats are: ${formats}."
 msgstr "Format de fichier invalide. Les formats permis sont: ${formats}."
 
-#: ./examples.py:117
+#: ./examples.py:118
 msgid "Invoice"
 msgstr "Facture"
 
@@ -805,7 +805,7 @@ msgstr "Facture"
 msgid "Lastname Firstname"
 msgstr "Nom Prénom"
 
-#: ./examples.py:116
+#: ./examples.py:117
 msgid "Legal advice"
 msgstr "Avis légal"
 
@@ -813,7 +813,7 @@ msgstr "Avis légal"
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
-#: ./content/behaviors.py:154
+#: ./content/behaviors.py:155
 msgid "List of users who have to sign this document"
 msgstr "Liste des signataires (avec l'intitulé de la fonction occupée)"
 
@@ -821,15 +821,15 @@ msgstr "Liste des signataires (avec l'intitulé de la fonction occupée)"
 msgid "Lowest N+ level, or agent"
 msgstr "* Vers N+-, ou agent"
 
-#: ./setuphandlers.py:2621
+#: ./setuphandlers.py:2627
 msgid "Mail listing template"
 msgstr "Listing courrier"
 
-#: ./setuphandlers.py:2637
+#: ./setuphandlers.py:2643
 msgid "Mail listing template sheet"
 msgstr "Listing courrier tabulé"
 
-#: ./setuphandlers.py:2653
+#: ./setuphandlers.py:2659
 msgid "Mail listing template sheet with details"
 msgstr "Listing courrier détaillé"
 
@@ -842,7 +842,7 @@ msgstr "Type de courrier"
 msgid "Mailing"
 msgstr "Publipostage"
 
-#: ./setuphandlers.py:2752
+#: ./setuphandlers.py:2759
 msgid "Mailing template"
 msgstr "Publipostage"
 
@@ -878,7 +878,7 @@ msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sél
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
-#: ./adapters.py:1893
+#: ./adapters.py:1896
 msgid "No files"
 msgstr "Aucun fichier"
 
@@ -890,12 +890,12 @@ msgstr "Il n'y a aucun dossier où vous pouvez ajouter des modèles."
 msgid "No incoming mail !"
 msgstr "Aucun courrier entrant trouvé !"
 
-#: ./adapters.py:1896
+#: ./adapters.py:1899
 msgid "Not all files approved"
 msgstr "Tous les fichiers ne sont pas approuvés"
 
 #: ./browser/settings.py:341
-#: ./content/behaviors.py:108
+#: ./content/behaviors.py:109
 msgid "Number"
 msgstr "Numéro"
 
@@ -920,12 +920,12 @@ msgid "Optional comment to display in history"
 msgstr "Commentaire optionnel à afficher dans l'historique"
 
 #: ./migrations/migrate_to_2_1.py:390
-#: ./setuphandlers.py:357
+#: ./setuphandlers.py:359
 msgid "Organizations"
 msgstr "Organisations"
 
 #: ./migrations/migrate_to_2_1.py:390
-#: ./setuphandlers.py:357
+#: ./setuphandlers.py:359
 msgid "Organizations searches"
 msgstr "Recherches organisations"
 
@@ -945,19 +945,19 @@ msgstr "Obligation d'une date de courrier entrant"
 msgid "Original sender email"
 msgstr "Email de l'expéditeur original"
 
-#: ./examples.py:202
+#: ./setuphandlers.py:645
 msgid "Outgoing Appendix File"
 msgstr "Annexe CS"
 
-#: ./setuphandlers.py:634
+#: ./setuphandlers.py:611
 msgid "Outgoing Appendix Files"
 msgstr "Annexes CS"
 
-#: ./examples.py:172
+#: ./setuphandlers.py:640
 msgid "Outgoing DMS File"
 msgstr "Fichier ged CS"
 
-#: ./setuphandlers.py:618
+#: ./setuphandlers.py:608
 msgid "Outgoing DMS Files"
 msgstr "Fichiers ged CS"
 
@@ -966,32 +966,32 @@ msgstr "Fichiers ged CS"
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
 
-#: ./examples.py:173
+#: ./setuphandlers.py:643
 msgid "Outgoing Scanned DMS File"
 msgstr "Fichier ged CS scanné"
 
-#: ./examples.py:203
+#: ./setuphandlers.py:647
 msgid "Outgoing Signable Appendix File"
 msgstr "Annexe CS à signer"
 
 #: ./browser/settings.py:771
-#: ./setuphandlers.py:2856
+#: ./setuphandlers.py:2865
 msgid "Outgoing email"
 msgstr "Email sortant"
 
 #: ./browser/settings.py:619
 #: ./migrations/migrate_to_0_2.py:126
-#: ./setuphandlers.py:2574
+#: ./setuphandlers.py:2578
 msgid "Outgoing mail"
 msgstr "Courrier sortant"
 
 #: ./migrations/migrate_to_2_0.py:259
-#: ./setuphandlers.py:272
+#: ./setuphandlers.py:274
 msgid "Outgoing mail searches"
 msgstr "Recherches courriers sortants"
 
 #: ./migrations/migrate_to_2_0.py:259
-#: ./setuphandlers.py:272
+#: ./setuphandlers.py:274
 msgid "Outgoing mails"
 msgstr "Courrier sortant"
 
@@ -1003,17 +1003,17 @@ msgstr "Regroupement des fiches du dossier Courrier sortant (mont, week, day)"
 msgid "PDF Document (.pdf)"
 msgstr "Document Pdf (.pdf)"
 
-#: ./browser/views.py:697
+#: ./browser/views.py:698
 msgid "Permission denied to rename «${title}»."
 msgstr "Vous n'êtes pas autorisé à renommer «${title}»."
 
 #: ./migrations/migrate_to_2_1.py:410
-#: ./setuphandlers.py:377
+#: ./setuphandlers.py:379
 msgid "Persons"
 msgstr "Personnes"
 
 #: ./migrations/migrate_to_2_1.py:410
-#: ./setuphandlers.py:377
+#: ./setuphandlers.py:379
 msgid "Persons searches"
 msgstr "Recherches personnes"
 
@@ -1021,7 +1021,7 @@ msgstr "Recherches personnes"
 msgid "Pipeline to use to import contacts"
 msgstr "Pipeline pour importer des contacts"
 
-#: ./browser/views.py:710
+#: ./browser/views.py:711
 msgid "Please provide a title."
 msgstr "Merci de fournir un titre."
 
@@ -1041,7 +1041,7 @@ msgstr "Publipostage postal"
 msgid "Precise scan date"
 msgstr "Date précise de scan"
 
-#: ./setuphandlers.py:2764
+#: ./setuphandlers.py:2771
 msgid "Print template"
 msgstr "Pour impression"
 
@@ -1049,7 +1049,7 @@ msgstr "Pour impression"
 msgid "Read TAL condition"
 msgstr "Condition d'affichage"
 
-#: ./setuphandlers.py:2796
+#: ./setuphandlers.py:2804
 msgid "Receipt template"
 msgstr "Accusé de réception"
 
@@ -1062,7 +1062,7 @@ msgid "Refresh tab count"
 msgstr "Actualiser le comptage des onglets"
 
 #: ./browser/settings.py:349
-#: ./content/behaviors.py:116
+#: ./content/behaviors.py:117
 msgid "Related userid will be the signer. Position name of the held position will be used."
 msgstr "Le signataire est l'utilisateur lié à la fonction occupée dont l'intitulé est utilisé dans la signature."
 
@@ -1090,7 +1090,7 @@ msgstr "Répondre à ${ref}"
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./examples.py:1042
+#: ./examples.py:960
 msgid "Response: "
 msgstr "Réponse: "
 
@@ -1102,11 +1102,11 @@ msgstr "Routage"
 msgid "Rules are read in order. Conditions must be left empty if not relevant."
 msgstr "Les règles de signataires sont lues dans l'ordre et appliquées sur la fiche après une modification. Les critères peuvent être laissés vides. Un sceau doit avoir le numéro 0."
 
-#: ./setuphandlers.py:2948
+#: ./setuphandlers.py:2957
 msgid "Scanner"
 msgstr "Scanner"
 
-#: ./content/behaviors.py:167
+#: ./content/behaviors.py:168
 msgid "Seal"
 msgstr "Sceau"
 
@@ -1165,17 +1165,17 @@ msgid "Set None"
 msgstr "* Pas de valeur"
 
 #: ./browser/settings.py:348
-#: ./content/behaviors.py:115
+#: ./content/behaviors.py:116
 #: ./vocabularies.py:132
 msgid "Signer"
 msgstr "Signataire"
 
-#: ./content/behaviors.py:196
+#: ./content/behaviors.py:197
 msgid "Signer line ${nb} has a duplicate approver with themself."
 msgstr "La ligne ${nb} des signataires a un doublon d'approbateur avec lui-même."
 
 #: ./browser/settings.py:342
-#: ./content/behaviors.py:109
+#: ./content/behaviors.py:110
 msgid "Signer number on the document."
 msgstr "Numéro du signataire sur le document."
 
@@ -1187,7 +1187,7 @@ msgstr "Règles de signataires"
 msgid "Signer substitutes"
 msgstr "Règles d'absence des signataires"
 
-#: ./content/behaviors.py:153
+#: ./content/behaviors.py:154
 msgid "Signers"
 msgstr "Signataires"
 
@@ -1207,7 +1207,7 @@ msgstr "Les signataires sont déterminés depuis les règles de signataires uniq
 msgid "Signers set origin"
 msgstr "Mode de détermination des signataires"
 
-#: ./content/behaviors.py:144
+#: ./content/behaviors.py:145
 msgid "Signing fieldset"
 msgstr "Signatures"
 
@@ -1231,7 +1231,7 @@ msgstr "États pour lesquels afficher l'icône de «remarque» "
 msgid "Stored value/id"
 msgstr "Valeur stockée"
 
-#: ./setuphandlers.py:2713
+#: ./setuphandlers.py:2720
 msgid "Style template"
 msgstr "Styles de base"
 
@@ -1273,22 +1273,22 @@ msgstr "Condition TAL 3"
 
 #: ./migrations/migrate_to_1_0.py:80
 #: ./migrations/migrate_to_2_0.py:110
-#: ./setuphandlers.py:300
+#: ./setuphandlers.py:302
 msgid "Tasks"
 msgstr "Tâches"
 
 #: ./migrations/migrate_to_1_0.py:80
 #: ./migrations/migrate_to_2_0.py:114
-#: ./setuphandlers.py:300
+#: ./setuphandlers.py:302
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./examples.py:115
+#: ./examples.py:116
 msgid "Technical specifications"
 msgstr "Spécifications techniques"
 
-#: ./adapters.py:1444
-#: ./content/behaviors.py:279
+#: ./adapters.py:1445
+#: ./content/behaviors.py:280
 msgid "The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
 msgstr "L'utilisateur ${userid} existe déjà dans les approbateurs lignes ${o} <=> ${c}"
 
@@ -1296,7 +1296,7 @@ msgstr "L'utilisateur ${userid} existe déjà dans les approbateurs lignes ${o} 
 msgid "The 'workflow' menu - allows the user to execute workflow transitions"
 msgstr "The 'workflow' menu - allows the user to execute workflow transitions"
 
-#: ./content/behaviors.py:271
+#: ./content/behaviors.py:272
 msgid "The approving with UID ${uid} does not exist !"
 msgstr "L'approbateur dont le UID de sa personne est ${uid} n'existe pas !"
 
@@ -1312,7 +1312,7 @@ msgstr "Le fichier '${file_title}' ne peut être signé électroniquement car so
 msgid "The file '${file}' has been approved by ${user}. All approvals have been done for this file."
 msgstr "Le fichier '${file}' a été approuvé par ${user}. Toutes les approbations ont été effectuées."
 
-#: ./adapters.py:1642
+#: ./adapters.py:1643
 msgid "The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files to approve on this mail."
 msgstr "Le fichier '${file}' a été approuvé par ${user}. Cependant, il y a encore ${nb} fichier(s) à approuver sur cette fiche."
 
@@ -1320,11 +1320,11 @@ msgstr "Le fichier '${file}' a été approuvé par ${user}. Cependant, il y a en
 msgid "The file '${file}' has been approved by ${user}. Next approval number is ${nb}."
 msgstr "Le fichier '${file}' a été approuvé par ${user}. Le prochain numéro d'approbation est ${nb}."
 
-#: ./content/behaviors.py:210
+#: ./content/behaviors.py:211
 msgid "The signer '${signer_title}' has no userid, you cannot use it !"
 msgstr "Le signataire '${signer_title}' n'a pas d'utilisateur Plone sélectionné sur sa personne !"
 
-#: ./adapters.py:1417
+#: ./adapters.py:1418
 msgid "The signer held position with UID ${uid} does not exist !"
 msgstr "La fonction occupée signataire avec l'UID ${uid} n'existe plus !"
 
@@ -1340,7 +1340,7 @@ msgstr "Signataire absent"
 msgid "The signer with UID ${uid} does not exist !"
 msgstr "Le signataire avec la position occupée dont l'UID est ${uid} n'existe pas !"
 
-#: ./adapters.py:1689
+#: ./adapters.py:1690
 msgid "There was an error while creating the signing session: ${msg} !"
 msgstr "Erreur lors de la création de la session de signature: ${msg} !"
 
@@ -1348,7 +1348,7 @@ msgstr "Erreur lors de la création de la session de signature: ${msg} !"
 msgid "This contact '${title}' has missing address fields: ${keys}"
 msgstr "Ce contact ${title} a des champs d'adresse vides: ${keys}"
 
-#: ./content/behaviors.py:396
+#: ./content/behaviors.py:403
 msgid "This position is still referenced in the outgoing mail signer configuration. Please update the rules and substitutes before removing this usage."
 msgstr "Cette fonction occupée est utilisée dans la configuration des règles de signataires ou d'absences. Veuillez d'abord adapter la configuration avant d'effacer cet élément."
 
@@ -1356,7 +1356,7 @@ msgstr "Cette fonction occupée est utilisée dans la configuration des règles 
 msgid "This workflow adaptation is only valid for ${workflow} !"
 msgstr "Cette adaptation de workflow est seulement valable pour le workflow '${workflow}' !"
 
-#: ./browser/views.py:720
+#: ./browser/views.py:721
 msgid "Title changed."
 msgstr "Titre modifié."
 
@@ -1410,7 +1410,7 @@ msgstr "* Seulement si 1 service"
 msgid "Update preview"
 msgstr "Reconstruire la prévisualisation"
 
-#: ./content/behaviors.py:76
+#: ./content/behaviors.py:77
 msgid "Usages"
 msgstr "Utilisé comme"
 
@@ -1419,7 +1419,7 @@ msgid "User fullname used format"
 msgstr "Format du nom complet de l'utilisateur"
 
 #: ./browser/settings.py:363
-#: ./content/behaviors.py:123
+#: ./content/behaviors.py:124
 msgid "User(s) that can approve the item before the signing session."
 msgstr "Personnes qui peuvent approuver avant signature."
 
@@ -1439,7 +1439,7 @@ msgstr "Au (inclus)"
 msgid "Video guides"
 msgstr "Guides Vidéo"
 
-#: ./browser/documentgenerator.py:590
+#: ./browser/documentgenerator.py:594
 msgid "Warning: the mail already has signers configured that differ from the template. The template signers were not applied."
 msgstr "Attention: cette fiche a déjà des signataires configurés qui diffère de ceux de ce modèle, qui ne seront donc pas appliqués à la fiche."
 
@@ -1459,7 +1459,7 @@ msgstr "Vous pouvez seulement uploader un fichier «.odt» (format Libre Office)
 msgid "You cannot add a group in a group !"
 msgstr "Vous ne pouvez pas ajouter un groupe dans un groupe !"
 
-#: ./content/behaviors.py:379
+#: ./content/behaviors.py:385
 msgid "You cannot change the userid because the user is in approvals on following objects ${paths}"
 msgstr "Vous ne pouvez pas changer l'utilisateur Plone car l'ancienne valeur est utilisée dans la mécanique d'approbation sur les courriers suivants ${paths}"
 
@@ -1499,11 +1499,11 @@ msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 msgid "You cannot delete, cut or rename this item '${title}' !"
 msgstr "Vous ne pouvez pas effacer, déplacer ou renommer cet élément '${title}' !"
 
-#: ./content/behaviors.py:302
+#: ./content/behaviors.py:303
 msgid "You cannot enable electronic signature because the file '${filename}' is of type '${mimetype}' which is not allowed. Allowed formats are: ${formats}."
 msgstr "Vous ne pouvez pas activer la signature électronique car le fichier '${filename}' à signer est du type '${mimetype}', qui n'est pas permis. Les formats autorisés sont: ${formats}."
 
-#: ./content/behaviors.py:190
+#: ./content/behaviors.py:191
 msgid "You cannot have a seal and signers but no electronic signature !"
 msgstr "Vous ne pouvez pas avoir de cachet et de signataire sans cocher 'Signature élec.' !"
 
@@ -1515,20 +1515,20 @@ msgstr "Vous ne pouvez pas avoir un sceau sans signature électronique ! Il faut
 msgid "You cannot have an approving number ${c} with status ${status} <=> w"
 msgstr "Vous ne pouvez pas avoir un approbateur à la ligne ${c} qui a déjà le statut ${status} <=> w"
 
-#: ./content/behaviors.py:242
+#: ./content/behaviors.py:243
 msgid "You cannot have empty and defined approvings at the same time !"
 msgstr "Vous ne pouvez pas avoir des lignes avec des approbateurs parfois vides, parfois non !"
 
-#: ./adapters.py:1426
-#: ./content/behaviors.py:255
+#: ./adapters.py:1427
+#: ./content/behaviors.py:256
 msgid "You cannot have the same email (${email}) for multiple signers !"
 msgstr "Vous ne pouvez pas avoir le même email (${email}) pour plusieurs signataires !"
 
-#: ./content/behaviors.py:222
+#: ./content/behaviors.py:223
 msgid "You cannot have the same number for multiple signers !"
 msgstr "Vous ne pouvez pas utiliser le même numéro pour plusieurs signataires !"
 
-#: ./content/behaviors.py:203
+#: ./content/behaviors.py:204
 msgid "You cannot have the same signer (${signer_title}) multiple times !"
 msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_title}) !"
 
@@ -1536,19 +1536,19 @@ msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_ti
 msgid "You cannot have the same signer (${signer_title}) multiple times ! You have to adapt the rules !"
 msgstr "Vous ne pouvez pas avoir le même signataire plusieurs fois (${signer_title}) ! Il faut adapter les règles dans la configuration !"
 
-#: ./content/behaviors.py:186
+#: ./content/behaviors.py:187
 msgid "You cannot modify signers once the approval process has started or is done. You may go back to a previous state or ask your admin."
 msgstr "Vous ne pouvez pas modifier les signataires une fois le processus d'approbation commencé ou terminé. Revenez dans un état précédent ou demandez à votre référent."
 
-#: ./content/behaviors.py:331
-msgid "You cannot remove a userid once it is set."
-msgstr "Vous ne pouvez pas vider le champ 'utilisateur Plone' une fois qu'il a été défini."
+#: ./content/behaviors.py:336
+msgid "You cannot remove a userid from the person while the user is still in a group."
+msgstr "Vous ne pouvez pas désélectionner l'utilisateur Plone quand ce dernier fait toujours partie d'un groupe."
 
 #: ./browser/settings.py:230
 msgid "You cannot select approvings and no validation at the same time."
 msgstr "Vous ne pouvez pas sélectionner des approbateurs et pas de signature en même temps."
 
-#: ./content/behaviors.py:240
+#: ./content/behaviors.py:241
 msgid "You have to define approvings for each signer if electronic signature is used !"
 msgstr "Vous devez définir des approbateurs pour chaque signataire si la signature électronique est utilisée !"
 
@@ -1568,40 +1568,40 @@ msgstr "Votre email a été envoyé"
 msgid "Your email has not been sent: ${error}."
 msgstr "Votre email n'a pas été envoyé: ${error}."
 
-#: ./adapters.py:1955
-msgid "[ia.docs] Session {sign_id}"
-msgstr "[ia.docs] Session {sign_id}"
+#: ./adapters.py:1958
+msgid "[ia.docs] {sign_id}"
+msgstr "[ia.docs] {sign_id}"
 
-#: ./setuphandlers.py:1770
+#: ./setuphandlers.py:1773
 msgid "all_cls"
 msgstr "Toutes les listes de contact"
 
-#: ./setuphandlers.py:1789
+#: ./setuphandlers.py:1792
 msgid "all_folders"
 msgstr "Tout"
 
-#: ./setuphandlers.py:1730
+#: ./setuphandlers.py:1733
 msgid "all_hps"
 msgstr "Toutes les fonctions occupées"
 
-#: ./setuphandlers.py:1180
+#: ./setuphandlers.py:1183
 msgid "all_im_tasks"
 msgstr "Toutes les tâches"
 
 #: ./migrations/migrate_to_0_2.py:117
-#: ./setuphandlers.py:824
+#: ./setuphandlers.py:827
 msgid "all_incoming_mails"
 msgstr "Tout"
 
-#: ./setuphandlers.py:1711
+#: ./setuphandlers.py:1714
 msgid "all_orgs"
 msgstr "Toutes les organisations"
 
-#: ./setuphandlers.py:1456
+#: ./setuphandlers.py:1459
 msgid "all_outgoing_mails"
 msgstr "Tout"
 
-#: ./setuphandlers.py:1751
+#: ./setuphandlers.py:1754
 msgid "all_persons"
 msgstr "Toutes les personnes"
 
@@ -1622,11 +1622,11 @@ msgstr "Le dernier fichier ged sera bien pris en compte dans l'impression par lo
 msgid "city"
 msgstr "Ville"
 
-#: ./setuphandlers.py:130
+#: ./setuphandlers.py:132
 msgid "classification_tree_tab"
 msgstr "Classement"
 
-#: ./setuphandlers.py:346
+#: ./setuphandlers.py:348
 msgid "contacts_tab"
 msgstr "Contacts"
 
@@ -1678,11 +1678,11 @@ msgstr "Fichier ged CE"
 msgid "dmsommainfile"
 msgstr "Fichier ged CS"
 
-#: ./setuphandlers.py:119
+#: ./setuphandlers.py:121
 msgid "folders_tab"
 msgstr "Dossiers"
 
-#: ./setuphandlers.py:1883
+#: ./setuphandlers.py:1886
 msgid "followed"
 msgstr "Étiquette: Suivi"
 
@@ -1714,40 +1714,40 @@ msgid "heading_rename_title_item"
 msgstr "Modifier le titre"
 
 #: ./migrations/migrate_to_2_1.py:197
-#: ./setuphandlers.py:1135
+#: ./setuphandlers.py:1138
 msgid "im_followed"
 msgstr "Étiquette: Suivi"
 
-#: ./setuphandlers.py:957
+#: ./setuphandlers.py:960
 msgid "im_have_treated"
 msgstr "Que j'ai traité"
 
-#: ./setuphandlers.py:924
+#: ./setuphandlers.py:927
 msgid "im_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:1099
+#: ./setuphandlers.py:1102
 msgid "im_in_copy"
 msgstr "En copie"
 
 #: ./migrations/migrate_to_2_1.py:162
-#: ./setuphandlers.py:1063
+#: ./setuphandlers.py:1066
 msgid "im_in_copy_unread"
 msgstr "En copie, non lu"
 
-#: ./setuphandlers.py:1027
+#: ./setuphandlers.py:1030
 msgid "im_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:891
+#: ./setuphandlers.py:894
 msgid "im_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:990
+#: ./setuphandlers.py:993
 msgid "im_to_treat_in_my_group"
 msgstr "À traiter dans mon service"
 
-#: ./setuphandlers.py:855
+#: ./setuphandlers.py:858
 msgid "im_to_validate"
 msgstr "À valider"
 
@@ -1775,11 +1775,11 @@ msgstr "Gestion du courrier, données de test"
 msgid "import_folders"
 msgstr "Importer des fardes et chemises"
 
-#: ./setuphandlers.py:1850
+#: ./setuphandlers.py:1853
 msgid "in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:1817
+#: ./setuphandlers.py:1820
 msgid "in_my_group"
 msgstr "Dans mon service"
 
@@ -1787,7 +1787,7 @@ msgstr "Dans mon service"
 msgid "incoming mails"
 msgstr "courriers entrants"
 
-#: ./setuphandlers.py:233
+#: ./setuphandlers.py:235
 msgid "incoming_mail_tab"
 msgstr "Entrant"
 
@@ -1841,19 +1841,19 @@ msgstr "Expéditeur"
 msgid "number"
 msgstr "Numéro"
 
-#: ./setuphandlers.py:1609
+#: ./setuphandlers.py:1612
 msgid "om_have_treated"
 msgstr "Que j'ai traité"
 
-#: ./setuphandlers.py:1550
+#: ./setuphandlers.py:1553
 msgid "om_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:1671
+#: ./setuphandlers.py:1674
 msgid "om_in_copy"
 msgstr "En copie"
 
-#: ./setuphandlers.py:1638
+#: ./setuphandlers.py:1641
 msgid "om_in_my_group"
 msgstr "Dans mon service"
 
@@ -1865,15 +1865,15 @@ msgstr "Dans session signature"
 msgid "om_to_approve"
 msgstr "Á approuver"
 
-#: ./setuphandlers.py:1579
+#: ./setuphandlers.py:1582
 msgid "om_to_email"
 msgstr "Email que je dois env."
 
-#: ./setuphandlers.py:1522
+#: ./setuphandlers.py:1525
 msgid "om_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./setuphandlers.py:1489
+#: ./setuphandlers.py:1492
 msgid "om_to_validate"
 msgstr "À valider"
 
@@ -1885,7 +1885,7 @@ msgstr "Affichage des champs courrier sortant"
 msgid "organization_type_query_field"
 msgstr "Tri sur l'ordre de scan"
 
-#: ./setuphandlers.py:264
+#: ./setuphandlers.py:266
 msgid "outgoing_mail_tab"
 msgstr "Sortant"
 
@@ -1973,47 +1973,47 @@ msgstr "État: à imprimer"
 msgid "street"
 msgstr "Rue"
 
-#: ./setuphandlers.py:1281
+#: ./setuphandlers.py:1284
 msgid "task_have_treated"
 msgstr "Que j'ai traitées"
 
-#: ./setuphandlers.py:1255
+#: ./setuphandlers.py:1258
 msgid "task_im_treating"
 msgstr "Que je traite"
 
-#: ./setuphandlers.py:1229
+#: ./setuphandlers.py:1232
 msgid "task_to_treat"
 msgstr "Qui me sont assignées"
 
-#: ./setuphandlers.py:1307
+#: ./setuphandlers.py:1310
 msgid "task_to_treat_in_my_group"
 msgstr "À traiter dans mon service"
 
-#: ./setuphandlers.py:1366
+#: ./setuphandlers.py:1369
 msgid "tasks_have_created"
 msgstr "Que j'ai créées"
 
-#: ./setuphandlers.py:1337
+#: ./setuphandlers.py:1340
 msgid "tasks_in_my_group"
 msgstr "Dans mon service"
 
-#: ./setuphandlers.py:1391
+#: ./setuphandlers.py:1394
 msgid "tasks_in_proposing_group"
 msgstr "Créées par mon service"
 
-#: ./setuphandlers.py:293
+#: ./setuphandlers.py:295
 msgid "tasks_tab"
 msgstr "Tâches"
 
-#: ./setuphandlers.py:1202
+#: ./setuphandlers.py:1205
 msgid "tasks_to_assign"
 msgstr "À assigner"
 
-#: ./setuphandlers.py:1420
+#: ./setuphandlers.py:1423
 msgid "tasks_to_close"
 msgstr "À clôturer"
 
-#: ./setuphandlers.py:2573
+#: ./setuphandlers.py:2577
 msgid "templates_tab"
 msgstr "Modèles"
 
