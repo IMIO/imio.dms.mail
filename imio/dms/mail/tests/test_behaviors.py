@@ -36,6 +36,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.change_user("siteadmin")
         activate_signing(self.portal)
         self.pw = self.portal.portal_workflow
+        self.dir = self.portal["contacts"]
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
         self.pf = self.portal["contacts"]["personnel-folder"]
 
@@ -455,6 +456,9 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         # Add-form scenario: context is the Person container
         person_validator = UsagesSignerRulesValidator(bourgmestre, request, None, field, None)
         self.assertIsNone(person_validator.validate(["signer"]))
+        outside_hp_validator = UsagesSignerRulesValidator(
+            self.dir["sergerobinet"]["agent-swde"], request, None, field, None)
+        self.assertIsNone(outside_hp_validator.validate(["signer"]))
 
         # Edit scenario: context is the HeldPosition
         api.portal.set_registry_record(rk_rules, [{
