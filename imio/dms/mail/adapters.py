@@ -1955,7 +1955,7 @@ class OMApprovalAdapter(object):
         watcher_emails = [user.getProperty("email") for user in watcher_users]
         pdf_session_ids = set()
         sessions_used = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
-                                             title=_("[ia.docs] Session {sign_id}"),
+                                             title=_("[ia.docs] {sign_id}"),
                                              watchers=watcher_emails)
         for sid, _session in sessions_used:
             pdf_session_ids.add(sid)
