@@ -26,6 +26,8 @@ Changelog
   [sgeulette]
 - Updated incoming mail_types and send_modes examples.
   [chris-adam, sgeulette]
+- Fixed AttributeError (get_person) raised in is_hp_used_in_signer_rules (PARAF-477).
+  [chris-adam]
 
 3.1.4 (2026-05-29)
 ------------------

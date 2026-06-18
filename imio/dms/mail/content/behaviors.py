@@ -390,7 +390,8 @@ class UsagesSignerRulesValidator(validator.SimpleFieldValidator):
 
     def validate(self, value, force=False):
         super(UsagesSignerRulesValidator, self).validate(value, force=force)
-        if not IPersonnelContact.providedBy(self.context):
+        if self.context.portal_type == "person" or not IPersonnelContact.providedBy(self.context):
+            # on addition or outside personnel, we skip check
             return
         if is_hp_used_in_signer_rules(self.context, value or []):
             raise Invalid(_(
