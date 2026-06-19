@@ -541,7 +541,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
   ],
   'size': {size},
   'state': 'draft',
-  'title': u'[ia.docs] Session 012999900000',
+  'title': u'[ia.docs] 012999900000',
   'watchers': [],
 }}""".format(  # noqa E501
                 c_uid=omail.UID(),
