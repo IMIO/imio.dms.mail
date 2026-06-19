@@ -38,6 +38,8 @@ Changelog
   [chris-adam]
 - Fixed duplicate transitions on wfa reapply in migration 3.1.
   [chris-adam]
+- Corrected css to display correctly signed icon
+  [sgeulette]
 
 3.1.4 (2026-05-29)
 ------------------
