@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.1.5 (unreleased)
+3.1.5 (2026-06-19)
 ------------------
 
 - Added temporary sub_templates_usage in Extensions/demo.py.
