@@ -30,6 +30,8 @@ Changelog
   [chris-adam]
 - Allow removal of userid on a person if he's not in any group.
   [chris-adam]
+- Fixed duplicate transitions on wfa reapply in migration 3.1.
+  [chris-adam]
 
 3.1.4 (2026-05-29)
 ------------------

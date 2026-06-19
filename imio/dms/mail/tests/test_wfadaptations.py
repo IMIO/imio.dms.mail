@@ -4,6 +4,7 @@
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.wfadaptations.api import apply_from_registry
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IOMApproval
@@ -16,6 +17,7 @@ from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from imio.dms.mail.wfadaptations import IMPreManagerValidation
 from imio.helpers.content import get_object
+from imio.helpers.setup import load_workflow_from_package
 from plone import api
 from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
@@ -510,6 +512,56 @@ class TestOMToApproveAdaptation(BaseTestWFAdaptations):
         )
         self.common_tests()
 
+    def _check_om_to_approve_n_plus_1_reapply(self):
+        """Reset the OM workflow and reapply every adaptation from the registry.
+
+        The workflow states and the transitions available on each state must be
+        identical before and after the reset+reapply
+        """
+        # snapshot the workflow as produced by the normal (single) application
+        before = {state.getId(): sorted(state.transitions) for state in self.omw.states.values()}
+        # no state must hold a duplicated transition
+        for state in self.omw.states.values():
+            transitions = list(state.transitions)
+            self.assertEqual(len(transitions), len(set(transitions)), state.getId())
+        # reset workflow
+        self.assertTrue(load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default"))
+        # reapply every adaptation from the registry
+        _success, errors = apply_from_registry(reapply=True)
+        self.assertEqual(errors, 0)
+        after = {state.getId(): sorted(state.transitions) for state in self.omw.states.values()}
+        self.assertEqual(before, after)
+        # no state must hold a duplicated transition
+        for state in self.omw.states.values():
+            transitions = list(state.transitions)
+            self.assertEqual(len(transitions), len(set(transitions)), state.getId())
+        # 'propose_to_approve' must appear exactly once on each n+1 chain state
+        for st_id in ("proposed_to_n_plus_1", "validated"):
+            transitions = list(self.omw.states[st_id].transitions)
+            self.assertEqual(transitions.count("propose_to_approve"), 1, st_id)
+        # the 'validated' state must not get a back_to_validated self-transition
+        self.assertNotIn("back_to_validated", self.omw.states["validated"].transitions)
+
+    def test_OMToApprove_after_n_plus_1_reapply(self):
+        """Test adaptations are reapplied from registry (n+1 applied first)."""
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_n_plus_1_wfadaptation", run_dependencies=False
+        )
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
+        )
+        self._check_om_to_approve_n_plus_1_reapply()
+
+    def test_OMToApprove_before_n_plus_1_reapply(self):
+        """Test adaptations are reapplied from registry (to_approve applied first)."""
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_to_approve_wfadaptation", run_dependencies=False
+        )
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-om_n_plus_1_wfadaptation", run_dependencies=False
+        )
+        self._check_om_to_approve_n_plus_1_reapply()
+
 
 class TestOMServiceValidation1(unittest.TestCase):
 
@@ -634,6 +686,25 @@ class TestOMServiceValidation1(unittest.TestCase):
         lst = api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states")
         self.assertIn("proposed_to_n_plus_1", lst)
         self.assertIn("validated", lst)
+
+    def test_OMServiceValidation_reapply(self):
+        """Test adaptations are reapplied from registry."""
+        before = {state.getId(): sorted(state.transitions) for state in self.omw.states.values()}
+        self.assertTrue(load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default"))
+        _success, errors = apply_from_registry(
+            reapply=True, name=u"imio.dms.mail.wfadaptations.OMServiceValidation"
+        )
+        self.assertEqual(errors, 0)
+        after = {state.getId(): sorted(state.transitions) for state in self.omw.states.values()}
+        self.assertEqual(before, after)
+        # 'set_validated' must appear exactly once on proposed_to_n_plus_1
+        self.assertEqual(list(self.omw.states["proposed_to_n_plus_1"].transitions).count("set_validated"), 1)
+        # 'validated' must not get a back_to_validated self-transition
+        self.assertNotIn("back_to_validated", self.omw.states["validated"].transitions)
+        # no state must hold a duplicated transition
+        for state in self.omw.states.values():
+            transitions = list(state.transitions)
+            self.assertEqual(len(transitions), len(set(transitions)), state.getId())
 
     def test_dmsdocument_modified_subscriber1(self):
         """Test only treating_groups change while the state is on a service validation level"""
