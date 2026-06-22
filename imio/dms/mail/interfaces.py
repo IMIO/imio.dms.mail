@@ -165,9 +165,8 @@ class IPersonnelFolder(Interface):
     """DEPRECATED marker interface for the personnel folder (contacts/personnel-folder).
 
     No longer applied (since 3.1.5) nor checked by any code. Kept only so existing
-    objects that still provide it can be unpickled and cleaned by the 3.1.5 migration
-    (migrate_to_3_1_5.setup_personnel_dashboard). Delete this class in a future version
-    once all sites have run that migration.
+    objects that still provide it can be unpickled and cleaned by the 3.1 migration.
+    Delete this class in a future version once all sites are > 3.1.5.
     """
 
 

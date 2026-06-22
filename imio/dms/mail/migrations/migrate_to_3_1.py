@@ -19,11 +19,13 @@ from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail.examples import add_special_model_mail
+from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.setuphandlers import add_db_col_folder
 from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
+from imio.dms.mail.setuphandlers import create_personnel_dashboard
 from imio.dms.mail.setuphandlers import createReqCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import order_1st_level
@@ -51,6 +53,7 @@ from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from zope.component import getGlobalSiteManager
 from zope.event import notify
 from zope.interface import alsoProvides
+from zope.interface import noLongerProvides
 from zope.lifecycleevent import IObjectModifiedEvent
 
 import ast
@@ -634,6 +637,18 @@ class Migrate_To_3_1(Migrator):  # noqa
                 localroles._p_changed = True
                 fixed.append(fti.getId())
         logger.info("Normalized localroles 'rel' on portal types: %s", fixed)
+
+    def setup_personnel_dashboard(self):
+        """Convert personnel-folder from z3c.table listing to faceted dashboard."""
+        pf = self.contacts["personnel-folder"]
+        pf.setLocallyAllowedTypes(["person", "Folder"])
+        pf.setImmediatelyAddableTypes(["person"])
+        create_personnel_dashboard(pf)
+        if base_hasattr(pf, "layout"):
+            del pf.layout
+        if IPersonnelFolder.providedBy(pf):
+            noLongerProvides(pf, IPersonnelFolder)
+        logger.info("Converted personnel-folder to faceted dashboard")
 
 
 def migrate(context):  # noqa

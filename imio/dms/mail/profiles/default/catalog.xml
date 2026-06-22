@@ -37,8 +37,8 @@
   <indexed_attr value="usages"/>
  </index>
 
- <index name="primary_organization" meta_type="FieldIndex">
+ <!--index name="primary_organization" meta_type="FieldIndex">
   <indexed_attr value="primary_organization"/>
- </index>
+ </index-->
 
 </object>

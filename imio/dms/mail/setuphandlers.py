@@ -1943,7 +1943,7 @@ def createPersonsCollections(folder):
 def create_personnel_dashboard(pf):
     """Create the personnel-searches faceted dashboard inside the personnel folder.
 
-    Shared by postInstall and the 3.1.5 migration.
+    Shared by postInstall and the 3.1.6 migration.
     """
     col_folder = add_db_col_folder(pf, "personnel-searches", _("Personnel searches"), _("Personnel"))
     alsoProvides(col_folder, INextPrevNotNavigable)

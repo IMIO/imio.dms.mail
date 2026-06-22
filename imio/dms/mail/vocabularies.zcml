@@ -39,10 +39,10 @@
         factory="imio.dms.mail.vocabularies.HeldPositionUsagesVocabulary"
         />
 
-    <utility
+    <!--utility
         name="imio.dms.mail.PersonnelPrimaryOrganizationsFacetedVocabulary"
         factory="imio.dms.mail.vocabularies.PersonnelPrimaryOrganizationsFacetedVocabulary"
-        />
+        /-->
 
     <utility
         name="imio.dms.mail.AssignedUsersWithDeactivatedVocabulary"

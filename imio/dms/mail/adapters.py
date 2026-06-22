@@ -534,13 +534,13 @@ def person_usages_index(obj):
     return res or common_marker
 
 
-@indexer(IPerson)
-def person_primary_organization_index(obj):
-    """Indexer of 'primary_organization' for IPerson.
-
-    Stores a sentinel '_empty_' for persons without a primary organization.
-    """
-    return getattr(obj, "primary_organization", None) or u"_empty_"
+# @indexer(IPerson)
+# def person_primary_organization_index(obj):
+#     """Indexer of 'primary_organization' for IPerson.
+#
+#     Stores imio.helpers EMPTY_STRING for persons without a primary organization.
+#     """
+#     return getattr(obj, "primary_organization", None) or EMPTY_STRING
 
 
 @indexer(IDmsMailCreatingGroup)
