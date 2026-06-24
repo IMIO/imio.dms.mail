@@ -4,7 +4,9 @@ Changelog
 3.1.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Updated `Extensions/demo.py` classification tree cache invalidation to the new
+  `iterate_over_tree_data` cache key (DMS-1216).
+  [chris-adam]
 
 
 3.1.5 (2026-06-19)
