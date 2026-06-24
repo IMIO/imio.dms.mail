@@ -4,8 +4,8 @@ Changelog
 3.1.6 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Added colum to show if signers are defined on sub/templates.
+  [sgeulette]
 
 3.1.5 (2026-06-19)
 ------------------

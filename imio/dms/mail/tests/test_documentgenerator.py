@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 """ documentgenerator.py tests for this package."""
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.browser.documentgenerator import DmsTemplatesListing
 from imio.dms.mail.browser.documentgenerator import OutgoingMailLinksViewlet
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.interfaces import IImioDmsMailLayer
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
@@ -12,6 +14,8 @@ from plone.namedfile.file import NamedBlobFile
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
+from zope.interface import alsoProvides
+from zope.interface import noLongerProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -588,6 +592,53 @@ class TestDocumentGenerator(unittest.TestCase):
         template.signers = original_signers
         template.merge_templates = original_merge
         rep1.signers = original_rep1_signers
+
+    def test_dg_templates_listing_signers_column(self):
+        rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
+        folder = self.portal["templates"]["om"]
+        template = folder["main"]
+        pf = self.portal["contacts"]["personnel-folder"]
+        dirg_hp = pf["dirg"]["directeur-general"]
+        original_signers = template.signers
+        request = self.portal.REQUEST
+
+        def column_names():
+            view = DmsTemplatesListing(folder, request)
+            view.update()
+            return view, [col.__name__ for col in view.table.columns]
+
+        # "rules" mode (default): the signers column is hidden
+        api.portal.set_registry_record(rk_so, u"rules")
+        view, names = column_names()
+        self.assertNotIn("TemplateSignersColumn", names)
+
+        # "template_first": the signers column is shown
+        api.portal.set_registry_record(rk_so, u"template_first")
+        view, names = column_names()
+        self.assertIn("TemplateSignersColumn", names)
+
+        # "rules_first": the signers column is shown too
+        api.portal.set_registry_record(rk_so, u"rules_first")
+        view, names = column_names()
+        self.assertIn("TemplateSignersColumn", names)
+        column = [col for col in view.table.columns if col.__name__ == "TemplateSignersColumn"][0]
+
+        # renderCell reflects whether the template defines signers
+        template.signers = None
+        self.assertIn("/nok.svg", column.renderCell(template))
+        template.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
+        self.assertIn("/ok.svg", column.renderCell(template))
+
+        # the overridden page is resolved when the imio.dms.mail browser layer is active
+        alsoProvides(request, IImioDmsMailLayer)
+        try:
+            self.assertIsInstance(folder.restrictedTraverse("dg-templates-listing"), DmsTemplatesListing)
+        finally:
+            noLongerProvides(request, IImioDmsMailLayer)
+
+        # Cleanup
+        api.portal.set_registry_record(rk_so, u"rules")
+        template.signers = original_signers
 
     def test_copy_template_signers_substitutes(self):
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"

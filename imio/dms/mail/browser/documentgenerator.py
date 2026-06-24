@@ -9,7 +9,9 @@ from collective.documentgenerator import utils
 from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
 from collective.documentgenerator.browser.overrides import DGDXDocumentViewerView
+from collective.documentgenerator.browser.table import TemplatesTable
 from collective.documentgenerator.browser.views import EditConfigurablePodTemplate
+from collective.documentgenerator.browser.views import TemplatesListing
 from collective.documentgenerator.content.pod_template import ConfigurablePODTemplate
 from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
@@ -36,6 +38,7 @@ from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
+from z3c.table.column import Column
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.i18n import translate
@@ -677,6 +680,47 @@ class DmsViewConfigurablePodTemplate(DGDXDocumentViewerView):
     def update(self):
         super(DmsViewConfigurablePodTemplate, self).update()
         _filter_signing_fieldset(self)
+
+
+# # # TEMPLATES LISTING SIGNERS COLUMN # # #
+
+
+class TemplateSignersColumn(Column):
+    """Column showing whether a template defines signers (directly or via a merge sub-template)."""
+
+    header = _(u"Signers")
+    weight = 55
+    cssClasses = {"td": "signers-column"}
+
+    def renderCell(self, item):
+        if not base_hasattr(item, "signers"):
+            # types without the signing behavior (e.g. style or mailing loop templates)
+            return u""
+        if get_template_signers_source(item) is not None:
+            icon = ("++resource++imio.dms.mail/itemIsSignedYes.png",
+                    translate(_(u"Signers defined"), context=self.request))
+        else:
+            return u""
+        return u"<img class='svg-icon' title='{0}' src='{1}' />".format(
+            safe_unicode(icon[1]).replace("'", "&#39;"),
+            u"{0}/{1}".format(self.table.portal_url, icon[0]))
+
+
+class DmsTemplatesTable(TemplatesTable):
+    """TemplatesTable variant hiding the signers column when signers come from rules only."""
+
+    def setUpColumns(self):
+        columns = super(DmsTemplatesTable, self).setUpColumns()
+        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
+        if mode == u"rules":
+            columns = [col for col in columns if col.__name__ != "TemplateSignersColumn"]
+        return columns
+
+
+class DmsTemplatesListing(TemplatesListing):
+    """'dg-templates-listing' variant using DmsTemplatesTable to add the signers column."""
+
+    __table__ = DmsTemplatesTable
 
 
 class DmsAddConfigurablePodTemplateForm(DefaultAddForm):

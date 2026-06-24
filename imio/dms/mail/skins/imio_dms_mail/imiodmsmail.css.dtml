@@ -911,6 +911,11 @@ body.template-folder_factories #content-core dt label img {
     max-height: 18px;
 }
 
+/* templates listing */
+.templates-listing .signers-column {
+    text-align: center;
+}
+
 /* org logo in listing */
 body.template-view.subsection-plonegroup-organization table.suborganizations-listing div.additional-infos img {
     width: auto;
