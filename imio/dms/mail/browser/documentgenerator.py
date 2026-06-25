@@ -59,15 +59,17 @@ def get_template_signers_source(pod_template):
 
     Signers are taken from pod_template itself. If it defines none, its merge_templates
     sub-templates are looked up in order and the first one defining signers is returned.
-    Returns None when neither the template nor its sub-templates define signers.
+    Returns a tuple:
+        - the sub/template or None
+        - a bool showing the template contains itself the signers
     """
     if bool(getattr(pod_template, "signers", None)):
-        return pod_template
+        return pod_template, True
     for line in getattr(pod_template, "merge_templates", None) or []:
         sub = uuidToObject(line.get("template"), unrestricted=True)
         if sub is not None and bool(getattr(sub, "signers", None)):
-            return sub
-    return None
+            return sub, False
+    return None, True
 
 
 class BaseDGHelper(DXDocumentGenerationHelperView):
@@ -571,7 +573,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         if mode == u"rules_first" and mail_has_signers:
             return
 
-        signers_source = get_template_signers_source(source)
+        signers_source, _z = get_template_signers_source(source)
         template_signers = getattr(signers_source, "signers", None) if signers_source is not None else None
         if not template_signers:
             if mail_has_signers:
@@ -696,7 +698,16 @@ class TemplateSignersColumn(Column):
         if not base_hasattr(item, "signers"):
             # types without the signing behavior (e.g. style or mailing loop templates)
             return u""
-        if get_template_signers_source(item) is not None:
+        tmpl, itself = get_template_signers_source(item)
+        if tmpl is not None:
+            if itself:
+                return u"<span class='svg-icon pt_self_signers' title='{0}'></span>".format(
+                    translate(_(u"Signers defined"), context=self.request)
+                )
+            else:
+                return u"<span class='svg-icon pt_sub_signers' title='{0}'></span>".format(
+                    translate(_(u"Signers defined via sub template"), context=self.request)
+                )
             icon = ("++resource++imio.dms.mail/itemIsSignedYes.png",
                     translate(_(u"Signers defined"), context=self.request))
         else:

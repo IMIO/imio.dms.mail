@@ -548,27 +548,35 @@ class TestDocumentGenerator(unittest.TestCase):
         sub = templates["ending"]
         sub.signers = sub_signers
 
-        # template defines its own signers: returned directly
+        # get_template_signers_source returns a tuple (source_template_or_None, defined_on_template_itself)
+
+        # template defines its own signers: returned directly, itself=True
         template.signers = tpl_signers
         template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
-        self.assertEqual(get_template_signers_source(template).UID(), template.UID())
+        source, itself = get_template_signers_source(template)
+        self.assertEqual(source.UID(), template.UID())
+        self.assertTrue(itself)
 
-        # template has no signers but a merge sub-template defines them: sub-template returned
+        # template has no signers but a merge sub-template defines them: sub-template returned, itself=False
         template.signers = None
-        self.assertEqual(get_template_signers_source(template).UID(), sub.UID())
+        source, itself = get_template_signers_source(template)
+        self.assertEqual(source.UID(), sub.UID())
+        self.assertFalse(itself)
 
-        # an _empty_ placeholder on the template counts as a defined value: template returned
+        # an _empty_ placeholder on the template counts as a defined value: template returned, itself=True
         template.signers = empty_value
-        self.assertEqual(get_template_signers_source(template).UID(), template.UID())
+        source, itself = get_template_signers_source(template)
+        self.assertEqual(source.UID(), template.UID())
+        self.assertTrue(itself)
 
-        # neither template nor sub-template define signers: None
+        # neither template nor sub-template define signers: (None, True)
         template.signers = None
         sub.signers = None
-        self.assertIsNone(get_template_signers_source(template))
+        self.assertEqual(get_template_signers_source(template), (None, True))
 
-        # no merge_templates at all: None
+        # no merge_templates at all: (None, True)
         template.merge_templates = []
-        self.assertIsNone(get_template_signers_source(template))
+        self.assertEqual(get_template_signers_source(template), (None, True))
 
         # end-to-end: template_first, template empty, sub-template provides signers/seal/esign
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
@@ -624,10 +632,26 @@ class TestDocumentGenerator(unittest.TestCase):
         column = [col for col in view.table.columns if col.__name__ == "TemplateSignersColumn"][0]
 
         # renderCell reflects whether the template defines signers
+        bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
+        sub = folder["ending"]
+        original_merge = list(template.merge_templates or [])
+        original_sub_signers = sub.signers
+
+        # no signers anywhere: empty cell
         template.signers = None
-        self.assertNotIn("/itemIsSignedYes.png", column.renderCell(template))
+        template.merge_templates = []
+        sub.signers = None
+        self.assertEqual(column.renderCell(template), u"")
+
+        # signers defined on the template itself
         template.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
-        self.assertIn("/itemIsSignedYes.png", column.renderCell(template))
+        self.assertIn("pt_self_signers", column.renderCell(template))
+
+        # signers defined via a merge sub-template
+        template.signers = None
+        sub.signers = [{"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}]
+        template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
+        self.assertIn("pt_sub_signers", column.renderCell(template))
 
         # the overridden page is resolved when the imio.dms.mail browser layer is active
         alsoProvides(request, IImioDmsMailLayer)
@@ -639,6 +663,8 @@ class TestDocumentGenerator(unittest.TestCase):
         # Cleanup
         api.portal.set_registry_record(rk_so, u"rules")
         template.signers = original_signers
+        template.merge_templates = original_merge
+        sub.signers = original_sub_signers
 
     def test_copy_template_signers_substitutes(self):
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
