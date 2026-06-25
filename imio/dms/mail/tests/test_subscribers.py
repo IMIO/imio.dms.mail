@@ -1033,6 +1033,57 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         modified(omail)
         self.assertFalse(omail.signers)
 
+    def test_i_annex_added_signers_template_first(self):
+        # In "template_first" mode, signers stay empty until the first template generation. When an
+        # appendix (dmsappendixfile) is added before any template, the signer rules are applied here.
+        rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
+        rk_osr = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+        dirg_hp = self.pf["dirg"]["directeur-general"]
+        bourgmestre_hp = self.pf["bourgmestre"]["bourgmestre"]
+        api.portal.set_registry_record(rk_so, u"template_first")
+        omail = sub_create(
+            self.omf,
+            "dmsoutgoingmail",
+            datetime.now(),
+            "appendix-tf-id",
+            title="Appendix First Test",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="courrier",
+        )
+        # template_first: no signer set yet
+        self.assertFalse(omail.signers)
+
+        # adding an appendix first applies the signer rules
+        createContentInContainer(omail, "dmsappendixfile", id="appendix1", title="Appendix 1")
+        self.assertEqual(len(omail.signers), 2)
+        self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
+        self.assertEqual(omail.signers[1]["signer"], bourgmestre_hp.UID())
+
+        # adding another appendix does not reset/recompute signers
+        omail.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
+        createContentInContainer(omail, "dmsappendixfile", id="appendix2", title="Appendix 2")
+        self.assertEqual(len(omail.signers), 1)
+        self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
+
+        # when the rules produce nothing, an _empty_ placeholder is set (like _copy_template_signers does).
+        api.portal.set_registry_record(rk_osr, [])
+        omail2 = sub_create(
+            self.omf,
+            "dmsoutgoingmail",
+            datetime.now(),
+            "appendix-tf-id2",
+            title="Appendix First Test 2",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="courrier",
+        )
+        createContentInContainer(omail2, "dmsappendixfile", id="appendix1", title="Appendix 1")
+        self.assertEqual(omail2.signers, [{"number": 1, "signer": u"_empty_", "editor": False,
+                                           "approvings": [u"_empty_"]}])
+
     def test_dmsoutgoingmail_modified_signer_substitutes(self):
         dirg = self.pf["dirg"]
         dirg_hp = dirg["directeur-general"]

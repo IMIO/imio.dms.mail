@@ -4,8 +4,12 @@ Changelog
 3.1.6 (unreleased)
 ------------------
 
-- Added colum to show if signers are defined on sub/templates.
+- Added icon colum to show if signers are defined on sub/templates.
   [sgeulette]
+- Applied signer rules when an appendix is added first on an outgoing mail (when template_first mode).
+  If no rule applies, set empty signers value.
+  [sgeulette]
+
 
 3.1.5 (2026-06-19)
 ------------------
