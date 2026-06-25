@@ -625,9 +625,9 @@ class TestDocumentGenerator(unittest.TestCase):
 
         # renderCell reflects whether the template defines signers
         template.signers = None
-        self.assertIn("/nok.svg", column.renderCell(template))
+        self.assertNotIn("/itemIsSignedYes.png", column.renderCell(template))
         template.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
-        self.assertIn("/ok.svg", column.renderCell(template))
+        self.assertIn("/itemIsSignedYes.png", column.renderCell(template))
 
         # the overridden page is resolved when the imio.dms.mail browser layer is active
         alsoProvides(request, IImioDmsMailLayer)
