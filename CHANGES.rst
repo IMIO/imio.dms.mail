@@ -14,7 +14,7 @@ Changelog
 - Considered seal when checking if a signer is defined on a sub/template.
   [sgeulette]
 - Converted personnel-folder from z3c.table listing to faceted dashboard.
-  [chris-adam]
+  [chris-adam, sgeulette]
 - Fixed JSON quoting in localroles configuration (DMS-1218).
   [chris-adam]
 - Added sign_request content to handle external documents to be signed.

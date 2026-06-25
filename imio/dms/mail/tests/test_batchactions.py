@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 """Test views."""
+from collective.contact.duplicated.interfaces import ICollectiveContactDuplicatedLayer
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
 from plone import api
+from zope.interface import alsoProvides
 
 import unittest
 
@@ -199,6 +201,20 @@ class BatchActions(unittest.TestCase):
         # Not changed !
         self.assertEqual(self.ta1.assigned_group, self.pgof["direction-financiere"]["budgets"].UID())
         self.assertEqual(self.ta3.assigned_group, self.pgof["direction-financiere"]["budgets"].UID())
+
+    def test_DuplicatedBatchActionForm_on_personnel_dashboard(self):
+        # the personnel-searches dashboard lives under personnel-folder, which is
+        # NOT a directory; the merge-contacts view is registered for the directory
+        pf = self.portal["contacts"]["personnel-folder"]
+        psf = pf["personnel-searches"]
+        p1 = api.content.create(container=pf, type="person", id="dup1", lastname=u"Dupont")
+        p2 = api.content.create(container=pf, type="person", id="dup2", lastname=u"Dupond")
+        view = psf.unrestrictedTraverse("@@duplicated-batch-action")
+        alsoProvides(view.request, ICollectiveContactDuplicatedLayer)
+        view.request["uids"] = ",".join([p1.UID(), p2.UID()])
+        result = view()
+        self.assertIn(p1.UID(), result)
+        self.assertIn(p2.UID(), result)
 
     def test_TaskAssignedUserBatchActionForm(self):
         self.assertIsNone(self.ta1.assigned_user)
