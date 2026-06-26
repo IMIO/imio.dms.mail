@@ -556,12 +556,26 @@ class TestDocumentGenerator(unittest.TestCase):
         source, itself = get_template_signers_source(template)
         self.assertEqual(source.UID(), template.UID())
         self.assertTrue(itself)
+        template.signers = None
+        template.seal = True
+        template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
+        source, itself = get_template_signers_source(template)
+        self.assertEqual(source.UID(), template.UID())
+        self.assertTrue(itself)
 
         # template has no signers but a merge sub-template defines them: sub-template returned, itself=False
         template.signers = None
+        template.seal = False
         source, itself = get_template_signers_source(template)
         self.assertEqual(source.UID(), sub.UID())
         self.assertFalse(itself)
+        sub.signers = None
+        sub.seal = True
+        source, itself = get_template_signers_source(template)
+        self.assertEqual(source.UID(), sub.UID())
+        self.assertFalse(itself)
+        sub.signers = sub_signers
+        sub.seal = False
 
         # an _empty_ placeholder on the template counts as a defined value: template returned, itself=True
         template.signers = empty_value

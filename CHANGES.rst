@@ -11,6 +11,8 @@ Changelog
   [sgeulette]
 - Updated `Extensions/demo.py` classification tree cache invalidation to the new `iterate_over_tree_data` cache key (DMS-1216).
   [chris-adam]
+- Considered seal when checking if a signer is defined on a sub/template.
+  [sgeulette]
 
 3.1.5 (2026-06-19)
 ------------------

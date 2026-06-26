@@ -63,11 +63,11 @@ def get_template_signers_source(pod_template):
         - the sub/template or None
         - a bool showing the template contains itself the signers
     """
-    if bool(getattr(pod_template, "signers", None)):
+    if bool(getattr(pod_template, "signers", None)) or bool(getattr(pod_template, "seal", None)):
         return pod_template, True
     for line in getattr(pod_template, "merge_templates", None) or []:
         sub = uuidToObject(line.get("template"), unrestricted=True)
-        if sub is not None and bool(getattr(sub, "signers", None)):
+        if sub is not None and (bool(getattr(sub, "signers", None)) or bool(getattr(sub, "seal", None))):
             return sub, False
     return None, True
 
