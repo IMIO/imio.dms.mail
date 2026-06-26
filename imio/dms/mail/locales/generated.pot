@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-06-18 09:04+0000\n"
+"POT-Creation-Date: 2026-06-26 06:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -170,7 +170,7 @@ msgstr ""
 msgid "2 OM global readers"
 msgstr ""
 
-#: ./subscribers.py:1164
+#: ./subscribers.py:1175
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr ""
 
@@ -717,7 +717,7 @@ msgstr ""
 msgid "Legal advice"
 msgstr ""
 
-#: ./subscribers.py:1191
+#: ./subscribers.py:1202
 msgid "Linked objects: ${list}"
 msgstr ""
 
@@ -1059,6 +1059,7 @@ msgstr ""
 msgid "Signer substitutes"
 msgstr ""
 
+#: ./browser/documentgenerator.py:693
 #: ./content/behaviors.py:154
 msgid "Signers"
 msgstr ""
@@ -1073,6 +1074,14 @@ msgstr ""
 
 #: ./browser/settings.py:457
 msgid "Signers are only defined from signer rules"
+msgstr ""
+
+#: ./browser/documentgenerator.py:705
+msgid "Signers defined"
+msgstr ""
+
+#: ./browser/documentgenerator.py:709
+msgid "Signers defined via sub template"
 msgstr ""
 
 #: ./browser/settings.py:704
@@ -1287,7 +1296,7 @@ msgstr ""
 msgid "Video guides"
 msgstr ""
 
-#: ./browser/documentgenerator.py:594
+#: ./browser/documentgenerator.py:599
 msgid "Warning: the mail already has signers configured that differ from the template. The template signers were not applied."
 msgstr ""
 
@@ -1299,7 +1308,7 @@ msgstr ""
 msgid "Write email"
 msgstr ""
 
-#: ./subscribers.py:1327
+#: ./subscribers.py:1338
 msgid "You cannot add a group in a group !"
 msgstr ""
 
@@ -1311,31 +1320,31 @@ msgstr ""
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr ""
 
-#: ./subscribers.py:825
+#: ./subscribers.py:836
 msgid "You cannot delete a file '${title}' part of already started esign process !"
 msgstr ""
 
-#: ./subscribers.py:880
+#: ./subscribers.py:891
 msgid "You cannot delete a file '${title}' when there are still linked pdf files !"
 msgstr ""
 
-#: ./subscribers.py:1287
+#: ./subscribers.py:1298
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:1226
+#: ./subscribers.py:1237
 msgid "You cannot delete the group '${group}'."
 msgstr ""
 
-#: ./subscribers.py:1185
+#: ./subscribers.py:1196
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr ""
 
-#: ./subscribers.py:1155
+#: ./subscribers.py:1166
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr ""
 
-#: ./subscribers.py:1144
+#: ./subscribers.py:1155
 msgid "You cannot delete the user name '${user}'."
 msgstr ""
 
@@ -1633,11 +1642,11 @@ msgstr ""
 msgid "om_in_my_group"
 msgstr ""
 
-#: ./wfadaptations.py:1285
+#: ./wfadaptations.py:1294
 msgid "om_in_sessions"
 msgstr ""
 
-#: ./wfadaptations.py:1258
+#: ./wfadaptations.py:1267
 msgid "om_to_approve"
 msgstr ""
 
@@ -1662,7 +1671,7 @@ msgstr ""
 msgid "redirected_after_edition"
 msgstr ""
 
-#: ./wfadaptations.py:909
+#: ./wfadaptations.py:914
 msgid "searchfor: ${state}"
 msgstr ""
 

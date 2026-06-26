@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-06-18 09:04+0000\n"
+"POT-Creation-Date: 2026-06-26 06:39+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -186,7 +186,7 @@ msgstr "2 Lecteurs Globaux CE"
 msgid "2 OM global readers"
 msgstr "2 Lecteurs Globaux CS"
 
-#: ./subscribers.py:1164
+#: ./subscribers.py:1175
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
@@ -809,7 +809,7 @@ msgstr "Nom Prénom"
 msgid "Legal advice"
 msgstr "Avis légal"
 
-#: ./subscribers.py:1191
+#: ./subscribers.py:1202
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
@@ -1187,6 +1187,7 @@ msgstr "Règles de signataires"
 msgid "Signer substitutes"
 msgstr "Règles d'absence des signataires"
 
+#: ./browser/documentgenerator.py:693
 #: ./content/behaviors.py:154
 msgid "Signers"
 msgstr "Signataires"
@@ -1202,6 +1203,14 @@ msgstr "Les signataires sont déterminés depuis le premier modèle utilisé, et
 #: ./browser/settings.py:457
 msgid "Signers are only defined from signer rules"
 msgstr "Les signataires sont déterminés depuis les règles de signataires uniquement"
+
+#: ./browser/documentgenerator.py:705
+msgid "Signers defined"
+msgstr "Des signataires sont définis"
+
+#: ./browser/documentgenerator.py:709
+msgid "Signers defined via sub template"
+msgstr "Des signataires sont définis via un sous modèle"
 
 #: ./browser/settings.py:704
 msgid "Signers set origin"
@@ -1439,7 +1448,7 @@ msgstr "Au (inclus)"
 msgid "Video guides"
 msgstr "Guides Vidéo"
 
-#: ./browser/documentgenerator.py:594
+#: ./browser/documentgenerator.py:599
 msgid "Warning: the mail already has signers configured that differ from the template. The template signers were not applied."
 msgstr "Attention: cette fiche a déjà des signataires configurés qui diffère de ceux de ce modèle, qui ne seront donc pas appliqués à la fiche."
 
@@ -1455,7 +1464,7 @@ msgstr "Rédiger email"
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr "Vous pouvez seulement uploader un fichier «.odt» (format Libre Office)"
 
-#: ./subscribers.py:1327
+#: ./subscribers.py:1338
 msgid "You cannot add a group in a group !"
 msgstr "Vous ne pouvez pas ajouter un groupe dans un groupe !"
 
@@ -1467,31 +1476,31 @@ msgstr "Vous ne pouvez pas changer l'utilisateur Plone car l'ancienne valeur est
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr "Vous ne pouvez pas copier cet élément '${title}' ! Pour un élément du tableau, vous devez utiliser les boutons sous le tableau."
 
-#: ./subscribers.py:825
+#: ./subscribers.py:836
 msgid "You cannot delete a file '${title}' part of already started esign process !"
 msgstr "Vous ne pouvez pas supprimer le fichier '${title}' qui est déjà engagé dans une procédure de signature électronique !"
 
-#: ./subscribers.py:880
+#: ./subscribers.py:891
 msgid "You cannot delete a file '${title}' when there are still linked pdf files !"
 msgstr "Vous ne pouvez pas effacer un fichier '${title}' avec des pdfs associés !"
 
-#: ./subscribers.py:1287
+#: ./subscribers.py:1298
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:1226
+#: ./subscribers.py:1237
 msgid "You cannot delete the group '${group}'."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}'."
 
-#: ./subscribers.py:1185
+#: ./subscribers.py:1196
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:1155
+#: ./subscribers.py:1166
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les groupes."
 
-#: ./subscribers.py:1144
+#: ./subscribers.py:1155
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
@@ -1857,11 +1866,11 @@ msgstr "En copie"
 msgid "om_in_my_group"
 msgstr "Dans mon service"
 
-#: ./wfadaptations.py:1285
+#: ./wfadaptations.py:1294
 msgid "om_in_sessions"
 msgstr "Dans session signature"
 
-#: ./wfadaptations.py:1258
+#: ./wfadaptations.py:1267
 msgid "om_to_approve"
 msgstr "Á approuver"
 
@@ -1894,7 +1903,7 @@ msgstr "Sortant"
 msgid "redirected_after_edition"
 msgstr "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier."
 
-#: ./wfadaptations.py:909
+#: ./wfadaptations.py:914
 msgid "searchfor: ${state}"
 msgstr "État: ${state}"
 
