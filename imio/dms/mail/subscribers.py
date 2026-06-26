@@ -793,6 +793,17 @@ def i_annex_added(obj, event):
         if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
     elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
+        mail = obj.__parent__
+        # In "template_first" mode, the signer rules are applied only when the first main document is
+        # generated from a template (see browser.documentgenerator._copy_template_signers). When an
+        # appendix is added before any template generation, signers would otherwise stay empty, so we
+        # apply the rules here too. If the rules produce no signer, an _empty_ placeholder is set.
+        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
+        if mode == u"template_first" and not mail.signers:
+            apply_signer_rules(mail)
+            if not mail.signers:
+                mail.signers = get_empty_signers_value()
+            zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
         if getattr(obj, "to_sign", False):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):

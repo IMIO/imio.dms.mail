@@ -1046,6 +1046,27 @@
         permission="zope2.View"
         />
 
+    <!-- override dg-templates-listing to add a signers column (hidden when signers come from rules only) -->
+    <configure package="collective.documentgenerator.browser">
+        <browser:page
+            for="*"
+            name="dg-templates-listing"
+            class="imio.dms.mail.browser.documentgenerator.DmsTemplatesListing"
+            template="templates_listing.pt"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            permission="zope2.View"
+            />
+    </configure>
+
+    <adapter
+        name="TemplateSignersColumn"
+        for="zope.interface.Interface
+             zope.interface.Interface
+             imio.dms.mail.browser.documentgenerator.DmsTemplatesTable"
+        provides="z3c.table.interfaces.IColumn"
+        factory="imio.dms.mail.browser.documentgenerator.TemplateSignersColumn"
+        />
+
     <!-- folders import overrides -->
     <browser:page
         name="import-process"

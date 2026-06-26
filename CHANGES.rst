@@ -4,10 +4,13 @@ Changelog
 3.1.6 (unreleased)
 ------------------
 
-- Updated `Extensions/demo.py` classification tree cache invalidation to the new
-  `iterate_over_tree_data` cache key (DMS-1216).
+- Added icon colum to show if signers are defined on sub/templates.
+  [sgeulette]
+- Applied signer rules when an appendix is added first on an outgoing mail (when template_first mode).
+  If no rule applies, set empty signers value.
+  [sgeulette]
+- Updated `Extensions/demo.py` classification tree cache invalidation to the new `iterate_over_tree_data` cache key (DMS-1216).
   [chris-adam]
-
 
 3.1.5 (2026-06-19)
 ------------------
