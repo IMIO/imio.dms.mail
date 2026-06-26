@@ -532,14 +532,14 @@ def clean_examples(self, doit="1"):
         if doit:
             api.content.delete(obj=brain._unrestrictedGetObject())
     # Delete categories
-    caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree", portal["tree"].UID())
+    caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree_data", portal["tree"].UID())
     res = iterate_over_tree(portal["tree"])
     for category in reversed(res):
         log_list(out, "Deleting category '%s - %s'" % (safe_encode(category.identifier), safe_encode(category.title)))
         if doit:
             api.content.delete(objects=[category])
     if doit:
-        caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree", portal["tree"].UID())
+        caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree_data", portal["tree"].UID())
         portal.portal_properties.site_properties.enable_link_integrity_checks = True
     # Create test om
     if doit:

@@ -9,7 +9,8 @@ Changelog
 - Applied signer rules when an appendix is added first on an outgoing mail (when template_first mode).
   If no rule applies, set empty signers value.
   [sgeulette]
-
+- Updated `Extensions/demo.py` classification tree cache invalidation to the new `iterate_over_tree_data` cache key (DMS-1216).
+  [chris-adam]
 
 3.1.5 (2026-06-19)
 ------------------
