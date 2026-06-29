@@ -13,6 +13,8 @@ Changelog
   [chris-adam]
 - Considered seal when checking if a signer is defined on a sub/template.
   [sgeulette]
+- Fixed JSON quoting in localroles configuration (DMS-1218).
+  [chris-adam]
 
 3.1.5 (2026-06-19)
 ------------------
