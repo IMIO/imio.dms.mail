@@ -47,7 +47,6 @@ from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from plone import api
 from plone.registry.events import RecordModifiedEvent
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from zope.component import getGlobalSiteManager
@@ -641,13 +640,23 @@ class Migrate_To_3_1(Migrator):  # noqa
     def setup_personnel_dashboard(self):
         """Convert personnel-folder from z3c.table listing to faceted dashboard."""
         pf = self.contacts["personnel-folder"]
+        if IPersonnelFolder.providedBy(pf):
+            noLongerProvides(pf, IPersonnelFolder)
+        # the existing personnel-folder has constrain types enabled and (since 3.1.x) disallows
+        # Folder; temporarily allow it so the personnel-searches col-folder can be created.
         pf.setLocallyAllowedTypes(["person", "Folder"])
         pf.setImmediatelyAddableTypes(["person"])
         create_personnel_dashboard(pf)
-        if base_hasattr(pf, "layout"):
-            del pf.layout
-        if IPersonnelFolder.providedBy(pf):
-            noLongerProvides(pf, IPersonnelFolder)
+        # the old z3c.table listing had selected a 'layout' (the listing view); select the
+        # faceted view now. NB: do NOT 'del pf.layout' after faceting -> getLayout() would fall
+        # back to folder_listing and the dashboard would render as a plain listing.
+        pf.setLayout("facetednavigation_view")
+        # now that personnel-searches exists, only persons may be added (no sub-folders)
+        pf.setLocallyAllowedTypes(["person"])
+        # clear any previously-set content default page (intermediate 3.1.6 versions set it to
+        # personnel-searches). Pass None: setDefaultPage("") would leave an empty default_page,
+        # making __browser_default__ return [''] and raising Unauthorized on the folder.
+        pf.setDefaultPage(None)
         logger.info("Converted personnel-folder to faceted dashboard")
 
 
