@@ -5,6 +5,7 @@
     a signing request) and its add/edit forms.
 """
 from collective.dms.basecontent.browser.views import DmsDocumentEdit
+from collective.dms.basecontent.browser.views import DmsDocumentView
 from collective.dms.basecontent.dmsdocument import DmsDocument
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.mailcontent.dmsmail import evaluateInternalReference
@@ -13,6 +14,7 @@ from collective.task.field import LocalRoleMasterSelectField
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
 from imio.dms.mail.dmsmail import filter_dmsoutgoingmail_assigned_users
+from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from plone import api
 from plone.autoform import directives
@@ -98,18 +100,8 @@ class ImioDmsSignRequest(DmsDocument):
         return []
 
 
-# ITask fields not wanted on a signing request (only assigned_user is kept)
-SIGN_REQUEST_OMITTED_TASK_FIELDS = (
-    "ITask.task_description",
-    "ITask.assigned_group",
-    "ITask.due_date",
-    "ITask.enquirer",
-)
-
-
 def sign_request_updatefields(the_form):
-    """Hide unwanted ITask fields and make assigned_user mandatory."""
-    the_form.fields = the_form.fields.omit(*SIGN_REQUEST_OMITTED_TASK_FIELDS)
+    """Make assigned_user mandatory."""
     if "ITask.assigned_user" in the_form.fields:
         the_form.fields["ITask.assigned_user"].field = copy.copy(the_form.fields["ITask.assigned_user"].field)
         the_form.fields["ITask.assigned_user"].field.required = True
@@ -120,6 +112,7 @@ class SignRequestAddForm(DefaultAddForm):
 
     def updateFields(self):
         super(SignRequestAddForm, self).updateFields()
+        manage_fields(self, "request_fields", "edit")
         sign_request_updatefields(self)
 
     def updateWidgets(self):
@@ -140,11 +133,20 @@ class SignRequestEdit(DmsDocumentEdit):
 
     def updateFields(self):
         super(SignRequestEdit, self).updateFields()
+        manage_fields(self, "request_fields", "edit")
         sign_request_updatefields(self)
 
     def updateWidgets(self):
         super(SignRequestEdit, self).updateWidgets()
         self.request.set("disable_plone.leftcolumn", 1)
+
+
+class SignRequestView(DmsDocumentView):
+    """View form redefinition to keep only configured fields."""
+
+    def updateFieldsFromSchemata(self):
+        super(SignRequestView, self).updateFieldsFromSchemata()
+        manage_fields(self, "request_fields", "view")
 
 
 ###################################################################

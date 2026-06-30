@@ -132,6 +132,25 @@ class OMFieldsVocabulary(object):
         )
 
 
+class RequestFieldsVocabulary(object):
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        return get_pt_fields_voc(
+            "sign_request",
+            [
+                "INameFromTitle.title",
+                "ITask.assigned_group",
+                "ITask.due_date",
+                "ITask.enquirer",
+                "ITask.task_description",
+                "IVersionable.changeNote",
+                "notes",
+                "related_docs",
+            ],
+        )
+
+
 class OMFileFormatsVocabulary(object):
     implements(IVocabularyFactory)
 
@@ -164,6 +183,23 @@ class IOMFieldsSchema(Interface):
     field_name = schema.Choice(
         title=_(u"Field name"),
         vocabulary=u"imio.dms.mail.OMFieldsVocabulary",
+    )
+
+    read_tal_condition = schema.TextLine(
+        title=_("Read TAL condition"),
+        required=False,
+    )
+
+    write_tal_condition = schema.TextLine(
+        title=_("Write TAL condition"),
+        required=False,
+    )
+
+
+class IRequestFieldsSchema(Interface):
+    field_name = schema.Choice(
+        title=_(u"Field name"),
+        vocabulary=u"imio.dms.mail.RequestFieldsVocabulary",
     )
 
     read_tal_condition = schema.TextLine(
@@ -334,8 +370,8 @@ class IStateSetSchema(IBaseRoutingRuleSchema):
     )
 
 
-class ISignerRuleSchema(Interface):
-    """ Routing schema of outgoing mail signer rule"""
+class ISignerRuleBaseSchema(Interface):
+    """Common signer rule fields shared by outgoing mail and signing request."""
 
     number = schema.Choice(
         title=_(u"Number"),
@@ -383,6 +419,10 @@ class ISignerRuleSchema(Interface):
     )
     widget('treating_groups', CheckBoxFieldWidget, multiple='multiple')
 
+
+class ISignerRuleSchema(ISignerRuleBaseSchema):
+    """Routing schema of outgoing mail signer rule (adds mail type / send mode routing)."""
+
     mail_types = schema.List(
         title=_("Mail type"),
         description=_(u"Affected mail types for this rule."),
@@ -398,6 +438,15 @@ class ISignerRuleSchema(Interface):
         required=False,
     )
     widget('send_modes', CheckBoxFieldWidget, multiple='multiple')
+
+    tal_condition = schema.TextLine(
+        title=_("TAL condition"),
+        required=False,
+    )
+
+
+class IRequestSignerRuleSchema(ISignerRuleBaseSchema):
+    """Routing schema of signing request signer rule (no mail_types / send_modes)."""
 
     tal_condition = schema.TextLine(
         title=_("TAL condition"),
@@ -807,6 +856,53 @@ class IImioDmsMailConfig(model.Schema):
         title=_(u"Email signature model"),
         description=_(u"TAL compliant with variables: view, context, user, dghv, sender, request and modules."),
         required=False,
+    )
+
+    # FIELDSET SIGN REQUEST
+    model.fieldset(
+        "signrequest",
+        label=_(u"Signing request"),
+        fields=[
+            "request_esign_formats",
+            "request_signer_rules",
+            "request_fields",
+        ],
+    )
+
+    request_esign_formats = schema.List(
+        title=_(u"Allowed file formats for electronic signature"),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.OMFileFormatsVocabulary"),
+        default=[],
+        required=False,
+    )
+    widget("request_esign_formats", CheckBoxFieldWidget, multiple="multiple")
+
+    request_signer_rules = schema.List(
+        title=_(u"${type} signers rules", mapping={"type": _("Signing request")}),
+        description=_(u"Rules are read in order. Conditions must be left empty if not relevant."),
+        value_type=DictRow(title=_(u"Routing"), schema=IRequestSignerRuleSchema, required=False),
+        required=False,
+        default=[],
+    )
+    widget(
+        "request_signer_rules",
+        ExpandableDataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=False,
+    )
+
+    request_fields = schema.List(
+        title=_(u"${type} fields display", mapping={"type": _("Signing request")}),
+        description=_(u"Configure this carefully. You can order with arrows."),
+        required=False,
+        value_type=DictRow(title=_(u"Field"), schema=IRequestFieldsSchema, required=False),
+    )
+    widget(
+        "request_fields",
+        DataGridFieldFactory,
+        display_table_css_class="listing",
+        allow_reorder=True,
+        auto_append=False,
     )
 
     # FIELDSET CONTACTS
@@ -1249,7 +1345,8 @@ class SettingsEditForm(RegistryEditForm):
         super(SettingsEditForm, self).update()
         # !! groups are updated outside and after updateWidgets
         # we will display unconfigured fields
-        filt_groups = {"incomingmail": "imail_fields", "outgoingmail": "omail_fields"}
+        filt_groups = {"incomingmail": "imail_fields", "outgoingmail": "omail_fields",
+                       "signrequest": "request_fields"}
         for grp in self.groups:
             if grp.__name__ not in filt_groups:
                 continue

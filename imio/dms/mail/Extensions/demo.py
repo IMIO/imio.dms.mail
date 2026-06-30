@@ -479,9 +479,10 @@ def clean_examples(self, doit="1"):
         if doit:
             api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
     # Delete signer rules config
-    rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
-    api.portal.set_registry_record(rk, [])
-    log_list(out, "Deleting signer rules config")
+    for fld in ("omail_signer_rules", "request_signer_rules"):
+        log_list(out, "Deleting {} config".format(fld))
+        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(fld)
+        api.portal.set_registry_record(rk, [])
     # Delete users
     for userid in ["encodeur", "dirg", "chef", "agent", "agent1", "lecteur", "bourgmestre"]:
         user = api.user.get(userid=userid)

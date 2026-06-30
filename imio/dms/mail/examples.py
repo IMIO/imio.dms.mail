@@ -836,31 +836,32 @@ def configure_contact_plone_group(context):
                 hp.reindexObject()
 
         # Add signer rules
-        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
-        api.portal.set_registry_record(rk, [
-            {
-                "number": 1,
-                "signer": pf["dirg"]["directeur-general"].UID(),
-                "editor": True,
-                "approvings": [u"_empty_"],
-                "esign": False,
-                "treating_groups": [],
-                "mail_types": [],
-                "send_modes": [],
-                "tal_condition": None,
-            },
-            {
-                "number": 2,
-                "signer": pf["bourgmestre"]["bourgmestre"].UID(),
-                "editor": False,
-                "approvings": [u"_empty_"],
-                "esign": False,
-                "treating_groups": [],
-                "mail_types": [],
-                "send_modes": [],
-                "tal_condition": None,
-            },
-        ])
+        for fld in ("omail_signer_rules", "request_signer_rules"):
+            rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(fld)
+            api.portal.set_registry_record(rk, [
+                {
+                    "number": 1,
+                    "signer": pf["dirg"]["directeur-general"].UID(),
+                    "editor": True,
+                    "approvings": [u"_empty_"],
+                    "esign": False,
+                    "treating_groups": [],
+                    "mail_types": [],
+                    "send_modes": [],
+                    "tal_condition": None,
+                },
+                {
+                    "number": 2,
+                    "signer": pf["bourgmestre"]["bourgmestre"].UID(),
+                    "editor": False,
+                    "approvings": [u"_empty_"],
+                    "esign": False,
+                    "treating_groups": [],
+                    "mail_types": [],
+                    "send_modes": [],
+                    "tal_condition": None,
+                },
+            ])
 
 
 def configure_imio_dms_mail(context):
@@ -1057,6 +1058,23 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature"] = template.substitute(
             url=PUBLIC_URL
         )
+
+    # signrequest
+    if registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats") is None:
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats"] = ["odt", "pdf"]
+    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields"):
+        fields = [
+            "IBasic.title",
+            "IBasic.description",
+            "treating_groups",
+            "ITask.assigned_user",
+            "recipient_groups",
+            "ISigningBehavior.signers",
+            "ISigningBehavior.esign",
+        ]
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields"] = [
+            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
+        ]
 
     # general
     api.portal.set_registry_record(

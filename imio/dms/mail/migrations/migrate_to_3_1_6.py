@@ -6,6 +6,7 @@ from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
 from imio.helpers.setup import load_type_from_package
 from imio.helpers.workflow import do_transitions
+from plone import api
 from Products.CMFPlone.utils import base_hasattr
 from zope.interface import alsoProvides
 
@@ -39,6 +40,26 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                 req_folder.setImmediatelyAddableTypes(["sign_request"])
                 do_transitions(req_folder, ["show_internally"])
                 logger.info("requests folder created")
+            # signrequest
+            if api.portal.get_registry_record(
+                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats") is None:
+                api.portal.set_registry_record(
+                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats", ["odt", "pdf"])
+            if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields"):
+                fields = [
+                    "IBasic.title",
+                    "IBasic.description",
+                    "treating_groups",
+                    "ITask.assigned_user",
+                    "recipient_groups",
+                    "ISigningBehavior.signers",
+                    "ISigningBehavior.esign",
+                ]
+                api.portal.set_registry_record(
+                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields", [
+                        {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
+                    ]
+                )
 
         if self.is_in_part("g"):  # final steps
             # finished = True  # can be eventually returned and set by batched method
