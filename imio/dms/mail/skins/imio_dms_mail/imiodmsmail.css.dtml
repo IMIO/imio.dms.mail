@@ -493,7 +493,7 @@ td.td_cell_actions select.apButtonAction_assign {
     text-shadow: 0 0 0 #213C68;
 } /* disable dotted border when using select button in dashboard */
 
-table.faceted-table-results li.plonegroup_0 {
+body.section-contacts.subsection-personnel-folder table.faceted-table-results li.plonegroup_0 {
   list-style-type: circle;
 }  /* Different bullet for an hp not in plonegroup orgs */
 
@@ -685,7 +685,7 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
   color: #75ad0a;
 }
 
-table.faceted-table-results td.td_cell_hps li span.signer-icon::before {
+body.section-contacts.subsection-personnel-folder table.faceted-table-results td.td_cell_hps li span.signer-icon::before {
     content: "\f044";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
@@ -693,7 +693,7 @@ table.faceted-table-results td.td_cell_hps li span.signer-icon::before {
     padding-left: 3px;
 }
 
-table.faceted-table-results td.td_cell_hps li span.approving-icon::before {
+body.section-contacts.subsection-personnel-folder table.faceted-table-results td.td_cell_hps li span.approving-icon::before {
     content: "\f00c";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;

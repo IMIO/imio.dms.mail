@@ -440,7 +440,6 @@ def postInstall(context):
         # add personnel searches dashboard
         create_personnel_dashboard(pf)
         pf.setConstrainTypesMode(1)
-        # only persons may be added in the personnel folder (no sub-folders)
         pf.setLocallyAllowedTypes(["person"])
         pf.setImmediatelyAddableTypes(["person"])
         # add contact list folder
@@ -1943,12 +1942,6 @@ def createPersonsCollections(folder):
 
 def create_personnel_dashboard(pf):
     """Create the personnel dashboard.
-
-    personnel-folder (pf) is itself the faceted dashboard. Its left column is a personnel-only
-    collection widget (Tous / Signataires / Approbateurs) with a "create person" icon (see
-    FacetedCollectionPortletRenderer + PersonnelCollectionWidget in browser/overrides.py). The
-    collections live in the personnel-searches col-folder (the dashboard "category"). Shared by
-    postInstall and the 3.1.6 migration.
     """
     col_folder = add_db_col_folder(pf, "personnel-searches", _("Personnel searches"), _("Personnel"))
     alsoProvides(col_folder, INextPrevNotNavigable)
@@ -1957,8 +1950,6 @@ def create_personnel_dashboard(pf):
     collections = [
         {
             "id": "all_personnel", "tit": _("all_personnel"), "subj": (u"search",),
-            # only persons (not their held positions, which also carry IPersonnelContact and are
-            # already shown in the 'hps' column); IPersonnelContact scopes to personnel-folder.
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["person"]},
                 {"i": "object_provides", "o": "plone.app.querystring.operation.selection.is",
@@ -1970,10 +1961,6 @@ def create_personnel_dashboard(pf):
         },
     ]
     createDashboardCollections(col_folder, collections)
-    # personnel-folder itself is the faceted dashboard: it lists its persons and provides the
-    # left-column 'usages' (signataire/approbateur) filter from personnel-searches.xml. The marker
-    # enables the dashboard batch actions on pf. The plone left column (contacts collection portlet)
-    # is hidden; the faceted left-area carries the usages filter instead.
     alsoProvides(pf, IPersonnelDashboardBatchActions)
     configure_faceted_folder(
         pf,

@@ -642,20 +642,11 @@ class Migrate_To_3_1(Migrator):  # noqa
         pf = self.contacts["personnel-folder"]
         if IPersonnelFolder.providedBy(pf):
             noLongerProvides(pf, IPersonnelFolder)
-        # the existing personnel-folder has constrain types enabled and (since 3.1.x) disallows
-        # Folder; temporarily allow it so the personnel-searches col-folder can be created.
         pf.setLocallyAllowedTypes(["person", "Folder"])
         pf.setImmediatelyAddableTypes(["person"])
         create_personnel_dashboard(pf)
-        # the old z3c.table listing had selected a 'layout' (the listing view); select the
-        # faceted view now. NB: do NOT 'del pf.layout' after faceting -> getLayout() would fall
-        # back to folder_listing and the dashboard would render as a plain listing.
         pf.setLayout("facetednavigation_view")
-        # now that personnel-searches exists, only persons may be added (no sub-folders)
         pf.setLocallyAllowedTypes(["person"])
-        # clear any previously-set content default page (intermediate 3.1.6 versions set it to
-        # personnel-searches). Pass None: setDefaultPage("") would leave an empty default_page,
-        # making __browser_default__ return [''] and raising Unauthorized on the folder.
         pf.setDefaultPage(None)
         logger.info("Converted personnel-folder to faceted dashboard")
 

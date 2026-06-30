@@ -458,22 +458,42 @@ class CKTemplatesActionsColumn(DGActionsColumn):
     cssClasses = {"td": "actions-column"}
 
 
-class PrimaryOrganizationColumn(VocabularyColumn):
-    """Personnel table. xss ok"""
+class PersonnelPrimaryOrganisationFacetedColumn(VocabularyColumn):
+    """Personnel dashboard: person primary organization. xss ok"""
 
     header = _cez("header_primary_org")
     weight = 20
     attrName = "primary_organization"
     vocabulary = u"collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary"
+    the_object = True
 
 
-class HPColumn(BaseColumn):
-    """Personnel table. xss ok"""
+class PersonnelUseridFacetedColumn(BaseColumn):
+    """Personnel dashboard: person userid as a link to its user-membership view. xss ok"""
+
+    the_object = True
+    escape = False
+    header = _cez("header_userid")
+    weight = 15
+    cssClasses = {"td": "userid-column"}
+
+    def renderCell(self, item):
+        obj = self._getObject(item)
+        if obj.userid:
+            return u'<a href="{}/@@usergroup-usermembership?userid={}" target="_blank">{}</a>'.format(
+                self.table.portal_url, safe_unicode(escape(obj.userid)), safe_unicode(escape(obj.userid))
+            )
+        return u"-"
+
+
+class PersonnelHPFacetedColumn(BaseColumn):
+    """Personnel dashboard: person held positions. xss ok"""
 
     header = _cez("header_hps")
     weight = 25
     ul_class = "hp_col"
-    # the_object = True
+    the_object = True
+    escape = False
 
     def renderCell(self, item):
         """ """
@@ -514,42 +534,8 @@ class HPColumn(BaseColumn):
             return "-"
 
 
-class PersonnelUseridFacetedColumn(BaseColumn):
-    """Personnel dashboard. xss ok"""
-
-    the_object = True
-    escape = False
-    header = _cez("header_userid")
-    weight = 15
-    cssClasses = {"td": "userid-column"}
-
-    def renderCell(self, item):
-        obj = self._getObject(item)
-        if obj.userid:
-            return u'<a href="{}/@@usergroup-usermembership?userid={}" target="_blank">{}</a>'.format(
-                self.table.portal_url, safe_unicode(escape(obj.userid)), safe_unicode(escape(obj.userid))
-            )
-        return u"-"
-
-
-class PersonnelPrimaryOrgFacetedColumn(PrimaryOrganizationColumn):
-    """Personnel dashboard. xss ok"""
-
-    the_object = True
-
-
-class PersonnelHPFacetedColumn(HPColumn):
-    """Personnel dashboard. xss ok"""
-
-    the_object = True
-    escape = False
-
-    def renderCell(self, item):
-        return super(PersonnelHPFacetedColumn, self).renderCell(self._getObject(item))
-
-
 class PersonnelActionsFacetedColumn(ActionsColumn):
-    """Personnel dashboard. xss ok"""
+    """Personnel dashboard: edit action only (no transitions/history). xss ok"""
 
     weight = 70
     params = {

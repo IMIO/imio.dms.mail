@@ -203,8 +203,6 @@ class BatchActions(unittest.TestCase):
         self.assertEqual(self.ta3.assigned_group, self.pgof["direction-financiere"]["budgets"].UID())
 
     def test_DuplicatedBatchActionForm_on_personnel_dashboard(self):
-        # the personnel-searches dashboard lives under personnel-folder, which is
-        # NOT a directory; the merge-contacts view is registered for the directory
         pf = self.portal["contacts"]["personnel-folder"]
         psf = pf["personnel-searches"]
         p1 = api.content.create(container=pf, type="person", id="dup1", lastname=u"Dupont")

@@ -383,7 +383,7 @@
       for="imio.dms.mail.interfaces.IPersonnelDashboard
            zope.publisher.interfaces.browser.IBrowserRequest
            collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
-      factory=".columns.PersonnelPrimaryOrgFacetedColumn"
+      factory=".columns.PersonnelPrimaryOrganisationFacetedColumn"
       provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
       name="primary_organization"
   />
