@@ -108,7 +108,8 @@ def add_db_col_folder(folder, cid, title, displayed=""):
 
 def order_1st_level(site):
     """Order 1st level folders."""
-    ordered = ["incoming-mail", "outgoing-mail", "folders", "tasks", "plus", "contacts", "templates", "tree"]
+    ordered = ["incoming-mail", "outgoing-mail", "requests", "folders", "tasks", "plus", "contacts", "templates",
+               "tree"]
     for i, oid in enumerate(ordered):
         site.moveObjectToPosition(oid, i)
 
@@ -290,6 +291,20 @@ def postInstall(context):
         om_folder.setImmediatelyAddableTypes(["dmsoutgoingmail"])
         do_transitions(om_folder, ["show_internally"])
         logger.info("outgoing-mail folder created")
+
+    if not base_hasattr(site, "requests"):
+        folderid = site.invokeFactory("Folder", id="requests", title=_(u"requests_tab"))
+        req_folder = getattr(site, folderid)
+        alsoProvides(req_folder, INextPrevNotNavigable)
+        alsoProvides(req_folder, ILabelRoot)
+        # alsoProvides(req_folder, ICountableTab)
+        alsoProvides(req_folder, IProtectedItem)
+
+        req_folder.setConstrainTypesMode(1)
+        req_folder.setLocallyAllowedTypes(["sign_request"])
+        req_folder.setImmediatelyAddableTypes(["sign_request"])
+        do_transitions(req_folder, ["show_internally"])
+        logger.info("requests folder created")
 
     if not base_hasattr(site, "tasks"):
         folderid = site.invokeFactory("Folder", id="tasks", title=_(u"tasks_tab"))

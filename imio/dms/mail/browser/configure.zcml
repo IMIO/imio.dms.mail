@@ -27,6 +27,15 @@
         class=".settings.SettingsView"
         />
 
+    <!-- override the mailcontent settings configlet to add the signing request fields -->
+    <browser:page
+        name="dmsmailcontent-settings"
+        for="Products.CMFCore.interfaces.ISiteRoot"
+        permission="plone.app.controlpanel.Site"
+        class=".mailcontentsettings.SettingsView"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
     <browser:page
         name="im-listing"
         class=".listing.ListingView"

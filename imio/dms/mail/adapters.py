@@ -770,7 +770,7 @@ def state_group_index(obj):
     # set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
     #                OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
     #                             ('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})]))
-    config = get_dms_config(["review_states", portal_type])
+    config = get_dms_config(["review_states", portal_type], missing_key_handling=True, missing_key_value=[])
     if state not in config or not config[state]["group"].startswith("_"):
         return state
     else:

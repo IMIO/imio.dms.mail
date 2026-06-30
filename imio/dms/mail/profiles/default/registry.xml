@@ -7,6 +7,14 @@
     <records interface="imio.dms.mail.browser.settings.IImioDmsMailConfig2" prefix="imio.dms.mail">
     </records>
 
+    <!-- signing request internal reference auto-numbering: register the extended
+         IDmsMailConfig under the original mailcontent prefix. Existing records
+         (incoming/outgoing mail) keep their value; the new signrequest_* records
+         are created with their schema default. -->
+    <records interface="imio.dms.mail.browser.mailcontentsettings.IDmsMailConfig"
+             prefix="collective.dms.mailcontent.browser.settings.IDmsMailConfig">
+    </records>
+
     <records interface="plone.app.querystring.interfaces.IQueryField"
              prefix="plone.app.querystring.field.approvings">
        <value key="title" i18n:translate="">Approvings</value>
