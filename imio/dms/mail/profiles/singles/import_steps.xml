@@ -153,4 +153,12 @@
     Activate approbation and esigning functionality for imio.dms.mail
  </import-step>
 
+ <import-step
+    id="imiodmsmail-activate-sign-request"
+    handler="imio.dms.mail.steps.activate_sign_request"
+    title="Activate sign_request functionality for imio.dms.mail"
+    version="2026-07-01T12:00:00.00000">
+    Activate sign_request functionality for imio.dms.mail
+ </import-step>
+
 </import-steps>

@@ -171,6 +171,31 @@ def activate_esigning(context):
     return "\n".join(log)
 
 
+def activate_sign_request(context):
+    """Activate sign request functionality for imio.dms.mail"""
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info("Activate sign request functionality")
+    log = []
+
+    # add "Demande Sign." plonegroup function (requester), used by signing requests
+    functions = get_registry_functions()
+    if u"demand_sign" not in [fct["fct_id"] for fct in functions]:
+        functions.append(
+            {
+                "fct_title": u"Demande Sign.",
+                "fct_id": u"demand_sign",
+                "fct_orgs": [],
+                "fct_management": False,
+                "enabled": True,
+            }
+        )
+        set_registry_functions(functions)
+        log.append("Added 'demand_sign' function to plonegroup functions")
+
+    return "\n".join(log)
+
+
 def create_templates_step(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return

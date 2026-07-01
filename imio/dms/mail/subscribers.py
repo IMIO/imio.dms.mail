@@ -973,6 +973,7 @@ def contact_plonegroup_change(event):
     * update workflow dms config (new groups).
     * invalidate vocabulary caches.
     * set localroles on contacts for _encodeur groups.
+    * set Contributor localrole on the requests folder for _demand_sign groups.
     * add a directory by organization in templates/om, templates/oem and contacts/contact-lists-folder.
     * set local roles on contacts, incoming-mail for group_encoder.
     """
@@ -1011,6 +1012,16 @@ def contact_plonegroup_change(event):
                 if editeur_too:
                     dic["%s_editeur" % uid] = ["Contributor"]  # an agent could add a contact on an email im
             folder._p_changed = True
+        # _demand_sign groups (signing request requesters) can create in the requests folder
+        if "requests" in portal and any(dic["fct_id"] == u"demand_sign" for dic in s_fcts):
+            req_folder = portal["requests"]
+            dic = req_folder.__ac_local_roles__
+            for principal in dic.keys():
+                if principal.endswith("_demand_sign"):
+                    del dic[principal]
+            for uid in s_orgs:
+                dic["%s_demand_sign" % uid] = ["Contributor"]
+            req_folder._p_changed = True
         # we add a directory by organization in templates/om
         om_folder = portal.templates.om
         oem_folder = portal.templates.oem
