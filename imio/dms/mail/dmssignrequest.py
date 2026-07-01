@@ -11,15 +11,18 @@ from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.mailcontent.dmsmail import evaluateInternalReference
 from collective.dms.mailcontent.dmsmail import InternalReferenceBaseValidator
 from collective.task.field import LocalRoleMasterSelectField
+from datetime import datetime
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
 from imio.dms.mail.dmsmail import filter_dmsoutgoingmail_assigned_users
+from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.vocabularies import encodeur_active_orgs
 from plone import api
 from plone.autoform import directives
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
+from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.directives.form.value import default_value
 from plone.indexer import indexer
@@ -122,6 +125,16 @@ class SignRequestAddForm(DefaultAddForm):
         # a selected value will be reused by masterselect
         if "ITask.assigned_user" in self.widgets:
             self.widgets["ITask.assigned_user"].value = [api.user.get_current().getId()]
+
+    def add(self, obj):
+        # if not self.request.get("_auto_ref", True):
+        #     setattr(obj, "_auto_ref", False)
+        container, new_object = add_content_in_subfolder(self, obj, datetime.now())
+        fti = getUtility(IDexterityFTI, name=self.portal_type)
+        if fti.immediate_view:
+            self.immediate_view = "/".join([container.absolute_url(), new_object.id, fti.immediate_view])
+        else:
+            self.immediate_view = "/".join([container.absolute_url(), new_object.id])
 
 
 class AddSignRequest(DefaultAddView):

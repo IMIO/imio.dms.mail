@@ -72,6 +72,7 @@ MAIN_FOLDERS = {
     "dmsincomingmail": "incoming-mail",
     "dmsincoming_email": "incoming-mail",
     "dmsoutgoingmail": "outgoing-mail",
+    "sign_request": "requests",
 }
 GE_CONFIG = {  # group_encoder config
     "imail_group_encoder": {"pt": ["dmsincomingmail", "dmsincoming_email"], "idx": "assigned_group"},
