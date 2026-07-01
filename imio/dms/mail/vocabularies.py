@@ -7,6 +7,7 @@ from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.contact.plonegroup.utils import get_organizations
 from collective.contact.plonegroup.utils import get_person_from_userid
+from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.iconifiedcategory.vocabularies import CategoryVocabulary
@@ -484,6 +485,62 @@ def encodeur_active_orgs(context):
 alsoProvides(encodeur_active_orgs, IContextSourceBinder)
 
 
+class SignRequestActiveOrgsVocabulary(object):
+    """This vocabulary only keeps organizations that have at least one user defined in their
+    '<org_uid>_demand_sign' Plone group.
+
+    The result is cached on the '_users_groups_value' volatile, which is invalidated
+    on group (un)assignment and on plonegroup registry changes (see subscribers).
+    """
+
+    implements(IVocabularyFactory)
+
+    @ram.cache(users_groups_cache_key)
+    def SignRequestActiveOrgsVocabulary__call__(self, context):
+        factory = getUtility(IVocabularyFactory, u"collective.dms.basecontent.treating_groups")
+        voc = factory(context)
+        terms = [
+            term for term in voc.vocab._terms if get_selected_org_suffix_principal_ids(term.value, [u"demand_sign"])
+        ]
+        return SimpleVocabulary(terms)
+
+    __call__ = SignRequestActiveOrgsVocabulary__call__
+
+
+def signrequest_active_orgs(context):
+    """This vocabulary source is used on the sign_request treating_groups field.
+
+    It is based on the named 'imio.dms.mail.SignRequestActiveOrgsVocabulary' and puts the current user
+    primary organization first when it is part of the list.
+
+    :param context:
+    :return: the (possibly reordered) organizations vocabulary
+    """
+    factory = getUtility(IVocabularyFactory, u"imio.dms.mail.SignRequestActiveOrgsVocabulary")
+    voc = factory(context)
+    current_user = api.user.get_current()
+    # this is the case when calling ++widget++...
+    if current_user.getId() is None:
+        return voc
+    # we filter orgs if
+    #   * current user is not admin
+    #   * portal_type is not sign_request (on adding)
+    #   * state is created
+    if not current_user.has_role(["Manager", "Site Administrator"]) and (
+        context.portal_type != "sign_request" or api.content.get_state(context) == "created"
+    ):
+        pers = get_person_from_userid(current_user.id)
+        if pers and pers.primary_organization and pers.primary_organization in voc.by_value:
+            return SimpleVocabulary(
+                [voc.getTerm(pers.primary_organization)]
+                + [term for term in voc._terms if term.value != pers.primary_organization]
+            )
+    return voc
+
+
+alsoProvides(signrequest_active_orgs, IContextSourceBinder)
+
+
 class MyLabelsVocabulary(object):
     """My Labels vocabulary. Creating a vocabulary for connected user labels"""
 
@@ -739,7 +796,8 @@ class ActiveInactiveStatesVocabulary(object):
 
 
 class DmsFilesCategoryVocabulary(CategoryVocabulary):
-    """Vocabulary to retrieve available content categories for incoming mails, outgoing mails and classification folders"""
+    """Vocabulary to retrieve available content categories for incoming mails, outgoing mails and
+    classification folders"""
 
     implements(IVocabularyFactory)
 
@@ -758,12 +816,14 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
         if {"dmsincomingmail", "dmsincoming_email"}.intersection({parent_type, context_type}):
             if context_type == "dmsmainfile" or url.endswith("dmsmainfile"):
                 query["path"] = "{}/annexes_types/incoming_dms_files".format(portal_path)
-            elif context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile') or typeupload == 'dmsappendixfile':
+            elif (context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile')
+                  or typeupload == 'dmsappendixfile'):
                 query["path"] = "{}/annexes_types/incoming_appendix_files".format(portal_path)
         elif {"dmsoutgoingmail", "dmsoutgoing_email"}.intersection({parent_type, context_type}):
             if context_type == "dmsommainfile" or url.endswith("dmsommainfile"):
                 query["path"] = "{}/annexes_types/outgoing_dms_files".format(portal_path)
-            elif context_type == "dmsappendixfile" or url.endswith("dmsappendixfile") or typeupload == 'dmsappendixfile':
+            elif (context_type == "dmsappendixfile" or url.endswith("dmsappendixfile")
+                  or typeupload == 'dmsappendixfile'):
                 query["path"] = "{}/annexes_types/outgoing_appendix_files".format(portal_path)
         elif {"ClassificationFolder", "ClassificationSubfolder", "annex"}.intersection({parent_type, context_type}):
             query["path"] = "{}/annexes_types/annexes".format(portal_path)

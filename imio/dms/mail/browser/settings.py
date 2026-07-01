@@ -1287,6 +1287,21 @@ class IImioDmsMailConfig(model.Schema):
                 ],
                 "pos": ["IDublinCore.title", "IDublinCore.description"],
             },
+            "request_fields": {
+                "fieldset": "signrequest",
+                "voc": RequestFieldsVocabulary()(None),
+                "mand": [
+                    "IBasic.title",
+                    "IBasic.description",
+                    "treating_groups",
+                    "ITask.assigned_user",
+                ],
+                "not": [
+                    "recipient_groups",
+                    "internal_reference_no",
+                ],
+                "pos": ["IBasic.title", "IBasic.description"],
+            },
         }
         missing = {}
         position = {}

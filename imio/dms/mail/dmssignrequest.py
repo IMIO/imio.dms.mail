@@ -4,6 +4,7 @@
     This module contains the sign_request type (a simplified document used as
     a signing request) and its add/edit forms.
 """
+from collective.contact.plonegroup.utils import voc_selected_org_suffix_userids
 from collective.dms.basecontent.browser.views import DmsDocumentEdit
 from collective.dms.basecontent.browser.views import DmsDocumentView
 from collective.dms.basecontent.dmsdocument import DmsDocument
@@ -14,10 +15,9 @@ from collective.task.field import LocalRoleMasterSelectField
 from datetime import datetime
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
-from imio.dms.mail.dmsmail import filter_dmsoutgoingmail_assigned_users
 from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import manage_fields
-from imio.dms.mail.vocabularies import encodeur_active_orgs
+from imio.dms.mail.vocabularies import signrequest_active_orgs
 from plone import api
 from plone.autoform import directives
 from plone.dexterity.browser.add import DefaultAddForm
@@ -45,6 +45,16 @@ SIGNREQUEST_TALEXPRESSION_RECORD = (
 )
 
 
+def filter_signrequest_assigned_users(org_uid):
+    """
+    Filter assigned_user in signing request: only propose users belonging to the
+    '<org_uid>_demand_sign' Plone group.
+    No need to manage '_default_assigned_user_' because assigned_user is here mandatory:
+    the first voc value is selected
+    """
+    return voc_selected_org_suffix_userids(org_uid, [u"demand_sign"], api.user.get_current().getId())
+
+
 class IImioDmsSignRequest(IDmsDocument):
     """Signing request schema."""
 
@@ -52,13 +62,13 @@ class IImioDmsSignRequest(IDmsDocument):
     treating_groups = LocalRoleMasterSelectField(
         title=_(u"Treating groups"),
         required=True,
-        source=encodeur_active_orgs,
+        source=signrequest_active_orgs,
         slave_fields=(
             {
                 "name": "ITask.assigned_user",
                 "slaveID": "#form-widgets-ITask-assigned_user",
                 "action": "vocabulary",
-                "vocab_method": filter_dmsoutgoingmail_assigned_users,
+                "vocab_method": filter_signrequest_assigned_users,
                 "control_param": "org_uid",
                 "initial_trigger": True,
             },
