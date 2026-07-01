@@ -1561,6 +1561,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(pdf_file.approved)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
+        # PARAF-220: the pdf that goes to signature (a GED main) is printed
+        self.assertTrue(pdf_file.to_print)
 
     def test_create_pdf_file_from_odt(self):
         """Through the esignature process, a real ODT file is embedded
@@ -1590,6 +1592,9 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(pdf_file.approved)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
+        # PARAF-220: the signature file is printed; the untouched sibling odt is not
+        self.assertTrue(pdf_file.to_print)
+        self.assertFalse(self.files[1].to_print)
 
     def test_create_pdf_file_from_doc(self):
         """Through the esignature process, a DOC file is converted to PDF
@@ -1643,3 +1648,5 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(pdf_file.approved)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
+        # PARAF-220: the converted signature file (a GED main) is printed
+        self.assertTrue(pdf_file.to_print)

@@ -1804,6 +1804,19 @@ class OMApprovalAdapter(object):
             pdf_file.to_sign = True
             pdf_file.to_approve = False
             pdf_file.approved = orig_fobj.approved
+            # PARAF-220: the generated signature file (from a GED main) is printed;
+            # the source GED main is not (its pdf replaces it in the print output).
+            pdf_file.to_print = orig_fobj.portal_type == "dmsommainfile"
+            if orig_fobj.portal_type == "dmsommainfile" and orig_fobj is not pdf_file:
+                orig_fobj.to_print = False
+                update_categorized_elements(
+                    self.context,
+                    orig_fobj,
+                    get_category_object(self.context, orig_fobj.content_category),
+                    limited=True,
+                    sort=False,
+                    logging=True,
+                )
             update_categorized_elements(
                 self.context,
                 pdf_file,
@@ -1880,6 +1893,17 @@ class OMApprovalAdapter(object):
                 merged = merge_pdf(pdf_file_content, download_page)
                 pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
                 Converter(pdf_file)()  # Refresh pdf preview
+            # PARAF-220: a GED main that is itself the file sent to signature is printed.
+            if orig_fobj.portal_type == "dmsommainfile" and not orig_fobj.to_print:
+                orig_fobj.to_print = True
+                update_categorized_elements(
+                    self.context,
+                    orig_fobj,
+                    get_category_object(self.context, orig_fobj.content_category),
+                    limited=True,
+                    sort=False,
+                    logging=True,
+                )
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
