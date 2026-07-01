@@ -771,6 +771,32 @@ def _correct_to_approve(file_obj):
         update_categorized_elements(om_obj, file_obj, category_object, limited=True, sort=False, logging=True)
 
 
+def _correct_to_print(file_obj):
+    """Automatically set to_print following file type and esign mode.
+
+    - dmsappendixfile -> always False
+    - dmsommainfile   -> True when the parent mail esign is off, else False
+    """
+    om = file_obj.__parent__
+    if file_obj.portal_type == "dmsappendixfile":
+        new_value = False
+    elif file_obj.portal_type == "dmsommainfile":
+        new_value = not getattr(om, "esign", False)
+    else:
+        return
+    try:
+        category = get_category_object(file_obj, getattr(file_obj, "content_category", "_none"))
+    except KeyError:
+        return
+    if new_value:
+        category_group = category.get_category_group()
+        if not category_group.to_be_printed_activated:
+            new_value = False
+    if getattr(file_obj, "to_print", None) != new_value:
+        file_obj.to_print = new_value
+        update_categorized_elements(om, file_obj, category, limited=True, sort=False, logging=True)
+
+
 def i_annex_added(obj, event):
     """Called for IAnnex (appendix, mainfile, annex)"""
     blacklistPortletCategory(obj)
@@ -792,6 +818,7 @@ def i_annex_added(obj, event):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
+        _correct_to_print(obj)
     elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
         mail = obj.__parent__
         # In "template_first" mode, the signer rules are applied only when the first main document is
@@ -808,6 +835,7 @@ def i_annex_added(obj, event):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
+        _correct_to_print(obj)
 
 
 def i_annex_will_be_removed(obj, event):

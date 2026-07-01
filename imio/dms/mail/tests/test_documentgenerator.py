@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 """ documentgenerator.py tests for this package."""
+from collective.documentviewer.convert import Converter
+from collective.iconifiedcategory.utils import get_category_object
+from collective.iconifiedcategory.utils import update_categorized_elements
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.browser.documentgenerator import DmsTemplatesListing
 from imio.dms.mail.browser.documentgenerator import OutgoingMailLinksViewlet
@@ -13,6 +16,7 @@ from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield.relation import RelationValue
+from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.interface import alsoProvides
 from zope.interface import noLongerProvides
@@ -276,15 +280,40 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertListEqual(view.flatten_group_by_tg(view.group_by_tg(brains2)), res)
 
         # Test get_dms_files
+        def set_to_print(fobj, value):
+            fobj.to_print = value
+            parent = fobj.aq_parent
+            elements = getattr(parent, "categorized_elements", None)
+            if elements is None or fobj.UID() not in elements:
+                category = get_category_object(fobj, fobj.content_category)
+                update_categorized_elements(parent, fobj, category)
+                elements = parent.categorized_elements
+            elements[fobj.UID()]["to_print"] = value
+            parent._p_changed = True
+
         view.context_var = lambda x: brains
-        files = view.get_dms_files()
-        self.assertListEqual(files, [view.objs[0]["1"], view.objs[1]["1"], view.objs[2]["1"]])
+        m0, m1, m2 = view.objs[0], view.objs[1], view.objs[2]
+        # by default nothing is marked to_print -> nothing is returned
+        for mail in (m0, m1, m2):
+            set_to_print(mail["1"], False)
+        self.assertListEqual(view.get_dms_files(), [])
+        # add a (non-odt) appendix to the first mail, reusing the main file category
         filespath = u"%s/batchimport/toprocess/incoming-mail" % PRODUCT_DIR
-        filename = u"in-courrier2.pdf"
-        with open(u"%s/%s" % (filespath, filename), "rb") as fo:
-            file_object = NamedBlobFile(fo.read(), filename=filename)
-            createContentInContainer(view.objs[0], "dmsommainfile", id="2", title="", file=file_object)
-        self.assertListEqual(view.get_dms_files(), [view.objs[1]["1"], view.objs[2]["1"]])
+        with open(u"%s/in-courrier2.pdf" % filespath, "rb") as fo:
+            appendix = createContentInContainer(
+                m0, "dmsappendixfile", id="app1", title=u"appendix",
+                file=NamedBlobFile(fo.read(), filename=u"in-courrier2.pdf"),
+                content_category=m0["1"].content_category,
+            )
+        # mark to_print on m0 main + its appendix and m1 main; m2 main stays False
+        set_to_print(m0["1"], True)
+        set_to_print(appendix, True)
+        set_to_print(m1["1"], True)
+        # main file before appendix within m0, then m1 main; m2 (not to_print) excluded
+        self.assertListEqual(view.get_dms_files(), [m0["1"], appendix, m1["1"]])
+        # limit caps the total number of returned files
+        self.assertListEqual(view.get_dms_files(limit=2), [m0["1"], appendix])
+        # not rendered from a dashboard -> empty
         del view.request.form["facetedQuery"]
         self.assertListEqual(view.get_dms_files(), [])
 
@@ -299,6 +328,67 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(len(images), 1)
         self.assertTrue(hasattr(images[0], "read"))
         images[0].close()
+
+        # Test is_odt
+        self.assertTrue(view.is_odt(m0["1"]))
+        self.assertFalse(view.is_odt(appendix))
+
+        # add an image appendix (a logo)
+        png = (b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
+               b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00"
+               b"\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82")
+        img_appendix = createContentInContainer(
+            m0, "dmsappendixfile", id="logo", title=u"logo",
+            file=NamedBlobFile(png, filename=u"logo.png", contentType="image/png"),
+            content_category=m0["1"].content_category,
+        )
+        # Test is_image
+        self.assertTrue(view.is_image(img_appendix))
+        self.assertFalse(view.is_image(m0["1"]))
+        self.assertFalse(view.is_image(appendix))
+        # Test img_format
+        self.assertEqual(view.img_format(img_appendix), "png")
+        img_appendix.file.contentType = "image/jpeg"
+        self.assertEqual(view.img_format(img_appendix), "jpg")
+        img_appendix.file.contentType = "image/png"
+
+        # Test get_print_pages
+        self.assertListEqual(view.get_print_pages(m0["1"]), [])
+        self.assertListEqual(view.get_print_pages(img_appendix), [])
+        # borrow a real (converted) documentviewer annotation for the pdf appendix
+        dv_annot = IAnnotations(m0["1"])["collective.documentviewer"]
+        IAnnotations(appendix)["collective.documentviewer"] = dv_annot
+        pages = view.get_print_pages(appendix)
+        self.assertEqual(len(pages), dv_annot["num_pages"])
+        self.assertEqual(sorted(pages[0].keys()), ["data", "format"])
+        self.assertTrue(isinstance(pages[0]["data"], (bytes, str)))
+
+        # get_print_pages regenerates an expired (dv_clean) preview before printing.
+        del IAnnotations(appendix)["collective.documentviewer"]
+        Converter(appendix)()
+        appendix_annot = IAnnotations(appendix)["collective.documentviewer"]
+        real_num_pages = appendix_annot["num_pages"]
+        self.assertGreaterEqual(real_num_pages, 1)
+        # simulate the dv_clean placeholder (single page, old sentinel date)
+        appendix_annot["num_pages"] = 1
+        appendix_annot["last_updated"] = "2010-01-01T00:00:00"
+        pages = view.get_print_pages(appendix)
+        # the real preview was regenerated: full page count restored and sentinel cleared
+        self.assertEqual(len(pages), real_num_pages)
+        self.assertNotEqual(
+            IAnnotations(appendix)["collective.documentviewer"]["last_updated"], "2010-01-01T00:00:00"
+        )
+        # restore the borrowed annotation for the following assertions
+        IAnnotations(appendix)["collective.documentviewer"] = dv_annot
+
+        # Test print_page_count / needs_blank_after
+        self.assertEqual(view.print_page_count(img_appendix), 1)
+        self.assertTrue(view.needs_blank_after(img_appendix))
+        # a non-odt file occupies its documentviewer preview pages -> blank if odd
+        self.assertEqual(view.print_page_count(appendix), dv_annot["num_pages"])
+        self.assertEqual(view.needs_blank_after(appendix), dv_annot["num_pages"] % 2 == 1)
+        # odt files manage their own duplex page break, so they never need one here
+        self.assertFalse(view.needs_blank_after(m0["1"]))
 
     def test_DocumentGenerationDirectoryHelper(self):
         """

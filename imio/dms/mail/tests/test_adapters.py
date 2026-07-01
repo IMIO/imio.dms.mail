@@ -2,6 +2,7 @@
 from collections import OrderedDict
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.iconifiedcategory.utils import get_categorized_elements
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
@@ -1559,6 +1560,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(pdf_file.signed)
         self.assertTrue(pdf_file.to_approve)
         self.assertTrue(pdf_file.approved)
+        self.assertTrue(pdf_file.to_print)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
 
@@ -1588,6 +1590,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(pdf_file.signed)
         self.assertTrue(pdf_file.to_approve)
         self.assertTrue(pdf_file.approved)
+        self.assertTrue(pdf_file.to_print)
+        self.assertFalse(self.files[1].to_print)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
 
@@ -1641,5 +1645,6 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(pdf_file.signed)
         self.assertTrue(pdf_file.to_approve)
         self.assertTrue(pdf_file.approved)
+        self.assertTrue(pdf_file.to_print)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))

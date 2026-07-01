@@ -17,8 +17,10 @@ from collective.documentgenerator.helper.archetypes import ATDocumentGenerationH
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
+from collective.documentviewer.convert import Converter
 from collective.documentviewer.views import DXDocumentViewerView
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
+from collective.iconifiedcategory.utils import get_categorized_elements
 from imio.dms.mail import _
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail.adapters import OMApprovalAdapter
@@ -343,31 +345,60 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
     """
 
     def get_dms_files(self, limit=None):
-        """
-        Return a list of tuples containing the file obj, a pageBreakBefore boolean, a pageBreakAfter boolean
+        """Return the files to print for the selected mails.
+
+        For each mail of the dashboard selection, return every categorized file
+        whose `to_print` attribute is True, main files first then appendix files,
+        each group kept in folder position order.
         """
         files = []
         if not self.is_dashboard():
             return files
-        catalog = self.portal.portal_catalog
-        # self.uids_to_objs(self.context_var('brains'))
-        limit = 1  # needed to be coherent with dashboard info following lastDmsFileIsOdt
         for brain in self.context_var("brains"):
-            brains = catalog.unrestrictedSearchResults(
-                portal_type="dmsommainfile",
-                path=brain.getPath(),
+            mail = brain._unrestrictedGetObject()
+            elements = get_categorized_elements(
+                mail,
+                result_type="objects",
                 sort_on="getObjPositionInParent",
-                sort_order="descending",
-                sort_limit=limit,
+                filters={"to_print": True},
+                caching=False,
             )
-            if limit:
-                brains = brains[0:limit]
-            for bfile in brains:
-                doc = bfile._unrestrictedGetObject()
-                # if brain.markers is not Missing.Value and 'lastDmsFileIsOdt' in brain.markers
-                if doc.is_odt():
-                    files.append(doc)
+            elements = sorted(elements, key=lambda o: 0 if o.portal_type == "dmsommainfile" else 1)
+            files.extend(elements)
+        if limit is not None:
+            files = files[:limit]
         return files
+
+    def is_odt(self, afile):
+        """Return True if the given file object is an ODT."""
+        return getattr(afile.file, "contentType", "") == "application/vnd.oasis.opendocument.text"
+
+    def is_image(self, afile):
+        """Return True if the file is itself an image (png/jpg/...)."""
+        return getattr(afile.file, "contentType", "").startswith("image/")
+
+    def img_format(self, afile):
+        """Return the appy/pod image format for an image file, derived from its mimetype."""
+        fmt = getattr(afile.file, "contentType", "").split("/")[-1].lower()
+        return {"jpeg": "jpg", "x-png": "png", "svg+xml": "svg"}.get(fmt, fmt)
+
+    def print_page_count(self, afile):
+        """Return the number of pages a non-ODT file occupies once printed."""
+        if self.is_image(afile):
+            return 1
+        return self.get_num_pages(afile)
+
+    def needs_blank_after(self, afile):
+        """Return True if a blank page must follow this non-ODT file for duplex printing.
+
+        Mirrors the ``pageBreakAfter='duplex'`` behaviour applied to ODT files: when a
+        file occupies an odd number of pages, a blank page is inserted after it so the
+        next file starts on the front side (recto) of a new sheet. ODT files manage this
+        themselves (via pod's duplex mode), so they are excluded here.
+        """
+        if self.is_odt(afile):
+            return False
+        return self.print_page_count(afile) % 2 == 1
 
     def get_num_pages(self, obj):
         annot = IAnnotations(obj).get("collective.documentviewer", "")
@@ -386,6 +417,32 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
             blob = files[img]
             images.append(blob.open())
         return images
+
+    def get_print_pages(self, afile):
+        """Return the preview page images to insert for a non-ODT file.
+
+        ODT files are embedded as ODT content and image files at their native size
+        directly by the d-print template, so an empty list is returned for them. For
+        any other file (PDF, scans...), return one dict per collective.documentviewer
+        preview page, in page order: {'data': <image bytes>, 'format': <image extension>}.
+        """
+        if self.is_odt(afile) or self.is_image(afile):
+            return []
+        annot = IAnnotations(afile).get("collective.documentviewer", "")
+        if annot and annot.get("last_updated") == "2010-01-01T00:00:00":
+            # preview was removed by dv_clean: regenerate it before printing
+            Converter(afile)()
+            annot = IAnnotations(afile).get("collective.documentviewer", "")
+        if (not annot or not annot.get("successfully_converted") or not annot.get("num_pages")
+                or not annot.get("blob_files")):
+            return []
+        fmt = annot["pdf_image_format"]
+        files = annot["blob_files"]
+        pages = []
+        for page in range(1, annot["num_pages"] + 1):
+            with files["large/dump_%d.%s" % (page, fmt)].open() as blob:
+                pages.append({"data": blob.read(), "format": fmt})
+        return pages
 
 
 class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):

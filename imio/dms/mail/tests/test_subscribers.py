@@ -179,6 +179,49 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         api.content.transition(self.imail, "close")
         self.assertEqual(self.imail.assigned_user, "agent")
 
+    def test_correct_to_print(self):
+        """to_print is auto-derived: main files follow (not esign), appendix always False."""
+        omail = sub_create(
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(),
+            "omail-tp-test",
+            title=u"To print test",
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type=u"courrier",
+        )
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        filename = u"Réponse salle.odt"
+
+        def _add(portal_type, oid, esign):
+            omail.esign = esign
+            with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+                file_obj = NamedBlobFile(fo.read(), filename=filename)
+            return createContentInContainer(
+                omail, portal_type, id=oid, file=file_obj,
+                content_category=calculate_category_id(ct),
+            )
+
+        # GED main, esign off -> to_print True
+        main_off = _add("dmsommainfile", "main-off", False)
+        self.assertTrue(main_off.to_print)
+        # GED main, esign on -> to_print False
+        main_on = _add("dmsommainfile", "main-on", True)
+        self.assertFalse(main_on.to_print)
+        # appendix, esign off -> always False
+        app_off = _add("dmsappendixfile", "app-off", False)
+        self.assertFalse(app_off.to_print)
+        # appendix, esign on -> always False
+        app_on = _add("dmsappendixfile", "app-on", True)
+        self.assertFalse(app_on.to_print)
+        # 'to_be_printed_activated' gate: a main that would be to_print (esign off)
+        # stays False when its category group has printing deactivated
+        group = self.portal["annexes_types"]["outgoing_dms_files"]
+        group.to_be_printed_activated = False
+        try:
+            gated_main = _add("dmsommainfile", "main-gated", False)
+            self.assertFalse(gated_main.to_print)
+        finally:
+            group.to_be_printed_activated = True
+
     def test_dmsoutgoingmail_transition(self):
         def make_event(transition_id=None):
             event = Mock()

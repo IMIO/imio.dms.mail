@@ -13,6 +13,10 @@ Changelog
   [chris-adam]
 - Considered seal when checking if a signer is defined on a sub/template.
   [sgeulette]
+- Document generation "d-print" now takes into account "to_print" attribute of files. (PARAF-220)
+  [chris-adam]
+- Automatically set the "to print" flag on outgoing mail files. (PARAF-220)
+  [chris-adam]
 
 3.1.5 (2026-06-19)
 ------------------
