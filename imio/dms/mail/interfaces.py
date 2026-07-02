@@ -15,6 +15,10 @@ class IImioDmsOutgoingMailWfConditions(Interface):
     """Adapter interface adding methods used in om workflow conditions"""
 
 
+class ISignRequestWfConditions(Interface):
+    """Adapter interface adding methods used in sign_request workflow conditions"""
+
+
 class IImioDmsMailLayer(IDefaultPloneLayer, IActionsPanelLayer):
     """Marker interface that defines a Zope 3 browser layer."""
 

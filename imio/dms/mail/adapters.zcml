@@ -8,6 +8,7 @@
 
     <adapter factory=".dmsmail.ImioDmsIncomingMailWfConditionsAdapter" />
     <adapter factory=".dmsmail.ImioDmsOutgoingMailWfConditionsAdapter" />
+    <adapter factory=".dmssignrequest.SignRequestWfConditionsAdapter" />
 
     <!-- CRITERIONS -->
     <adapter for="*"

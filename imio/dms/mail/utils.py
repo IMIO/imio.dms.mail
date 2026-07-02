@@ -406,6 +406,7 @@ def list_wf_states(context, portal_type):
         "task": ["created", "to_assign", "to_do", "in_progress", "realized", "closed"],
         "dmsoutgoingmail": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print",
                             "to_approve", "to_be_signed", "signed", "sent"],
+        "sign_request": ["created", "to_approve", "to_be_signed", "signed", "closed"],
         # "dmsoutgoing_email": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print", "to_be_signed",
         #                       "signed", "sent"],
         "organization": ["active", "deactivated"],

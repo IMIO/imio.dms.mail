@@ -219,6 +219,7 @@ def postInstall(context):
     configure_rolefields(context)
     configure_iem_rolefields(context)
     configure_om_rolefields(context)
+    configure_signrequest_rolefields(context)
 
     if (
         base_hasattr(site.portal_types.task, "localroles")
@@ -305,6 +306,7 @@ def postInstall(context):
         alsoProvides(col_folder, INextPrevNotNavigable)
         alsoProvides(col_folder, IReqDashboard)
         createReqCollections(col_folder)
+        createStateCollections(col_folder, "sign_request")
         configure_faceted_folder(col_folder, xml="requests-searches.xml", default_UID=col_folder["all_requests"].UID())
         # configure faceted
         configure_faceted_folder(
@@ -742,6 +744,15 @@ def createStateCollections(folder, content_type):
                 u"actions",
             ),
         },
+        "sign_request": {
+            "*": (
+                u"pretty_link",
+                u"treating_groups",
+                u"assigned_user",
+                u"CreationDate",
+                u"actions",
+            ),
+        },
         "organization": {
             "*": (u"select_row", u"pretty_link", u"CreationDate", u"actions"),
         },
@@ -766,6 +777,9 @@ def createStateCollections(folder, content_type):
         "task": {"*": u"created"},
         "dmsoutgoingmail": {
             "scanned": u"organization_type",
+            "*": u"created"
+        },
+        "sign_request": {
             "*": u"created"
         },
     }
@@ -1760,6 +1774,22 @@ def createReqCollections(folder):
             "count": False,
         },
         {
+            "id": "to_approve",
+            "tit": _("req_to_approve"),
+            "subj": (u"todo",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
+                {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["to_approve"]},
+                {"i": "approvings", "o": "plone.app.querystring.operation.string.currentUser"},
+            ],
+            "cond": u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
+            "bypass": [],
+            "flds": flds,
+            "sort": u"sortable_title",
+            "rev": True,
+            "count": True,
+        },
+        {
             "id": "to_treat",
             "tit": _("req_to_treat"),
             "subj": (u"todo",),
@@ -2451,6 +2481,63 @@ def configure_om_rolefields(context):
         # msg = add_fti_configuration('dmsoutgoing_email', roles_config[keyname], keyname=keyname)
         # if msg:
         #     logger.warn(msg)
+
+
+def configure_signrequest_rolefields(context):
+    """
+    Configure the rolefields for sign_request (per sign_request_workflow state).
+    """
+    roles_config = {
+        "treating_groups": {
+            "created": {
+                "demand_sign": {"roles": ["Contributor", "Editor", "Reviewer"]},
+            },
+            "to_approve": {
+                "demand_sign": {"roles": ["Contributor", "Reviewer"]},
+            },
+            "to_be_signed": {
+                "demand_sign": {"roles": ["Reader", "Reviewer"]},
+            },
+            "signed": {
+                "demand_sign": {"roles": ["Reader", "Reviewer"]},
+            },
+            "closed": {
+                "demand_sign": {"roles": ["Reader"]},
+            },
+        },
+        "recipient_groups": {
+            "created": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+            "to_approve": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+            "to_be_signed": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+            "signed": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+            "closed": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+        },
+    }
+    for keyname in roles_config:
+        # don't overwrite existing configuration
+        msg = add_fti_configuration("sign_request", roles_config[keyname], keyname=keyname)
+        if msg:
+            logger.warn(msg)
 
 
 def configure_task_rolefields(context, force=False):

@@ -7,9 +7,12 @@ from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
 from imio.dms.mail.setuphandlers import add_db_col_folder
 from imio.dms.mail.setuphandlers import configure_faceted_folder
+from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
 from imio.dms.mail.setuphandlers import createReqCollections
+from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import order_1st_level
 from imio.helpers.setup import load_type_from_package
+from imio.helpers.setup import load_workflow_from_package
 from imio.helpers.workflow import do_transitions
 from plone import api
 from Products.CMFPlone.utils import base_hasattr
@@ -28,11 +31,21 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
         if self.is_in_part("c"):
             # update settings
             self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry"])
-            # reload types for behavior
-            load_type_from_package("sign_request", "imio.dms.mail:default")  # new type
+            # reload type and workflow
+            load_type_from_package("sign_request", "imio.dms.mail:default", create=True)  # new type
+            load_workflow_from_package("sign_request_workflow", "imio.dms.mail:default", create=True)  # new workflow
+            wtool = api.portal.get_tool("portal_workflow")
+            if "sign_request_workflow" not in wtool.getChainForPortalType("sign_request"):
+                wtool.setChainForPortalTypes(("sign_request",), ("sign_request_workflow",))
+                # reapply permissions on existing sign_request
+                wtool.updateRoleMappings()
+
             self.runProfileSteps("imio.dms.mail", steps=["rolemap"])
             # folder
             if not base_hasattr(self.portal, "requests"):
+                # configure the local roles per state for the sign_request rolefields
+                configure_signrequest_rolefields(self.portal)
+
                 folderid = self.portal.invokeFactory("Folder", id="requests", title=_(u"requests_tab"))
                 req_folder = getattr(self.portal, folderid)
                 alsoProvides(req_folder, INextPrevNotNavigable)
@@ -44,6 +57,7 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                 alsoProvides(col_folder, INextPrevNotNavigable)
                 alsoProvides(col_folder, IReqDashboard)
                 createReqCollections(col_folder)
+                createStateCollections(col_folder, "sign_request")
                 configure_faceted_folder(col_folder, xml="requests-searches.xml",
                                          default_UID=col_folder["all_requests"].UID())
                 # configure faceted

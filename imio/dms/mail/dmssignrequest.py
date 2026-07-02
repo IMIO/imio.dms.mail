@@ -4,6 +4,8 @@
     This module contains the sign_request type (a simplified document used as
     a signing request) and its add/edit forms.
 """
+from AccessControl import ClassSecurityInfo
+from AccessControl.class_init import InitializeClass
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_userids
 from collective.dms.basecontent.browser.views import DmsDocumentEdit
 from collective.dms.basecontent.browser.views import DmsDocumentView
@@ -15,6 +17,7 @@ from collective.task.field import LocalRoleMasterSelectField
 from datetime import datetime
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
+from imio.dms.mail.interfaces import ISignRequestWfConditions
 from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.vocabularies import signrequest_active_orgs
@@ -30,6 +33,7 @@ from plone.registry.interfaces import IRegistry
 from Products.PluginIndexes.common.UnIndex import _marker
 from z3c.form import validator
 from zope import schema
+from zope.component import adapts
 from zope.component import getUtility
 from zope.interface import implements
 from zope.schema.fieldproperty import FieldProperty
@@ -111,6 +115,54 @@ class ImioDmsSignRequest(DmsDocument):
     def get_mainfiles(self):
         """A signing request only contains annexes, no main file."""
         return []
+
+    def wf_conditions(self):
+        """Returns the adapter providing workflow conditions"""
+        return ISignRequestWfConditions(self)
+
+
+class SignRequestWfConditionsAdapter(object):
+    implements(ISignRequestWfConditions)
+    adapts(IImioDmsSignRequest)
+    security = ClassSecurityInfo()
+
+    def __init__(self, context):
+        self.context = context
+
+    security.declarePublic("can_be_approved")
+
+    def can_be_approved(self):
+        """Used in guard expression for propose_to_approve transition."""
+        # TODO: include approvings
+        # at least one annex must be present before requesting a signature
+        brains = self.context.portal_catalog.unrestrictedSearchResults(
+            portal_type="dmsappendixfile", path="/".join(self.context.getPhysicalPath()), b_size=1
+        )
+        if not bool(brains):
+            return False
+        return True
+
+    security.declarePublic("can_be_signed")
+
+    def can_be_signed(self):
+        """Used in guard expression for propose_to_be_signed transition."""
+        return True
+
+    security.declarePublic("can_mark_as_signed")
+
+    def can_mark_as_signed(self):
+        """Used in guard expression for mark_as_signed transition."""
+        # TODO esign: check if the esign process is terminated
+        return True
+
+    security.declarePublic("can_close")
+
+    def can_close(self):
+        """Used in guard expression for close transition."""
+        return True
+
+
+InitializeClass(SignRequestWfConditionsAdapter)
 
 
 def sign_request_updatefields(the_form):
