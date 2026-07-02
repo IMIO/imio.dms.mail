@@ -1207,16 +1207,14 @@ Configuration
     Click element  id=fieldsetlegend-outgoingmail
     Wait until element is visible  id=formfield-form-widgets-outgoingmail_number  10
     Capture and crop page screenshot  doc/configuration/5-3-config-courrier-cs.png  id=content
-    # Erreur chargement page, voir https://support.imio.be/browse/DMS-434
-    #Go to  ${PLONE_URL}/@@imiodmsmail-settings
-    #Wait until element is visible  id=formfield-form-widgets-mail_types  10
-    # TO DO MANUALLY
-    #Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-ce.png  id=content
-    #Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-cs.png  id=content
-    #Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-contacts.png  id=content
-    #Go to  ${PLONE_URL}/@@contact-plonegroup-settings
-    #Wait until element is visible  id=pg-orga-link  10
-    #Capture and crop page screenshot  doc/configuration/5-4-config-services.png  id=content
+    Go to  ${PLONE_URL}/@@imiodmsmail-settings
+    Wait until element is visible  id=formfield-form-widgets-mail_types  10
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-ce.png  id=content
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-cs.png  id=content
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-contacts.png  id=content
+    Go to  ${PLONE_URL}/@@contact-plonegroup-settings
+    Wait until element is visible  id=pg-orga-link  10
+    Capture and crop page screenshot  doc/configuration/5-4-config-services.png  id=content
     # services
     Go to  ${PLONE_URL}/contacts/plonegroup-organization
     Wait until element is visible  css=table.suborganizations-listing  10

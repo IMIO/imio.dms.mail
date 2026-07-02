@@ -4,7 +4,10 @@ Changelog
 3.1.7 (unreleased)
 ------------------
 
-- Updated robotframework tests to include electronic signature (PARAF-166, DMS-434).
+- Updated robotframework tests to include electronic signature (PARAF-166).
+  [chris-adam]
+- Fixed ``ConnectionStateError`` crash when rendering datagrid fields
+  in settings through robotframework tests (DMS-434).
   [chris-adam]
 
 
