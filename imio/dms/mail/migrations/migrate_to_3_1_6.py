@@ -3,7 +3,12 @@ from collective.querynextprev.interfaces import INextPrevNotNavigable
 from ftw.labels.interfaces import ILabelRoot
 from imio.dms.mail import _tr as _
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
+from imio.dms.mail.setuphandlers import add_db_col_folder
+from imio.dms.mail.setuphandlers import configure_faceted_folder
+from imio.dms.mail.setuphandlers import createReqCollections
+from imio.dms.mail.setuphandlers import order_1st_level
 from imio.helpers.setup import load_type_from_package
 from imio.helpers.workflow import do_transitions
 from plone import api
@@ -34,12 +39,24 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                 alsoProvides(req_folder, ILabelRoot)
                 # alsoProvides(req_folder, ICountableTab)
                 alsoProvides(req_folder, IProtectedItem)
+                # add searches
+                col_folder = add_db_col_folder(req_folder, "requests-searches", _("Requests searches"), _("Requests"))
+                alsoProvides(col_folder, INextPrevNotNavigable)
+                alsoProvides(col_folder, IReqDashboard)
+                createReqCollections(col_folder)
+                configure_faceted_folder(col_folder, xml="requests-searches.xml",
+                                         default_UID=col_folder["all_requests"].UID())
+                # configure faceted
+                configure_faceted_folder(
+                    req_folder, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_requests"].UID()
+                )
 
                 req_folder.setConstrainTypesMode(1)
                 req_folder.setLocallyAllowedTypes(["sign_request"])
                 req_folder.setImmediatelyAddableTypes(["sign_request"])
                 do_transitions(req_folder, ["show_internally"])
                 logger.info("requests folder created")
+                order_1st_level(self.portal)
             # signrequest
             if api.portal.get_registry_record(
                     "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats") is None:

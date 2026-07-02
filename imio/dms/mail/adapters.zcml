@@ -51,6 +51,16 @@
              name="dmsoutgoingmail-in-copy-group" />
 
     <adapter for="*"
+             factory=".adapters.SignRequestInTreatingGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="sign_request-in-treating-group" />
+
+    <adapter for="*"
+             factory=".adapters.SignRequestInCopyGroupCriterion"
+             provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
+             name="sign_request-in-copy-group" />
+
+    <adapter for="*"
              factory=".adapters.TaskValidationCriterion"
              provides="collective.compoundcriterion.interfaces.ICompoundCriterionFilter"
              name="task-validation" />

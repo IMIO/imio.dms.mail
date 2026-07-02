@@ -19,6 +19,16 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertTrue(hasattr(self.portal, "incoming-mail"))
         self.assertTrue(hasattr(self.portal, "outgoing-mail"))
 
+    def test_requests_dashboard(self):
+        self.assertTrue(hasattr(self.portal, "requests"))
+        req_folder = self.portal["requests"]
+        self.assertIn("requests-searches", req_folder)
+        col_folder = req_folder["requests-searches"]
+        self.assertEqual(
+            [c.getId() for c in col_folder.listFolderContents()],
+            ["all_requests", "to_treat", "in_my_group", "in_copy"],
+        )
+
     def test_adaptDefaultPortal(self):
         # ltool = self.portal.portal_languages
         # defaultLanguage = 'fr'

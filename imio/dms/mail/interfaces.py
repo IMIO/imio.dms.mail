@@ -44,6 +44,11 @@ class IOMDashboardBatchActions(IOMDashboard, IBatchActionsMarker):
     """Marker interface for outgoing mail dashboard with batch actions."""
 
 
+class IReqDashboard(IDocsDashboard):
+
+    """Marker interface for signing-requests dashboard."""
+
+
 class ITaskDashboard(IDocsDashboard):
 
     """Marker interface for task dashboard."""

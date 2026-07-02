@@ -40,6 +40,7 @@ from imio.dms.mail.interfaces import IClassificationFoldersDashboard
 from imio.dms.mail.interfaces import IContactsDashboard
 from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IOMDashboard
+from imio.dms.mail.interfaces import IReqDashboard
 from imio.helpers.security import check_zope_admin
 from imio.history.browser.views import IHDocumentBylineViewlet
 from imio.pyutils.system import read_dictcsv
@@ -98,6 +99,8 @@ class IMRenderCategoryView(RenderCategoryView):
             return ViewPageTemplateFile("templates/category_im.pt")
         elif IOMDashboard.providedBy(self.context):
             return ViewPageTemplateFile("templates/category_om.pt")
+        elif IReqDashboard.providedBy(self.context):
+            return ViewPageTemplateFile("templates/category_requests.pt")
         elif IContactsDashboard.providedBy(self.context):
             return ViewPageTemplateFile("templates/category_contact.pt")
         elif IClassificationFoldersDashboard.providedBy(self.context):

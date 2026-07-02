@@ -1,0 +1,15 @@
+<tal:defines define="member context/plone_portal_state/member;
+                     folder python:view.portal['requests'];
+                     portal_url view/portal_url"
+             i18n:domain="imio.dms.mail">
+    <div class="portlet_add_icons">
+        <a id="newRequestCreation" href="#"
+           style="display: inline;"
+           tal:condition="python: member.has_permission('imio.dms.mail: Add Signing request', folder)"
+           tal:attributes="href string:$portal_url/requests/++add++sign_request?no_redirect=1">
+            <img tal:attributes="src string:$portal_url/++resource++imio.dms.mail/sign_request_icon.png"
+              title="create_request" i18n:attributes="title" />
+        </a>
+    </div>
+    <div class="title" tal:content="python: context.Rights()">Category title</div>
+</tal:defines>

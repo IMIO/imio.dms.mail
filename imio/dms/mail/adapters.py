@@ -30,6 +30,7 @@ from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail import REQUEST_TREATING_SERVICE_FUNCTIONS
 from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
@@ -321,6 +322,38 @@ class IncomingMailFollowedCriterion(object):
 
 
 class OutgoingMailInCopyGroupCriterion(object):
+    """
+    Return catalog criteria following recipient group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, OM_READER_SERVICE_FUNCTIONS, group_as_str=True)
+        # if orgs is empty list, nothing is returned => ok
+        return {"recipient_groups": {"query": orgs}}
+
+
+class SignRequestInTreatingGroupCriterion(object):
+    """
+    Return catalog criteria following treating group member (demand_sign function)
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, REQUEST_TREATING_SERVICE_FUNCTIONS, group_as_str=True)
+        # if orgs is empty list, nothing is returned => ok
+        return {"treating_groups": {"query": orgs}}
+
+
+class SignRequestInCopyGroupCriterion(object):
     """
     Return catalog criteria following recipient group member
     """

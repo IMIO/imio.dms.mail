@@ -44,6 +44,7 @@ from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import set_dms_config
@@ -299,6 +300,16 @@ def postInstall(context):
         alsoProvides(req_folder, ILabelRoot)
         # alsoProvides(req_folder, ICountableTab)
         alsoProvides(req_folder, IProtectedItem)
+        # add searches
+        col_folder = add_db_col_folder(req_folder, "requests-searches", _("Requests searches"), _("Requests"))
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IReqDashboard)
+        createReqCollections(col_folder)
+        configure_faceted_folder(col_folder, xml="requests-searches.xml", default_UID=col_folder["all_requests"].UID())
+        # configure faceted
+        configure_faceted_folder(
+            req_folder, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_requests"].UID()
+        )
 
         req_folder.setConstrainTypesMode(1)
         req_folder.setLocallyAllowedTypes(["sign_request"])
@@ -1713,6 +1724,90 @@ def createOMailCollections(folder):
                 u"classification_folders",
                 u"actions",
             ),
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
+    ]
+    createDashboardCollections(folder, collections)
+
+
+def createReqCollections(folder):
+    """
+    create some signing requests dashboard collections
+    """
+    flds = (
+        u"pretty_link",
+        u"review_state",
+        u"treating_groups",
+        u"assigned_user",
+        u"CreationDate",
+        u"actions",
+    )
+    collections = [
+        {
+            "id": "all_requests",
+            "tit": _("all_requests"),
+            "subj": (u"search",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]}
+            ],
+            "cond": u"",
+            "bypass": [],
+            "flds": flds,
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
+        {
+            "id": "to_treat",
+            "tit": _("req_to_treat"),
+            "subj": (u"todo",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
+                {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
+            ],
+            "cond": u"",
+            "bypass": [],
+            "flds": flds,
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
+        {
+            "id": "in_my_group",
+            "tit": _("req_in_my_group"),
+            "subj": (u"search",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
+                {
+                    "i": "CompoundCriterion",
+                    "o": "plone.app.querystring.operation.compound.is",
+                    "v": "sign_request-in-treating-group",
+                },
+            ],
+            "cond": u"",
+            "bypass": [],
+            "flds": flds,
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
+        {
+            "id": "in_copy",
+            "tit": _("req_in_copy"),
+            "subj": (u"todo",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
+                {
+                    "i": "CompoundCriterion",
+                    "o": "plone.app.querystring.operation.compound.is",
+                    "v": "sign_request-in-copy-group",
+                },
+            ],
+            "cond": u"",
+            "bypass": [],
+            "flds": flds,
             "sort": u"created",
             "rev": True,
             "count": False,

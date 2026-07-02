@@ -61,6 +61,7 @@ OM_READER_SERVICE_FUNCTIONS = [
     "n_plus_5",
 ]
 TASK_EDITOR_SERVICE_FUNCTIONS = ["editeur", "n_plus_1"]
+REQUEST_TREATING_SERVICE_FUNCTIONS = ["demand_sign"]
 
 BACK_OR_AGAIN_ICONS = {
     "": False,
