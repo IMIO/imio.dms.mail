@@ -34,6 +34,8 @@ Changelog
   [chris-adam]
 - Fixed the ``@@approvals`` view listing files order (PARAF-510).
   [chris-adam]
+- Displayed iconified icons below outgoing files title (PARAF-412).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
