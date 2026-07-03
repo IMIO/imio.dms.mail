@@ -91,6 +91,11 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                         {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
                     ]
                 )
+            # corrected collections
+            for col_id in ("searchfor_to_approve", "to_approve", "in_esign_sessions"):
+                col_folder = self.omf["mail-searches"].get(col_id)
+                if col_folder is not None and col_folder.sort_on != u"created":
+                    col_folder.sort_on = u"created"
 
         if self.is_in_part("g"):  # final steps
             # finished = True  # can be eventually returned and set by batched method

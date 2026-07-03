@@ -150,12 +150,6 @@ class SignRequestWfConditionsAdapter(object):
 
     def can_be_approved(self):
         """Used in guard expression for propose_to_approve transition."""
-        # at least one annex must be present before requesting a signature
-        brains = self.context.portal_catalog.unrestrictedSearchResults(
-            portal_type="dmsappendixfile", path="/".join(self.context.getPhysicalPath()), b_size=1
-        )
-        if not bool(brains):
-            return False
         return self.context.has_approvings()
 
     security.declarePublic("can_be_signed")
@@ -171,7 +165,6 @@ class SignRequestWfConditionsAdapter(object):
 
     def can_mark_as_signed(self):
         """Used in guard expression for mark_as_signed transition."""
-        # TODO esign: check if the esign process is terminated
         return True
 
     security.declarePublic("can_close")

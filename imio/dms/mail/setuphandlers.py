@@ -1785,7 +1785,7 @@ def createReqCollections(folder):
             "cond": u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
             "bypass": [],
             "flds": flds,
-            "sort": u"sortable_title",
+            "sort": u"created",
             "rev": True,
             "count": True,
         },
