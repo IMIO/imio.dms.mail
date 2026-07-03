@@ -329,6 +329,10 @@ def dmsdocument_modified(mail, event):
     elif mail.portal_type == "dmsoutgoingmail":
         replace_contact_list(mail, "recipients")
 
+    # sign_request
+    if mail.portal_type == "sign_request":
+        return
+
     if not event.descriptions:
         return
     mod_attr = [name for at in event.descriptions if base_hasattr(at, "attributes") for name in at.attributes]
@@ -521,27 +525,32 @@ def apply_substitutes_to_signers(signers, substitutes=None):
     return result
 
 
-def apply_signer_rules(mail):
-    """Compute and set mail.signers / seal / esign from the configured signer rules.
+def _apply_signer_rules(obj, registry_key):
+    """Compute and set obj.signers / seal / esign from the configured signer rules.
 
-    Resets mail.signers to [] then appends matching rules. Returns True if at least one
+    Shared implementation for outgoing mail (``omail_signer_rules``) and signing request
+    (``request_signer_rules``). The mail_type / send_modes filters are only applied when the
+    rule defines them and the object carries the corresponding attribute (signing requests
+    have neither), so they are simply skipped for signing requests.
+
+    Resets obj.signers to [] then appends matching rules. Returns True if at least one
     signer rule was applied. May raise Invalid on inconsistent rules.
     """
     today = datetime.date.today()
     rules_applied = False
-    mail.signers = []
-    signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
+    obj.signers = []
+    signer_rules = api.portal.get_registry_record(registry_key, IImioDmsMailConfig, [])
     substitutes = get_active_signer_substitutes(today)
     used_numbers = set()
     used_signers = set()
     for signer in signer_rules:
-        if signer["treating_groups"] and mail.treating_groups not in signer["treating_groups"]:
+        if signer["treating_groups"] and obj.treating_groups not in signer["treating_groups"]:
             continue
-        if signer["mail_types"] and mail.mail_type not in signer["mail_types"]:
+        if signer.get("mail_types") and getattr(obj, "mail_type", None) not in signer["mail_types"]:
             continue
-        if signer["send_modes"] and not (set(mail.send_modes) & set(signer["send_modes"])):
+        if signer.get("send_modes") and not (set(getattr(obj, "send_modes", None) or []) & set(signer["send_modes"])):
             continue
-        if not _evaluateExpression(mail, expression=signer["tal_condition"]):
+        if not _evaluateExpression(obj, expression=signer["tal_condition"]):
             continue
         rules_applied = True
 
@@ -552,15 +561,15 @@ def apply_signer_rules(mail):
 
         if signer["number"] == 0:
             if signer["signer"] == u"_seal_":
-                mail.seal = True
-                mail.esign = True
+                obj.seal = True
+                obj.esign = True
             else:
-                mail.seal = False
+                obj.seal = False
         elif signer["number"] == 1:
-            mail.esign = signer.get("esign", False)
+            obj.esign = signer.get("esign", False)
 
         # only check if we have at least a signer 0 and 1 because 0 could be after 1 in rules
-        if 0 in used_numbers and 1 in used_numbers and mail.seal and not mail.esign:
+        if 0 in used_numbers and 1 in used_numbers and obj.seal and not obj.esign:
             raise Invalid(_(u"You cannot have a seal without electronic signature ! You have to adapt the rules !"))
 
         if signer["number"] == 0:
@@ -585,7 +594,7 @@ def apply_signer_rules(mail):
                 )
             used_signers.add(person.UID())
 
-        mail.signers.append(
+        obj.signers.append(
             {
                 "number": signer["number"],
                 "signer": effective_signer,
@@ -594,6 +603,16 @@ def apply_signer_rules(mail):
             }
         )
     return rules_applied
+
+
+def apply_signer_rules(mail):
+    """Compute and set mail.signers / seal / esign from the outgoing mail signer rules."""
+    return _apply_signer_rules(mail, "omail_signer_rules")
+
+
+def apply_request_signer_rules(request):
+    """Compute and set request.signers / seal / esign from the signing request signer rules."""
+    return _apply_signer_rules(request, "request_signer_rules")
 
 
 def dmsoutgoingmail_modified(mail, event):
@@ -652,14 +671,20 @@ def sign_request_transition(request, event):
 
 
 def sign_request_modified(request, event):
-    """When the signers field is modified, update the approval annotation."""
+    """Apply the request signer rules (when signers are still empty) and update the approval annotation.
+
+    Signers are computed from request_signer_rules only when still empty; if no rule matches,
+    signers are left empty (to be filled manually)."""
     # Do not update signers field if request is being signed or already signed
     request_state = api.content.get_state(request)
     if request_state in ("signed", "closed", "to_approve", "to_be_signed"):
         return
+    signers_update = False
+    if not request.signers:
+        signers_update = apply_request_signer_rules(request)
     # check if this is the signers field that is modified
     mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
-    if "ISigningBehavior.signers" in mod_attr and request.signers:
+    if (signers_update or "ISigningBehavior.signers" in mod_attr) and request.signers:
         request.signers.sort(key=itemgetter("number"))
         approval = SignRequestApprovalAdapter(request)
         try:
