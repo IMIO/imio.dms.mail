@@ -109,6 +109,7 @@
              name="imio.dms.mail.adapters.OdmSearchableExtender" />
 
     <adapter name="approvings" factory=".adapters.approvings_index" />
+    <adapter name="approvings" factory=".adapters.signrequest_approvings_index" />
     <adapter name="assigned_group" factory=".adapters.creating_group_index" />
     <adapter name="email" factory=".adapters.im_sender_email_index" />
     <adapter name="email" factory=".adapters.om_sender_email_index" />
@@ -257,9 +258,21 @@
         />
 
     <adapter
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+        factory="imio.dms.mail.adapters.ApprovalRoleAdapter"
+        provides="borg.localrole.interfaces.ILocalRoleProvider"
+        />
+
+    <adapter
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         factory="imio.dms.mail.adapters.OMApprovalAdapter"
         provides="imio.dms.mail.interfaces.IOMApproval"
+        />
+
+    <adapter
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+        factory="imio.dms.mail.adapters.SignRequestApprovalAdapter"
+        provides="imio.dms.mail.interfaces.ISignRequestApproval"
         />
 
     <adapter

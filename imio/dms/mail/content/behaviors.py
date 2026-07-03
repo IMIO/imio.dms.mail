@@ -10,7 +10,6 @@ from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
-from imio.dms.mail.dmsmail import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
@@ -177,9 +176,12 @@ class ISigningBehavior(model.Schema):
     @invariant
     def validate_signing(data):
         context = data.__context__
-        if context and IImioDmsOutgoingMail.providedBy(context):
+        if context and context.portal_type in ("dmsoutgoingmail", "sign_request"):
+            # local import to avoid a circular import (adapters imports this behaviors module)
+            from imio.dms.mail.adapters import approval_adapter
+
             is_user_admin = api.user.has_permission("Manage portal")
-            approval = IOMApproval(context)
+            approval = approval_adapter(context)
             if not is_user_admin and (approval.is_state_after_or_approve() or approval.current_nb == -1):
                 fields_have_changed = (context.esign != data.esign or context.seal != data.seal
                                        or context.signers != data.signers)

@@ -32,7 +32,9 @@ from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail.adapters import approval_adapter
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.adapters import SignRequestApprovalAdapter
 # from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
@@ -642,6 +644,36 @@ def dmsoutgoingmail_added(mail, event):
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
 
 
+def sign_request_transition(request, event):
+    """Start the approval process when a signing request is proposed to approve."""
+    if event.transition and event.transition.id == "propose_to_approve":
+        approval = SignRequestApprovalAdapter(request)
+        approval.start_approval_process()
+
+
+def sign_request_modified(request, event):
+    """When the signers field is modified, update the approval annotation."""
+    # Do not update signers field if request is being signed or already signed
+    request_state = api.content.get_state(request)
+    if request_state in ("signed", "closed", "to_approve", "to_be_signed"):
+        return
+    # check if this is the signers field that is modified
+    mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
+    if "ISigningBehavior.signers" in mod_attr and request.signers:
+        request.signers.sort(key=itemgetter("number"))
+        approval = SignRequestApprovalAdapter(request)
+        try:
+            approval.update_signers()
+        except ValueError as e:
+            raise Invalid(e.message)
+
+
+def sign_request_added(request, event):
+    """If the content is manually created, we call the modified event after creation to set signers."""
+    if request.title:
+        zope.event.notify(ObjectModifiedEvent(request, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+
+
 def dv_handle_file_creation(obj, event):
     """Intermediate function to avoid converting some files in documentviewer"""
     if obj.portal_type in DV_AVOIDED_TYPES:
@@ -755,7 +787,7 @@ def _correct_to_approve(file_obj):
     orig_value = getattr(file_obj, "to_approve", False)
     new_value = False
     om_obj = file_obj.__parent__
-    approval = OMApprovalAdapter(om_obj)
+    approval = approval_adapter(om_obj)
     if (
         orig_value
         and getattr(file_obj, "to_sign", False)
@@ -792,18 +824,19 @@ def i_annex_added(obj, event):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
-    elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
+    elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type in ("dmsoutgoingmail", "sign_request"):
         mail = obj.__parent__
-        # In "template_first" mode, the signer rules are applied only when the first main document is
-        # generated from a template (see browser.documentgenerator._copy_template_signers). When an
-        # appendix is added before any template generation, signers would otherwise stay empty, so we
-        # apply the rules here too. If the rules produce no signer, an _empty_ placeholder is set.
-        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
-        if mode == u"template_first" and not mail.signers:
-            apply_signer_rules(mail)
-            if not mail.signers:
-                mail.signers = get_empty_signers_value()
-            zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        if mail.portal_type == "dmsoutgoingmail":
+            # In "template_first" mode, the signer rules are applied only when the first main document is
+            # generated from a template (see browser.documentgenerator._copy_template_signers). When an
+            # appendix is added before any template generation, signers would otherwise stay empty, so we
+            # apply the rules here too. If the rules produce no signer, an _empty_ placeholder is set.
+            mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
+            if mode == u"template_first" and not mail.signers:
+                apply_signer_rules(mail)
+                if not mail.signers:
+                    mail.signers = get_empty_signers_value()
+                zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
         if getattr(obj, "to_sign", False):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):
@@ -812,7 +845,10 @@ def i_annex_added(obj, event):
 
 def i_annex_will_be_removed(obj, event):
     """when an annex file will be removed"""
-    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type in (
+        "dmsoutgoingmail",
+        "sign_request",
+    ):
         try:
             portal = api.portal.get()
             pp = portal.portal_properties
@@ -820,7 +856,7 @@ def i_annex_will_be_removed(obj, event):
             # When deleting site, the portal is no more found...
             return
         breach = None
-        approval = OMApprovalAdapter(obj.__parent__)
+        approval = approval_adapter(obj.__parent__)
         if obj.UID() in approval.files_uids:
             breach = (obj.__parent__, obj)
         if obj.UID() in [f_uid for lst in approval.pdf_files_uids for f_uid in lst]:
@@ -857,9 +893,12 @@ def i_annex_removed(obj, event):
             referencedObjectRemoved(obj, event)
         except TypeError:
             pass
-    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type in (
+        "dmsoutgoingmail",
+        "sign_request",
+    ):
         current_uid = obj.UID()
-        approval = OMApprovalAdapter(obj.__parent__)
+        approval = approval_adapter(obj.__parent__)
         # Case 1: We are removing a file in a session. Can be a pdf from odt, a direct pdf, a sealed odf
         session_annot = get_session_annotation()
         if current_uid in session_annot["uids"]:

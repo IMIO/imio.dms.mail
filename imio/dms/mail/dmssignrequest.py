@@ -17,6 +17,7 @@ from collective.task.field import LocalRoleMasterSelectField
 from datetime import datetime
 from dexterity.localrolesfield.field import LocalRolesField
 from imio.dms.mail import _
+from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.interfaces import ISignRequestWfConditions
 from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import manage_fields
@@ -116,6 +117,22 @@ class ImioDmsSignRequest(DmsDocument):
         """A signing request only contains annexes, no main file."""
         return []
 
+    def has_approvings(self, all_done=False):
+        """Check if the signing request must be approved.
+
+        :param all_done: if True, check if all approvings are done
+        :return: boolean
+        """
+        approval = ISignRequestApproval(self)
+        if not approval.approvers:
+            return False
+        elif not approval.files_uids:
+            return False
+        elif not all_done:
+            return True
+        else:  # has approvals and all done
+            return approval.current_nb == -1
+
     def wf_conditions(self):
         """Returns the adapter providing workflow conditions"""
         return ISignRequestWfConditions(self)
@@ -133,19 +150,21 @@ class SignRequestWfConditionsAdapter(object):
 
     def can_be_approved(self):
         """Used in guard expression for propose_to_approve transition."""
-        # TODO: include approvings
         # at least one annex must be present before requesting a signature
         brains = self.context.portal_catalog.unrestrictedSearchResults(
             portal_type="dmsappendixfile", path="/".join(self.context.getPhysicalPath()), b_size=1
         )
         if not bool(brains):
             return False
-        return True
+        return self.context.has_approvings()
 
     security.declarePublic("can_be_signed")
 
     def can_be_signed(self):
         """Used in guard expression for propose_to_be_signed transition."""
+        # if there are approvings, they must all be done before signing
+        if self.context.has_approvings() and not self.context.has_approvings(all_done=True):
+            return False
         return True
 
     security.declarePublic("can_mark_as_signed")

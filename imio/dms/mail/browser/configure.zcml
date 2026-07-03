@@ -1208,6 +1208,14 @@
         permission="cmf.ManagePortal"
     />
 
+    <browser:page
+        name="approvals"
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+        template="templates/approvals.pt"
+        class="imio.dms.mail.browser.views.ApprovalTableView"
+        permission="cmf.ManagePortal"
+    />
+
     <adapter
         name="filename_approvals"
         for="zope.interface.Interface

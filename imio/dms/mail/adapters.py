@@ -34,7 +34,9 @@ from imio.dms.mail import REQUEST_TREATING_SERVICE_FUNCTIONS
 from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IOMApproval
+from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import get_dms_config
@@ -509,6 +511,16 @@ def approvings_index(obj):
     Stores userid:number for each approver.
     """
     approval = OMApprovalAdapter(obj)
+    return approval.current_approvers
+
+
+@indexer(IImioDmsSignRequest)
+def signrequest_approvings_index(obj):
+    """Indexer of 'approvings' for IImioDmsSignRequest.
+
+    Stores the userids of the approvers of the current approval step.
+    """
+    approval = SignRequestApprovalAdapter(obj)
     return approval.current_approvers
 
 
@@ -1168,13 +1180,12 @@ class ApprovalRoleAdapter(object):
 
     @property
     def config(self):
-        approval = OMApprovalAdapter(self.context)
+        approval = approval_adapter(self.context)
         return approval.roles
 
 
-@implementer(IOMApproval)
-class OMApprovalAdapter(object):
-    """Adapter for outgoing mail approval.
+class ApprovalAdapter(object):
+    """Base adapter for content approval (outgoing mail, signing request).
 
     Annotation structure: metadata + 2D matrix with n signers and m files
 
@@ -1199,6 +1210,12 @@ class OMApprovalAdapter(object):
         "approved_by": userid,
     }
     """
+
+    # workflow state(s) in which the approval process is running
+    approval_states = ("to_approve",)
+    # workflow states strictly after the approval process (approval is frozen/done)
+    # overridden in subclasses to match each content type workflow
+    after_approval_states = ()
 
     def __init__(self, context):
         self.context = context
@@ -1339,7 +1356,7 @@ class OMApprovalAdapter(object):
         """Return True if the current state is before approval process."""
         if state is None:
             state = api.content.get_state(self.context)
-        if state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+        if state not in self.approval_states + self.after_approval_states:
             return True
         return False
 
@@ -1347,7 +1364,7 @@ class OMApprovalAdapter(object):
         """Return True if the current state is before or in approval process."""
         if state is None:
             state = api.content.get_state(self.context)
-        if state not in ("to_print", "to_be_signed", "signed", "sent"):
+        if state not in self.after_approval_states:
             return True
         return False
 
@@ -1355,7 +1372,7 @@ class OMApprovalAdapter(object):
         """Return True if the current state is after approval process."""
         if state is None:
             state = api.content.get_state(self.context)
-        if state in ("to_print", "to_be_signed", "signed", "sent"):
+        if state in self.after_approval_states:
             return True
         return False
 
@@ -1363,7 +1380,7 @@ class OMApprovalAdapter(object):
         """Return True if the current state is after or in approval process."""
         if state is None:
             state = api.content.get_state(self.context)
-        if state in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+        if state in self.approval_states + self.after_approval_states:
             return True
         return False
 
@@ -1997,6 +2014,36 @@ class OMApprovalAdapter(object):
         return True, _("${count} file(s) added to session(s) ${session_ids}",
                        mapping={"count": str(len(session_file_uids)),
                                 "session_ids": u", ".join([str(sid) for sid in sorted(pdf_session_ids)])})
+
+
+@implementer(IOMApproval)
+class OMApprovalAdapter(ApprovalAdapter):
+    """Approval adapter for outgoing mail.
+
+    An outgoing mail may contain main files (dmsommainfile) and appendix files (dmsappendixfile).
+    """
+
+    # to_print is added by the OMToPrintAdaptation (handsigned flow)
+    after_approval_states = ("to_print", "to_be_signed", "signed", "sent")
+
+
+@implementer(ISignRequestApproval)
+class SignRequestApprovalAdapter(ApprovalAdapter):
+    """Approval adapter for a signing request.
+
+    A signing request only contains appendix files (dmsappendixfile), no main file.
+    """
+
+    after_approval_states = ("to_be_signed", "signed", "closed")
+
+
+def approval_adapter(context):
+    """Return the approval adapter matching the context portal_type."""
+    if context.portal_type == "dmsoutgoingmail":
+        return OMApprovalAdapter(context)
+    elif context.portal_type == "sign_request":
+        return SignRequestApprovalAdapter(context)
+    return None
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):

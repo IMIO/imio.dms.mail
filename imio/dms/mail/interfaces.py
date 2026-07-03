@@ -165,5 +165,13 @@ class IProtectedItem(Interface):
     """Marker interface to protect object against deletion, cut and rename"""
 
 
-class IOMApproval(Interface):
+class IApproval(Interface):
+    """Base interface for approval adapters (outgoing mail, signing request)."""
+
+
+class IOMApproval(IApproval):
     """Interface for outgoing mail approval adapter."""
+
+
+class ISignRequestApproval(IApproval):
+    """Interface for signing request approval adapter."""

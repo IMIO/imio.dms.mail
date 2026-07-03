@@ -11,6 +11,7 @@ from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
+from imio.dms.mail.adapters import approval_adapter
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -543,16 +544,16 @@ class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
 
     def actions(self):
         # remove from mail approval annotation
-        approval = IOMApproval(self.context.__parent__)
+        approval = approval_adapter(self.context.__parent__)
         approval.remove_pdf_file_from_approval(self.context.UID())
         # remove from global esign annotation
         remove_files_from_session([self.context.UID()])
 
     def available(self):
-        try:
-            approval = IOMApproval(self.context.__parent__)
-        except TypeError:  # when trying to adapt a file in incomingmail
+        # only outgoing mail and signing request have an approval process
+        if self.context.__parent__.portal_type not in ("dmsoutgoingmail", "sign_request"):
             return False
+        approval = approval_adapter(self.context.__parent__)
         return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
 
 
@@ -572,8 +573,8 @@ class ApprovalTableView(BrowserView):
         #     return False
         if not self.context.has_approvings():
             return False
-        state = api.content.get_state(self.context)
-        if state in ("to_print", "to_be_signed", "signed", "sent"):
+        # only available while the approval process is running (not after it)
+        if approval_adapter(self.context).is_state_after_approve():
             return False
         return True
 
@@ -592,7 +593,7 @@ class ApprovalTableView(BrowserView):
         save_button = form.get("form.button.Save", None) is not None
         cancel_button = form.get("form.button.Cancel", None) is not None
         if save_button and not cancel_button:
-            approval = IOMApproval(self.context)
+            approval = approval_adapter(self.context)
             to_approve = []
             for i_signer, signer in enumerate(approval.signers):
                 for fuid in approval.files_uids:
