@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collective.dms.basecontent.browser.listing import CategorizedContent
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.iconifiedcategory.browser.viewlets import CategorizedItemInfoViewlet
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
@@ -9,6 +10,8 @@ from imio.dms.mail.browser.iconified_category import ApprovedChangeView
 from imio.dms.mail.browser.iconified_category import ApprovedColumn
 from imio.dms.mail.browser.iconified_category import SignedChangeView
 from imio.dms.mail.browser.iconified_category import SignedColumn
+from imio.dms.mail.browser.viewlets import DmsCategorizedItemInfoViewlet
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import clean_borg_cache
 from imio.dms.mail.utils import DummyView
@@ -368,3 +371,82 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": True, "signed": False}))
         old_values = {"to_sign": True, "signed": False}
         self.assertEqual(view._get_next_values(old_values), (1, {"to_sign": True, "signed": True}))
+
+    def _info_viewlet(self, fileobj):
+        return DmsCategorizedItemInfoViewlet(fileobj, self.portal.REQUEST, None, None)
+
+    def test_item_info_viewlet_om_icons(self):
+        """The below-title viewlet reproduces the OM approved/signed icons
+        (non-clickable, no '(click to ...)' hints) on outgoing-mail files."""
+        self.change_user("admin")
+        el = self.omail2.categorized_elements[self.file2.UID()]
+        self.assertTrue(self._info_viewlet(self.file2)._is_om)
+        # created (before approve), deactivated for approval
+        self.file2.to_approve = False
+        v = self._info_viewlet(self.file2)
+        self.assertEqual(v._css_for_approved(el), "iconified-approved to-approve")
+        self.assertEqual(v._title_for_approved(el), u"Deactivated for approval")
+        # created, activated for approval
+        self.file2.to_approve = True
+        v = self._info_viewlet(self.file2)
+        self.assertEqual(v._css_for_approved(el), "iconified-approved active to-approve")
+        self.assertEqual(v._title_for_approved(el), u"Activated for approval")
+        # signed icon: to_sign True -> plain (toggle-on), to_sign False -> deactivated
+        self.file2.to_sign = True
+        self.assertEqual(self._info_viewlet(self.file2)._css_for_signed(el), "iconified-signed")
+        self.file2.to_sign = False
+        self.assertEqual(self._info_viewlet(self.file2)._css_for_signed(el), "iconified-signed deactivated")
+
+    def test_item_info_viewlet_render_empty_when_untracked(self):
+        """No crash (500) when the item is not tracked in categorized_elements."""
+        self.change_user("siteadmin")
+        imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "imm2")
+        imfile = createContentInContainer(imail, "dmsmainfile", id="imf2")
+        elements = getattr(imfile.aq_parent, "categorized_elements", None)
+        if elements and imfile.UID() in elements:
+            del elements[imfile.UID()]
+        v = self._info_viewlet(imfile)
+        self.assertIsNone(v.element)
+        self.assertEqual(v.render(), "")
+
+    def test_item_info_viewlet_approved_hidden_without_approvers(self):
+        """The approved icon is hidden when no approver is configured for the
+        mail, mirroring OMVersionsTable.setUpColumns dropping the ApprovedColumn."""
+        self.change_user("siteadmin")
+        intids = getUtility(IIntIds)
+        params = {
+            "title": u"Sans approbation",
+            "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
+                DummyView(self.portal, self.portal.REQUEST)
+            ),
+            "mail_type": "courrier",
+            "treating_groups": self.portal["contacts"]["plonegroup-organization"][
+                "direction-generale"
+            ]["grh"].UID(),
+            "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
+            "assigned_user": "agent",
+            "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
+            "send_modes": u"post",
+            "signers": [],
+            "esign": True,
+        }
+        omail3 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om3", **params)
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=filename)
+            file3 = createContentInContainer(
+                omail3,
+                "dmsommainfile",
+                id="file3",
+                scan_id="012999900000699",
+                file=file_object,
+                content_category=calculate_category_id(ct),
+            )
+        self.assertEqual(IOMApproval(omail3).approvers, [])
+        el = omail3.categorized_elements[file3.UID()]
+        el["approved_activated"] = True  # the category-group option is on...
+        # ... so the base viewlet would display the approval icon
+        self.assertTrue(CategorizedItemInfoViewlet(file3, self.portal.REQUEST, None, None).show(el, "approved"))
+        # ... but the dms viewlet hides it because no approver is configured
+        self.assertFalse(self._info_viewlet(file3).show(el, "approved"))

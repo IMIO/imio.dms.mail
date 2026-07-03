@@ -1,16 +1,21 @@
 # -*- coding: utf-8 -*-
+from Acquisition import aq_parent
 from collective.contact.core.browser.address import get_address
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
 from collective.eeafaceted.batchactions.browser.viewlets import BatchActionsViewlet
+from collective.iconifiedcategory.browser.viewlets import CategorizedItemInfoViewlet
 from collective.messagesviewlet.browser.messagesviewlet import GlobalMessagesViewlet
 from collective.messagesviewlet.message import generate_uid
 from collective.messagesviewlet.message import PseudoMessage
 from collective.task.browser.viewlets import TaskParentViewlet
+from imio.dms.mail.browser.iconified_category import approved_display
+from imio.dms.mail.browser.iconified_category import signed_display
 from imio.dms.mail.browser.table import IMVersionsTable
 from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.dms.mail.interfaces import IOMApproval
 from imio.esign.browser.views import FacetedSessionInfoViewlet
 from imio.esign.browser.views import ItemSessionInfoViewlet
 from imio.helpers.content import richtextval
@@ -85,6 +90,47 @@ class OMVersionsViewlet(VersionsViewlet):
 
     portal_type = "dmsommainfile"
     __table__ = OMVersionsTable
+
+
+class DmsCategorizedItemInfoViewlet(CategorizedItemInfoViewlet):
+    """Category-status icons below the title of a categorized item."""
+
+    @property
+    def _mail(self):
+        return aq_parent(self.context)
+
+    @property
+    def _is_om(self):
+        return IImioDmsOutgoingMail.providedBy(self._mail)
+
+    @property
+    def _approved_display(self):
+        if not hasattr(self, "_approved_display_cache"):
+            self._approved_display_cache = approved_display(self._mail, self.context)
+        return self._approved_display_cache
+
+    def show(self, element, attr_prefix):
+        show = super(DmsCategorizedItemInfoViewlet, self).show(element, attr_prefix)
+        # Hide the approval icon when no approver is configured for this mail,
+        # mirroring OMVersionsTable.setUpColumns which drops the ApprovedColumn.
+        if show and attr_prefix == "approved" and self._is_om:
+            return bool(IOMApproval(self._mail).approvers)
+        return show
+
+    def _css_for_approved(self, element):
+        if not self._is_om:
+            return super(DmsCategorizedItemInfoViewlet, self)._css_for_approved(element)
+        return self._approved_display[0]
+
+    def _title_for_approved(self, element):
+        if not self._is_om:
+            return super(DmsCategorizedItemInfoViewlet, self)._title_for_approved(element)
+        return self._approved_display[1]
+
+    def _css_for_signed(self, element):
+        if not self._is_om:
+            return super(DmsCategorizedItemInfoViewlet, self)._css_for_signed(element)
+        return signed_display(self._mail, self.context)
 
 
 class PrettyLinkTitleViewlet(ViewletBase):
