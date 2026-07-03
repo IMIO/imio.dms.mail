@@ -8,6 +8,7 @@ from collective.iconifiedcategory.browser.actionview import SignedChangeView as 
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
 from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSignedColumn
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import get_allowed_omf_content_types
 from imio.dms.mail.utils import logger  # noqa F401
 # from imio.esign.audit import audit as esign_audit
@@ -30,6 +31,61 @@ from zope.i18n import translate
  'signers': [('dirg', u'Maxime DG ()', u'')]
 }
 """  # noqa
+
+
+def approved_display(mail, fileobj):
+    """Return ``(css_class, title)`` for the *approved* icon shown, non-clickable,
+       on an outgoing-mail file's view page (viewlet)."""
+    approval = IOMApproval(mail)
+    state = api.content.get_state(mail)
+    uid = fileobj.UID()
+    userid = api.user.get_current().getId()
+    classes = ["iconified-approved"]
+    to_approve = getattr(fileobj, "to_approve", True)
+
+    if approval.is_state_before_approve(state=state):
+        if not to_approve:
+            return " ".join(classes + ["to-approve"]), u"Deactivated for approval"
+        return " ".join(classes + ["active", "to-approve"]), u"Activated for approval"
+    if not to_approve:  # state >= to_approve and to_approve is False
+        return " ".join(classes + ["to-approve"]), u"Deactivated for approval"
+    if state == "to_approve":
+        approver_number = approval.get_approver_nb(userid)
+        if approval.can_approve(userid, uid):
+            if approval.is_file_approved(uid, nb=approver_number):
+                return " ".join(classes + ["active"]), u"Already approved"
+            return " ".join(classes), u"Waiting for your approval"
+        elif userid in approval.approvers:
+            current_nb = approval.current_nb
+            if approver_number is not None and current_nb is not None and approver_number > current_nb:
+                return (" ".join(classes + ["waiting"]),
+                        u"Waiting for other approval before you can approve")
+    if approval.is_file_approved(uid):
+        return " ".join(classes + ["totally-approved"]), u"Totally approved"
+    elif approval.is_file_approved(uid, totally=False):
+        return (" ".join(classes + ["partially-approved"]),
+                u"Partially approved. Still waiting for other approval(s)")
+    return " ".join(classes + ["cant-approve"]), u"Waiting for the first approval"
+
+
+def signed_display(mail, fileobj):
+    """Return the *signed* icon css_class shown, non-clickable, on an
+       outgoing-mail file's view page (viewlet)."""
+    state = api.content.get_state(mail)
+    classes = ["iconified-signed"]
+    to_sign = getattr(fileobj, "to_sign", True)
+    signed = getattr(fileobj, "signed", False)
+
+    if state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+        if not to_sign:
+            return " ".join(classes + ["deactivated"])
+        return " ".join(classes)
+    elif not to_sign:  # state >= to_approve and to_sign is False
+        return " ".join(classes + ["deactivated"])
+    # state >= to_approve and to_sign is True
+    if signed:
+        classes.append("active")
+    return " ".join(classes)
 
 
 class ApprovedColumn(BaseApprovedColumn):

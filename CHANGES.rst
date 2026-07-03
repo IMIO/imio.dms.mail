@@ -13,6 +13,8 @@ Changelog
   [chris-adam]
 - Considered seal when checking if a signer is defined on a sub/template.
   [sgeulette]
+- Displayed iconified icons below outgoing files title (PARAF-412).
+  [chris-adam]
 
 3.1.5 (2026-06-19)
 ------------------

@@ -650,6 +650,56 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
   color: #75ad0a;
 }
 
+/* CategorizedItemInfoViewlet */
+#content .categorized_elements_details span.iconified-signed::before {
+  content: "\f205";  /* toggle-on */
+  font-weight: bold !important;
+}
+#content .categorized_elements_details span.iconified-signed.deactivated::before {
+  content: "\f204";  /* toggle-off */
+  font-weight: bold !important;
+}
+#content .categorized_elements_details span.iconified-signed.deactivated {
+  color: #999;
+}
+#content .categorized_elements_details span.iconified-signed.active::before {
+  content: "\f044";  /* pen-to-square */
+  font-weight: bold !important;
+}
+
+#content .categorized_elements_details span.iconified-approved.to-approve::before {
+  content: "\f204";  /* toggle-off */
+  font-weight: bold !important;
+}
+#content .categorized_elements_details span.iconified-approved.to-approve {
+  color: #999;
+}
+#content .categorized_elements_details span.iconified-approved.active.to-approve::before {
+  content: "\f205";  /* toggle-on */
+  font-weight: bold !important;
+}
+#content .categorized_elements_details span.iconified-approved.active.to-approve {
+  color: #EA0000;
+}
+#content .categorized_elements_details span.iconified-approved.cant-approve::before {
+  content: "\f254";  /* hourglass */
+  color: black;
+  font-weight: initial;
+}
+#content .categorized_elements_details span.iconified-approved.waiting::before {
+  content: "\f254";  /* hourglass */
+  color: #EA0000;
+  font-weight: initial;
+}
+#content .categorized_elements_details span.iconified-approved.partially-approved::before {
+  content: "\f252";  /* hourglass-half */
+  color: #FFB627;
+}
+#content .categorized_elements_details span.iconified-approved.totally-approved::before {
+  content: "\f560";  /* check-double */
+  color: #75ad0a;
+}
+
 .template-personnel-listing td.td_cell_hps li span.signer-icon::before {
     content: "\f044";
     font-family: "Font Awesome 5 Free";

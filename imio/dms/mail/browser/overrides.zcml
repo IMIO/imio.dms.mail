@@ -246,4 +246,28 @@
         />
     </unconfigure>
 
+    <unconfigure package="collective.iconifiedcategory" zcml:condition="installed collective.iconifiedcategory">
+        <browser:viewlet
+         name="iconifiedcategory.item.infos"
+         for="collective.iconifiedcategory.behaviors.iconifiedcategorization.IIconifiedCategorizationMarker"
+         manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+         layer="collective.iconifiedcategory.interfaces.ICollectiveIconifiedCategoryLayer"
+         class="collective.iconifiedcategory.browser.viewlets.CategorizedItemInfoViewlet"
+         template="browser/templates/categorized-item-info-viewlet.pt"
+         permission="zope2.View"
+        />
+    </unconfigure>
+
+    <configure package="collective.iconifiedcategory" zcml:condition="installed collective.iconifiedcategory">
+        <browser:viewlet
+            name="iconifiedcategory.item.infos"
+            for="collective.iconifiedcategory.behaviors.iconifiedcategorization.IIconifiedCategorizationMarker"
+            manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+            layer="collective.iconifiedcategory.interfaces.ICollectiveIconifiedCategoryLayer"
+            class="imio.dms.mail.browser.viewlets.DmsCategorizedItemInfoViewlet"
+            template="browser/templates/categorized-item-info-viewlet.pt"
+            permission="zope2.View"
+            />
+    </configure>
+
 </configure>
