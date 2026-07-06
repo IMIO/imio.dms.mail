@@ -1052,7 +1052,8 @@ body.template-imiodmsmail-settings .beware {
 }
 
 body.template-imiodmsmail-settings #form-widgets-imail_fields .cell-1,
-body.template-imiodmsmail-settings #form-widgets-omail_fields .cell-1 {
+body.template-imiodmsmail-settings #form-widgets-omail_fields .cell-1,
+body.template-imiodmsmail-settings #form-widgets-request_fields .cell-1 {
     width: 220px;
 }
 
@@ -1088,7 +1089,9 @@ body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-4 {
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-approvings"],
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-treating_groups"],
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-mail_types"],
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-send_modes"] {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-send_modes"],
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules span[id$="widgets-approvings"],
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules span[id$="widgets-treating_groups"] {
     border: 1px solid #ddd;
     padding: 4px;
     display: block;
@@ -1098,59 +1101,71 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="wi
     background: #f1f1f1;
 }*/
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-1 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-1,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-1 {
     width: 1%;
     white-space: nowrap;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-2 {
     width: 25%;
     /*max-width: 20%;*/
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 select {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 select,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-2 select {
     width: 100%;
     white-space: normal;
     word-wrap: break-word;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 select option {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 select option,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-2 select option {
     white-space: normal;
     word-wrap: break-word;
     /*padding: 2px 4px;*/
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.cell-3,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.cell-5 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.cell-5,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules td.cell-3,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules td.cell-5 {
     text-align: center;
+    width: 2%;
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3 label,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 label {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 label,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-3 label,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-5 label {
     display: none;
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-6,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-7,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-4 {
     width: 15%;
+}
+
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-6 {
+    width: 25%;
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4 label,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-6 label,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-7 label,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8 label {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8 label,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-4 label,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-6 label {
     white-space: normal;
     word-wrap: break-word;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 {
-    width: 2%;
-}
-
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-7 {
     width: 3%;
 }
 
@@ -1159,7 +1174,13 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9 inpu
     min-width: 15ch;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.datagridwidget-manipulator {
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-7 input {
+    width: 30ch;
+    min-width: 30ch;
+}
+
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.datagridwidget-manipulator,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules td.datagridwidget-manipulator {
     width: 16px;
     min-width: 16px;
 }
