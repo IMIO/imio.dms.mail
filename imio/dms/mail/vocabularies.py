@@ -445,6 +445,22 @@ class SigningApprovingsVocabulary(object):
     __call__ = SigningApprovingsVocabulary__call__
 
 
+class SigningRequestApprovingsVocabulary(object):
+    """Same as SigningApprovingsVocabulary but without the "_empty_" value."""
+
+    implements(IVocabularyFactory)
+
+    @ram.cache(voc_cache_key)
+    def SigningRequestApprovingsVocabulary__call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=u"_themself_", title=_("* Themself")),
+            ] + get_internal_held_positions_vocabulary(usages="approving", as_person=True)._terms
+        )
+
+    __call__ = SigningRequestApprovingsVocabulary__call__
+
+
 def encodeur_active_orgs(context):
     """This vocabulary source is used on the OM treating_groups field.
 

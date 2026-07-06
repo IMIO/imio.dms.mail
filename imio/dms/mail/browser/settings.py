@@ -300,6 +300,17 @@ def signing_signers_with_seal(context):
 
 
 @provider(IContextSourceBinder)
+def signing_request_signers(context):
+    """Return held positions vocabulary for signing request signers without "_empty_" value."""
+    terms = [
+        SimpleTerm(value=None, title=_("Choose a value !")),
+        SimpleTerm(value=u"_seal_", title=_("* Seal signature")),
+    ]
+    terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
+    return SimpleVocabulary(terms)
+
+
+@provider(IContextSourceBinder)
 def signing_signers_substitute(context):
     """Return held positions vocabulary for signer substitution (absent or substitute)."""
     terms = [
@@ -448,10 +459,36 @@ class ISignerRuleSchema(ISignerRuleBaseSchema):
 class IRequestSignerRuleSchema(ISignerRuleBaseSchema):
     """Routing schema of signing request signer rule (no mail_types / send_modes)."""
 
+    # a signing request always requires a signature: signer and approvings use vocabularies without
+    # the "_empty_" choice. These fields are redeclared here, so their column order is restored below.
+    signer = schema.Choice(
+        title=_(u"Signer"),
+        description=_(u"Related userid will be the signer. Position name of the held position will be used."),
+        source=signing_request_signers,
+        required=True,
+        default=None,
+    )
+
+    approvings = schema.List(
+        title=_(u"Approvings"),
+        description=_(u"User(s) that can approve the item before the signing session."),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningRequestApprovingsVocabulary"),
+        required=True,
+        constraint=validate_approvings,
+        min_length=1,
+    )
+    widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
+
     tal_condition = schema.TextLine(
         title=_("TAL condition"),
         required=False,
     )
+
+
+# keep the original column order despite redeclaring signer / approvings in the subclass
+# (the DataGridField orders columns by field.order, not by plone.autoform order directives)
+IRequestSignerRuleSchema["signer"].order = ISignerRuleBaseSchema["signer"].order
+IRequestSignerRuleSchema["approvings"].order = ISignerRuleBaseSchema["approvings"].order
 
 
 class ISignerSubstituteSchema(Interface):
@@ -961,6 +998,8 @@ class IImioDmsMailConfig(model.Schema):
             fieldset = "outgoingmail"
         elif "org_email_templates_encoder_can_edit" in data._Data_data___:
             fieldset = "outgoing_email"
+        elif "request_signer_rules" in data._Data_data___:
+            fieldset = "signrequest"
         elif "contact_group_encoder" in data._Data_data___:
             fieldset = "contact"
         elif "groups_hidden_in_dashboard_filter" in data._Data_data___:
@@ -1161,6 +1200,86 @@ class IImioDmsMailConfig(model.Schema):
                         )
                     )
                 omail_signer_conditions[condition] = i
+
+        # check request_signer_rules (same validation as omail_signer_rules, without mail_types / send_modes)
+        if fieldset == "signrequest" or not fieldset:
+            request_signer_conditions = {}
+            for i, rule in enumerate(data.request_signer_rules or [], start=1):
+                # a signing request is always an electronic signature request
+                if not rule["esign"]:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} must have electronic signature enabled.",
+                            mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
+                        )
+                    )
+                # check number
+                if rule["number"] == 0 and rule["signer"] != u"_seal_":
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} has a number 0 but a signer is set. With 0, it "
+                            u"can only be a seal or no signature.",
+                            mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
+                        )
+                    )
+                if rule["signer"] == u"_seal_" and rule["number"] != 0:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} has a seal signature but number is not 0. "
+                            u"With a seal, it can only be 0.",
+                            mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
+                        )
+                    )
+                # check signer
+                if rule["signer"] != u"_seal_":
+                    signer_person = uuidToObject(rule["signer"], unrestricted=True).get_person()
+                    if not signer_person:
+                        raise Invalid(
+                            _(
+                                u"${tab} tab: « ${field} », rule ${rule} has an invalid signer.",
+                                mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
+                            )
+                        )
+                    if not signer_person.userid:
+                        raise Invalid(
+                            _(
+                                u"${tab} tab: « ${field} », rule ${rule} has a signer without userid.",
+                                mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
+                            )
+                        )
+                # check approvings
+                if rule["esign"] and not rule["approvings"]:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} must have at least one approving if "
+                            u"electronic signature is enabled.",
+                            mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
+                        )
+                    )
+                validate_signer_approvings(rule, _(
+                    u"${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself.",
+                    mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
+                ))
+                # Check duplicate signers
+                signer_value = rule["signer"]
+                if signer_value != u"_seal_":
+                    signer_value = uuidToObject(rule["signer"], unrestricted=True).get_person()
+                condition = (
+                    signer_value,
+                    rule["esign"],
+                    tuple(rule["treating_groups"]),
+                    rule["tal_condition"],
+                )
+                if condition in request_signer_conditions:
+                    number = request_signer_conditions[condition]
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} applies same signer than rule ${number}.",
+                            mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i,
+                                     "number": number},
+                        )
+                    )
+                request_signer_conditions[condition] = i
 
         # check omail_signer_substitutes
         if fieldset == "outgoingmail" or not fieldset:

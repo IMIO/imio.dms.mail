@@ -1416,6 +1416,7 @@ def group_assignment(event):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
     invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
     invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
@@ -1445,6 +1446,7 @@ def group_unassignment(event):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
     invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
     invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
@@ -1507,6 +1509,7 @@ def held_position_modified(obj, event):
     if IPersonnelContact.providedBy(obj):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
         mod_attr = [
             at
             for at in getattr(event, "descriptions", [])
@@ -1523,6 +1526,7 @@ def held_position_removed(obj, event):
             return
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
 
 
 def mark_contact(contact, event):

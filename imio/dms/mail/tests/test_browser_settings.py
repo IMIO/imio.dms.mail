@@ -143,6 +143,84 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         ]}
         self.assertFalse(invariants.validate(data))
 
+    @staticmethod
+    def _omail_rule(**kw):
+        """Build a valid omail signer rule, overridable via kwargs."""
+        rule = {"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"], "esign": False,
+                "treating_groups": [], "mail_types": [], "send_modes": [], "tal_condition": None}
+        rule.update(kw)
+        return rule
+
+    @staticmethod
+    def _request_rule(**kw):
+        """Build a valid request signer rule, overridable via kwargs."""
+        rule = {"number": 1, "signer": u"_seal_", "editor": False, "approvings": [u"_empty_"], "esign": True,
+                "treating_groups": [], "tal_condition": None}
+        rule.update(kw)
+        return rule
+
+    def test_omail_signer_rules_validation(self):
+        """Check omail_signer_rules invariant validation."""
+        record_proxy = self.registry.forInterface(IImioDmsMailConfig)
+        invariants = validator.InvariantsValidator(record_proxy, None, None, IImioDmsMailConfig, None)
+        pf = self.portal["contacts"]["personnel-folder"]
+        signer = pf["dirg"]["directeur-general"].UID()
+
+        # a) valid rule with a real signer
+        self.assertFalse(invariants.validate({"omail_signer_rules": [self._omail_rule(signer=signer)]}))
+        # b) valid seal rule (number 0, seal signature)
+        self.assertFalse(invariants.validate({"omail_signer_rules": [self._omail_rule(number=0, signer=u"_seal_")]}))
+        # c) number 0 but a signer is set
+        errors = invariants.validate({"omail_signer_rules": [self._omail_rule(number=0, signer=signer)]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # d) seal signature but number is not 0
+        errors = invariants.validate({"omail_signer_rules": [self._omail_rule(number=1, signer=u"_seal_")]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # e) esign enabled but no valid approving
+        errors = invariants.validate({"omail_signer_rules": [
+            self._omail_rule(signer=signer, esign=True, approvings=[u"_empty_"])]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # f) two rules applying to the same signer
+        errors = invariants.validate({"omail_signer_rules": [
+            self._omail_rule(signer=signer), self._omail_rule(signer=signer)]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+
+    def test_request_signer_rules_validation(self):
+        """Check request_signer_rules invariant validation."""
+        record_proxy = self.registry.forInterface(IImioDmsMailConfig)
+        invariants = validator.InvariantsValidator(record_proxy, None, None, IImioDmsMailConfig, None)
+        pf = self.portal["contacts"]["personnel-folder"]
+        signer = pf["dirg"]["directeur-general"].UID()
+        approving = pf["bourgmestre"]["bourgmestre"].get_person().UID()
+
+        # a) valid rule with a real signer and approving
+        self.assertFalse(invariants.validate({"request_signer_rules": [
+            self._request_rule(signer=signer, approvings=[approving])]}))
+        # b) valid seal rule (number 0, seal signature)
+        self.assertFalse(invariants.validate({"request_signer_rules": [
+            self._request_rule(number=0, signer=u"_seal_", approvings=[approving])]}))
+        # c) electronic signature is mandatory for a signing request
+        errors = invariants.validate({"request_signer_rules": [
+            self._request_rule(signer=signer, approvings=[approving], esign=False)]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # d) number 0 but a signer is set
+        errors = invariants.validate({"request_signer_rules": [
+            self._request_rule(number=0, signer=signer, approvings=[approving])]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # e) seal signature but number is not 0
+        errors = invariants.validate({"request_signer_rules": [
+            self._request_rule(number=1, signer=u"_seal_", approvings=[approving])]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # f) esign enabled but no approving
+        errors = invariants.validate({"request_signer_rules": [
+            self._request_rule(signer=signer, approvings=[])]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # g) two rules applying to the same signer
+        errors = invariants.validate({"request_signer_rules": [
+            self._request_rule(signer=signer, approvings=[approving]),
+            self._request_rule(signer=signer, approvings=[approving])]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+
     def test_validate_settings2(self):
         """Check invariant"""
         record_proxy = self.registry.forInterface(IImioDmsMailConfig)

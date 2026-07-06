@@ -160,6 +160,11 @@
         />
 
     <utility
+        name="imio.dms.mail.SigningRequestApprovingsVocabulary"
+        factory="imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.SignRequestActiveOrgsVocabulary"
         factory="imio.dms.mail.vocabularies.SignRequestActiveOrgsVocabulary"
         />
