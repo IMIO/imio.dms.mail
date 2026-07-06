@@ -148,11 +148,26 @@
             class="imio.dms.mail.browser.actionspanel.DmsActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
-        <!-- common for dmsincomingmail and dmsoutgoingmail -->
         <browser:viewlet
             name="imio.actionspanel2"
-            for="collective.dms.basecontent.dmsdocument.IDmsDocument"
+            for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
             manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.DmsActionsPanelViewlet"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel2"
+            for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+            manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.DmsActionsPanelViewlet"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             class="imio.dms.mail.browser.actionspanel.DmsActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"
@@ -181,6 +196,7 @@
             class="imio.dms.mail.browser.actionspanel.ContactActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
+        <!-- views -->
         <browser:page
             for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
             name="actions_panel"
@@ -199,6 +215,13 @@
             for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
             name="signing_actions_panel"
             class="imio.dms.mail.browser.actionspanel.SigningFieldsetActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View" />
+        <browser:page
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            name="actions_panel"
+            class="imio.dms.mail.browser.actionspanel.DmsSignRequestActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View" />
