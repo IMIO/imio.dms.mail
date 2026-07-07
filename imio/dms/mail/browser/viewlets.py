@@ -9,6 +9,7 @@ from collective.messagesviewlet.message import PseudoMessage
 from collective.task.browser.viewlets import TaskParentViewlet
 from imio.dms.mail.browser.table import IMVersionsTable
 from imio.dms.mail.browser.table import OMVersionsTable
+from imio.dms.mail.browser.table import SignRequestVersionsTable
 from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.esign.browser.views import FacetedSessionInfoViewlet
@@ -85,6 +86,12 @@ class OMVersionsViewlet(VersionsViewlet):
 
     portal_type = "dmsommainfile"
     __table__ = OMVersionsTable
+
+
+class SignRequestVersionsViewlet(VersionsViewlet):
+
+    portal_type = "dmsappendixfile"
+    __table__ = SignRequestVersionsTable
 
 
 class PrettyLinkTitleViewlet(ViewletBase):

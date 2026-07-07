@@ -904,6 +904,14 @@
             template="browser/templates/versionsviewlet.pt"
             permission="zope2.View"
             />
+        <browser:viewlet
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            name="dms.files"
+            manager="collective.dms.basecontent.browser.viewlets.IDmsAboveContent"
+            class="imio.dms.mail.browser.viewlets.SignRequestVersionsViewlet"
+            template="browser/templates/versionsviewlet.pt"
+            permission="zope2.View"
+            />
     </configure>
 
     <unconfigure package="collective.dms.basecontent">

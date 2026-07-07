@@ -157,6 +157,12 @@ class IMVersionsTable(BaseVersionsTable):
     portal_types = ["dmsmainfile", "dmsappendixfile"]
 
 
+class SignRequestVersionsTable(BaseVersionsTable):
+    """Versions table for signing requests: they only contain appendix files."""
+
+    portal_types = ["dmsappendixfile"]
+
+
 class OMVersionsTable(BaseVersionsTable):
     """Versions table for outgoing mails with PDF child row indentation.
 
