@@ -71,7 +71,7 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                 do_transitions(req_folder, ["show_internally"])
                 logger.info("requests folder created")
                 order_1st_level(self.portal)
-            # signrequest
+            # signrequest settings
             if api.portal.get_registry_record(
                     "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats") is None:
                 api.portal.set_registry_record(
@@ -91,6 +91,16 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                         {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
                     ]
                 )
+            # change back confirmation message
+            key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
+            values = list(api.portal.get_registry_record(key, default=[]))
+            if values and "sign_request.back_to_creation|" not in values:
+                values.extend(["sign_request.back_to_creation|",
+                               "sign_request.back_to_approve|",
+                               "sign_request.back_to_be_signed|",
+                               "sign_request.back_to_signed|", ])
+                api.portal.set_registry_record(key, values)
+
             # corrected collections
             for col_id in ("searchfor_to_approve", "to_approve", "in_esign_sessions"):
                 col_folder = self.omf["mail-searches"].get(col_id)

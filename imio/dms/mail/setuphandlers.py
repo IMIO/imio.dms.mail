@@ -2721,6 +2721,10 @@ def configure_actions_panel(portal):
             "dmsoutgoingmail.back_to_be_signed|",
             "dmsoutgoingmail.back_to_signed|",
             "dmsoutgoingmail.back_to_scanned|",
+            "sign_request.back_to_creation|",
+            "sign_request.back_to_approve|",
+            "sign_request.back_to_be_signed|",
+            "sign_request.back_to_signed|",
         ]
 
 

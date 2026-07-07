@@ -180,8 +180,18 @@ class Migrate_To_3_1(Migrator):  # noqa
                 # change back confirmation message
                 key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
                 values = list(api.portal.get_registry_record(key, default=[]))
+                changes = False
                 if values and "dmsoutgoingmail.back_to_signed|" not in values:
                     values.append("dmsoutgoingmail.back_to_signed|")
+                    changes = True
+                if values and "sign_request.back_to_creation|" not in values:
+                    values.extend(["sign_request.back_to_creation|",
+                                   "sign_request.back_to_approve|",
+                                   "sign_request.back_to_be_signed|",
+                                   "sign_request.back_to_signed|",])
+
+                    changes = True
+                if changes:
                     api.portal.set_registry_record(key, values)
 
             # clean catalog
