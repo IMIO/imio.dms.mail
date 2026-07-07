@@ -11,7 +11,7 @@ from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.interfaces import IPersonnelContact
-from imio.dms.mail.utils import get_allowed_omf_content_types
+from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.cache import get_plone_groups_for_user
@@ -300,7 +300,7 @@ class ISigningBehavior(model.Schema):
                 if not afile.to_sign:
                     continue
                 mimetype = get_contenttype(afile.file)
-                if mimetype not in get_allowed_omf_content_types(esign=True):
+                if mimetype not in get_allowed_content_types(esign=True):
                     raise Invalid(
                         _(
                             "You cannot enable electronic signature because the file '${filename}' "

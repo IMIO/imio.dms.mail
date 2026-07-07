@@ -38,7 +38,7 @@ from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.utils import back_or_again_state
-from imio.dms.mail.utils import get_allowed_omf_content_types
+from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_post_approval_transition
 from imio.dms.mail.utils import get_scan_id
@@ -1864,7 +1864,7 @@ class ApprovalAdapter(object):
             )
 
         new_filename = u"{}.pdf".format(f_title)
-        if nbf.contentType not in get_allowed_omf_content_types(esign=True):
+        if nbf.contentType not in get_allowed_content_types(esign=True, portal_type=self.context.portal_type):
             raise NotImplementedError("Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType))
         gen_context = {}
         orig_template = get_original_template(orig_fobj)

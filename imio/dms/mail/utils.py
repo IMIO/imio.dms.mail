@@ -1656,10 +1656,11 @@ def update_approvers_settings():
         set_dms_config(["approvings"], approvings)
 
 
-def get_allowed_omf_content_types(esign=False):
-    """Get allowed outgoing mail file or e-signable content types.
+def get_allowed_content_types(esign=False, portal_type=None):
+    """Get allowed configured content types.
 
     :param esign: bool indicating if only esign content types must be returned
+    :param portal_type: portal_type owning the file.
     :return: list of content types
     """
     ct_by_type = {
@@ -1667,7 +1668,12 @@ def get_allowed_omf_content_types(esign=False):
         "odt": ("application/vnd.oasis.opendocument.text",),
         "doc": ("application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
     }
-    key = esign and "omail_esign_formats" or "omail_formats_mainfile"
+    if portal_type == "sign_request":
+        key = "request_esign_formats"
+    elif esign:
+        key = "omail_esign_formats"
+    else:
+        key = "omail_formats_mainfile"
     formats = api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig." + key)
     res = []
     for fmt in formats or []:
