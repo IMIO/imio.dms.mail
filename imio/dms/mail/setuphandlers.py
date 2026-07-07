@@ -617,8 +617,12 @@ def setup_iconified_categories(portal):
             group = ccc[oid]
         return group
 
-    activated = {
+    om_activated = {
         "to_be_printed_activated": True,
+        "signed_activated": True,
+        "approved_activated": True,
+    }
+    sr_activated = {
         "signed_activated": True,
         "approved_activated": True,
     }
@@ -633,10 +637,13 @@ def setup_iconified_categories(portal):
         "incoming_appendix_files", _("Incoming Appendix Files"))
     # Content Category Group for dms main files in outgoing mails
     outgoing_dms_files_category_group = _create_category_group(
-        "outgoing_dms_files", _("Outgoing DMS Files"), **activated)
+        "outgoing_dms_files", _("Outgoing DMS Files"), **om_activated)
     # Content Category Group for appendix files in outgoing mails
     outgoing_appendix_files_category_group = _create_category_group(
-        "outgoing_appendix_files", _("Outgoing Appendix Files"), **activated)
+        "outgoing_appendix_files", _("Outgoing Appendix Files"), **om_activated)
+    # Content Category Group for appendix files in sign requests
+    sr_appendix_files_category_group = _create_category_group(
+        "sign_request_appendix_files", _("Sign request Appendix Files"), **sr_activated)
 
     # Create ContentCategory objects inside each category group
     images_dir = pkg_resources.resource_filename('imio.dms.mail', 'profiles/examples/images')
@@ -673,6 +680,10 @@ def setup_iconified_categories(portal):
                      _("Outgoing Appendix File"), u"attach.png", to_sign=False, to_approve=False)
     _create_category(outgoing_appendix_files_category_group, "outgoing-signable-appendix-file",
                      _("Outgoing Signable Appendix File"), u"attach-esign.png", to_sign=True, to_approve=True)
+
+    # Content Categories for sign requests
+    _create_category(sr_appendix_files_category_group, "sign-request-appendix-file", _("Sign Request Appendix File"),
+                     u"attach.png", to_sign=True, to_approve=True)
 
 
 def createStateCollections(folder, content_type):

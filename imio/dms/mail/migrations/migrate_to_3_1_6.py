@@ -11,6 +11,7 @@ from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
 from imio.dms.mail.setuphandlers import createReqCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import order_1st_level
+from imio.dms.mail.setuphandlers import setup_iconified_categories
 from imio.helpers.setup import load_type_from_package
 from imio.helpers.setup import load_workflow_from_package
 from imio.helpers.workflow import do_transitions
@@ -100,6 +101,9 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                                "sign_request.back_to_be_signed|",
                                "sign_request.back_to_signed|", ])
                 api.portal.set_registry_record(key, values)
+
+            # sign request categories
+            setup_iconified_categories(self.portal)
 
             # corrected collections
             for col_id in ("searchfor_to_approve", "to_approve", "in_esign_sessions"):

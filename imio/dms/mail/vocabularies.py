@@ -841,6 +841,8 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
             elif (context_type == "dmsappendixfile" or url.endswith("dmsappendixfile")
                   or typeupload == 'dmsappendixfile'):
                 query["path"] = "{}/annexes_types/outgoing_appendix_files".format(portal_path)
+        elif {"sign_request"}.intersection({parent_type, context_type}):
+            query["path"] = "{}/annexes_types/sign_request_appendix_files".format(portal_path)
         elif {"ClassificationFolder", "ClassificationSubfolder", "annex"}.intersection({parent_type, context_type}):
             query["path"] = "{}/annexes_types/annexes".format(portal_path)
         else:
