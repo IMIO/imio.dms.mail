@@ -463,4 +463,4 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
 
         # === Other context → get all content categories ===
         tasks_folder = api.content.get(path="/tasks")
-        self.assertEqual(len(voc_inst(tasks_folder)), 11)
+        self.assertEqual(len(voc_inst(tasks_folder)), 12)

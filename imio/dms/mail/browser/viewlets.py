@@ -2,6 +2,8 @@
 from collective.contact.core.browser.address import get_address
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
+from collective.iconifiedcategory.interfaces import ICategorizedApproved
+from collective.iconifiedcategory.interfaces import ICategorizedSigned
 from collective.eeafaceted.batchactions.browser.viewlets import BatchActionsViewlet
 from collective.messagesviewlet.browser.messagesviewlet import GlobalMessagesViewlet
 from collective.messagesviewlet.message import generate_uid
@@ -24,6 +26,7 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zc.relation.interfaces import ICatalog
 from zope.component import getUtility
 from zope.i18n import translate
+from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
 
 
@@ -92,6 +95,11 @@ class SignRequestVersionsViewlet(VersionsViewlet):
 
     portal_type = "dmsappendixfile"
     __table__ = SignRequestVersionsTable
+
+    def _prepare_table_render(self):
+        # a signing request has no print flow, but files can be signed and approved
+        alsoProvides(self.table, ICategorizedSigned)
+        alsoProvides(self.table, ICategorizedApproved)
 
 
 class PrettyLinkTitleViewlet(ViewletBase):

@@ -221,6 +221,24 @@
     />
 
   <adapter
+    name="approved-column"
+    for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    provides="z3c.table.interfaces.IColumn"
+    factory=".browser.iconified_category.ApprovedColumn"
+    />
+
+  <adapter
+    name="signed-column"
+    for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    provides="z3c.table.interfaces.IColumn"
+    factory=".browser.iconified_category.SignRequestSignedColumn"
+    />
+
+  <adapter
         name="action-column"
         for="zope.interface.Interface
              zope.publisher.interfaces.browser.IBrowserRequest

@@ -234,6 +234,13 @@ class ApprovedChangeView(BaseApprovedChangeView):
 
 class SignedColumn(BaseSignedColumn):
 
+    # workflow states at or after "to_approve" (i.e. the "created" free-edit phase is over)
+    after_creation_states = ("to_approve", "to_print", "to_be_signed", "signed", "sent")
+    # states where the file can still be (un)marked as signed
+    mark_signed_states = ("to_be_signed", "signed")
+    # states where the icon must not be clickable anymore
+    disabled_url_states = ("to_approve", "signed", "sent")
+
     def __init__(self, context, request, table):
         super(SignedColumn, self).__init__(context, request, table)
         # self.context is the mail here
@@ -251,7 +258,7 @@ class SignedColumn(BaseSignedColumn):
         editable = allowed_type and self.is_editable(content) and " editable" or ""
         # when deactivated, anyone will see a grey icon
         # before to_approve
-        if av.p_state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+        if av.p_state not in self.after_creation_states:
             if self.is_deactivated(content):  # to_sign is False ?
                 if not editable or need_mailing_value(document=content.getObject()):
                     return " deactivated "
@@ -266,7 +273,7 @@ class SignedColumn(BaseSignedColumn):
             return " deactivated"
         else:  # state >= to_approve and to_sign is True
             base_css = self.is_active(content) and ' active' or ''  # signed is True ?
-            if av.p_state in ("to_be_signed", "signed"):
+            if av.p_state in self.mark_signed_states:
                 # we don't want to unset to_sign if to_approve is True
                 if editable and (not content.to_sign or not content.to_approve):
                     return '{0} editable'.format(base_css)
@@ -274,12 +281,19 @@ class SignedColumn(BaseSignedColumn):
 
     def get_url(self, content):
         av = self.get_action_view(content)
-        if av.p_state in ("to_approve", "signed", "sent"):
+        if av.p_state in self.disabled_url_states:
             return "#"
         return '{url}/@@{action}'.format(
             url=content.getURL(),
             action=self.get_action_view_name(content),
         )
+
+
+class SignRequestSignedColumn(SignedColumn):
+    """Signed column dedicated to signing requests (sign_request)."""
+
+    after_creation_states = ("to_approve", "to_be_signed", "signed", "closed")
+    disabled_url_states = ("to_approve", "signed", "closed")
 
 
 class SignedChangeView(BaseSignedChangeView):
