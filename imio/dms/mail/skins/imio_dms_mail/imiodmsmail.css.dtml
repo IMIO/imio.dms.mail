@@ -318,9 +318,9 @@ body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widget
 
 /* Display None */
 
-body.section-outgoing-mail .mail-searches-in_esign_sessions {
+/*body.section-outgoing-mail .mail-searches-in_esign_sessions {
     display: none;
-}
+}*/
 
 .template-facetednavigation_view .viewlet_workflowstate{
     display: none;

@@ -111,6 +111,21 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                 if col_folder is not None and col_folder.sort_on != u"created":
                     col_folder.sort_on = u"created"
 
+            # restrict the outgoing-mail in_esign_sessions collection to sign_request items
+            om_esign_col = self.omf["mail-searches"].get("in_esign_sessions")
+            if om_esign_col is not None:
+                query = list(om_esign_col.query)
+                if not any(dic.get("i") == "portal_type" for dic in query):
+                    query.insert(
+                        0,
+                        {
+                            "i": "portal_type",
+                            "o": "plone.app.querystring.operation.selection.is",
+                            "v": ["dmsoutgoingmail"],
+                        },
+                    )
+                    om_esign_col.query = query
+
         if self.is_in_part("g"):  # final steps
             # finished = True  # can be eventually returned and set by batched method
             if self.old_version != self.new_version:

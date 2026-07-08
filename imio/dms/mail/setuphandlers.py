@@ -1853,6 +1853,25 @@ def createReqCollections(folder):
             "rev": True,
             "count": False,
         },
+        {
+            "id": "in_esign_sessions",
+            "tit": _("req_in_sessions"),
+            "subj": (u"search",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
+                {
+                    "i": "CompoundCriterion",
+                    "o": "plone.app.querystring.operation.compound.is",
+                    "v": "files-belonging-to-a-given-session",
+                },
+            ],
+            "cond": u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
+            "bypass": ["Manager", "Site Administrator"],
+            "flds": flds,
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
     ]
     createDashboardCollections(folder, collections)
 

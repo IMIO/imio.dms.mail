@@ -1293,6 +1293,7 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                 id=col_id,
                 title=_("om_in_sessions"),
                 query=[
+                    {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                     {
                         "i": "CompoundCriterion",
                         "o": "plone.app.querystring.operation.compound.is",
