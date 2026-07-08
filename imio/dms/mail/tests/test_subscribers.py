@@ -1289,7 +1289,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         """Helper to create an outgoing mail with esign approval and files."""
         self.change_user("admin")
         self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
         )
         set_esign_registry_file_url("https://downloads.files.com")
         intids = getUtility(IIntIds)

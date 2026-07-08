@@ -163,7 +163,7 @@ class BaseTestWFAdaptations(unittest.TestCase):
 
         # --- esigned document, with approval ---
         self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
         )
         omail3 = sub_create(
             self.portal["outgoing-mail"],

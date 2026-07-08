@@ -93,24 +93,24 @@ def create_persons_from_users(portal, fn_first=True, functions=ALL_SERVICE_FUNCT
 # #############
 
 
-def activate_esigning(context):
-    """Activate approbation and esigning functionality for imio.dms.mail"""
-    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
-        return
-    logger.info("Activate signing functionality")
-    site = context.getSite()
+def install_and_configure_esign(site):
+    """Install and configure imio.esign.
 
-    site.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
-    # redo actions to add condition on installed actions
-    site.portal_setup.runImportStepFromProfile(
-        "profile-imio.dms.mail:default", "actions", run_dependencies=False
-    )
-    log = ["Installed imio.esign"]
-    load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # content category
-    load_type_from_package("PODTemplate", "profile-imio.dms.mail:default")  # views
-    load_type_from_package("SubTemplate", "profile-imio.dms.mail:default")  # views
-    # Changed permission after plone.restapi installation
-    site.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
+    :return: a list of log messages.
+    """
+    log = []
+    if not site.portal_quickinstaller.isProductInstalled("imio.esign"):
+        site.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
+        # redo actions to add condition on installed actions
+        site.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:default", "actions", run_dependencies=False
+        )
+        log.append("Installed imio.esign")
+        load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # content category
+        load_type_from_package("PODTemplate", "profile-imio.dms.mail:default")  # views
+        load_type_from_package("SubTemplate", "profile-imio.dms.mail:default")  # views
+        # Changed permission after plone.restapi installation
+        site.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
 
     # Configured imio.esign
     set_esign_registry_enabled(True)
@@ -129,6 +129,17 @@ def activate_esigning(context):
             set_esign_registry_file_url(u"https://documents.imio-egov.be/esign")
         else:
             set_esign_registry_file_url(u"https://documents.enwallonie.be/esign")
+    return log
+
+
+def activate_om_signing(context):
+    """Activate approbation and esigning functionality for imio.dms.mail"""
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info("Activate signing functionality")
+    site = context.getSite()
+
+    log = install_and_configure_esign(site)
 
     if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"):
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
@@ -176,7 +187,10 @@ def activate_sign_request(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
     logger.info("Activate sign request functionality")
-    log = []
+    site = context.getSite()
+
+    # install and configure imio.esign if not already done (signing requests rely on it)
+    log = install_and_configure_esign(site)
 
     # add "Demande Sign." plonegroup function (requester), used by signing requests
     functions = get_registry_functions()
@@ -946,7 +960,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     pf = site["contacts"]["personnel-folder"]
     if not site.portal_quickinstaller.isProductInstalled("imio.esign"):
         site.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
         )
         set_esign_registry_vat_number(u"BE0000000097")
         set_esign_registry_seal_code(u"PADES_SEAL")

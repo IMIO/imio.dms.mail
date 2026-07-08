@@ -581,7 +581,7 @@ def activate_group_encoder(self, typ="imail"):
 
 def activate_signing(self):
     self.portal_setup.runImportStepFromProfile(
-        "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+        "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
     )
 
 
