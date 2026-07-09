@@ -15,6 +15,11 @@
         />
 
     <utility
+        name="imio.dms.mail.FirstLevelTabsVocabulary"
+        factory="imio.dms.mail.vocabularies.FirstLevelTabsVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.OMReviewStatesVocabulary"
         factory="imio.dms.mail.vocabularies.OMReviewStatesVocabulary"
         />

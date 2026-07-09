@@ -26,6 +26,7 @@ from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.setuphandlers import update_task_workflow
+from imio.dms.mail.utils import add_remove_values_in_registry_list
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
@@ -191,6 +192,9 @@ def activate_sign_request(context):
 
     # install and configure imio.esign if not already done (signing requests rely on it)
     log = install_and_configure_esign(site)
+
+    # show tab
+    add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_add=("requests",))
 
     # add "Demande Sign." plonegroup function (requester), used by signing requests
     functions = get_registry_functions()
@@ -407,18 +411,11 @@ def manage_classification(context, active):
     """Activate or deactivate classification"""
     logger.info("Manage classification by {}activating related things".format(not active and "de-" or ""))
     site = context.getSite()
-    # handle navtree_properties
-    unlisted = list(site.portal_properties.navtree_properties.metaTypesNotToList)
-    update = False
-    for ptype in ("ClassificationFolders", "ClassificationContainer"):
-        if active and ptype in unlisted:
-            unlisted.remove(ptype)
-            update = True
-        elif not active and ptype not in unlisted:
-            unlisted.append(ptype)
-            update = True
-    if update:
-        site.portal_properties.navtree_properties.manage_changeProperties(metaTypesNotToList=unlisted)
+    # handle displayed tabs: folders (top nav) and tree (plus sub-menu) visibility
+    if active:
+        add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_add=("folders", "tree"))
+    else:
+        add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_remove=("folders", "tree"))
     # handle fields
     for rec in ("imail_fields", "omail_fields"):
         update = False

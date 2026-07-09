@@ -27,6 +27,8 @@ from dexterity.localroles.utils import fti_configuration
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 from imio.dms.mail import _tr as _
+from imio.dms.mail import DEFAULT_DISPLAYED_TABS
+from imio.dms.mail import FIRST_LEVEL_TABS
 # from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail.Extensions.demo import clean_examples
 # from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -109,8 +111,7 @@ def add_db_col_folder(folder, cid, title, displayed=""):
 
 def order_1st_level(site):
     """Order 1st level folders."""
-    ordered = ["incoming-mail", "outgoing-mail", "requests", "folders", "tasks", "plus", "contacts", "templates",
-               "tree"]
+    ordered = FIRST_LEVEL_TABS
     for i, oid in enumerate(ordered):
         site.moveObjectToPosition(oid, i)
 
@@ -297,6 +298,7 @@ def postInstall(context):
     if not base_hasattr(site, "requests"):
         folderid = site.invokeFactory("Folder", id="requests", title=_(u"requests_tab"))
         req_folder = getattr(site, folderid)
+        req_folder.setExcludeFromNav(True)
         alsoProvides(req_folder, INextPrevNotNavigable)
         alsoProvides(req_folder, ILabelRoot)
         # alsoProvides(req_folder, ICountableTab)
@@ -540,6 +542,9 @@ def postInstall(context):
     set_portlet(site)
 
     order_1st_level(site)
+
+    # seed the displayed tabs setting from the current site state
+    api.portal.set_registry_record("imio.dms.mail.displayed_tabs", DEFAULT_DISPLAYED_TABS)
 
     # add usefull methods
     try:

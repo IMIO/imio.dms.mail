@@ -15,6 +15,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
+from imio.dms.mail import TOP_NAV_TABS
 from imio.dms.mail.browser.widgets import ExpandableDataGridFieldFactory
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
@@ -1578,6 +1579,25 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName == "omail_folder_period" and event.newValue is not None:
         portal = api.portal.get()
         setattr(portal[MAIN_FOLDERS["dmsoutgoingmail"]], "folder_period", event.newValue)
+    if event.record.fieldName == "displayed_tabs":
+        portal = api.portal.get()
+        selected = api.portal.get_registry_record("imio.dms.mail.displayed_tabs", default=[]) or []
+        for tab_id in TOP_NAV_TABS:
+            folder = portal.get(tab_id)
+            if folder is None:
+                continue
+            exclude = tab_id not in selected
+            # exclude_from_nav is an AT accessor method (not an attribute): read
+            # with the accessor, write with the mutator to keep field and catalog in sync.
+            current = folder.exclude_from_nav
+            if callable(current):  # Archetypes
+                current = current()
+            if bool(current) != exclude:
+                if hasattr(folder, "setExcludeFromNav"):  # Archetypes mutator
+                    folder.setExcludeFromNav(exclude)
+                else:  # Dexterity: plain attribute
+                    folder.exclude_from_nav = exclude
+                folder.reindexObject(idxs=["exclude_from_nav"])
 
 
 def default_creating_group(user=None):
@@ -1804,4 +1824,11 @@ class IImioDmsMailConfig2(Interface):
 
     product_version = schema.TextLine(
         title=_(u"Current product version"),
+    )
+
+    displayed_tabs = schema.List(
+        title=_(u"Displayed first level tabs"),
+        description=_(u"Select tabs to show in navigation."),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.FirstLevelTabsVocabulary"),
+        required=False,
     )

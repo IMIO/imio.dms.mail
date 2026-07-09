@@ -11,11 +11,17 @@ from eea.facetednavigation.criteria.interfaces import ICriteria
 from imio.dms.mail import _tr
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import DEFAULT_DISPLAYED_TABS
+from imio.dms.mail import FIRST_LEVEL_TABS
+from imio.dms.mail import TOP_NAV_TABS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.views import ImioCatalogNavigationTabs
+from imio.dms.mail.browser.views import PlusPortaltabContent
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.Extensions.demo import activate_group_encoder
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import add_remove_values_in_registry_list
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.app.testing import logout
@@ -324,6 +330,71 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 3)
         self.registry[key] = True
         self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 4)
+
+    def test_add_remove_values_in_registry_list(self):
+        """add_remove_values_in_registry_list adds/removes values idempotently"""
+        key = "imio.dms.mail.displayed_tabs"
+        api.portal.set_registry_record(key, [u"incoming-mail", u"outgoing-mail"])
+        # add a new value
+        self.assertTrue(add_remove_values_in_registry_list(key, to_add=(u"requests",)))
+        self.assertIn(u"requests", api.portal.get_registry_record(key))
+        # adding an already present value does nothing
+        self.assertFalse(add_remove_values_in_registry_list(key, to_add=(u"requests",)))
+        # remove a value
+        self.assertTrue(add_remove_values_in_registry_list(key, to_remove=(u"outgoing-mail",)))
+        self.assertNotIn(u"outgoing-mail", api.portal.get_registry_record(key))
+        # removing an absent value does nothing
+        self.assertFalse(add_remove_values_in_registry_list(key, to_remove=(u"outgoing-mail",)))
+
+    def test_displayed_tabs_setting_changed(self):
+        """Changing displayed_tabs toggles exclude_from_nav on top nav tabs"""
+        key = "imio.dms.mail.displayed_tabs"
+        tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
+        self.assertListEqual([t["id"] for t in tabs if t["id"] != "index_html"], TOP_NAV_TABS)
+        self.assertTrue(self.portal["requests"].getExcludeFromNav())
+        all_tabs = FIRST_LEVEL_TABS
+        api.portal.set_registry_record(key, all_tabs)
+        self.assertFalse(self.portal["requests"].getExcludeFromNav())
+        tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
+        self.assertIn("requests", [t["id"] for t in tabs])
+        # hide requests again
+        api.portal.set_registry_record(key, DEFAULT_DISPLAYED_TABS)
+        self.assertTrue(self.portal["requests"].getExcludeFromNav())
+        tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
+        self.assertNotIn("requests", [t["id"] for t in tabs])
+        self.assertIn("incoming-mail", [t["id"] for t in tabs])
+
+    def test_displayed_tabs_plus_submenu(self):
+        """The plus sub-menu shows managed items per displayed_tabs"""
+        key = "imio.dms.mail.displayed_tabs"
+        all_tabs = FIRST_LEVEL_TABS
+        api.portal.set_registry_record(key, all_tabs)
+        tabs = PlusPortaltabContent(self.portal, self.portal.REQUEST).get_tabs()
+        urls = [url for _, url in tabs]
+        self.assertTrue(any(u.endswith("/tree") for u in urls))
+        self.assertTrue(any(u.endswith("/annexes_types") for u in urls))
+        # hide tree
+        api.portal.set_registry_record(key, [t for t in all_tabs if t != u"tree"])
+        tabs = PlusPortaltabContent(self.portal, self.portal.REQUEST).get_tabs()
+        urls = [url for _, url in tabs]
+        self.assertFalse(any(u.endswith("/tree") for u in urls))
+        self.assertTrue(any(u.endswith("/annexes_types") for u in urls))
+
+    def test_manage_classification_tabs(self):
+        """Classification singles steps drive folders/tree via displayed_tabs"""
+        key = "imio.dms.mail.displayed_tabs"
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-deactivate_classification", run_dependencies=False)
+        displayed = api.portal.get_registry_record(key) or []
+        self.assertNotIn(u"folders", displayed)
+        self.assertNotIn(u"tree", displayed)
+        self.assertTrue(self.portal["folders"].exclude_from_nav)
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate_classification", run_dependencies=False)
+        displayed = api.portal.get_registry_record(key) or []
+        self.assertIn(u"folders", displayed)
+        self.assertIn(u"tree", displayed)
+        self.assertFalse(self.portal["folders"].exclude_from_nav)
 
     def test_default_creating_group(self):
         self.change_user("agent")

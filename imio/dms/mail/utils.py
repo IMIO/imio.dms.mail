@@ -120,6 +120,26 @@ dms_config
 """
 
 
+def add_remove_values_in_registry_list(record_name, to_add=(), to_remove=()):
+    """Add and/or remove values in a registry list record.
+
+    Return True if the record was modified.
+    """
+    values = list(api.portal.get_registry_record(record_name, default=[]) or [])
+    changed = False
+    for value in to_add:
+        if value not in values:
+            values.append(value)
+            changed = True
+    for value in to_remove:
+        if value in values:
+            values.remove(value)
+            changed = True
+    if changed:
+        api.portal.set_registry_record(record_name, values)
+    return changed
+
+
 def set_dms_config(keys=None, value="list", force=True):
     """
     Set initial value in 'imio.dms.mail' portal annotation.

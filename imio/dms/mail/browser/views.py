@@ -7,11 +7,12 @@ from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
+from imio.dms.mail import PLUS_MENU_TABS
 from imio.dms.mail import PMH_ENABLED
+from imio.dms.mail.adapters import approval_adapter
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
-from imio.dms.mail.adapters import approval_adapter
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -468,15 +469,15 @@ class PlusPortaltabContent(BrowserView):
         self.context = context
         self.request = request
         self.portal = api.portal.get()
-        self.excluded_types = self.portal.portal_properties.navtree_properties.metaTypesNotToList
 
     def get_tabs(self):
+        displayed = api.portal.get_registry_record("imio.dms.mail.displayed_tabs", default=[]) or []
         res = self.portal.portal_catalog(
-            id=("contacts", "templates", "tree", "annexes_types"),
+            id=PLUS_MENU_TABS,
             path={"query": "/".join(self.portal.getPhysicalPath()), "depth": 1},
             sort_on="getObjPositionInParent",
         )
-        return [(b.Title, b.getURL()) for b in res if b.portal_type not in self.excluded_types]
+        return [(b.Title, b.getURL()) for b in res if b.getId in displayed]
 
 
 class DmsMailRestClientView(BrowserView):

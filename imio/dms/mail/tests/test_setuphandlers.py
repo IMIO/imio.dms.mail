@@ -26,8 +26,9 @@ class TestSetuphandlers(unittest.TestCase):
         col_folder = req_folder["requests-searches"]
         self.assertEqual(
             [c.getId() for c in col_folder.listFolderContents()],
-            ["all_requests", "to_approve", "to_treat", "in_my_group", "in_copy", "searchfor_created",
-             "searchfor_to_approve", "searchfor_to_be_signed", "searchfor_signed", "searchfor_closed"],
+            ["all_requests", "to_approve", "to_treat", "in_my_group", "in_copy", "in_esign_sessions",
+             "searchfor_created", "searchfor_to_approve", "searchfor_to_be_signed", "searchfor_signed",
+             "searchfor_closed"],
         )
 
     def test_adaptDefaultPortal(self):

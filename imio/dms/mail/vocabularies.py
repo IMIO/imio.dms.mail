@@ -17,6 +17,7 @@ from imio.dms.mail import _tr
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import FIRST_LEVEL_TABS
 from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import get_context_with_request
@@ -103,6 +104,21 @@ class TaskReviewStatesVocabulary(object):
                     st_id, st_id, translate(safe_unicode(st_tit), domain="plone", context=context.REQUEST)
                 )
             )
+        return SimpleVocabulary(terms)
+
+
+class FirstLevelTabsVocabulary(object):
+    """First level tabs vocabulary (used to configure displayed tabs)"""
+
+    implements(IVocabularyFactory)
+
+    def __call__(self, context):
+        portal = api.portal.get()
+        terms = []
+        for tab_id in FIRST_LEVEL_TABS:
+            folder = portal.get(tab_id)
+            title = folder is not None and safe_unicode(folder.Title()) or safe_unicode(tab_id)
+            terms.append(SimpleVocabulary.createTerm(tab_id, tab_id, title))
         return SimpleVocabulary(terms)
 
 
