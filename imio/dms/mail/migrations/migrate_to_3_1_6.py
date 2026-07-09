@@ -51,6 +51,7 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
 
                 folderid = self.portal.invokeFactory("Folder", id="requests", title=_(u"requests_tab"))
                 req_folder = getattr(self.portal, folderid)
+                req_folder.setExcludeFromNav(True)
                 alsoProvides(req_folder, INextPrevNotNavigable)
                 alsoProvides(req_folder, ILabelRoot)
                 # alsoProvides(req_folder, ICountableTab)
