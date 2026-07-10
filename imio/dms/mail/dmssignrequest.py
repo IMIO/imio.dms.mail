@@ -235,6 +235,11 @@ class SignRequestView(DmsDocumentView):
         super(SignRequestView, self).updateFieldsFromSchemata()
         manage_fields(self, "request_fields", "view")
 
+    def legend_extra(self, group):
+        if group.__name__ == 'signing':
+            return self.context.restrictedTraverse('@@signing_actions_panel')()
+        return u""
+
 
 ###################################################################
 # internal_reference_no auto-numbering (same mechanism as outgoing mail)

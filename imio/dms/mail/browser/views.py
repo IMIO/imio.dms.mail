@@ -14,13 +14,12 @@ from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
-from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
 from imio.esign.browser.actions import RemoveItemFromSessionView
-from imio.esign.browser.actions import SessionAnnotationInfoView
+from imio.esign.browser.actions import SessionAnnotationInfoView as BaseSessionAnnotationInfoView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.config import get_esign_registry_enabled
@@ -677,15 +676,15 @@ class ImioCatalogNavigationTabs(CatalogNavigationTabs):
         return result
 
 
-class OMSessionAnnotationInfoView(SessionAnnotationInfoView):
-    """Admin-only view displaying idm.approval and imio.esign session annotations for an outgoing mail."""
+class SessionAnnotationInfoView(BaseSessionAnnotationInfoView):
+    """Admin-only view displaying approval and imio.esign session annotations for an outgoing mail or sign request."""
 
     index = ViewPageTemplateFile("templates/session_annotation_info.pt")
 
     @property
     def approval_annot_html(self):
         """Renders approval annot in HTML"""
-        approval = IOMApproval(self.context)
+        approval = approval_adapter(self.context)
         native = persistent_to_native(approval.annot)
         return self._render_value(native)
 

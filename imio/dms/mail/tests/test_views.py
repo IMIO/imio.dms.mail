@@ -8,7 +8,7 @@ from datetime import datetime
 from HTMLParser import HTMLParser
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
-from imio.dms.mail.browser.views import OMSessionAnnotationInfoView
+from imio.dms.mail.browser.views import SessionAnnotationInfoView
 from imio.dms.mail.browser.views import parse_query
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.testing import change_user
@@ -317,8 +317,8 @@ class TestRenderEmailSignature(unittest.TestCase):
         self.assertIn(u">5032 Isnes<", rendered)
 
 
-class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
-    """Test OMSessionAnnotationInfoView"""
+class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
+    """Test SessionAnnotationInfoView"""
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
@@ -326,7 +326,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         self.portal = self.layer["portal"]
         change_user(self.portal)
         self.om1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
-        self.view = OMSessionAnnotationInfoView(self.om1, self.portal.REQUEST)
+        self.view = SessionAnnotationInfoView(self.om1, self.portal.REQUEST)
         self.pf = self.portal["contacts"]["personnel-folder"]
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
 
@@ -401,7 +401,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         omail, files, approval = self._setup_esign_omail()
         self._approve_all_files(omail, files, approval)
 
-        view = OMSessionAnnotationInfoView(omail, self.portal.REQUEST)
+        view = SessionAnnotationInfoView(omail, self.portal.REQUEST)
 
         # approval annot html
         self.assertEqual(

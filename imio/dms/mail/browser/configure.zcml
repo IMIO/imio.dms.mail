@@ -77,7 +77,15 @@
     <browser:page
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         name="session-annotation-info"
-        class=".views.OMSessionAnnotationInfoView"
+        class=".views.SessionAnnotationInfoView"
+        permission="cmf.ManagePortal"
+        allowed_attributes="available"
+        />
+
+    <browser:page
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+        name="session-annotation-info"
+        class=".views.SessionAnnotationInfoView"
         permission="cmf.ManagePortal"
         allowed_attributes="available"
         />
@@ -222,6 +230,13 @@
             for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
             name="actions_panel"
             class="imio.dms.mail.browser.actionspanel.DmsSignRequestActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View" />
+        <browser:page
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            name="signing_actions_panel"
+            class="imio.dms.mail.browser.actionspanel.SigningFieldsetActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View" />
