@@ -18,6 +18,7 @@ from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import dv_clean
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
+from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import group_has_user
@@ -94,6 +95,19 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(KeyError, get_dms_config, ["c"])
         self.assertIsNone(get_dms_config(["c"], missing_key_handling=True))
         self.assertDictEqual(get_dms_config(["c"], missing_key_handling=True, missing_key_value={}), {})
+
+    def test_list_wf_states_sign_request(self):
+        states = [state for state, title in list_wf_states(self.portal, "sign_request")]
+        self.assertEqual(states, ["created", "to_approve", "to_be_signed", "signed", "closed"])
+
+    def test_get_allowed_content_types_sign_request(self):
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats", ["odt", "pdf"]
+        )
+        self.assertEqual(
+            get_allowed_content_types(portal_type="sign_request"),
+            ["application/vnd.oasis.opendocument.text", "application/pdf"],
+        )
 
     def test_ensure_set_field(self):
         now1 = datetime.now()

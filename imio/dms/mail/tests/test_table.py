@@ -11,6 +11,7 @@ from imio.dms.mail.browser.table import IMVersionsTitleColumn
 from imio.dms.mail.browser.views import ApprovalTableView
 from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import change_user
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
@@ -78,6 +79,29 @@ class TestTable(unittest.TestCase):
         task = createContentInContainer(imail, "task", id="testid1", assigned_group=group0)
         col = AssignedGroupColumn(self.portal, self.portal.REQUEST, None)
         self.assertEqual(col.renderCell(task).encode("utf8"), "Direction générale")
+
+    def test_ApprovalTable_sign_request(self):
+        # sign_request with two signers (dirg, bourgmestre) and two appendix files to approve
+        request, files = create_sign_request(self.portal, oid="sr-table", nb_files=2)
+        view = ApprovalTableView(request, request.REQUEST)
+        view.update()
+        table = view.table
+        # filename column + one column per signer
+        self.assertEqual(len(table.columns), 3)
+        self.assertEqual(table.values, files)
+        self.assertEqual(table.columns[1].userid, "dirg")
+        self.assertEqual(table.columns[2].userid, "bourgmestre")
+        # unchecked then checked after approval
+        self.assertEqual(
+            table.columns[1].renderCell(files[0]),
+            u'<input type="checkbox" name="approvals.%s.dirg"  />' % files[0].UID(),
+        )
+        api.content.transition(obj=request, transition="propose_to_approve")
+        table.approval.approve_file(files[0], "dirg")
+        self.assertEqual(
+            table.columns[1].renderCell(files[0]),
+            u'<input type="checkbox" name="approvals.%s.dirg" checked="checked" />' % files[0].UID(),
+        )
 
     def test_ApprovalTable(self):
         activate_signing(self.portal)

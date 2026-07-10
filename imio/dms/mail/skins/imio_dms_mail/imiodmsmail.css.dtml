@@ -61,10 +61,12 @@ body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBe
     text-align: center;
 }
 
-body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option {
+body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option,
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option {
     font-size: 0;
 }
-body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option::before {
+body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option::before,
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option::before {
     content: "✔️";
     font-size: 12px;
     font-weight: bold;

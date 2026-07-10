@@ -11,7 +11,9 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.browser.views import SessionAnnotationInfoView
 from imio.dms.mail.browser.views import parse_query
 from imio.dms.mail.interfaces import IOMApproval
+from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.testing import change_user
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
@@ -555,6 +557,31 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
                                   + "/modele-de-base-s0010-courrier-test-esign.pdf").file.size,
             ),
         )
+
+    def _setup_esign_sign_request(self):
+        """Create an esign sign_request with one file (the view is also registered for sign_request)."""
+        login(self.layer["app"], "admin")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-sign-request", run_dependencies=False
+        )
+        set_esign_registry_file_url("https://downloads.files.com")
+        return create_sign_request(self.portal, oid="sr-esign", nb_files=1, esign=True)
+
+    def test_sign_request_annot_html(self):
+        request, files = self._setup_esign_sign_request()
+        pw = self.portal.portal_workflow
+        pw.doActionFor(request, "propose_to_approve")
+        approval = ISignRequestApproval(request)
+        for userid in ("dirg", "bourgmestre"):
+            approval.approve_file(files[0], userid, transition="propose_to_be_signed")
+
+        view = SessionAnnotationInfoView(request, self.portal.REQUEST)
+        # approval annotation rendered as HTML
+        html = view.approval_annot_html
+        self.assertIn("approved_by", html)
+        self.assertIn("dirg", html)
+        # esign session created for the request
+        self.assertEqual(len(view.esign_sessions), 1)
 
 
 class TestObjectRenameTitleView(unittest.TestCase):

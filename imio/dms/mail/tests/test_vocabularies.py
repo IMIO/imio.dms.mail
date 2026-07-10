@@ -9,6 +9,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.browser.settings import configure_group_encoder
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import ensure_demand_sign
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
 from imio.dms.mail.vocabularies import AssignedUsersForFacetedFilterVocabulary
@@ -24,6 +25,7 @@ from imio.dms.mail.vocabularies import OMActiveSenderVocabulary
 from imio.dms.mail.vocabularies import OMMailTypesVocabulary
 from imio.dms.mail.vocabularies import OMSenderVocabulary
 from imio.dms.mail.vocabularies import PloneGroupInterfacesVocabulary
+from imio.dms.mail.vocabularies import signrequest_active_orgs
 from imio.dms.mail.vocabularies import TaskReviewStatesVocabulary
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
@@ -303,6 +305,39 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             [t.title for t in encodeur_active_orgs(self.omail)],
             [t for i, t in enumerate(all_titles) if i not in (0, 4, 7)],
         )
+
+    def test_SignRequestActiveOrgsVocabulary(self):
+        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.SignRequestActiveOrgsVocabulary")
+        # no organization has a demand_sign member yet (invalidate the ram cache first)
+        invalidate_cachekey_volatile_for("_users_groups_value")
+        self.assertEqual(len(factory(self.portal)), 0)
+        # register the demand_sign function and add a member to the first organization
+        org_uid = get_registry_organizations()[0]
+        ensure_demand_sign(self.portal, org_uid, userids=("chef",))
+        invalidate_cachekey_volatile_for("_users_groups_value")
+        self.assertEqual([t.value for t in factory(self.portal)], [org_uid])
+
+    def test_SigningRequestApprovingsVocabulary(self):
+        # a sign_request signer cannot skip validation: '_empty_' is not offered (unlike outgoing mail)
+        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.SigningRequestApprovingsVocabulary")
+        values = [t.value for t in factory(self.portal)]
+        self.assertIn(u"_themself_", values)
+        self.assertNotIn(u"_empty_", values)
+        om_factory = getUtility(IVocabularyFactory, u"imio.dms.mail.SigningApprovingsVocabulary")
+        self.assertIn(u"_empty_", [t.value for t in om_factory(self.portal)])
+
+    def test_signrequest_active_orgs(self):
+        org0 = get_registry_organizations()[0]
+        primary = get_person_from_userid("agent").primary_organization
+        ensure_demand_sign(self.portal, org0, userids=("agent",))
+        ensure_demand_sign(self.portal, primary, userids=("agent",))
+        invalidate_cachekey_volatile_for("_users_groups_value")
+        # admin: vocabulary returned unfiltered
+        self.change_user("admin")
+        self.assertIn(primary, [t.value for t in signrequest_active_orgs(self.portal)])
+        # normal user: primary organization moved first
+        self.change_user("agent")
+        self.assertEqual([t.value for t in signrequest_active_orgs(self.portal)][0], primary)
 
     def test_LabelsVocabulary(self):
         self.change_user("agent")

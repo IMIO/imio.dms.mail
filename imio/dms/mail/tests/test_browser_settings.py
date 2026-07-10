@@ -13,7 +13,6 @@ from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail import FIRST_LEVEL_TABS
-from imio.dms.mail import TOP_NAV_TABS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.views import ImioCatalogNavigationTabs
 from imio.dms.mail.browser.views import PlusPortaltabContent
@@ -350,7 +349,7 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         """Changing displayed_tabs toggles exclude_from_nav on top nav tabs"""
         key = "imio.dms.mail.displayed_tabs"
         tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
-        self.assertListEqual([t["id"] for t in tabs if t["id"] != "index_html"], TOP_NAV_TABS)
+        self.assertListEqual([t["id"] for t in tabs if t["id"] != "index_html"], DEFAULT_DISPLAYED_TABS)
         self.assertTrue(self.portal["requests"].getExcludeFromNav())
         all_tabs = FIRST_LEVEL_TABS
         api.portal.set_registry_record(key, all_tabs)

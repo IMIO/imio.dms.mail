@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.contact.plonegroup.config import set_registry_functions
+from collective.iconifiedcategory.utils import calculate_category_id
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.helpers.cache import setup_ram_cache
@@ -338,6 +341,57 @@ def create_groups(tc, nb, start=1):
 def change_user(portal, user="siteadmin"):
     logout()
     login(portal, user)
+
+
+def ensure_demand_sign(portal, org_uid, userids=("chef", "dirg")):
+    """Register the 'demand_sign' plonegroup function and add users to '<org_uid>_demand_sign'."""
+    functions = get_registry_functions()
+    if u"demand_sign" not in [fct["fct_id"] for fct in functions]:
+        functions.append(
+            {"fct_title": u"Demande Sign.", "fct_id": u"demand_sign", "fct_orgs": [],
+             "fct_management": False, "enabled": True}
+        )
+        set_registry_functions(functions)
+    for userid in userids:
+        portal.acl_users.source_groups.addPrincipalToGroup(userid, "%s_demand_sign" % org_uid)
+
+
+def create_sign_request(portal, oid="sr1", signers=None, nb_files=1, org_uid=None,
+                        assigned_user="chef", esign=False, title=u"Demande de signature test"):
+    """Create a sign_request in the 'requests' folder with optional signers and appendix files.
+
+    Returns a (request, files) tuple.
+    """
+    if org_uid is None:
+        org_uid = get_registry_organizations()[0]
+    ensure_demand_sign(portal, org_uid)
+    params = {
+        "title": title,
+        "treating_groups": org_uid,
+        "assigned_user": assigned_user,
+        "recipient_groups": [],
+        "signers": signers,
+        "esign": esign,
+    }
+    request = sub_create(portal["requests"], "sign_request", datetime.datetime.now(), oid, **params)
+    ct = portal["annexes_types"]["sign_request_appendix_files"]["sign-request-appendix-file"]
+    filename = u"3-degradation-voirie.odt"
+    filepath = "%s/batchimport/toprocess/requests/%s" % (imio.dms.mail.__path__[0], filename)
+    files = []
+    for i in range(nb_files):
+        with open(filepath, "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=filename)
+            files.append(
+                createContentInContainer(
+                    request,
+                    "dmsappendixfile",
+                    id="file%s" % i,
+                    scan_id="012999900000601",
+                    file=file_object,
+                    content_category=calculate_category_id(ct),
+                )
+            )
+    return request, files
 
 
 @timecall
