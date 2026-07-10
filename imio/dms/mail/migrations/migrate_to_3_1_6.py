@@ -77,8 +77,8 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                 order_1st_level(self.portal)
 
             # signrequest settings
-            if api.portal.get_registry_record(
-                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats") is None:
+            if not api.portal.get_registry_record(
+                    "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats"):
                 api.portal.set_registry_record(
                     "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats", ["odt", "pdf"])
             if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields"):

@@ -988,8 +988,10 @@ def configure_imio_dms_mail(context):
         ]
     if registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send") is None:
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send"] = False
-    if registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile") is None:
+    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile"] = ["odt"]
+    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"):
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"] = ["odt", "pdf"]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields"):
         fields = [
             "IDublinCore.title",
@@ -1080,7 +1082,7 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
         )
 
     # signrequest
-    if registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats") is None:
+    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats"] = ["odt", "pdf"]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields"):
         fields = [
