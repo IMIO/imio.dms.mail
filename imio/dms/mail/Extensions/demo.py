@@ -422,6 +422,16 @@ def clean_examples(self, doit="1"):
             api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
     if doit:
         registry["collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_number"] = 1
+    # Delete sign_request
+    brains = find(unrestricted=True, portal_type="sign_request")
+    for brain in brains:
+        log_list(out, "Deleting sign_request '%s'" % brain.getPath())
+        if doit:
+            api.content.delete(obj=brain._unrestrictedGetObject(), check_linkintegrity=False)
+    if doit:
+        srk = "collective.dms.mailcontent.browser.settings.IDmsMailConfig.signrequest_number"
+        if api.portal.get_registry_record(srk, default=None) is not None:
+            api.portal.set_registry_record(srk, 1)
     # Delete own personnel
     pf = portal["contacts"]["personnel-folder"]
     brains = find(unrestricted=True, context=pf, portal_type="person")

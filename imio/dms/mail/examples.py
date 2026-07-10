@@ -17,6 +17,7 @@ from DateTime.DateTime import DateTime
 from imio.dms.mail import _tr as _
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.dmssignrequest import internalReferenceSignRequestDefaultValue
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
@@ -530,6 +531,65 @@ def add_test_mails(context):
                     scan_id="%s2%s000000%02d" % (client_id[0:2], client_id[2:6], i),
                     content_category=calculate_category_id(site["annexes_types"]["outgoing_dms_files"]
                                                            ["outgoing-dms-file"]),
+                )
+
+
+def add_test_sign_requests(site):
+    """
+    Add french test data: signing requests.
+
+    This is not a standalone GenericSetup import step: it is called from the
+    'imiodmsmail-activate-sign-request' single step (see steps.activate_sign_request),
+    because the sign_request 'treating_groups' vocabulary only lists organizations
+    that have at least one user in their '<org_uid>_demand_sign' Plone group, and that
+    group only exists once the 'demand_sign' function has been added by that step.
+
+    It only does something when the demo users 'chef' and 'dirg' still exist.
+    """
+    users = (u"chef", u"dirg")
+    if not all(api.user.get(userid=userid) for userid in users):
+        logger.info("Nothing done: demo users %s do not all exist anymore", ", ".join(users))
+        return
+    logger.info("Adding test sign requests")
+
+    own_orga = site["contacts"]["plonegroup-organization"]
+    directions = [own_orga["direction-financiere"], own_orga["direction-generale"], own_orga["direction-technique"]]
+    for org in directions:
+        for userid in users:
+            site.acl_users.source_groups.addPrincipalToGroup(userid, "%s_demand_sign" % org.UID())
+
+    data = DummyView(site, site.REQUEST)
+
+    orgas_cycle = cycle([org.UID() for org in directions])
+    users_cycle = cycle(users)
+
+    filespath = "%s/batchimport/toprocess/requests" % PRODUCT_DIR
+    files = [safe_unicode(name) for name in os.listdir(filespath) if os.path.splitext(name)[1][1:] in ("odt", "pdf")]
+    files.sort()
+    files_cycle = cycle(files)
+
+    rfld = site["requests"]
+    for i in range(1, 4):
+        if not "demande%d" % i in rfld:
+            params = {
+                "title": "Demande de signature %d" % i,
+                "internal_reference_no": internalReferenceSignRequestDefaultValue(data),
+                "treating_groups": next(orgas_cycle),
+                "assigned_user": next(users_cycle),
+                "recipient_groups": [],
+            }
+            request = sub_create(rfld, "sign_request", datetime.datetime.now(), "demande%d" % i, **params)
+            filename = next(files_cycle)
+            with open(u"%s/%s" % (filespath, filename), "rb") as fo:
+                file_object = NamedBlobFile(fo.read(), filename=filename)
+                createContentInContainer(
+                    request,
+                    "dmsappendixfile",
+                    id="1",
+                    title="",
+                    file=file_object,
+                    content_category=calculate_category_id(site["annexes_types"]["sign_request_appendix_files"]
+                                                           ["sign-request-appendix-file"]),
                 )
 
 

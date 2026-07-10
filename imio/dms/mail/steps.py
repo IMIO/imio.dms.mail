@@ -22,6 +22,7 @@ from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.examples import add_test_sign_requests
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import list_templates
@@ -207,6 +208,9 @@ def activate_sign_request(context):
         )
         set_registry_functions(functions)
         log.append("Added 'demand_sign' function to plonegroup functions")
+
+    # add some test signing requests (only when the demo users still exist)
+    add_test_sign_requests(site)
 
     return "\n".join(log)
 
