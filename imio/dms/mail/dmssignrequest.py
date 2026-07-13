@@ -113,6 +113,11 @@ class ImioDmsSignRequest(DmsDocument):
     treating_groups = FieldProperty(IImioDmsSignRequest[u"treating_groups"])
     recipient_groups = FieldProperty(IImioDmsSignRequest[u"recipient_groups"])
 
+    def Title(self):
+        if self.internal_reference_no is None:
+            return self.title.encode("utf8")
+        return "%s - %s" % (self.internal_reference_no.encode("utf8"), self.title.encode("utf8"))
+
     def get_mainfiles(self):
         """A signing request only contains annexes, no main file."""
         return []
