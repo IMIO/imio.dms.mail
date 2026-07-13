@@ -1151,8 +1151,8 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
             "treating_groups",
             "ITask.assigned_user",
             "recipient_groups",
-            "ISigningBehavior.signers",
-            "ISigningBehavior.esign",
+            "ISignRequestSigningBehavior.signers",
+            "ISignRequestSigningBehavior.esign",
         ]
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields"] = [
             {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields

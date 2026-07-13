@@ -39,6 +39,7 @@ from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.dmsfile import ImioDmsFile
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -684,7 +685,7 @@ def sign_request_modified(request, event):
         signers_update = apply_request_signer_rules(request)
     # check if this is the signers field that is modified
     mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
-    if (signers_update or "ISigningBehavior.signers" in mod_attr) and request.signers:
+    if (signers_update or "ISignRequestSigningBehavior.signers" in mod_attr) and request.signers:
         request.signers.sort(key=itemgetter("number"))
         approval = SignRequestApprovalAdapter(request)
         try:
@@ -696,7 +697,8 @@ def sign_request_modified(request, event):
 def sign_request_added(request, event):
     """If the content is manually created, we call the modified event after creation to set signers."""
     if request.title:
-        zope.event.notify(ObjectModifiedEvent(request, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        zope.event.notify(ObjectModifiedEvent(
+            request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers")))
 
 
 def dv_handle_file_creation(obj, event):

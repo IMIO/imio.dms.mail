@@ -88,8 +88,8 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                     "treating_groups",
                     "ITask.assigned_user",
                     "recipient_groups",
-                    "ISigningBehavior.signers",
-                    "ISigningBehavior.esign",
+                    "ISignRequestSigningBehavior.signers",
+                    "ISignRequestSigningBehavior.esign",
                 ]
                 api.portal.set_registry_record(
                     "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields", [

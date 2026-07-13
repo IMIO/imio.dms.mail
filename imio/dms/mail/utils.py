@@ -1480,7 +1480,7 @@ def manage_fields(the_form, config_key, mode):
                 continue
             if field_name.startswith("email_"):
                 add(the_form, field, index=0, group="email")
-            elif field_name.startswith("ISigningBehavior."):
+            elif field_name.startswith(("ISigningBehavior.", "ISignRequestSigningBehavior.")):
                 add(the_form, field, index=0, group="signing")
             else:
                 add(the_form, field, index=0)

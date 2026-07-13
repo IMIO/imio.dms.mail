@@ -12,7 +12,7 @@ from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
-from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.subscribers import dmsoutgoingmail_transition
@@ -1666,7 +1666,7 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
         request, files = create_sign_request(self.portal, oid="sr-mod", nb_files=0)
         request.signers = [{"number": 1, "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
                             "approvings": [u"_themself_"], "editor": True}]
-        modified(request, Attributes(ISigningBehavior, "ISigningBehavior.signers"))
+        modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
         self.assertEqual(ISignRequestApproval(request).annot["approvers"], [["bourgmestre"]])
 
     def test_sign_request_modified_duplicate_email(self):
@@ -1679,7 +1679,7 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
              "approvings": [u"_themself_"], "editor": False},
         ]
         with self.assertRaises(Invalid):
-            modified(request, Attributes(ISigningBehavior, "ISigningBehavior.signers"))
+            modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
 
     def test_i_annex_added(self):
         request, files = create_sign_request(self.portal, oid="sr-annex", nb_files=0)

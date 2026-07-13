@@ -26,7 +26,7 @@
   <element value="plone.app.dexterity.behaviors.metadata.IBasic"/>
   <element value="plone.app.lockingbehavior.behaviors.ILocking"/>
   <element value="collective.task.behaviors.ITask"/>
-  <element value="imio.dms.mail.content.behaviors.ISigningBehavior"/>
+  <element value="imio.dms.mail.content.behaviors.ISignRequestSigningBehavior"/>
  </property>
  <property name="schema" />
  <!-- DO NOT use a model_source or it removes manually added fields while reapplying the profile -->

@@ -101,6 +101,14 @@ def signing_signers(context):
     return SimpleVocabulary(terms)
 
 
+@provider(IContextSourceBinder)
+def signing_request_signers(context):
+    """Like signing_signers but a signature is mandatory: no "_empty_" choice."""
+    terms = [SimpleTerm(value=None, title=_("Choose a value !"))]
+    terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
+    return SimpleVocabulary(terms)
+
+
 class ISignerSchema(Interface):
     """Schema for the table of signers in the DataGridField."""
 
@@ -321,6 +329,52 @@ class ISigningBehavior(model.Schema):
                             },
                         )
                     )
+
+
+class ISignRequestSignerSchema(ISignerSchema):
+    """Signer row for sign_request: a signature is mandatory, so no "_empty_" choice."""
+
+    signer = schema.Choice(
+        title=_(u"Signer"),
+        description=_(u"Related userid will be the signer. Position name of the held position will be used."),
+        source=signing_request_signers,
+        required=True,
+    )
+
+    approvings = schema.List(
+        title=_(u"Approvings"),
+        description=_(u"User(s) that can approve the item before the signing session."),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningRequestApprovingsVocabulary"),
+        required=True,
+        constraint=validate_approvings,
+        min_length=1,
+    )
+    form.widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+
+# keep original column order despite redeclaring the fields
+# (the DataGridField orders columns by field.order, not by plone.autoform order directives)
+ISignRequestSignerSchema["signer"].order = ISignerSchema["signer"].order
+ISignRequestSignerSchema["approvings"].order = ISignerSchema["approvings"].order
+
+
+@provider(IFormFieldProvider)
+class ISignRequestSigningBehavior(ISigningBehavior):
+    """Signing behavior for sign_request: mandatory signature (no "_empty_" for signer/approvings)."""
+
+    signers = schema.List(
+        title=_(u"Signers"),
+        description=_("List of users who have to sign this document"),
+        value_type=DictRow(title=_("Signer"), schema=ISignRequestSignerSchema),
+        required=False,
+        default=None,
+    )
+    form.widget(
+        "signers",
+        ExpandableDataGridFieldFactory,
+        allow_reorder=False,
+        auto_append=False,
+    )
 
 
 class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
