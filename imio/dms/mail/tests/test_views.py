@@ -8,8 +8,8 @@ from datetime import datetime
 from HTMLParser import HTMLParser
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
-from imio.dms.mail.browser.views import SessionAnnotationInfoView
 from imio.dms.mail.browser.views import parse_query
+from imio.dms.mail.browser.views import SessionAnnotationInfoView
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.testing import change_user
@@ -496,12 +496,15 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(esign_session[0], 0)
 
         # esign session html
+        # self.maxDiff = None
         self.assertEqual(
             HTMLParser().unescape(view.esign_session_html(esign_session[1])),
             u"""{{
   'acroform': True,
   'client_id': '0129999',
-  'discriminators': [],
+  'discriminators': [
+    'dmsoutgoingmail',
+  ],
   'files': [
     {{
       'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
@@ -543,7 +546,7 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
   ],
   'size': {size},
   'state': 'draft',
-  'title': u'[ia.docs] 012999900000',
+  'title': u'[ia.docs] Courrier sortant - 012999900000',
   'watchers': [],
 }}""".format(  # noqa E501
                 c_uid=omail.UID(),

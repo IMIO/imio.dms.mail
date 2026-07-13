@@ -23,6 +23,7 @@ from imio.esign.browser.actions import SessionAnnotationInfoView as BaseSessionA
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.config import get_esign_registry_enabled
+from imio.esign.utils import get_session_info
 from imio.esign.utils import persistent_to_native
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.content import richtextval
@@ -490,10 +491,19 @@ class DmsMailRestClientView(BrowserView):
 class ImioSessionsListingView(SessionsListingView):
 
     def get_dashboard_link(self, session):
-        collection_uid = api.portal.get()["outgoing-mail"]["mail-searches"]["in_esign_sessions"].UID()
-        return "{portal_url}/outgoing-mail/mail-searches#c3=20&b_start=0&c1={collection_uid}" \
+        portal = api.portal.get()
+        # a session now holds files of a single content type, stored in the session discriminators
+        discriminators = get_session_info(session["id"]).get("discriminators", ())
+        if "sign_request" in discriminators:
+            folder_id, searches_id = "requests", "requests-searches"
+        else:
+            folder_id, searches_id = "outgoing-mail", "mail-searches"
+        collection_uid = portal[folder_id][searches_id]["in_esign_sessions"].UID()
+        return "{portal_url}/{folder_id}/{searches_id}#c3=20&b_start=0&c1={collection_uid}" \
             "&esign_session_id={session_id}".format(
-                portal_url=api.portal.get().absolute_url(),
+                portal_url=portal.absolute_url(),
+                folder_id=folder_id,
+                searches_id=searches_id,
                 collection_uid=collection_uid,
                 session_id=session["id"],
             )

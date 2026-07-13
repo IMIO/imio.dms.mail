@@ -1461,9 +1461,9 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                                     pdf_file.UID()),
                             }
                         ],
-                        "discriminators": (),
+                        "discriminators": ("dmsoutgoingmail",),
                         "watchers": [],
-                        "title": u'[ia.docs] 012999900000',
+                        "title": u'[ia.docs] Courrier sortant - 012999900000',
                         "state": "draft",
                         "signers": [
                             {
@@ -1519,9 +1519,9 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                                     pdf_file.UID()),
                             }
                         ],
-                        "discriminators": (),
+                        "discriminators": ("dmsoutgoingmail",),
                         "watchers": [],
-                        "title": u'[ia.docs] 012999900000',
+                        "title": u'[ia.docs] Courrier sortant - 012999900000',
                         "state": "draft",
                         "signers": [
                             {

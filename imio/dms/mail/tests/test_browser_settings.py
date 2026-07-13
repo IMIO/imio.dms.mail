@@ -349,7 +349,8 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         """Changing displayed_tabs toggles exclude_from_nav on top nav tabs"""
         key = "imio.dms.mail.displayed_tabs"
         tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
-        self.assertListEqual([t["id"] for t in tabs if t["id"] != "index_html"], DEFAULT_DISPLAYED_TABS)
+        self.assertListEqual([t["id"] for t in tabs if t["id"] != "index_html"],
+                             ["incoming-mail", "outgoing-mail", "folders", "tasks", "plus"])
         self.assertTrue(self.portal["requests"].getExcludeFromNav())
         all_tabs = FIRST_LEVEL_TABS
         api.portal.set_registry_record(key, all_tabs)

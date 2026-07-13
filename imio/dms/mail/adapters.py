@@ -2004,8 +2004,14 @@ class ApprovalAdapter(object):
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
         pdf_session_ids = set()
+        type_label = translate(
+            api.portal.get_tool("portal_types")[self.context.portal_type].Title(),
+            domain="plone",
+            context=self.context.REQUEST,
+        )
         sessions_used = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
-                                             title=_("[ia.docs] {sign_id}"),
+                                             title=u"[ia.docs] {} - {{sign_id}}".format(type_label),
+                                             discriminators=(self.context.portal_type,),
                                              watchers=watcher_emails)
         for sid, _session in sessions_used:
             pdf_session_ids.add(sid)
