@@ -34,7 +34,8 @@
 
 .template-view.portaltype-dmsincomingmail #fieldset-versions,
 .template-view.portaltype-dmsoutgoingmail #fieldset-versions,
-.template-view.portaltype-dmsincoming_email #fieldset-versions {
+.template-view.portaltype-dmsincoming_email #fieldset-versions,
+.template-view.portaltype-sign_request #fieldset-versions {
     display:table-cell;
     min-width: 60%;
     max-width: 60%;
@@ -43,19 +44,24 @@
 
 .template-view.portaltype-dmsincomingmail #fields,
 .template-view.portaltype-dmsoutgoingmail #fields,
-.template-view.portaltype-dmsincoming_email #fields {
+.template-view.portaltype-dmsincoming_email #fields,
+.template-view.portaltype-sign_request #fields {
     display:table-cell;
     float:none !important;
 }
 
 body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table th:nth-child(1),
 body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(1),
-body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table th:nth-child(4) {
+body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table th:nth-child(4),
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers table th:nth-child(1),
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(1),
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers table th:nth-child(4) {
     width: 1%;
     white-space: nowrap;
 }
 
-body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) {
+body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4),
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) {
     width: 1%;
     white-space: nowrap;
     text-align: center;
@@ -72,7 +78,8 @@ body.template-view.portaltype-sign_request #formfield-form-widgets-ISigningBehav
     font-weight: bold;
 }
 
-body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-seal span.selected-option::before {
+body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-seal span.selected-option::before,
+body.template-view.portaltype-sign_request #form-widgets-ISigningBehavior-seal span.selected-option::before {
     content: "";
     display: inline-block;
     vertical-align: top;
@@ -84,7 +91,8 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-sea
     height: 16px;
 }
 
-body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esign span.selected-option::before {
+body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esign span.selected-option::before,
+body.template-view.portaltype-sign_request #form-widgets-ISigningBehavior-esign span.selected-option::before {
     content: "";
     display: inline-block;
     vertical-align: top;
@@ -108,44 +116,55 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 .template-view.portaltype-dmsoutgoingmail.read-mode #fieldset-versions,
 .template-view.portaltype-dmsincomingmail.read-mode #fieldset-versions,
 .template-view.portaltype-dmsincoming_email.read-mode #fieldset-versions,
+.template-view.portaltype-sign_request.read-mode #fieldset-versions,
 .template-view.portaltype-dmsoutgoingmail.read-mode div#DV-container,
 .template-view.portaltype-dmsincomingmail.read-mode div#DV-container,
-.template-view.portaltype-dmsincoming_email.read-mode div#DV-container {
+.template-view.portaltype-dmsincoming_email.read-mode div#DV-container,
+.template-view.portaltype-sign_request.read-mode div#DV-container {
     width: 100% !important;
     max-width: 100% !important;
 }
 
 .template-view.portaltype-dmsoutgoingmail.read-mode div#portal-column-content,
 .template-view.portaltype-dmsincomingmail.read-mode div#portal-column-content,
-.template-view.portaltype-dmsincoming_email.read-mode div#portal-column-content {
+.template-view.portaltype-dmsincoming_email.read-mode div#portal-column-content,
+.template-view.portaltype-sign_request.read-mode div#portal-column-content {
     margin-left: -100% !important;
     width: 100% !important;
 }
 
-.template-view.portaltype-dmsoutgoingmail.read-mode  #fields,
-.template-view.portaltype-dmsincomingmail.read-mode  #fields,
-.template-view.portaltype-dmsincoming_email.read-mode  #fields,
-.template-view.portaltype-dmsoutgoingmail.read-mode  #messagesviewlet,
-.template-view.portaltype-dmsincomingmail.read-mode  #messagesviewlet,
-.template-view.portaltype-dmsincoming_email.read-mode  #messagesviewlet,
-.template-view.portaltype-dmsoutgoingmail.read-mode  #content #plone-document-byline,
-.template-view.portaltype-dmsincomingmail.read-mode  #content #plone-document-byline,
-.template-view.portaltype-dmsincoming_email.read-mode  #content #plone-document-byline,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div.viewlet_workflowstate,
-.template-view.portaltype-dmsincomingmail.read-mode  div.viewlet_workflowstate,
-.template-view.portaltype-dmsincoming_email.read-mode  div.viewlet_workflowstate,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div#viewlet-below-content-body,
-.template-view.portaltype-dmsincomingmail.read-mode  div#viewlet-below-content-body,
-.template-view.portaltype-dmsincoming_email.read-mode  div#viewlet-below-content-body,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div#portal-column-one,
-.template-view.portaltype-dmsincomingmail.read-mode  div#portal-column-one,
-.template-view.portaltype-dmsincoming_email.read-mode  div#portal-column-one,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div#portal-breadcrumbs,
-.template-view.portaltype-dmsincomingmail.read-mode  div#portal-breadcrumbs,
-.template-view.portaltype-dmsincoming_email.read-mode  div#portal-breadcrumbs,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div.DV-fullscreen,
-.template-view.portaltype-dmsincomingmail.read-mode  div.DV-fullscreen,
-.template-view.portaltype-dmsincoming_email.read-mode  div.DV-fullscreen {
+.template-view.portaltype-dmsoutgoingmail.read-mode #fields,
+.template-view.portaltype-dmsincomingmail.read-mode #fields,
+.template-view.portaltype-dmsincoming_email.read-mode #fields,
+.template-view.portaltype-sign_request.read-mode #fields,
+.template-view.portaltype-dmsoutgoingmail.read-mode #messagesviewlet,
+.template-view.portaltype-dmsincomingmail.read-mode #messagesviewlet,
+.template-view.portaltype-dmsincoming_email.read-mode #messagesviewlet,
+.template-view.portaltype-sign_request.read-mode #messagesviewlet,
+.template-view.portaltype-dmsoutgoingmail.read-mode #content #plone-document-byline,
+.template-view.portaltype-dmsincomingmail.read-mode #content #plone-document-byline,
+.template-view.portaltype-dmsincoming_email.read-mode #content #plone-document-byline,
+.template-view.portaltype-sign_request.read-mode #content #plone-document-byline,
+.template-view.portaltype-dmsoutgoingmail.read-mode div.viewlet_workflowstate,
+.template-view.portaltype-dmsincomingmail.read-mode div.viewlet_workflowstate,
+.template-view.portaltype-dmsincoming_email.read-mode div.viewlet_workflowstate,
+.template-view.portaltype-sign_request.read-mode div.viewlet_workflowstate,
+.template-view.portaltype-dmsoutgoingmail.read-mode div#viewlet-below-content-body,
+.template-view.portaltype-dmsincomingmail.read-mode div#viewlet-below-content-body,
+.template-view.portaltype-dmsincoming_email.read-mode div#viewlet-below-content-body,
+.template-view.portaltype-sign_request.read-mode div#viewlet-below-content-body,
+.template-view.portaltype-dmsoutgoingmail.read-mode div#portal-column-one,
+.template-view.portaltype-dmsincomingmail.read-mode div#portal-column-one,
+.template-view.portaltype-dmsincoming_email.read-mode div#portal-column-one,
+.template-view.portaltype-sign_request.read-mode div#portal-column-one,
+.template-view.portaltype-dmsoutgoingmail.read-mode div#portal-breadcrumbs,
+.template-view.portaltype-dmsincomingmail.read-mode div#portal-breadcrumbs,
+.template-view.portaltype-dmsincoming_email.read-mode div#portal-breadcrumbs,
+.template-view.portaltype-sign_request.read-mode div#portal-breadcrumbs {
+.template-view.portaltype-dmsoutgoingmail.read-mode div.DV-fullscreen,
+.template-view.portaltype-dmsincomingmail.read-mode div.DV-fullscreen,
+.template-view.portaltype-dmsincoming_email.read-mode div.DV-fullscreen,
+.template-view.portaltype-sign_request.read-mode div.DV-fullscreen {
     display: none !important;
 }
 
@@ -254,7 +273,8 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
     display: None;
 }
 
-.template-dmsdocument-edit.portaltype-dmsoutgoingmail #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs  {
+.template-dmsdocument-edit.portaltype-dmsoutgoingmail #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs,
+.template-dmsdocument-edit.portaltype-sign_request #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs {
     display: block;
 }
 
@@ -279,7 +299,9 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 }
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
-body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"] {
+body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
+body.template-sign_request #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"] {
     border: 1px solid #ddd;
     padding: 4px;
     display: block;
@@ -289,28 +311,36 @@ body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers s
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4,
 body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
-body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 {
+body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers .cell-1,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers .cell-4,
+body.template-sign_request #formfield-form-widgets-ISigningBehavior-signers .cell-1,
+body.template-sign_request #formfield-form-widgets-ISigningBehavior-signers .cell-4 {
     width: 1%;
     white-space: nowrap;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2 {
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers .cell-2 {
     width: 55%;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2 select {
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2 select,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers .cell-2 select {
     width: 100%;
     white-space: normal;
     word-wrap: break-word;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3 {
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers .cell-3 {
     word-wrap: break-word;
     white-space: normal;
     width: 39%;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label {
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISigningBehavior-signers .cell-4 label {
     display: none;
 }
 
