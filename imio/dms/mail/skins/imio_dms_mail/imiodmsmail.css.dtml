@@ -351,9 +351,10 @@ body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-I
 
 /* Display None */
 
-/*body.section-outgoing-mail .mail-searches-in_esign_sessions {
+body.section-outgoing-mail .mail-searches-in_esign_sessions,
+body.section-requests .requests-searches-in_esign_sessions {
     display: none;
-}*/
+}
 
 .template-facetednavigation_view .viewlet_workflowstate{
     display: none;

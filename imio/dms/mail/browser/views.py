@@ -488,13 +488,18 @@ class DmsMailRestClientView(BrowserView):
         return u"<p>Fiche courrier liée: %s</p>" % object_link(self.context, target="_blank")
 
 
+def session_portal_type(session):
+    """Content type concerned by a session."""
+    discriminators = tuple(session.get("discriminators", ()))
+    return discriminators[0] if discriminators else "dmsoutgoingmail"
+
+
 class ImioSessionsListingView(SessionsListingView):
 
     def get_dashboard_link(self, session):
         portal = api.portal.get()
-        # a session now holds files of a single content type, stored in the session discriminators
-        discriminators = get_session_info(session["id"]).get("discriminators", ())
-        if "sign_request" in discriminators:
+        # a session holds files of a single content type: point to the matching dashboard
+        if session_portal_type(get_session_info(session["id"])) == "sign_request":
             folder_id, searches_id = "requests", "requests-searches"
         else:
             folder_id, searches_id = "outgoing-mail", "mail-searches"
@@ -507,6 +512,14 @@ class ImioSessionsListingView(SessionsListingView):
                 collection_uid=collection_uid,
                 session_id=session["id"],
             )
+
+    def get_sessions(self):
+        """Only list the sessions matching the dashboard type (set on the request by the viewlet)."""
+        sessions = super(ImioSessionsListingView, self).get_sessions()
+        portal_type = self.request.get("esign_portal_type", None)
+        if not portal_type:
+            return sessions
+        return [session for session in sessions if session_portal_type(session) == portal_type]
 
     def available(self):
         # check if esign is disabled
