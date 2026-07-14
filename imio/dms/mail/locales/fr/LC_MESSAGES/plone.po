@@ -109,7 +109,7 @@ msgstr "Rendre privé"
 
 #: profiles/default/workflows/internal_application_workflow/definition.xml
 msgid "Makes the folder visible internally."
-msgstr "Rend l'élement visible en interne."
+msgstr "Rend l'élément visible en interne."
 
 #: profiles/default/workflows/internal_application_workflow/definition.xml
 msgid "Making an item private means that it will not be visible to anyone but the owner and the site administrator."
@@ -223,7 +223,7 @@ msgstr " ● <a href='https://docs.imio.be/iadocs/guides/index.html' target='_bl
 
 #: adapters.zcml
 msgid "dmsincomingmail-followed"
-msgstr "Courrier entrat suivi"
+msgstr "Courrier entrant suivi"
 
 #: adapters.zcml
 msgid "dmsincomingmail-in-copy-group"

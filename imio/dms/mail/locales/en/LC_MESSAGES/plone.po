@@ -195,11 +195,11 @@ msgstr "Back to treatment"
 
 #: adapters.zcml
 msgid "classificationfolder-in-copy-group"
-msgstr ""
+msgstr "Classification folder in copy group"
 
 #: adapters.zcml
 msgid "classificationfolder-in-treating-group"
-msgstr ""
+msgstr "Classification folder in treating group"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "close"
@@ -215,15 +215,15 @@ msgstr "Created"
 
 #: plone/app/layout/viewlets/footer.pt
 msgid "description_copyright"
-msgstr ""
+msgstr "iA.Docs ● Version <a href='https://docs.imio.be/iadocs/changelog/minor_versions_3_1.html#version-${dashversion}' target='_blank'>${version}</a>"
 
 #: plone/app/layout/viewlets/footer.pt
 msgid "description_license"
-msgstr ""
+msgstr " ● <a href='https://docs.imio.be/iadocs/guides/index.html' target='_blank'>Guides Vidéo fr</a> ● <a href='https://docs.imio.be/iadocs/index.html' target='_blank'>Documentation complète fr</a>"
 
 #: adapters.zcml
 msgid "dmsincomingmail-followed"
-msgstr ""
+msgstr "Incoming mail followed"
 
 #: adapters.zcml
 msgid "dmsincomingmail-in-copy-group"
@@ -259,7 +259,7 @@ msgstr "In treatment"
 
 #: ../profiles/default/workflows/internal_application_workflow/definition.xml
 msgid "internally_published"
-msgstr ""
+msgstr "Internally published"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_agent"
@@ -379,60 +379,60 @@ msgstr "Propose to pre manager"
 
 #: adapters.zcml
 msgid "sign_request-in-copy-group"
-msgstr ""
+msgstr "Sign request in copy group"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_back_to_approve"
-msgstr ""
+msgstr "Back to approve"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_back_to_be_signed"
-msgstr ""
+msgstr "Back to be signed"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_back_to_creation"
-msgstr ""
+msgstr "Back to creation"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_back_to_signed"
-msgstr ""
+msgstr "Back to signed"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_close"
-msgstr ""
+msgstr "Close"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_closed"
-msgstr ""
+msgstr "Closed"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_created"
-msgstr ""
+msgstr "Created"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_mark_as_signed"
-msgstr ""
+msgstr "Mark as signed"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_propose_to_approve"
-msgstr ""
+msgstr "Propose to approve"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_propose_to_be_signed"
-msgstr ""
+msgstr "Propose to be signed"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_signed"
-msgstr ""
+msgstr "Signed"
 
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_to_approve"
-msgstr ""
+msgstr "To approve"
 
 #: adapters.zcml
 #: profiles/default/workflows/sign_request_workflow/definition.xml
 msgid "sr_to_be_signed"
-msgstr ""
+msgstr "To be signed"
 
 #: adapters.zcml
 msgid "task-in-assigned-group"

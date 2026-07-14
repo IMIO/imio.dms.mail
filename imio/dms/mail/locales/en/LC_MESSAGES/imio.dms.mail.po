@@ -1678,7 +1678,7 @@ msgstr "All persons"
 
 #: ./setuphandlers.py:1780
 msgid "all_requests"
-msgstr ""
+msgstr "All requests"
 
 #. Default: "Backrefs"
 #: ./browser/templates/contactcontent_backrefs.pt:9
@@ -1687,11 +1687,11 @@ msgstr "Contact used by"
 
 #: ./columns.py:56
 msgid "batch_printable_False"
-msgstr ""
+msgstr "The last main file will not be included in batching print."
 
 #: ./columns.py:56
 msgid "batch_printable_True"
-msgstr ""
+msgstr "The last main file will be included in batching print."
 
 #: ./browser/viewlets.py:107
 msgid "city"
@@ -1707,7 +1707,7 @@ msgstr "Contacts"
 
 #: ./browser/templates/category_classification_folders.pt:10
 msgid "create_classification_folder"
-msgstr ""
+msgstr "Create a classification folder"
 
 #: ./browser/templates/category_contact.pt:11
 msgid "create_contact"
@@ -1743,7 +1743,7 @@ msgstr "Create a person"
 
 #: ./browser/templates/category_requests.pt:10
 msgid "create_request"
-msgstr ""
+msgstr "Create a request"
 
 #: ./columns.py
 msgid "dmsappendixfile"
@@ -1790,7 +1790,7 @@ msgstr "Mails management"
 #. Default: "Rename title"
 #: ./browser/templates/object_rename_title.pt:15
 msgid "heading_rename_title_item"
-msgstr ""
+msgstr "Rename title"
 
 #: ./migrations/migrate_to_2_1.py:197
 #: ./setuphandlers.py:1194
@@ -1832,7 +1832,7 @@ msgstr "To validate"
 
 #: ./browser/settings.py
 msgid "imail_fields"
-msgstr ""
+msgstr "IM fields"
 
 #: ./profiles.zcml:14
 msgid "imio.dms.mail"
@@ -1852,15 +1852,15 @@ msgstr ""
 
 #: ./browser/templates/category_classification_folders.pt:16
 msgid "import_folders"
-msgstr ""
+msgstr "Import folders"
 
 #: ./setuphandlers.py:2028
 msgid "in_copy"
-msgstr ""
+msgstr "In copy"
 
 #: ./setuphandlers.py:1995
 msgid "in_my_group"
-msgstr ""
+msgstr "In my group"
 
 #: ./browser/reply_form.py
 msgid "incoming mails"
@@ -1873,29 +1873,29 @@ msgstr "In. mail"
 #. Default: "Actual title : «${obj_title}»"
 #: ./browser/templates/object_rename_title.pt:33
 msgid "label_actual_title"
-msgstr ""
+msgstr "Actual title"
 
 #. Default: "Cancel"
 #: ./browser/templates/approvals.pt:24
 #: ./browser/templates/object_rename_title.pt:63
 msgid "label_cancel"
-msgstr ""
+msgstr "Cancel"
 
 #. Default: "(for id : «${obj_id}»)"
 #: ./browser/templates/object_rename_title.pt:37
 msgid "label_for_id"
-msgstr ""
+msgstr "Id value"
 
 #. Default: "New Title"
 #: ./browser/templates/object_rename_title.pt:44
 msgid "label_new_title"
-msgstr ""
+msgstr "New title"
 
 #. Default: "Save"
 #: ./browser/templates/approvals.pt:22
 #: ./browser/templates/object_rename_title.pt:58
 msgid "label_save"
-msgstr ""
+msgstr "Save"
 
 #. Default: "Date"
 #: ./browser/templates/listing.pt:33
@@ -1938,15 +1938,15 @@ msgstr "In my group"
 
 #: ./wfadaptations.py:1294
 msgid "om_in_sessions"
-msgstr ""
+msgstr "In sign sessions"
 
 #: ./wfadaptations.py:1267
 msgid "om_to_approve"
-msgstr ""
+msgstr "To approve"
 
 #: ./setuphandlers.py:1638
 msgid "om_to_email"
-msgstr ""
+msgstr "To email"
 
 #: ./setuphandlers.py:1581
 msgid "om_to_treat"
@@ -1958,7 +1958,7 @@ msgstr "To validate"
 
 #: ./browser/settings.py
 msgid "omail_fields"
-msgstr ""
+msgstr "OM fields"
 
 #: ./profiles/default/registry.xml
 msgid "organization_type_query_field"
@@ -1975,28 +1975,28 @@ msgstr ""
 
 #: ./setuphandlers.py:1844
 msgid "req_in_copy"
-msgstr ""
+msgstr "In copy"
 
 #: ./setuphandlers.py:1825
 msgid "req_in_my_group"
-msgstr ""
+msgstr "In my group"
 
 #: ./setuphandlers.py:1863
 msgid "req_in_sessions"
-msgstr ""
+msgstr "In sign sessions"
 
 #: ./setuphandlers.py:1794
 msgid "req_to_approve"
-msgstr ""
+msgstr "To approve"
 
 #: ./setuphandlers.py:1810
 msgid "req_to_treat"
-msgstr ""
+msgstr "Assigned to me"
 
 #: ./migrations/migrate_to_3_1_6.py:52
 #: ./setuphandlers.py:299
 msgid "requests_tab"
-msgstr ""
+msgstr "Requests"
 
 #: ./wfadaptations.py:914
 msgid "searchfor: ${state}"
