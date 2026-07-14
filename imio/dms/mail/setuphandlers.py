@@ -1799,7 +1799,7 @@ def createReqCollections(folder):
                 {"i": "approvings", "o": "plone.app.querystring.operation.string.currentUser"},
             ],
             "cond": u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
-            "bypass": [],
+            "bypass": ["Manager", "Site Administrator"],
             "flds": flds,
             "sort": u"created",
             "rev": True,
