@@ -1653,24 +1653,24 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
 
     def test_sign_request_added(self):
         # a titled request computes signers/approvers on add (added -> modified -> update_signers)
-        request, files = create_sign_request(self.portal, oid="sr-add", nb_files=0)
+        request, _files = create_sign_request(self.portal, oid="sr-add", nb_files=0)
         self.assertEqual(ISignRequestApproval(request).annot["approvers"], [["dirg"], ["bourgmestre"]])
 
     def test_sign_request_transition(self):
-        request, files = create_sign_request(self.portal, oid="sr-tr", nb_files=1)
+        request, _files = create_sign_request(self.portal, oid="sr-tr", nb_files=1)
         self.assertIsNone(ISignRequestApproval(request).current_nb)
         self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
         self.assertEqual(ISignRequestApproval(request).current_nb, 0)
 
     def test_sign_request_modified(self):
-        request, files = create_sign_request(self.portal, oid="sr-mod", nb_files=0)
+        request, _files = create_sign_request(self.portal, oid="sr-mod", nb_files=0)
         request.signers = [{"number": 1, "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
                             "approvings": [u"_themself_"], "editor": True}]
         modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
         self.assertEqual(ISignRequestApproval(request).annot["approvers"], [["bourgmestre"]])
 
     def test_sign_request_modified_duplicate_email(self):
-        request, files = create_sign_request(self.portal, oid="sr-dup", nb_files=0)
+        request, _files = create_sign_request(self.portal, oid="sr-dup", nb_files=0)
         # two signers resolving to the same person => update_signers raises, surfaced as Invalid
         request.signers = [
             {"number": 1, "signer": self.pf["dirg"]["directeur-general"].UID(),
@@ -1682,7 +1682,7 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
             modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
 
     def test_i_annex_added(self):
-        request, files = create_sign_request(self.portal, oid="sr-annex", nb_files=0)
+        request, _files = create_sign_request(self.portal, oid="sr-annex", nb_files=0)
         approval = ISignRequestApproval(request)
         self.assertEqual(approval.annot["files"], [])
         ct = self.portal["annexes_types"]["sign_request_appendix_files"]["sign-request-appendix-file"]

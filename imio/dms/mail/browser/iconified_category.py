@@ -252,7 +252,7 @@ class SignedColumn(BaseSignedColumn):
         # permission: View
         # category group : signed_activated
         # allowed file type for signing
-        allowed_type = (not getattr(self.context, "esign", False) and True
+        allowed_type = (not getattr(self.context, "esign", False)
                         or content.contentType in get_allowed_content_types(
                             esign=True, portal_type=self.context.portal_type))
         editable = allowed_type and self.is_editable(content) and " editable" or ""
