@@ -12,8 +12,9 @@
                            class python: ct_type[cat_id].get('class', 'overlay')"
            class="">
             <img tal:attributes="src python:'%s/%s' % (portal_url, ct_type[cat_id]['img']);
-                                 title python: 'create_%s' % ct_type[cat_id]['typ']"
-              title="#" i18n:attributes="title" />
+                                 title python: 'create_%s' % ct_type[cat_id]['typ'];
+                                 alt python: 'create_%s' % ct_type[cat_id]['typ'];"
+              title="#" i18n:attributes="title;alt" />
         </a>
     </div>
     <div class="title" tal:content="python: context.Rights()">Category title</div>

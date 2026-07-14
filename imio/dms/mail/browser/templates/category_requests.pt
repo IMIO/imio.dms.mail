@@ -8,7 +8,7 @@
            tal:condition="python: member.has_permission('imio.dms.mail: Add Signing request', folder)"
            tal:attributes="href string:$portal_url/requests/++add++sign_request?no_redirect=1">
             <img tal:attributes="src string:$portal_url/++resource++imio.dms.mail/sign_request_icon.png"
-              title="create_request" i18n:attributes="title" />
+              title="create_request" alt="create_request" i18n:attributes="title;alt" />
         </a>
     </div>
     <div class="title" tal:content="python: context.Rights()">Category title</div>
