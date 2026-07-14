@@ -10,6 +10,7 @@ from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
@@ -298,8 +299,9 @@ class ISigningBehavior(model.Schema):
                     )
                 approvers[userid] = signer["number"]
 
-        # Validate file formats if eSignature is enabled (only on outgoing mail, not on templates)
-        if context and data.esign and IImioDmsOutgoingMail.providedBy(context):
+        # Validate file formats if eSignature is enabled (only on outgoing mail or sign request, not on templates)
+        if context and data.esign and (IImioDmsOutgoingMail.providedBy(context)
+                                       or IImioDmsSignRequest.providedBy(context)):
             for afile in context.values():
                 # Skip files already converted for esign
                 if base_hasattr(afile, "conv_from_uid"):
@@ -308,7 +310,7 @@ class ISigningBehavior(model.Schema):
                 if not afile.to_sign:
                     continue
                 mimetype = get_contenttype(afile.file)
-                if mimetype not in get_allowed_content_types(esign=True):
+                if mimetype not in get_allowed_content_types(esign=True, portal_type=context.portal_type):
                     raise Invalid(
                         _(
                             "You cannot enable electronic signature because the file '${filename}' "
