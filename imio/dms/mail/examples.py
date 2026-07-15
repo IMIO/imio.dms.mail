@@ -19,6 +19,7 @@ from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.dmssignrequest import internalReferenceSignRequestDefaultValue
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
@@ -438,8 +439,9 @@ def add_test_mails(context):
     ifld = site["incoming-mail"]
     data = DummyView(site, site.REQUEST)
     for i in range(1, 10):
-        if not "courrier%d" % i in ifld:
-            scan_date = receptionDateDefaultValue(data)
+        scan_date = receptionDateDefaultValue(data)
+        sub_folder = create_period_folder(ifld, scan_date)
+        if not "courrier%d" % i in sub_folder:
             params = {
                 "title": "Courrier %d" % i,
                 "mail_type": "courrier",
@@ -503,8 +505,10 @@ def add_test_mails(context):
 
     # outgoing mails
     ofld = site["outgoing-mail"]
+    dte = datetime.datetime.now()
+    sub_folder = create_period_folder(ofld, dte)
     for i in range(1, 10):
-        if not "reponse%d" % i in ofld:
+        if not "reponse%d" % i in sub_folder:
             params = {
                 "title": "Réponse %d" % i,
                 "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
@@ -518,7 +522,7 @@ def add_test_mails(context):
                 "recipients": [RelationValue(next(recipients_cycle))],
                 "send_modes": ["post"],
             }
-            mail = sub_create(ofld, "dmsoutgoingmail", datetime.datetime.now(), "reponse%d" % i, **params)
+            mail = sub_create(ofld, "dmsoutgoingmail", dte, "reponse%d" % i, **params)
             filename = next(files_cycle)
             with open(u"%s/%s" % (filespath, filename), "rb") as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
@@ -569,8 +573,10 @@ def add_test_sign_requests(site):
     files_cycle = cycle(files)
 
     rfld = site["requests"]
+    dte = datetime.datetime.now()
+    sub_folder = create_period_folder(rfld, dte)
     for i in range(1, 4):
-        if not "demande%d" % i in rfld:
+        if not "demande%d" % i in sub_folder:
             params = {
                 "title": "Demande de signature %d" % i,
                 "internal_reference_no": internalReferenceSignRequestDefaultValue(data),
@@ -578,7 +584,7 @@ def add_test_sign_requests(site):
                 "assigned_user": next(users_cycle),
                 "recipient_groups": [],
             }
-            request = sub_create(rfld, "sign_request", datetime.datetime.now(), "demande%d" % i, **params)
+            request = sub_create(rfld, "sign_request", dte, "demande%d" % i, **params)
             filename = next(files_cycle)
             with open(u"%s/%s" % (filespath, filename), "rb") as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
