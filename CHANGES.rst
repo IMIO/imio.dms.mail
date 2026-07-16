@@ -13,6 +13,8 @@ Changelog
   [chris-adam]
 - Considered seal when checking if a signer is defined on a sub/template.
   [sgeulette]
+- Added sign_request content to handle external documents to be signed.
+  [sgeulette]
 
 3.1.5 (2026-06-19)
 ------------------
