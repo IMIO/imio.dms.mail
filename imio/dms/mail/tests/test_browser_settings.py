@@ -20,7 +20,6 @@ from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.Extensions.demo import activate_group_encoder
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
-from imio.dms.mail.utils import add_remove_values_in_registry_list
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.app.testing import logout
@@ -329,21 +328,6 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 3)
         self.registry[key] = True
         self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 4)
-
-    def test_add_remove_values_in_registry_list(self):
-        """add_remove_values_in_registry_list adds/removes values idempotently"""
-        key = "imio.dms.mail.displayed_tabs"
-        api.portal.set_registry_record(key, [u"incoming-mail", u"outgoing-mail"])
-        # add a new value
-        self.assertTrue(add_remove_values_in_registry_list(key, to_add=(u"requests",)))
-        self.assertIn(u"requests", api.portal.get_registry_record(key))
-        # adding an already present value does nothing
-        self.assertFalse(add_remove_values_in_registry_list(key, to_add=(u"requests",)))
-        # remove a value
-        self.assertTrue(add_remove_values_in_registry_list(key, to_remove=(u"outgoing-mail",)))
-        self.assertNotIn(u"outgoing-mail", api.portal.get_registry_record(key))
-        # removing an absent value does nothing
-        self.assertFalse(add_remove_values_in_registry_list(key, to_remove=(u"outgoing-mail",)))
 
     def test_displayed_tabs_setting_changed(self):
         """Changing displayed_tabs toggles exclude_from_nav on top nav tabs"""

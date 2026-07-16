@@ -132,7 +132,7 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
                     om_esign_col.query = query
 
             # first level tabs are now driven by the displayed_tabs setting
-            if api.portal.get_registry_record("imio.dms.mail.displayed_tabs") is None:
+            if not api.portal.get_registry_record("imio.dms.mail.displayed_tabs"):
                 np = self.portal.portal_properties.navtree_properties
                 displayed = []
                 for tab_id in DEFAULT_DISPLAYED_TABS:

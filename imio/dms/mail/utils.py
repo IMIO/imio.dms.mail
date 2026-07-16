@@ -120,10 +120,14 @@ dms_config
 """
 
 
-def add_remove_values_in_registry_list(record_name, to_add=(), to_remove=()):
+def add_remove_values_in_registry_list(record_name, to_add=(), to_remove=(), order=None):
     """Add and/or remove values in a registry list record.
 
-    Return True if the record was modified.
+    :param record_name : registry key
+    :param to_add : list of values to add
+    :param to_remove : list of values to remove
+    :param order : potional list of values to follow order
+    :return: bool indicating changes
     """
     values = list(api.portal.get_registry_record(record_name, default=[]) or [])
     changed = False
@@ -134,6 +138,11 @@ def add_remove_values_in_registry_list(record_name, to_add=(), to_remove=()):
     for value in to_remove:
         if value in values:
             values.remove(value)
+            changed = True
+    if order is not None:
+        ordered = [v for v in order if v in values] + [v for v in values if v not in order]
+        if ordered != values:
+            values = ordered
             changed = True
     if changed:
         api.portal.set_registry_record(record_name, values)

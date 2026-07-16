@@ -9,6 +9,7 @@ from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
+from imio.dms.mail.utils import add_remove_values_in_registry_list
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import create_period_folder_max
@@ -95,6 +96,32 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(KeyError, get_dms_config, ["c"])
         self.assertIsNone(get_dms_config(["c"], missing_key_handling=True))
         self.assertDictEqual(get_dms_config(["c"], missing_key_handling=True, missing_key_value={}), {})
+
+    def test_add_remove_values_in_registry_list(self):
+        """add_remove_values_in_registry_list adds/removes/reorders values idempotently"""
+        key = "imio.dms.mail.displayed_tabs"
+        api.portal.set_registry_record(key, [u"incoming-mail", u"outgoing-mail"])
+        # add a new value
+        self.assertTrue(add_remove_values_in_registry_list(key, to_add=(u"requests",)))
+        self.assertIn(u"requests", api.portal.get_registry_record(key))
+        # adding an already present value does nothing
+        self.assertFalse(add_remove_values_in_registry_list(key, to_add=(u"requests",)))
+        # remove a value
+        self.assertTrue(add_remove_values_in_registry_list(key, to_remove=(u"outgoing-mail",)))
+        self.assertNotIn(u"outgoing-mail", api.portal.get_registry_record(key))
+        # removing an absent value does nothing
+        self.assertFalse(add_remove_values_in_registry_list(key, to_remove=(u"outgoing-mail",)))
+        # order reorders known values first, unknown keep relative order
+        self.assertTrue(
+            add_remove_values_in_registry_list(key, order=[u"requests", u"incoming-mail"]))
+        self.assertEqual(api.portal.get_registry_record(key), [u"requests", u"incoming-mail"])
+        # order already respected does nothing
+        self.assertFalse(
+            add_remove_values_in_registry_list(key, order=[u"requests", u"incoming-mail"]))
+        # add + order in one call
+        self.assertTrue(
+            add_remove_values_in_registry_list(key, to_add=(u"tasks",), order=[u"tasks", u"requests"]))
+        self.assertEqual(api.portal.get_registry_record(key), [u"tasks", u"requests", u"incoming-mail"])
 
     def test_list_wf_states_sign_request(self):
         states = [state for state, title in list_wf_states(self.portal, "sign_request")]

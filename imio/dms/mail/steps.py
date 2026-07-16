@@ -19,6 +19,7 @@ from dexterity.localroles.utils import update_roles_in_fti
 from eea.facetednavigation.criteria.interfaces import ICriteria
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
+from imio.dms.mail import FIRST_LEVEL_TABS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import PRODUCT_DIR
@@ -192,7 +193,7 @@ def activate_sign_request(context):
     log = install_and_configure_esign(site)
 
     # show tab
-    add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_add=("requests",))
+    add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_add=("requests",), order=FIRST_LEVEL_TABS)
 
     # add "Demande Sign." plonegroup function (requester), used by signing requests
     functions = get_registry_functions()
@@ -414,9 +415,11 @@ def manage_classification(context, active):
     site = context.getSite()
     # handle displayed tabs: folders (top nav) and tree (plus sub-menu) visibility
     if active:
-        add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_add=("folders", "tree"))
+        add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_add=("folders", "tree"),
+                                           order=FIRST_LEVEL_TABS)
     else:
-        add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_remove=("folders", "tree"))
+        add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_remove=("folders", "tree"),
+                                           order=FIRST_LEVEL_TABS)
     # handle fields
     for rec in ("imail_fields", "omail_fields"):
         update = False
