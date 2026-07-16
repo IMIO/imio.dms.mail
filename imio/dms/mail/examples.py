@@ -441,7 +441,7 @@ def add_test_mails(context):
     for i in range(1, 10):
         scan_date = receptionDateDefaultValue(data)
         sub_folder = create_period_folder(ifld, scan_date)
-        if not "courrier%d" % i in sub_folder:
+        if "courrier%d" % i not in sub_folder:
             params = {
                 "title": "Courrier %d" % i,
                 "mail_type": "courrier",
@@ -508,7 +508,7 @@ def add_test_mails(context):
     dte = datetime.datetime.now()
     sub_folder = create_period_folder(ofld, dte)
     for i in range(1, 10):
-        if not "reponse%d" % i in sub_folder:
+        if "reponse%d" % i not in sub_folder:
             params = {
                 "title": "Réponse %d" % i,
                 "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
@@ -576,7 +576,7 @@ def add_test_sign_requests(site):
     dte = datetime.datetime.now()
     sub_folder = create_period_folder(rfld, dte)
     for i in range(1, 4):
-        if not "demande%d" % i in sub_folder:
+        if "demande%d" % i not in sub_folder:
             params = {
                 "title": "Demande de signature %d" % i,
                 "internal_reference_no": internalReferenceSignRequestDefaultValue(data),
