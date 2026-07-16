@@ -543,7 +543,7 @@ def signrequest_active_orgs(context):
     """This vocabulary source is used on the sign_request treating_groups field.
 
     It is based on the named 'imio.dms.mail.SignRequestActiveOrgsVocabulary' and puts the current user
-    primary organization first when it is part of the list.
+    primary organization first when it is part of the list or the user is only in one demand_sign group (org).
 
     :param context:
     :return: the (possibly reordered) organizations vocabulary
@@ -562,10 +562,21 @@ def signrequest_active_orgs(context):
         context.portal_type != "sign_request" or api.content.get_state(context) == "created"
     ):
         pers = get_person_from_userid(current_user.id)
+        first_org = None
         if pers and pers.primary_organization and pers.primary_organization in voc.by_value:
+            first_org = pers.primary_organization
+        else:
+            groups = get_plone_groups_for_user(user=current_user)
+            orgs = [
+                org
+                for org in organizations_with_suffixes(groups, [u"demand_sign"], group_as_str=True)
+                if org in voc.by_value
+            ]
+            if len(orgs) == 1:
+                first_org = orgs[0]
+        if first_org:
             return SimpleVocabulary(
-                [voc.getTerm(pers.primary_organization)]
-                + [term for term in voc._terms if term.value != pers.primary_organization]
+                [voc.getTerm(first_org)] + [term for term in voc._terms if term.value != first_org]
             )
     return voc
 

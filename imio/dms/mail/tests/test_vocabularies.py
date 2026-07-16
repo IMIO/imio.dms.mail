@@ -338,6 +338,18 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         # normal user: primary organization moved first
         self.change_user("agent")
         self.assertEqual([t.value for t in signrequest_active_orgs(self.portal)][0], primary)
+        # no primary org but a single demand_sign group: that org moved first
+        get_person_from_userid("agent").primary_organization = None
+        self.portal.acl_users.source_groups.removePrincipalFromGroup("agent", "%s_demand_sign" % org0)
+        invalidate_cachekey_volatile_for("_users_groups_value")
+        self.change_user("agent")
+        self.assertEqual([t.value for t in signrequest_active_orgs(self.portal)][0], primary)
+        # no primary org and several demand_sign groups: base order left unchanged
+        ensure_demand_sign(self.portal, org0, userids=("agent",))
+        invalidate_cachekey_volatile_for("_users_groups_value")
+        self.change_user("agent")
+        base = [t.value for t in getUtility(IVocabularyFactory, u"imio.dms.mail.SignRequestActiveOrgsVocabulary")(self.portal)]
+        self.assertEqual([t.value for t in signrequest_active_orgs(self.portal)], base)
 
     def test_LabelsVocabulary(self):
         self.change_user("agent")
