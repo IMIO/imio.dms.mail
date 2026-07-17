@@ -1031,8 +1031,11 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                 own_service = None
                 if len(parts) == 2:
                     (org_path, usages) = parts
+                    org_uid = pgo.restrictedTraverse(org_path).UID()
+                    prim_org = org_uid
                 elif len(parts) == 3:
                     (org_path, usages, own_service_path) = parts
+                    org_uid = pgo.restrictedTraverse(org_path).UID()
                     try:
                         own_service = pgo.restrictedTraverse(own_service_path)
                     except KeyError:
@@ -1055,9 +1058,10 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                         else:
                             activated_orgs.append(parent.UID())
                         set_registry_organizations(activated_orgs)
+                    prim_org = own_service.UID()
                     # add user to own_service groups
                     if own_service:
-                        for suffix in ("editeur", "encodeur"):
+                        for suffix in ("editeur", "encodeur", "demand_sign"):
                             api.group.add_user(groupname="{}_{}".format(own_service.UID(), suffix), user=user)
                             for userid in ("agent", "chef"):
                                 api.group.add_user(groupname="{}_{}".format(own_service.UID(), suffix), username=userid)
@@ -1066,7 +1070,6 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
 
                 # set usages on user hp org path
                 usages_list = [u.strip().lower() for u in usages.split(",")]
-                org_uid = pgo.restrictedTraverse(org_path).UID()
                 hp = pf[u_id][org_uid]
                 hp.usages = usages_list
                 hp.reindexObject()
@@ -1128,6 +1131,10 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                                     "tal_condition": u"",
                                 },
                             )
+                # set primary org
+                pers = pf[u_id]
+                if not pers.primary_organization:
+                    pers.primary_organization = prim_org
         if len(om_signer_rules) > om_sr_len:
             api.portal.set_registry_record(osr_rk, om_signer_rules)
         if len(req_signer_rules) > req_sr_len:
