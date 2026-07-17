@@ -889,6 +889,17 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         else:  # has approvals and all done
             return approval.current_nb == -1
 
+    def invalid_sign_approve_files(self):
+        """Return child files whose (to_sign, to_approve) combination is invalid."""
+        approval = IOMApproval(self)
+        if not approval.approvers:
+            return []
+        return [
+            f for f in self.objectValues()
+            if f.portal_type in ("dmsommainfile", "dmsappendixfile")
+            and bool(getattr(f, "to_approve", False)) != approval.is_file_eligible(f)
+        ]
+
     def wf_conditions(self):
         """Returns the adapter providing workflow conditions"""
         return IImioDmsOutgoingMailWfConditions(self)

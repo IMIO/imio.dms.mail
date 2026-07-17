@@ -13,6 +13,8 @@ Changelog
   [chris-adam]
 - Considered seal when checking if a signer is defined on a sub/template.
   [sgeulette]
+- Improved "Approb." and "Signed" icons behavior and validation (PARAF-483).
+  [chris-adam]
 
 3.1.5 (2026-06-19)
 ------------------

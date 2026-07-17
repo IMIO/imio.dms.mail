@@ -32,6 +32,26 @@ from zope.i18n import translate
 """  # noqa
 
 
+def _add_client_hints(json_resp, view):
+    """Append client-side action hints to the JSON response.
+
+    ``reload`` -> full page reload
+    ``refresh_context_messages`` -> AJAX-refresh the context messages
+    """
+    if getattr(view, "reload", False):
+        hints = ['"reload": true']
+    else:
+        hints = []
+        if getattr(view, "refresh_context_messages", False):
+            hints.append('"refresh_context_messages": true')
+    if not hints:
+        return json_resp
+    resp = json_resp.rstrip()
+    if resp.endswith("}"):
+        return resp[:-1] + "," + ",".join(hints) + "}"
+    return json_resp
+
+
 class ApprovedColumn(BaseApprovedColumn):
 
     def __init__(self, context, request, table):
@@ -59,7 +79,7 @@ class ApprovedColumn(BaseApprovedColumn):
         if self.approval.is_state_before_approve(state=state):  # state < to_approve
             # to-approve class is used when state is prior to to_approve
             if self.is_deactivated(content):  # to_approve is False
-                if (not self.approval.approvers or not content.to_sign or not editable or  # noqa W504
+                if (not self.approval.approvers or not editable or  # noqa W504
                         need_mailing_value(document=content.getObject())):
                     self.msg = u"Deactivated for approval"
                     return " to-approve "
@@ -132,8 +152,9 @@ class ApprovedChangeView(BaseApprovedChangeView):
         self.approval = OMApprovalAdapter(self.parent)
         self.uid = self.context.UID()
         self.msg = u""
-        self.reload = False
+        self.reload = False  # full page reload
         self.could_reload = False
+        self.refresh_context_messages = False  # AJAX: refresh the warning banner
 
     @property
     def p_state(self):
@@ -216,20 +237,18 @@ class ApprovedChangeView(BaseApprovedChangeView):
         status, values = self._get_next_values(old_values)
         super(BaseApprovedChangeView, self).set_values(values)
         if self.could_reload:
-            # new_approval_status = self.parent.has_approvings()
-            new_approval_status = self.parent.has_approvings()
-            if old_approval_status != new_approval_status:
+            if old_approval_status != self.parent.has_approvings():
                 cache_chooser = getUtility(ICacheChooser)
                 the_cache = cache_chooser("imio.dms.mail.browser.actionspanel.DmsOMActionsPanelView__call__")
                 the_cache.ramcache.invalidate("imio.dms.mail.browser.actionspanel.DmsOMActionsPanelView__call__")
                 self.reload = True
+            else:
+                self.refresh_context_messages = True
         return status, self.msg
 
     def __call__(self):
         json_resp = super(ApprovedChangeView, self).__call__()
-        if self.reload and json_resp.rstrip().endswith("}"):
-            json_resp = json_resp.rstrip()[:-1] + ',"reload": true}'
-        return json_resp
+        return _add_client_hints(json_resp, self)
 
 
 class SignedColumn(BaseSignedColumn):
@@ -256,8 +275,7 @@ class SignedColumn(BaseSignedColumn):
                     return " deactivated "
                 else:
                     return " deactivated editable"
-            # we don't want to unset to_sign if to_approve is True
-            elif editable and (not content.to_sign or not content.to_approve):
+            elif editable:
                 return " editable"
             else:
                 return ""
@@ -265,7 +283,7 @@ class SignedColumn(BaseSignedColumn):
             return " deactivated"
         else:  # state >= to_approve and to_sign is True
             base_css = self.is_active(content) and ' active' or ''  # signed is True ?
-            if av.p_state in ("to_be_signed", "signed"):
+            if av.p_state == "to_be_signed":
                 # we don't want to unset to_sign if to_approve is True
                 if editable and (not content.to_sign or not content.to_approve):
                     return '{0} editable'.format(base_css)
@@ -288,6 +306,7 @@ class SignedChangeView(BaseSignedChangeView):
         super(SignedChangeView, self).__init__(context, request)
         self.parent = self.context.__parent__
         self.reload = False
+        self.refresh_context_messages = False
 
     @property
     def p_state(self):
@@ -310,7 +329,7 @@ class SignedChangeView(BaseSignedChangeView):
                 values['signed'] = False
                 status = -1
 #                esign_audit("disable_to_sign", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
-            self.reload = True
+            self.refresh_context_messages = True
         elif old_values['to_sign'] and self.p_state in ("to_be_signed", "signed"):
             if old_values['signed'] is False:
                 values['to_sign'] = True
@@ -332,6 +351,4 @@ class SignedChangeView(BaseSignedChangeView):
 
     def __call__(self):
         json_resp = super(SignedChangeView, self).__call__()
-        if self.reload and json_resp.rstrip().endswith("}"):
-            json_resp = json_resp.rstrip()[:-1] + ',"reload": true}'
-        return json_resp
+        return _add_client_hints(json_resp, self)
