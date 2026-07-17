@@ -34,6 +34,8 @@ Changelog
   [chris-adam]
 - Fixed the ``@@approvals`` view listing files order (PARAF-510).
   [chris-adam]
+- Improved "Approb." and "Signed" icons behavior and validation (PARAF-483).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
