@@ -348,7 +348,8 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         ensure_demand_sign(self.portal, org0, userids=("agent",))
         invalidate_cachekey_volatile_for("_users_groups_value")
         self.change_user("agent")
-        base = [t.value for t in getUtility(IVocabularyFactory, u"imio.dms.mail.SignRequestActiveOrgsVocabulary")(self.portal)]
+        base = [t.value for t
+                in getUtility(IVocabularyFactory, u"imio.dms.mail.SignRequestActiveOrgsVocabulary")(self.portal)]
         self.assertEqual([t.value for t in signrequest_active_orgs(self.portal)], base)
 
     def test_LabelsVocabulary(self):

@@ -1114,7 +1114,7 @@ msgstr "Répondre à ${ref}"
 #: ./migrations/migrate_to_3_1_6.py:60
 #: ./setuphandlers.py:307
 msgid "Requests"
-msgstr "Demandes sign."
+msgstr "Demandes de signature"
 
 #: ./migrations/migrate_to_3_1_6.py:60
 #: ./setuphandlers.py:307
