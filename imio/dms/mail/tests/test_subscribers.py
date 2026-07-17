@@ -35,6 +35,7 @@ from plone.app.testing import TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield import RelationValue
 from zExceptions import Redirect
@@ -1353,6 +1354,46 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         approval.approve_file(files[1], "dirg", transition="propose_to_be_signed")
         approval.approve_file(files[1], "bourgmestre", transition="propose_to_be_signed")
         approval.approve_file(files[0], "bourgmestre", transition="propose_to_be_signed")
+
+    def test_dmsoutgoingmail_before_transition(self):
+        """Both entry transitions (propose_to_approve / propose_to_be_signed) raise Invalid while a
+        file has an invalid sign/approve combination; other transitions are never blocked; and the
+        process proceeds once every file is valid again."""
+        omail, files, approval = self._setup_omail_with_esign()
+        pw = self.portal.portal_workflow
+        # two invalid combinations: eligible-but-not-approved, and approved-but-not-to_sign
+        files[0].to_sign, files[0].to_approve = True, False
+        files[1].to_sign, files[1].to_approve = False, True
+        invalid = omail.invalid_sign_approve_files()
+        self.assertIn(files[0], invalid)
+        self.assertIn(files[1], invalid)
+        with self.assertRaises(Invalid) as cm:
+            pw.doActionFor(omail, "propose_to_approve")
+        self.assertEqual(api.content.get_state(omail), "created")  # raised before state change
+        # the raised message lists every invalid file
+        files_listed = cm.exception.args[0].mapping["files"]
+        self.assertIn(safe_unicode(files[0].Title()), files_listed)
+        self.assertEqual(files_listed.count(u", ") + 1, len(invalid))
+        # make every file valid (to_approve must match eligibility) => transition proceeds
+        for f in omail.invalid_sign_approve_files():
+            f.to_approve = approval.is_file_eligible(f)
+        self.assertEqual(omail.invalid_sign_approve_files(), [])
+        pw.doActionFor(omail, "propose_to_approve")
+        self.assertEqual(api.content.get_state(omail), "to_approve")
+        # the guard covers only the two transitions: an invalid combo blocks nothing else
+        files[0].to_sign, files[0].to_approve = True, False
+        self.assertIn(files[0], omail.invalid_sign_approve_files())
+        pw.doActionFor(omail, "back_to_creation")
+        self.assertEqual(api.content.get_state(omail), "created")
+        # "propose_to_be_signed" must be blocked.
+        for f in files:
+            approval.remove_file_from_approval(f.UID())
+        files[1].to_sign, files[1].to_approve = False, False  # keep files[1] valid
+        self.assertFalse(omail.has_approvings())
+        self.assertEqual(omail.invalid_sign_approve_files(), [files[0]])
+        with self.assertRaises(Invalid):
+            pw.doActionFor(omail, "propose_to_be_signed")
+        self.assertEqual(api.content.get_state(omail), "created")
 
     def test_i_annex_removed_pdf_file(self):
         """Test i_annex_removed Case 1: removing a generated PDF removes it from approval."""

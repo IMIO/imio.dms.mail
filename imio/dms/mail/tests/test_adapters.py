@@ -618,6 +618,32 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertIsNone(self.approval.get_approver_nb("agent"))
         self.assertIsNone(self.approval.get_approver_nb("unknown"))
 
+    def test_is_file_eligible(self):
+        """A file is approval-eligible only when to_sign, the mail has approvers, and it is
+        neither a pdf conversion nor a mailing file."""
+        f = self.files[0]
+        self.assertTrue(self.approval.approvers)
+        # to_sign + approvers + not conversion + not mailing => eligible
+        f.to_sign = True
+        self.assertTrue(self.approval.is_file_eligible(f))
+        # not to_sign => not eligible
+        f.to_sign = False
+        self.assertFalse(self.approval.is_file_eligible(f))
+        # exempt: pdf conversion (has conv_from_uid)
+        f.to_sign = True
+        f.conv_from_uid = "some-source-uid"
+        self.assertFalse(self.approval.is_file_eligible(f))
+        del f.conv_from_uid
+        # exempt: mailing file
+        f.need_mailing = True
+        self.assertFalse(self.approval.is_file_eligible(f))
+        f.need_mailing = False
+        self.assertTrue(self.approval.is_file_eligible(f))
+        # no approvers => never eligible
+        self.approval.reset()
+        self.assertFalse(self.approval.approvers)
+        self.assertFalse(self.approval.is_file_eligible(f))
+
     def test_roles(self):
         # Empty, no approval session started
         self.assertEqual(self.approval.roles, {})

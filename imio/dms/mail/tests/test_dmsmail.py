@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.browser.reply_form import ReplyForm
 from imio.dms.mail.browser.task import TaskEdit
 from imio.dms.mail.dmsmail import AssignedUserValidator
@@ -661,3 +663,69 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Invalid, auv.validate, "agent1")
         # we check assigned_user requirement if the imail state will be changed
         # this test is done in im wfadaptation test
+
+    def test_invalid_sign_approve_files(self):
+        """to_approve must match approval-eligibility when the mail has approvers."""
+        pf = self.portal["contacts"]["personnel-folder"]
+        om = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "om-inv",
+            title=u"Courrier sortant test",
+            mail_type="courrier",
+            treating_groups=self.pgof["direction-generale"]["grh"].UID(),
+            sender=self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
+            send_modes=u"post",
+            signers=[
+                {
+                    "number": 1,
+                    "signer": pf["dirg"]["directeur-general"].UID(),
+                    "approvings": [u"_themself_"],
+                    "editor": True,
+                }
+            ],
+        )
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        with open("%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR, "rb") as fo:
+            f = createContentInContainer(
+                om,
+                "dmsommainfile",
+                id="file1",
+                scan_id="012999900000600",
+                file=NamedBlobFile(fo.read(), filename=u"Réponse salle.odt"),
+                content_category=calculate_category_id(ct),
+            )
+        self.assertTrue(OMApprovalAdapter(om).approvers)
+        # both True / both False => valid
+        f.to_sign, f.to_approve = True, True
+        self.assertEqual(om.invalid_sign_approve_files(), [])
+        f.to_sign, f.to_approve = False, False
+        self.assertEqual(om.invalid_sign_approve_files(), [])
+        # eligible file to_sign without to_approve => invalid
+        f.to_sign, f.to_approve = True, False
+        self.assertEqual(om.invalid_sign_approve_files(), [f])
+        # to_approve without to_sign => invalid
+        f.to_sign, f.to_approve = False, True
+        self.assertEqual(om.invalid_sign_approve_files(), [f])
+        # exempt (mailing / pdf conversion) may be to_sign without to_approve => valid
+        f.to_sign, f.to_approve, f.need_mailing = True, False, True
+        self.assertEqual(om.invalid_sign_approve_files(), [])
+        f.need_mailing = False
+        f.conv_from_uid = "some-source-uid"
+        self.assertEqual(om.invalid_sign_approve_files(), [])
+        del f.conv_from_uid
+        # no approvers => never invalid (Approb. column is hidden anyway)
+        om2 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "noappr")
+        with open("%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR, "rb") as fo:
+            f2 = createContentInContainer(
+                om2,
+                "dmsommainfile",
+                id="f2",
+                scan_id="012999900000700",
+                file=NamedBlobFile(fo.read(), filename=u"Réponse salle.odt"),
+                content_category=calculate_category_id(ct),
+            )
+        f2.to_sign, f2.to_approve = True, False  # would be invalid if approvers existed
+        self.assertFalse(OMApprovalAdapter(om2).approvers)
+        self.assertEqual(om2.invalid_sign_approve_files(), [])

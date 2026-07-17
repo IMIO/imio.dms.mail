@@ -19,6 +19,7 @@ from imio.prettylink.interfaces import IPrettyLink
 from plone import api
 from plone.app.layout.viewlets import ViewletBase
 from plone.app.layout.viewlets.common import FooterViewlet
+from Products.CMFPlone.utils import safe_unicode
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zc.relation.interfaces import ICatalog
 from zope.component import getUtility
@@ -108,7 +109,23 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
     """
 
     def getAllMessages(self):
-        """Check if an address field is empty"""
+        """Warn about incomplete recipient addresses and invalid sign/approve combinations."""
+        ret = []
+        # invalid to_sign/to_approve combination on an outgoing mail with approvers
+        if IImioDmsOutgoingMail.providedBy(self.context):
+            for afile in self.context.invalid_sign_approve_files():
+                msg = translate(
+                    u"The file '${title}' has an invalid signature/approval combination: "
+                    u"a file to be signed must also be approved, and vice versa.",
+                    domain="imio.dms.mail",
+                    context=self.request,
+                    mapping={"title": safe_unicode(afile.Title())},
+                )
+                ret.append(
+                    PseudoMessage(msg_type="significant", text=richtextval(msg),
+                                  hidden_uid=generate_uid(), can_hide=False)
+                )
+        # incomplete recipient/contact address fields
         if IContactContent.providedBy(self.context):
             contacts = [self.context]
         elif IImioDmsOutgoingMail.providedBy(self.context):
@@ -116,8 +133,8 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
             for rv in self.context.recipients or []:
                 if not rv.isBroken() and rv.to_path:
                     contacts.append(self.context.restrictedTraverse(rv.to_path))
-        if not contacts:
-            return []
+        else:
+            contacts = []
         errors = []
         for contact in contacts:
             address = get_address(contact)
@@ -133,7 +150,6 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
             if empty_keys:
                 errors.append((contact, empty_keys))
 
-        ret = []
         for (contact, keys) in errors:
             msg = translate(
                 u"This contact '${title}' has missing address fields: ${keys}",
@@ -148,6 +164,13 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
                 PseudoMessage(msg_type="significant", text=richtextval(msg), hidden_uid=generate_uid(), can_hide=False)
             )
         return ret
+
+    def render(self):
+        # Wrap in an always-present container so the banner can be AJAX-refreshed
+        # (via jQuery .load) even when there is currently no message.
+        return u'<div id="dms-context-messages">{0}</div>'.format(
+            super(ContextInformationViewlet, self).render()
+        )
 
 
 class CKBatchActionsViewlet(BatchActionsViewlet):

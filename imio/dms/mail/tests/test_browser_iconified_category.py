@@ -5,6 +5,7 @@ from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.browser.iconified_category import _add_client_hints
 from imio.dms.mail.browser.iconified_category import ApprovedChangeView
 from imio.dms.mail.browser.iconified_category import ApprovedColumn
 from imio.dms.mail.browser.iconified_category import SignedChangeView
@@ -138,7 +139,9 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))
         col = ApprovedColumn(self.omail2, self.portal.REQUEST, None)
         # "created", nothing to approve
-        col.get_action_view(file2_cc)()  # deactivate approval on file2
+        resp = col.get_action_view(file2_cc)()  # deactivate approval on file2
+        # has_approvings() flips True->False => transitions change => full reload
+        self.assertIn('"reload": true', resp)
         # file2_brain = get_brain(self.file2)
         self.change_user("dirg")
         self.assertEqual(col.css_class(file2_cc), " to-approve ")
@@ -146,8 +149,16 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.change_user("agent")
         self.assertEqual(col.css_class(file2_cc), " to-approve editable")
         self.assertEqual(col.msg, u"Deactivated for approval (click to activate)")
+        SignedChangeView(self.file2, self.portal.REQUEST)()  # file2 -> not to_sign
+        file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))
+        self.assertEqual(col.css_class(file2_cc), " to-approve editable")
+        self.assertEqual(col.msg, u"Deactivated for approval (click to activate)")
+        SignedChangeView(self.file2, self.portal.REQUEST)()  # restore to_sign
+        file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))
         # "created", one file to approve
-        col.get_action_view(file2_cc)()  # activate approval on file2
+        resp = col.get_action_view(file2_cc)()  # activate approval on file2
+        # re-activating flips has_approvings False->True => transitions change => full reload
+        self.assertIn('"reload": true', resp)
         # file2_brain = get_brain(self.file2)
         self.change_user("dirg")
         self.assertEqual(col.css_class(file2_cc), " active to-approve")
@@ -291,12 +302,12 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         self.assertEqual(col.css_class(file2_cc), "")
         self.change_user("agent")
-        self.assertEqual(col.css_class(file2_cc), "")
+        self.assertEqual(col.css_class(file2_cc), " editable")
         ApprovedChangeView(file3, self.portal.REQUEST)()  # Set file3 not to_approve
         self.assertEqual(col.css_class(file3_cc), " editable")
         self.assertEqual(
             col.get_action_view(file3_cc)(),
-            u'{"msg":"Cet élément ne doit pas être signé","status":-1,"reload": true}',
+            u'{"msg":"Cet élément ne doit pas être signé","status":-1,"refresh_context_messages": true}',
         )  # Set file3 not to_sign
         self.assertEqual(col.css_class(file3_cc), " deactivated editable")
         self.change_user("dirg")
@@ -327,10 +338,36 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         )  # Set file2 as signed
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
         self.assertEqual(col.css_class(file2_cc), " active")
+        # "signed"
+        self.change_user("encodeur")
+        self.pw.doActionFor(self.omail2, "mark_as_signed")
+        self.assertEqual(api.content.get_state(self.omail2), "signed")
+        file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))
+        self.assertEqual(col.css_class(file2_cc), " active")
+        self.assertEqual(col.get_url(file2_cc), "#")
+        self.assertEqual(col.css_class(file3_cc), " deactivated")
         # "sent"
         self.pw.doActionFor(self.omail2, "mark_as_sent")
         self.assertEqual(col.css_class(file2_cc), " active")
         self.assertEqual(col.css_class(file3_cc), " deactivated")
+
+    def test__add_client_hints(self):
+        """_add_client_hints appends the right client-side hint(s) to the JSON response."""
+        view = ApprovedChangeView(self.file1, self.portal.REQUEST)
+        base = u'{"msg":"x","status":0}'
+        # no flag set => response returned unchanged
+        self.assertEqual(_add_client_hints(base, view), base)
+        # refresh_context_messages only
+        view.refresh_context_messages = True
+        self.assertEqual(
+            _add_client_hints(base, view), u'{"msg":"x","status":0,"refresh_context_messages": true}'
+        )
+        # reload takes precedence over refresh_context_messages
+        view.reload = True
+        self.assertEqual(_add_client_hints(base, view), u'{"msg":"x","status":0,"reload": true}')
+        # a flag is set but the response is not a JSON object => returned unchanged
+        view.reload, view.refresh_context_messages = False, True
+        self.assertEqual(_add_client_hints(u"not-json", view), u"not-json")
 
     def test_signed_change_view(self):
         """Test ApprovedChangeView"""

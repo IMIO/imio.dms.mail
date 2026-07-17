@@ -1236,6 +1236,20 @@ class OMApprovalAdapter(object):
             approvers = approvers.union(set(i_approvers))
         return list(approvers)
 
+    def is_file_eligible(self, file_obj):
+        """Whether a file should be approved: it is to_sign, this mail has approvers, and it is
+        not exempt (a pdf conversion or a mailing file, which may be signed without approval).
+
+        Single source of truth shared by ``_correct_to_approve`` (setter) and
+        ``ImioDmsOutgoingMail.invalid_sign_approve_files`` (checker) so they cannot drift.
+        """
+        return bool(
+            getattr(file_obj, "to_sign", False)
+            and self.approvers
+            and not base_hasattr(file_obj, "conv_from_uid")
+            and not getattr(file_obj, "need_mailing", False)
+        )
+
     @property
     def current_nb(self):
         """Return the current store approbal number."""
