@@ -7,6 +7,8 @@ from imio.dms.mail import _
 from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
 from imio.dms.mail.utils import get_allowed_content_types
 from plone import api
+from plone.dexterity.browser.add import DefaultAddForm
+from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.namedfile.field import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
@@ -67,3 +69,27 @@ class ImioDmsFileSchemaPolicy(DexteritySchemaPolicy):
 
     def bases(self, schemaName, tree):
         return (IImioDmsFile,)
+
+
+class AppendixFileAddForm(DefaultAddForm):
+    portal_type = "dmsappendixfile"
+
+    def nextURL(self):
+        # after adding an annex via the UI, go back to the container, not the annex view
+        return self.context.absolute_url()
+
+
+class AddAppendixFile(DefaultAddView):
+    form = AppendixFileAddForm
+
+
+class AnnexAddForm(DefaultAddForm):
+    portal_type = "annex"
+
+    def nextURL(self):
+        # after adding an annex via the UI, go back to the container, not the annex view
+        return self.context.absolute_url()
+
+
+class AddAnnex(DefaultAddView):
+    form = AnnexAddForm

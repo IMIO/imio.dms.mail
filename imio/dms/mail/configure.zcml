@@ -212,6 +212,36 @@
             />
     </class>
 
+    <!-- Custom add form for annexes: redirect back to the container after add -->
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             zope.publisher.interfaces.browser.IDefaultBrowserLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".dmsfile.AddAppendixFile"
+        name="dmsappendixfile"
+        />
+    <class class=".dmsfile.AddAppendixFile">
+        <require
+            permission="cmf.AddPortalContent"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             zope.publisher.interfaces.browser.IDefaultBrowserLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".dmsfile.AddAnnex"
+        name="annex"
+        />
+    <class class=".dmsfile.AddAnnex">
+        <require
+            permission="cmf.AddPortalContent"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+
     <!-- sign_request internal reference auto-numbering -->
     <adapter factory=".dmssignrequest.InternalReferenceSignRequestValidator" />
     <adapter name="internal_reference_number"
