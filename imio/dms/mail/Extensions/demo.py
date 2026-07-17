@@ -15,7 +15,9 @@ from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail.adapters import approval_adapter
 from imio.dms.mail.dmsmail import ImioDmsOutgoingMail
+from imio.dms.mail.dmssignrequest import internalReferenceSignRequestDefaultValue
 from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import create_period_folder
@@ -623,7 +625,7 @@ def approval_annot(self):
     return pprint.pformat(dic)
 
 
-def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", approve="0"):
+def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", approve="0"):
     """Create outgoing mail examples for electronic signing demo.
 
     :param userids: the user ids of the signers (must have a held_position with 'signer' usage), separated by comma
@@ -651,7 +653,8 @@ def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", ap
                 "-> 4 : seal avec modèle\n"
                 "-> 5 : signataire et seal avec modèle\n"
                 "-> 6 : signataire avec modèle à publiposter\n"
-                "-> 7 : sans signature électronique avec modèle\n".format(user and user.getId() or "dirg")
+                "-> 7 : sans signature électronique avec modèle\n"
+                "-> 8 : demande de signature (sign_request) avec annexes\n".format(user and user.getId() or "dirg")
                 )
 
     portal = api.portal.get()
@@ -678,12 +681,15 @@ def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", ap
             return "No held_position with 'signer' usage found for userid '{}'".format(userid)
         signer_hp_uids.append(signer_hp_uid)
 
-    # Find treating_groups: direction générale / secrétariat
-    try:
-        secretariat = pgo["direction-generale"]["secretariat"]
-    except KeyError:
-        return "Organization 'direction-generale/secretariat' not found in plonegroup-organization"
-    treating_groups_uid = secretariat.UID()
+    # Find treating_groups:
+    if user_ids[0] in pf and pf[user_ids[0]].primary_organization:
+        treating_groups_uid = pf[user_ids[0]].primary_organization
+    else:
+        try :
+            secretariat = pgo["direction-generale"]["secretariat"]
+        except KeyError:
+            return "Organization 'direction-generale/secretariat' not found in plonegroup-organization"
+        treating_groups_uid = secretariat.UID()
 
     # Find recipient: Annie Kordi
     if "anniekordi" not in contacts:
@@ -720,6 +726,20 @@ def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", ap
             ),
         )
 
+    def _sr_add_appendix(request, portal, filename):
+        """Add a signable appendix file (from batchimport/toprocess/requests) on the sign_request."""
+        with open(add_path("batchimport/toprocess/requests/%s" % filename), "rb") as fo:
+            file_object = NamedBlobFile(fo.read(), filename=filename)
+        createContentInContainer(
+            request,
+            "dmsappendixfile",
+            title=u"Annexe à signer: {}".format(filename),
+            file=file_object,
+            content_category=calculate_category_id(
+                portal["annexes_types"]["sign_request_appendix_files"]["sign-request-appendix-file"]
+            ),
+        )
+
     def _trigger_mailing_loop(mail):
         """Run mailing-loop generation on each dmsommainfile that needs mailing (publipostage)."""
         view = mail.restrictedTraverse("mailing-loop-persistent-document-generation")
@@ -731,14 +751,14 @@ def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", ap
                 continue
             view(document_uid=f.UID())
 
-    def _approve_mail(mail):
+    def _approve_item(obj):
         """Propose to approve then approve all files for each signer level."""
-        if not mail.esign:
+        if not obj.esign:
             return
-        approval = IOMApproval(mail)
+        approval = approval_adapter(obj)
         if not approval.files_uids:
             return
-        api.content.transition(obj=mail, transition="propose_to_approve")
+        api.content.transition(obj=obj, transition="propose_to_approve")
         for nb in range(len(approval.annot["signers"])):
             approvers = list(approval.annot["approvers"][nb])
             if not approvers:
@@ -765,6 +785,32 @@ def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", ap
         "recipients": [RelationValue(intids.getId(anniekordi))],
         "send_modes": [u"post"],
     }
+
+    # Case 8: demande de signature (sign_request) avec annexes (fnb fichiers, cyclés sur 2, 3, 1)
+    if "8" in cases:
+        sr_container = create_period_folder(portal["requests"], datetime.now())
+        assigned_user = user_ids[0]
+        params = {
+            "treating_groups": treating_groups_uid,
+            "assigned_user": assigned_user,
+            "recipient_groups": [],
+            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
+                        for i, shp in enumerate(signer_hp_uids, start=1)],
+            "esign": True,
+        }
+        base_title = u"Cas 8 => demande de signature"
+        for _m in range(mnb):
+            params["internal_reference_no"] = internalReferenceSignRequestDefaultValue(data)
+            params["title"] = base_title if mnb == 1 else u"{} ({})".format(base_title, _m + 1)
+            oid = get_correct_id(sr_container, "sign_request_case8")
+            sr_container.invokeFactory("sign_request", id=oid, **params)
+            request = sr_container[oid]
+            files_cycle = cycle((u"2-reservation-salle.pdf", u"3-degradation-voirie.odt",
+                                 u"1-contestation-facture.pdf"))
+            for _f in range(fnb):
+                _sr_add_appendix(request, portal, next(files_cycle))
+            if do_approve:
+                _approve_item(request)
 
     # Case 7: sans signature électronique (2 signataires manuels) + modèle
     if "7" in cases:
@@ -812,7 +858,7 @@ def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", ap
                 _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
             if do_approve:
                 _trigger_mailing_loop(mail)
-                _approve_mail(mail)
+                _approve_item(mail)
 
     # Case 5: signataire + seal + modèle
     if "5" in cases:
@@ -835,7 +881,7 @@ def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", ap
             for _f in range(fnb):
                 _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
             if do_approve:
-                _approve_mail(mail)
+                _approve_item(mail)
 
     # Case 4: seal seul (pas de signataire, pas d'esign) + modèle
     if "4" in cases:
@@ -880,7 +926,7 @@ def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", ap
             for _f in range(fnb):
                 _om_add_signable_annex(mail, portal, annex_filename, _f + 1 if fnb > 1 else u"")
             if do_approve:
-                _approve_mail(mail)
+                _approve_item(mail)
 
     # Case 2: signataire + annexe seule
     if "2" in cases:
@@ -902,7 +948,7 @@ def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", ap
             for _f in range(fnb):
                 _om_add_signable_annex(mail, portal, annex_filename, _f + 1 if fnb > 1 else u"")
             if do_approve:
-                _approve_mail(mail)
+                _approve_item(mail)
 
     # Case 1: signataire + modèle
     if "1" in cases:
@@ -924,9 +970,11 @@ def import_sign_examples(self, userids="", cases="1234567", mnb="1", fnb="1", ap
             for _f in range(fnb):
                 _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
             if do_approve:
-                _approve_mail(mail)
-
-    return portal.REQUEST.response.redirect(ofld.absolute_url())
+                _approve_item(mail)
+    if cases == "8":
+        return portal.REQUEST.response.redirect(portal["requests"].absolute_url())
+    else:
+        return portal.REQUEST.response.redirect(ofld.absolute_url())
 
 
 def sub_templates_usage(self):
