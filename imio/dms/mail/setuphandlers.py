@@ -202,6 +202,21 @@ def setup_classification(site):
     logger.info("Classification configured")
 
 
+def configure_collabora():
+    """Set collective.collabora's server url, per environment."""
+    urls = {
+        "dev": u"http://localhost:9980",  # docker/docker-compose.yaml, network_mode: host
+        "prod": u"",  # TODO
+    }
+    env = get_environment()
+    url = urls.get(env)
+    if not url:
+        logger.info("collabora_server_url: no url for env %r, keeping default", env)
+        return
+    api.portal.set_registry_record("collective.collabora.collabora_server_url", url)
+    logger.info("collabora_server_url set to %s (env: %s)", url, env)
+
+
 def postInstall(context):
     """Called as at the end of the setup process."""
     # the right place for your custom code
@@ -212,6 +227,9 @@ def postInstall(context):
 
     # we adapt default portal
     adaptDefaultPortal(context)
+
+    # we configure the Collabora server url (per environment)
+    configure_collabora()
 
     # we change searched types
     changeSearchedTypes(site)
