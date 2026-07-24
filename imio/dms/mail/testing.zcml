@@ -25,6 +25,7 @@
    <include package="collective.messagesviewlet"/>
    <include package="collective.MockMailHost"/>
    <include package="collective.documentgenerator"/>
+   <include package="collective.collabora"/>
 
    <includeOverrides file="overrides.zcml" />
    <includeOverrides package="collective.eeafaceted.dashboard" file="overrides.zcml" />
