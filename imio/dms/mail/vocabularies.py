@@ -473,7 +473,7 @@ def encodeur_active_orgs(context):
         orgs = organizations_with_suffixes(
             get_plone_groups_for_user(user=current_user), OM_EDITOR_SERVICE_FUNCTIONS, group_as_str=True
         )
-        pers = get_person_from_userid(current_user.id)
+        pers = get_person_from_userid(current_user.getId())
         if pers and pers.primary_organization and pers.primary_organization in orgs:
             return SimpleVocabulary(
                 [voc.vocab.getTerm(pers.primary_organization)]
@@ -530,7 +530,7 @@ def signrequest_active_orgs(context):
     if not current_user.has_role(["Manager", "Site Administrator"]) and (
         context.portal_type != "sign_request" or api.content.get_state(context) == "created"
     ):
-        pers = get_person_from_userid(current_user.id)
+        pers = get_person_from_userid(current_user.getId())
         first_org = None
         if pers and pers.primary_organization and pers.primary_organization in voc.by_value:
             first_org = pers.primary_organization
@@ -568,8 +568,8 @@ class MyLabelsVocabulary(object):
             if label["by_user"]:
                 terms.append(
                     SimpleVocabulary.createTerm(
-                        "%s:%s" % (user.id, label["label_id"]),
-                        "%s_%s" % (user.id, label["label_id"]),
+                        "%s:%s" % (user.getId(), label["label_id"]),
+                        "%s_%s" % (user.getId(), label["label_id"]),
                         safe_unicode(label["title"]),
                     )
                 )

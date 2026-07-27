@@ -105,7 +105,6 @@ def parse_query(text):
 class ContactSuggest(BrowserView):
     """Contact Autocomplete view"""
 
-
     label = u"Contact"
 
     def __call__(self):
@@ -149,7 +148,6 @@ class ContactSuggest(BrowserView):
 @implementer(IAutocompleteSuggest)
 class SenderSuggest(BrowserView):
     """Contact Autocomplete view"""
-
 
     label = u"Sender"
 
@@ -487,18 +485,17 @@ class DmsMailRestClientView(BrowserView):
         return u"<p>Fiche courrier liée: %s</p>" % object_link(self.context, target="_blank")
 
 
-def session_portal_type(session):
-    """Content type concerned by a session."""
-    discriminators = tuple(session.get("discriminators", ()))
-    return discriminators[0] if discriminators else "dmsoutgoingmail"
-
-
 class ImioSessionsListingView(SessionsListingView):
+
+    def session_portal_type(self, session):
+        """Content type concerned by a session."""
+        discriminators = tuple(session.get("discriminators", ()))
+        return discriminators[0] if discriminators else "dmsoutgoingmail"
 
     def get_dashboard_link(self, session):
         portal = api.portal.get()
         # a session holds files of a single content type: point to the matching dashboard
-        if session_portal_type(get_session_info(session["id"])) == "sign_request":
+        if self.session_portal_type(get_session_info(session["id"])) == "sign_request":
             folder_id, searches_id = "requests", "requests-searches"
         else:
             folder_id, searches_id = "outgoing-mail", "mail-searches"
@@ -518,7 +515,7 @@ class ImioSessionsListingView(SessionsListingView):
         portal_type = self.request.get("esign_portal_type", None)
         if not portal_type:
             return sessions
-        return [session for session in sessions if session_portal_type(session) == portal_type]
+        return [session for session in sessions if self.session_portal_type(session) == portal_type]
 
     def available(self):
         # check if esign is disabled

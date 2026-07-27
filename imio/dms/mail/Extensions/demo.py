@@ -625,7 +625,7 @@ def approval_annot(self):
 
 
 def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", approve="0"):
-    """Create outgoing mail examples for electronic signing demo.
+    """Create outgoing mail and sign request examples for electronic signing demo.
 
     :param userids: the user ids of the signers (must have a held_position with 'signer' usage), separated by comma
     :param cases: the cases to create
