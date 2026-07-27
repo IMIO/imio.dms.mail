@@ -30,6 +30,7 @@ from imio.helpers.workflow import do_transitions
 from imio.pyutils.system import get_git_tag
 from imio.zamqp.core import base
 from itertools import cycle
+from pathlib import Path
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
@@ -413,7 +414,7 @@ def add_test_mails(context):
     files = sorted([
         safe_unicode(name)
         for name in os.listdir(filespath)  # noqa
-        if os.path.splitext(name)[1][1:] in ("pdf", "doc", "jpg")
+        if Path(name).suffix[1:] in ("pdf", "doc", "jpg")
     ])
     files_cycle = cycle(files)
 
@@ -492,7 +493,7 @@ def add_test_mails(context):
     )
 
     filespath = "%s/batchimport/toprocess/outgoing-mail" % PRODUCT_DIR
-    files = [safe_unicode(name) for name in os.listdir(filespath) if os.path.splitext(name)[1][1:] in ("odt",)]
+    files = [safe_unicode(name) for name in os.listdir(filespath) if Path(name).suffix[1:] in ("odt",)]
     files.sort()
     files_cycle = cycle(files)
     pf = contacts["personnel-folder"]
@@ -568,7 +569,7 @@ def add_test_sign_requests(site):
     users_cycle = cycle(users)
 
     filespath = "%s/batchimport/toprocess/requests" % PRODUCT_DIR
-    files = [safe_unicode(name) for name in os.listdir(filespath) if os.path.splitext(name)[1][1:] in ("odt", "pdf")]
+    files = [safe_unicode(name) for name in os.listdir(filespath) if Path(name).suffix[1:] in ("odt", "pdf")]
     files.sort()
     files_cycle = cycle(files)
 

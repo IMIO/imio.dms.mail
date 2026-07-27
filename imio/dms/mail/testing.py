@@ -11,6 +11,7 @@ from imio.helpers.content import get_object
 from imio.helpers.workflow import do_transitions
 from imio.pyutils.system import runCommand
 from itertools import cycle
+from pathlib import Path
 from plone import api
 from plone.api.validation import at_least_one_of
 from plone.app.robotframework.remote import RemoteLibrary
@@ -402,7 +403,7 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
 
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
     files = [safe_unicode(name) for name in os.listdir(filespath)
-             if os.path.splitext(name)[1][1:] in ("pdf", "doc", "jpg")]
+             if Path(name).suffix[1:] in ("pdf", "doc", "jpg")]
     files_cycle = cycle(files)
 
     # intids = getUtility(IIntIds)
