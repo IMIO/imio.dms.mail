@@ -50,7 +50,7 @@ from unidecode import unidecode  # unidecode_expect_nonascii not yet available i
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
-from zope.interface import implements
+from zope.interface import implementer
 from zope.lifecycleevent import modified
 from zope.pagetemplate.pagetemplate import PageTemplate
 
@@ -101,10 +101,10 @@ def parse_query(text):
     return query
 
 
+@implementer(IAutocompleteSuggest)
 class ContactSuggest(BrowserView):
     """Contact Autocomplete view"""
 
-    implements(IAutocompleteSuggest)
 
     label = u"Contact"
 
@@ -146,10 +146,10 @@ class ContactSuggest(BrowserView):
         return json.dumps(result)
 
 
+@implementer(IAutocompleteSuggest)
 class SenderSuggest(BrowserView):
     """Contact Autocomplete view"""
 
-    implements(IAutocompleteSuggest)
 
     label = u"Sender"
 

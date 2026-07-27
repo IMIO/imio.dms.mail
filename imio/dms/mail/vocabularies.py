@@ -41,7 +41,7 @@ from zope.component import getUtility
 from zope.component import queryUtility
 from zope.i18n import translate
 from zope.interface import alsoProvides
-from zope.interface import implements
+from zope.interface import implementer
 from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
@@ -57,10 +57,9 @@ def voc_cache_key(method, self, context):
     return get_cachekey_volatile("%s.%s" % (self.__class__.__module__, self.__class__.__name__))
 
 
+@implementer(IVocabularyFactory)
 class IMReviewStatesVocabulary(object):
     """Incoming mail states vocabulary"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         terms = []
@@ -74,10 +73,9 @@ class IMReviewStatesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
+@implementer(IVocabularyFactory)
 class OMReviewStatesVocabulary(object):
     """Outgoing mail states vocabulary"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         terms = []
@@ -91,10 +89,9 @@ class OMReviewStatesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
+@implementer(IVocabularyFactory)
 class TaskReviewStatesVocabulary(object):
     """Task states vocabulary"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         terms = []
@@ -107,10 +104,9 @@ class TaskReviewStatesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
+@implementer(IVocabularyFactory)
 class FirstLevelTabsVocabulary(object):
     """First level tabs vocabulary (used to configure displayed tabs)"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         portal = api.portal.get()
@@ -122,10 +118,9 @@ class FirstLevelTabsVocabulary(object):
         return SimpleVocabulary(terms)
 
 
+@implementer(IVocabularyFactory)
 class ContactsReviewStatesVocabulary(object):
     """Contacts states vocabulary"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         terms = []
@@ -138,10 +133,9 @@ class ContactsReviewStatesVocabulary(object):
         return SimpleVocabulary(terms)
 
 
+@implementer(IVocabularyFactory)
 class HeldPositionUsagesVocabulary(object):
     """Vocabulary for held position usages."""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         res = [
@@ -152,10 +146,9 @@ class HeldPositionUsagesVocabulary(object):
         return SimpleVocabulary(res)
 
 
+@implementer(IVocabularyFactory)
 class AssignedUsersWithDeactivatedVocabulary(object):
     """All users, activated first."""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(users_groups_cache_key)
     def AssignedUsersWithDeactivatedVocabulary__call__(self, context):
@@ -192,10 +185,9 @@ class AssignedUsersWithDeactivatedVocabulary(object):
     __call__ = AssignedUsersWithDeactivatedVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class AssignedUsersForFacetedFilterVocabulary(object):
     """All users, activated first."""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         factory = getUtility(IVocabularyFactory, "imio.dms.mail.AssignedUsersWithDeactivatedVocabulary")
@@ -226,10 +218,9 @@ def get_settings_vta_table(field, active=(True, False), choose=False):
     return SimpleVocabulary(terms)
 
 
+@implementer(IVocabularyFactory)
 class IMMailTypesVocabulary(object):
     """Mail types vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def IMMailTypesVocabulary__call__(self, context):
@@ -238,10 +229,9 @@ class IMMailTypesVocabulary(object):
     __call__ = IMMailTypesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class IMActiveMailTypesVocabulary(object):
     """Active mail types vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def IMActiveMailTypesVocabulary__call__(self, context):
@@ -250,10 +240,9 @@ class IMActiveMailTypesVocabulary(object):
     __call__ = IMActiveMailTypesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class PloneGroupInterfacesVocabulary(object):
     """List interfaces that will be shown in contacts faceted navigation."""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         interfaces = [IPloneGroupContact, INotPloneGroupContact, IPersonnelContact]
@@ -328,6 +317,7 @@ def get_internal_held_positions_vocabulary(states=(), usages=(), as_person=False
         return SimpleVocabulary([term for pers, hpo, term in sorted(terms, key=sort_hps)])
 
 
+@implementer(IVocabularyFactory)
 class OMActiveSenderVocabulary(object):
     """
     Outgoing mail sender vocabulary
@@ -336,8 +326,6 @@ class OMActiveSenderVocabulary(object):
     term title = hp title
     """
 
-    implements(IVocabularyFactory)
-
     @ram.cache(voc_cache_key)
     def OMActiveSenderVocabulary__call__(self, context):
         return get_internal_held_positions_vocabulary(["active"])
@@ -345,6 +333,7 @@ class OMActiveSenderVocabulary(object):
     __call__ = OMActiveSenderVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMSenderVocabulary(object):
     """
     Outgoing mail sender vocabulary
@@ -353,8 +342,6 @@ class OMSenderVocabulary(object):
     term title = hp title
     """
 
-    implements(IVocabularyFactory)
-
     @ram.cache(voc_cache_key)
     def OMSenderVocabulary__call__(self, context):
         return get_internal_held_positions_vocabulary(["active", "deactivated"])
@@ -362,10 +349,9 @@ class OMSenderVocabulary(object):
     __call__ = OMSenderVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMMailTypesVocabulary(object):
     """Mail types vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def OMMailTypesVocabulary__call__(self, context):
@@ -374,10 +360,9 @@ class OMMailTypesVocabulary(object):
     __call__ = OMMailTypesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMActiveMailTypesVocabulary(object):
     """Active mail types vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def OMActiveMailTypesVocabulary__call__(self, context):
@@ -386,10 +371,9 @@ class OMActiveMailTypesVocabulary(object):
     __call__ = OMActiveMailTypesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMSendModesVocabulary(object):
     """All send modes vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def OMSendModesVocabulary__call__(self, context):
@@ -398,10 +382,9 @@ class OMSendModesVocabulary(object):
     __call__ = OMSendModesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMActiveSendModesVocabulary(object):
     """Active send modes vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def OMActiveSendModesVocabulary__call__(self, context):
@@ -410,10 +393,9 @@ class OMActiveSendModesVocabulary(object):
     __call__ = OMActiveSendModesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class IMSendModesVocabulary(object):
     """All incoming send modes vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def IMSendModesVocabulary__call__(self, context):
@@ -422,10 +404,9 @@ class IMSendModesVocabulary(object):
     __call__ = IMSendModesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class IMActiveSendModesVocabulary(object):
     """Active incoming send modes vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def IMActiveSendModesVocabulary__call__(self, context):
@@ -434,10 +415,9 @@ class IMActiveSendModesVocabulary(object):
     __call__ = IMActiveSendModesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMSignersVocabulary(object):
     """Signers vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def OMSignersVocabulary__call__(self, context):
@@ -446,8 +426,8 @@ class OMSignersVocabulary(object):
     __call__ = OMSignersVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class SigningApprovingsVocabulary(object):
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def SigningApprovingsVocabulary__call__(self, context):
@@ -461,10 +441,9 @@ class SigningApprovingsVocabulary(object):
     __call__ = SigningApprovingsVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class SigningRequestApprovingsVocabulary(object):
     """Same as SigningApprovingsVocabulary but without the "_empty_" value."""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def SigningRequestApprovingsVocabulary__call__(self, context):
@@ -517,6 +496,7 @@ def encodeur_active_orgs(context):
 alsoProvides(encodeur_active_orgs, IContextSourceBinder)
 
 
+@implementer(IVocabularyFactory)
 class SignRequestActiveOrgsVocabulary(object):
     """This vocabulary only keeps organizations that have at least one user defined in their
     '<org_uid>_demand_sign' Plone group.
@@ -524,8 +504,6 @@ class SignRequestActiveOrgsVocabulary(object):
     The result is cached on the '_users_groups_value' volatile, which is invalidated
     on group (un)assignment and on plonegroup registry changes (see subscribers).
     """
-
-    implements(IVocabularyFactory)
 
     @ram.cache(users_groups_cache_key)
     def SignRequestActiveOrgsVocabulary__call__(self, context):
@@ -584,10 +562,9 @@ def signrequest_active_orgs(context):
 alsoProvides(signrequest_active_orgs, IContextSourceBinder)
 
 
+@implementer(IVocabularyFactory)
 class MyLabelsVocabulary(object):
     """My Labels vocabulary. Creating a vocabulary for connected user labels"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         terms = []
@@ -608,10 +585,9 @@ class MyLabelsVocabulary(object):
         return SimpleVocabulary(terms)
 
 
+@implementer(IVocabularyFactory)
 class LabelsVocabulary(object):
     """Global labels vocabulary"""
-
-    implements(IVocabularyFactory)
 
     def LabelsVocabulary__call__(self, context):
         terms = []
@@ -630,10 +606,9 @@ class LabelsVocabulary(object):
     __call__ = LabelsVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class CreatingGroupVocabulary(object):
     """Creating group vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def CreatingGroupVocabulary__call__(self, context):
@@ -654,10 +629,9 @@ class CreatingGroupVocabulary(object):
     __call__ = CreatingGroupVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class ActiveCreatingGroupVocabulary(object):
     """Active creating group vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def ActiveCreatingGroupVocabulary__call__(self, context):
@@ -684,8 +658,8 @@ class ActiveCreatingGroupVocabulary(object):
     __call__ = ActiveCreatingGroupVocabulary__call__
 
 
+@implementer(IQuerySource)
 class SourceAbleVocabulary(object):
-    implements(IQuerySource)
 
     vocabulary_name = ""
     vocabulary = None
@@ -719,8 +693,8 @@ class SourceAbleVocabulary(object):
         return [t for t in self.vocabulary._terms if all([s in self.flattened_titles[t.value] for s in searched])]
 
 
+@implementer(IContextSourceBinder)
 class SourceAbleContextBinder(object):
-    implements(IContextSourceBinder)
     source_class = None
 
     def __call__(self, context):
@@ -735,10 +709,9 @@ class ServicesSourceBinder(SourceAbleContextBinder):
     source_class = ServicesSourceAbleVocabulary
 
 
+@implementer(IVocabularyFactory)
 class ActionCategoriesVocabularyFactory(object):
     """Provides an actions categories vocabulary"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         portal_actions = api.portal.get_tool("portal_actions")
@@ -748,10 +721,9 @@ class ActionCategoriesVocabularyFactory(object):
         return SimpleVocabulary([SimpleTerm(cat, title=cat) for cat in categories])
 
 
+@implementer(IVocabularyFactory)
 class IMPortalTypesVocabulary(object):
     """"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary(
@@ -762,10 +734,9 @@ class IMPortalTypesVocabulary(object):
         )
 
 
+@implementer(IVocabularyFactory)
 class TreatingGroupsWithDeactivatedVocabulary(object):
     """Get all groups, activated first."""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def TreatingGroupsWithDeactivatedVocabulary__call__(self, context):
@@ -796,10 +767,9 @@ class TreatingGroupsWithDeactivatedVocabulary(object):
     __call__ = TreatingGroupsWithDeactivatedVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class TreatingGroupsForFacetedFilterVocabulary(object):
     """Will be used in faceted criteria with deactivated orgs at the end."""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def TreatingGroupsForFacetedFilterVocabulary__call__(self, context):
@@ -827,10 +797,9 @@ class DmsPrimaryOrganizationsVocabulary(PrimaryOrganizationsVocabulary):
         )
 
 
+@implementer(IVocabularyFactory)
 class ActiveInactiveStatesVocabulary(object):
     """States of active_inactive_workflow"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary(
@@ -838,11 +807,10 @@ class ActiveInactiveStatesVocabulary(object):
         )
 
 
+@implementer(IVocabularyFactory)
 class DmsFilesCategoryVocabulary(CategoryVocabulary):
     """Vocabulary to retrieve available content categories for incoming mails, outgoing mails and
     classification folders"""
-
-    implements(IVocabularyFactory)
 
     def _get_categories(self, context, only_enabled=True):
         catalog = api.portal.get_tool('portal_catalog')
@@ -878,10 +846,9 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
         return [b.getObject() for b in catalog.unrestrictedSearchResults(**query)]
 
 
+@implementer(IVocabularyFactory)
 class PODTemplateContentCategoriesVocabulary(object):
     """Return content categories vocabulary for POD templates."""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         catalog = api.portal.get_tool('portal_catalog')

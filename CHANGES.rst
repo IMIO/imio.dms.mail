@@ -15,6 +15,10 @@ Changelog
   [sgeulette]
 - Added sign_request content to handle external documents to be signed.
   [sgeulette]
+- Redirected to container after an annex is added.
+  [sgeulette]
+- Replaced implements by implementer
+  [sgeulette]
 
 3.1.5 (2026-06-19)
 ------------------

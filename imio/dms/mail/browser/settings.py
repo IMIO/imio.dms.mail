@@ -52,7 +52,7 @@ from z3c.form.validator import NoInputData
 from zope import schema
 from zope.component import getUtility
 from zope.globalrequest import getRequest
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface import Interface
 from zope.interface import Invalid
 from zope.interface import invariant
@@ -84,8 +84,8 @@ def get_pt_fields_voc(pt, excluded):
 
 # @provider(IContextSourceBinder)
 # def IMFields(context):
+@implementer(IVocabularyFactory)
 class IMFieldsVocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return get_pt_fields_voc(
@@ -109,8 +109,8 @@ class IMFieldsVocabulary(object):
         )
 
 
+@implementer(IVocabularyFactory)
 class OMFieldsVocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return get_pt_fields_voc(
@@ -133,8 +133,8 @@ class OMFieldsVocabulary(object):
         )
 
 
+@implementer(IVocabularyFactory)
 class RequestFieldsVocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return get_pt_fields_voc(
@@ -152,8 +152,8 @@ class RequestFieldsVocabulary(object):
         )
 
 
+@implementer(IVocabularyFactory)
 class OMFileFormatsVocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary([
@@ -222,8 +222,8 @@ routing_forward_types = SimpleVocabulary(
 )
 
 
+@implementer(IVocabularyFactory)
 class UsersRoutingValueVocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary(
@@ -235,8 +235,8 @@ class UsersRoutingValueVocabulary(object):
         )
 
 
+@implementer(IVocabularyFactory)
 class TgRoutingValueVocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary(
@@ -250,8 +250,8 @@ class TgRoutingValueVocabulary(object):
         )
 
 
+@implementer(IVocabularyFactory)
 class StatesRoutingValueVocabulary(object):
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary(

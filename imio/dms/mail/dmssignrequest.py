@@ -36,7 +36,7 @@ from z3c.form import validator
 from zope import schema
 from zope.component import adapts
 from zope.component import getUtility
-from zope.interface import implements
+from zope.interface import implementer
 from zope.schema.fieldproperty import FieldProperty
 
 import copy
@@ -102,10 +102,10 @@ class ImioDmsSignRequestSchemaPolicy(DexteritySchemaPolicy):
         return (IImioDmsSignRequest,)
 
 
+@implementer(IImioDmsSignRequest)
 class ImioDmsSignRequest(DmsDocument):
     """Signing request content type."""
 
-    implements(IImioDmsSignRequest)
     # disable local roles inheritance
     __ac_local_roles_block__ = True
 
@@ -150,8 +150,8 @@ class ImioDmsSignRequest(DmsDocument):
         return ISignRequestWfConditions(self)
 
 
+@implementer(ISignRequestWfConditions)
 class SignRequestWfConditionsAdapter(object):
-    implements(ISignRequestWfConditions)
     adapts(IImioDmsSignRequest)
     security = ClassSecurityInfo()
 

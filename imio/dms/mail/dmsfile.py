@@ -13,7 +13,7 @@ from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.namedfile.field import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
 from plone.supermodel import model
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface import Invalid
 
 
@@ -47,10 +47,10 @@ class IImioDmsFile(IDmsFile):
     )
 
 
+@implementer(IImioDmsFile)
 class ImioDmsFile(DmsFile):
     """DmsFile"""
 
-    implements(IImioDmsFile)
     __ac_local_roles_block__ = False
 
     def Title(self):

@@ -86,7 +86,7 @@ from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.interface import alsoProvides
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface import Invalid
 from zope.schema import ValidationError
 from zope.schema.fieldproperty import FieldProperty
@@ -283,10 +283,10 @@ class ImioDmsIncomingMailSchemaPolicy(DexteritySchemaPolicy):
 # alsoProvides(IImioDmsIncomingMail, IFormFieldProvider) #needed for behavior
 
 
+@implementer(IImioDmsIncomingMail)
 class ImioDmsIncomingMail(DmsIncomingMail):
     """ """
 
-    implements(IImioDmsIncomingMail)
     __ac_local_roles_block__ = True
 
     treating_groups = FieldProperty(IImioDmsIncomingMail[u"treating_groups"])
@@ -317,8 +317,8 @@ class ImioDmsIncomingMail(DmsIncomingMail):
         return False
 
 
+@implementer(IImioDmsIncomingMailWfConditions)
 class ImioDmsIncomingMailWfConditionsAdapter(object):
-    implements(IImioDmsIncomingMailWfConditions)
     adapts(IImioDmsIncomingMail)
     security = ClassSecurityInfo()
 
@@ -736,10 +736,10 @@ class ImioDmsOutgoingMailSchemaPolicy(DexteritySchemaPolicy):
         return IImioDmsOutgoingMail, IFieldsetOutgoingEmail
 
 
+@implementer(IImioDmsOutgoingMail)
 class ImioDmsOutgoingMail(DmsOutgoingMail):
     """ """
 
-    implements(IImioDmsOutgoingMail)
     __ac_local_roles_block__ = True
 
     # Needed by collective.z3cform.rolefield. Need to be overriden here
@@ -899,8 +899,8 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         return need_mailing_value(document=document)
 
 
+@implementer(IImioDmsOutgoingMailWfConditions)
 class ImioDmsOutgoingMailWfConditionsAdapter(object):
-    implements(IImioDmsOutgoingMailWfConditions)
     adapts(IImioDmsOutgoingMail)
     security = ClassSecurityInfo()
 

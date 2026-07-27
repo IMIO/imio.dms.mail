@@ -94,7 +94,6 @@ from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.interface import implementer
-from zope.interface import implements
 from zope.interface import Interface
 from zope.schema.interfaces import IField
 from zope.schema.interfaces import IVocabularyFactory
@@ -845,9 +844,9 @@ def imio_contact_source(contact):
     return value.replace(", ,", "").replace("  ,", "").replace(",  ", "")
 
 
+@implementer(IDynamicTextIndexExtender)
 class ScanSearchableExtender(object):
     adapts(IScanFields)
-    implements(IDynamicTextIndexExtender)
 
     def __init__(self, context):
         self.context = context
@@ -895,6 +894,7 @@ class ScanSearchableExtender(object):
             return self.searchable_text()
 
 
+@implementer(IDynamicTextIndexExtender)
 class IdmSearchableExtender(object):
     """
     Extends SearchableText of scanned dms document.
@@ -902,7 +902,6 @@ class IdmSearchableExtender(object):
     """
 
     adapts(IImioDmsIncomingMail)
-    implements(IDynamicTextIndexExtender)
 
     def __init__(self, context):
         self.context = context
