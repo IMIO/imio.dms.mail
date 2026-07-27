@@ -186,11 +186,8 @@ class ISigningBehavior(model.Schema):
     def validate_signing(data):
         context = data.__context__
         if context and context.portal_type in ("dmsoutgoingmail", "sign_request"):
-            # local import to avoid a circular import (adapters imports this behaviors module)
-            from imio.dms.mail.adapters import approval_adapter
-
             is_user_admin = api.user.has_permission("Manage portal")
-            approval = approval_adapter(context)
+            approval = context.approval()
             if not is_user_admin and (approval.is_state_after_or_approve() or approval.current_nb == -1):
                 fields_have_changed = (context.esign != data.esign or context.seal != data.seal
                                        or context.signers != data.signers)

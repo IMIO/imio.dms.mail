@@ -15,7 +15,6 @@ from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
-from imio.dms.mail.adapters import approval_adapter
 from imio.dms.mail.dmsmail import ImioDmsOutgoingMail
 from imio.dms.mail.dmssignrequest import internalReferenceSignRequestDefaultValue
 from imio.dms.mail.examples import add_special_model_mail
@@ -755,7 +754,7 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
         """Propose to approve then approve all files for each signer level."""
         if not obj.esign:
             return
-        approval = approval_adapter(obj)
+        approval = obj.approval()
         if not approval.files_uids:
             return
         api.content.transition(obj=obj, transition="propose_to_approve")

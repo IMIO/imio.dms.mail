@@ -9,7 +9,6 @@ from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PLUS_MENU_TABS
 from imio.dms.mail import PMH_ENABLED
-from imio.dms.mail.adapters import approval_adapter
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
@@ -567,7 +566,7 @@ class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
 
     def actions(self):
         # remove from mail approval annotation
-        approval = approval_adapter(self.context.__parent__)
+        approval = self.context.__parent__.approval()
         approval.remove_pdf_file_from_approval(self.context.UID())
         # remove from global esign annotation
         remove_files_from_session([self.context.UID()])
@@ -576,7 +575,7 @@ class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
         # only outgoing mail and signing request have an approval process
         if self.context.__parent__.portal_type not in ("dmsoutgoingmail", "sign_request"):
             return False
-        approval = approval_adapter(self.context.__parent__)
+        approval = self.context.__parent__.approval()
         return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
 
 
@@ -597,7 +596,7 @@ class ApprovalTableView(BrowserView):
         if not self.context.has_approvings():
             return False
         # only available while the approval process is running (not after it)
-        if approval_adapter(self.context).is_state_after_approve():
+        if self.context.approval().is_state_after_approve():
             return False
         return True
 
@@ -616,7 +615,7 @@ class ApprovalTableView(BrowserView):
         save_button = form.get("form.button.Save", None) is not None
         cancel_button = form.get("form.button.Cancel", None) is not None
         if save_button and not cancel_button:
-            approval = approval_adapter(self.context)
+            approval = self.context.approval()
             to_approve = []
             for i_signer, signer in enumerate(approval.signers):
                 for fuid in approval.files_uids:
@@ -707,7 +706,7 @@ class SessionAnnotationInfoView(BaseSessionAnnotationInfoView):
     @property
     def approval_annot_html(self):
         """Renders approval annot in HTML"""
-        approval = approval_adapter(self.context)
+        approval = self.context.approval()
         native = persistent_to_native(approval.annot)
         return self._render_value(native)
 

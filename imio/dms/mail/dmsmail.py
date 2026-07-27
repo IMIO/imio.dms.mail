@@ -746,9 +746,11 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     treating_groups = FieldProperty(IImioDmsOutgoingMail[u"treating_groups"])
     recipient_groups = FieldProperty(IImioDmsOutgoingMail[u"recipient_groups"])
 
-    @property
     def approval(self):
-        """Returns the adapter providing approval behavior"""
+        """Returns the adapter providing approval behavior.
+
+        Must be a method (not a property)
+        """
         return IOMApproval(self)
 
     def get_mainfiles(self):
@@ -879,7 +881,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         :param all_done: if True, check if all approvings are done
         :return: boolean
         """
-        approval = IOMApproval(self)
+        approval = self.approval()
         if not approval.approvers:
             return False
         elif not approval.files_uids:

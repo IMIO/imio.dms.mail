@@ -113,6 +113,13 @@ class ImioDmsSignRequest(DmsDocument):
     treating_groups = FieldProperty(IImioDmsSignRequest[u"treating_groups"])
     recipient_groups = FieldProperty(IImioDmsSignRequest[u"recipient_groups"])
 
+    def approval(self):
+        """Returns the adapter providing approval behavior.
+
+        Must be a method (not a property)
+        """
+        return ISignRequestApproval(self)
+
     def Title(self):
         if self.internal_reference_no is None:
             return self.title.encode("utf8")
@@ -128,7 +135,7 @@ class ImioDmsSignRequest(DmsDocument):
         :param all_done: if True, check if all approvings are done
         :return: boolean
         """
-        approval = ISignRequestApproval(self)
+        approval = self.approval()
         if not approval.approvers:
             return False
         elif not approval.files_uids:

@@ -7,7 +7,6 @@ from collective.iconifiedcategory.browser.actionview import ApprovedChangeView a
 from collective.iconifiedcategory.browser.actionview import SignedChangeView as BaseSignedChangeView
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
 from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSignedColumn
-from imio.dms.mail.adapters import approval_adapter
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import logger  # noqa F401
 # from imio.esign.audit import audit as esign_audit
@@ -37,7 +36,7 @@ class ApprovedColumn(BaseApprovedColumn):
     def __init__(self, context, request, table):
         super(ApprovedColumn, self).__init__(context, request, table)
         # self.context is the mail here
-        self.approval = approval_adapter(self.context)
+        self.approval = self.context.approval()
         self.msg = u""
 
     def alt(self, content):
@@ -129,7 +128,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
     def __init__(self, context, request):
         super(ApprovedChangeView, self).__init__(context, request)
         self.parent = self.context.__parent__
-        self.approval = approval_adapter(self.parent)
+        self.approval = self.parent.approval()
         self.uid = self.context.UID()
         self.msg = u""
         self.reload = False

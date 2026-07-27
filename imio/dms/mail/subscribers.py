@@ -32,7 +32,6 @@ from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
-from imio.dms.mail.adapters import approval_adapter
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.adapters import SignRequestApprovalAdapter
 # from imio.dms.mail import MAIN_FOLDERS
@@ -814,7 +813,7 @@ def _correct_to_approve(file_obj):
     orig_value = getattr(file_obj, "to_approve", False)
     new_value = False
     om_obj = file_obj.__parent__
-    approval = approval_adapter(om_obj)
+    approval = om_obj.approval()
     if (
         orig_value
         and getattr(file_obj, "to_sign", False)
@@ -883,7 +882,7 @@ def i_annex_will_be_removed(obj, event):
             # When deleting site, the portal is no more found...
             return
         breach = None
-        approval = approval_adapter(obj.__parent__)
+        approval = obj.__parent__.approval()
         if obj.UID() in approval.files_uids:
             breach = (obj.__parent__, obj)
         if obj.UID() in [f_uid for lst in approval.pdf_files_uids for f_uid in lst]:
@@ -925,7 +924,7 @@ def i_annex_removed(obj, event):
         "sign_request",
     ):
         current_uid = obj.UID()
-        approval = approval_adapter(obj.__parent__)
+        approval = obj.__parent__.approval()
         # Case 1: We are removing a file in a session. Can be a pdf from odt, a direct pdf, a sealed odf
         session_annot = get_session_annotation()
         if current_uid in session_annot["uids"]:

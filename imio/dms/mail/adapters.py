@@ -1180,8 +1180,7 @@ class ApprovalRoleAdapter(object):
 
     @property
     def config(self):
-        approval = approval_adapter(self.context)
-        return approval.roles
+        return self.context.approval().roles
 
 
 class ApprovalAdapter(object):
@@ -2041,15 +2040,6 @@ class SignRequestApprovalAdapter(ApprovalAdapter):
     """
 
     after_approval_states = ("to_be_signed", "signed", "closed")
-
-
-def approval_adapter(context):
-    """Return the approval adapter matching the context portal_type."""
-    if context.portal_type == "dmsoutgoingmail":
-        return OMApprovalAdapter(context)
-    elif context.portal_type == "sign_request":
-        return SignRequestApprovalAdapter(context)
-    return None
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):

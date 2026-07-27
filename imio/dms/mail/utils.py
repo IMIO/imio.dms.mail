@@ -126,7 +126,7 @@ def add_remove_values_in_registry_list(record_name, to_add=(), to_remove=(), ord
     :param record_name : registry key
     :param to_add : list of values to add
     :param to_remove : list of values to remove
-    :param order : potional list of values to follow order
+    :param order : positional list of values to follow order
     :return: bool indicating changes
     """
     values = list(api.portal.get_registry_record(record_name, default=[]) or [])

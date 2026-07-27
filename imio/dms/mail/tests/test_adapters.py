@@ -12,7 +12,6 @@ from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
 from imio.dms.mail.adapters import IncomingMailInCopyGroupCriterion
 from imio.dms.mail.adapters import IncomingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import IncomingMailValidationCriterion
-from imio.dms.mail.adapters import approval_adapter
 from imio.dms.mail.adapters import OdmSearchableExtender
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.adapters import org_sortable_title_index
@@ -204,12 +203,11 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         self.change_user("siteadmin")
         self.assertEqual(crit.query, {"recipient_groups": {"query": ["111"]}})
 
-    def test_approval_adapter(self):
+    def test_approval_property(self):
         om = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-disp")
-        self.assertIsInstance(approval_adapter(om), OMApprovalAdapter)
+        self.assertIsInstance(om.approval(), OMApprovalAdapter)
         request, files = create_sign_request(self.portal, oid="sr-disp", signers=[], nb_files=0)
-        self.assertIsInstance(approval_adapter(request), SignRequestApprovalAdapter)
-        self.assertIsNone(approval_adapter(self.portal))
+        self.assertIsInstance(request.approval(), SignRequestApprovalAdapter)
 
     def test_signrequest_approvings_index(self):
         request, files = create_sign_request(self.portal, oid="sr-idx", nb_files=1)
