@@ -58,50 +58,49 @@ def voc_cache_key(method, self, context):
 
 
 @implementer(IVocabularyFactory)
-class IMReviewStatesVocabulary(object):
+class BaseReviewStatesVocabulary(object):
+    """Base wf states vocabulary: lists self.portal_type states, in configured order"""
+
+    portal_type = None
+    site_language = True  # translate in site language, otherwise negotiate with request
+
+    def __call__(self, context):
+        if self.site_language:
+            tl = api.portal.get().portal_properties.site_properties.getProperty("default_language", "fr")
+            kwargs = {"target_language": tl}
+        else:
+            kwargs = {"context": context.REQUEST}
+        return SimpleVocabulary(
+            [
+                SimpleVocabulary.createTerm(st_id, st_id, translate(safe_unicode(st_tit), domain="plone", **kwargs))
+                for st_id, st_tit in list_wf_states(context, self.portal_type)
+            ]
+        )
+
+
+class IMReviewStatesVocabulary(BaseReviewStatesVocabulary):
     """Incoming mail states vocabulary"""
 
-    def __call__(self, context):
-        terms = []
-        tl = api.portal.get().portal_properties.site_properties.getProperty("default_language", "fr")
-        for st_id, st_tit in list_wf_states(context, "dmsincomingmail"):  # i_e ok
-            terms.append(
-                SimpleVocabulary.createTerm(
-                    st_id, st_id, translate(safe_unicode(st_tit), domain="plone", target_language=tl)
-                )
-            )
-        return SimpleVocabulary(terms)
+    portal_type = "dmsincomingmail"  # i_e ok
 
 
-@implementer(IVocabularyFactory)
-class OMReviewStatesVocabulary(object):
+class OMReviewStatesVocabulary(BaseReviewStatesVocabulary):
     """Outgoing mail states vocabulary"""
 
-    def __call__(self, context):
-        terms = []
-        tl = api.portal.get().portal_properties.site_properties.getProperty("default_language", "fr")
-        for st_id, st_tit in list_wf_states(context, "dmsoutgoingmail"):
-            terms.append(
-                SimpleVocabulary.createTerm(
-                    st_id, st_id, translate(safe_unicode(st_tit), domain="plone", target_language=tl)
-                )
-            )
-        return SimpleVocabulary(terms)
+    portal_type = "dmsoutgoingmail"
 
 
-@implementer(IVocabularyFactory)
-class TaskReviewStatesVocabulary(object):
+class SRReviewStatesVocabulary(BaseReviewStatesVocabulary):
+    """Sign request states vocabulary"""
+
+    portal_type = "sign_request"
+
+
+class TaskReviewStatesVocabulary(BaseReviewStatesVocabulary):
     """Task states vocabulary"""
 
-    def __call__(self, context):
-        terms = []
-        for st_id, st_tit in list_wf_states(context, "task"):
-            terms.append(
-                SimpleVocabulary.createTerm(
-                    st_id, st_id, translate(safe_unicode(st_tit), domain="plone", context=context.REQUEST)
-                )
-            )
-        return SimpleVocabulary(terms)
+    portal_type = "task"
+    site_language = False
 
 
 @implementer(IVocabularyFactory)
@@ -118,19 +117,11 @@ class FirstLevelTabsVocabulary(object):
         return SimpleVocabulary(terms)
 
 
-@implementer(IVocabularyFactory)
-class ContactsReviewStatesVocabulary(object):
+class ContactsReviewStatesVocabulary(BaseReviewStatesVocabulary):
     """Contacts states vocabulary"""
 
-    def __call__(self, context):
-        terms = []
-        for st_id, st_tit in list_wf_states(context, "organization"):
-            terms.append(
-                SimpleVocabulary.createTerm(
-                    st_id, st_id, translate(safe_unicode(st_tit), domain="plone", context=context.REQUEST)
-                )
-            )
-        return SimpleVocabulary(terms)
+    portal_type = "organization"
+    site_language = False
 
 
 @implementer(IVocabularyFactory)

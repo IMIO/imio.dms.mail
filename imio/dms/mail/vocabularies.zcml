@@ -25,6 +25,11 @@
         />
 
     <utility
+        name="imio.dms.mail.SRReviewStatesVocabulary"
+        factory="imio.dms.mail.vocabularies.SRReviewStatesVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.ContactsReviewStatesVocabulary"
         factory="imio.dms.mail.vocabularies.ContactsReviewStatesVocabulary"
         />

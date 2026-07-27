@@ -26,6 +26,7 @@ from imio.dms.mail.vocabularies import OMMailTypesVocabulary
 from imio.dms.mail.vocabularies import OMSenderVocabulary
 from imio.dms.mail.vocabularies import PloneGroupInterfacesVocabulary
 from imio.dms.mail.vocabularies import signrequest_active_orgs
+from imio.dms.mail.vocabularies import SRReviewStatesVocabulary
 from imio.dms.mail.vocabularies import TaskReviewStatesVocabulary
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
@@ -65,6 +66,11 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 ("closed", u"Clôturé"),
             ],
         )
+
+    def test_SRReviewStatesVocabulary(self):
+        voc_inst = SRReviewStatesVocabulary()
+        voc_list = [t.value for t in voc_inst(self.imail)]
+        self.assertEqual(voc_list, ["created", "to_approve", "to_be_signed", "signed", "closed"])
 
     def test_TaskReviewStatesVocabulary(self):
         voc_inst = TaskReviewStatesVocabulary()
