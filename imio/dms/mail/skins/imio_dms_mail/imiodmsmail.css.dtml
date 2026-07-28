@@ -1142,9 +1142,13 @@ body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-1 {
     white-space: nowrap;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2,
-body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-2 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 {
     width: 25%;
+    /*max-width: 20%;*/
+}
+
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-2 {
+    width: 35%;
     /*max-width: 20%;*/
 }
 
@@ -1180,13 +1184,16 @@ body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-5 la
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-6,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-7,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8,
-body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-4 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8 {
     width: 15%;
 }
 
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-4 {
+    width: 20%;
+}
+
 body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-6 {
-    width: 25%;
+    width: 35%;
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4 label,
@@ -1212,12 +1219,6 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9 inpu
 body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-7 input {
     width: 30ch;
     min-width: 30ch;
-}
-
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.datagridwidget-manipulator,
-body.template-imiodmsmail-settings #form-widgets-request_signer_rules td.datagridwidget-manipulator {
-    width: 16px;
-    min-width: 16px;
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_substitutes .cell-1 select,
