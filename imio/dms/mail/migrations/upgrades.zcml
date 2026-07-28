@@ -86,7 +86,7 @@
         profile="imio.dms.mail:default" /-->
 
     <genericsetup:upgradeStep
-        title="Go to imio.dms.mail 3.1.5"
+        title="Go to imio.dms.mail 3.1.6"
         description=""
         source="3.0"
         destination="3.1.6"
