@@ -648,7 +648,7 @@ def setup_iconified_categories(portal):
         "outgoing_appendix_files", _("Outgoing Appendix Files"), **om_activated)
     # Content Category Group for appendix files in sign requests
     sr_appendix_files_category_group = _create_category_group(
-        "sign_request_appendix_files", _("Sign request Appendix Files"), **sr_activated)
+        "sign_request_appendix_files", _("Sign Request Appendix Files"), **sr_activated)
 
     # Create ContentCategory objects inside each category group
     images_dir = pkg_resources.resource_filename('imio.dms.mail', 'profiles/examples/images')
