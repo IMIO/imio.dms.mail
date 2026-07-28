@@ -1,0 +1,305 @@
+<?xml version="1.0"?>
+<dc-workflow workflow_id="sign_request_workflow" title="Sign request workflow" description="" state_variable="review_state" initial_state="created" manager_bypass="False" xmlns:i18n="http://xml.zope.org/namespaces/i18n" i18n:domain="plone">
+ <permission>Access contents information</permission>
+ <permission>Add portal content</permission>
+ <permission>Delete objects</permission>
+ <permission>Modify portal content</permission>
+ <permission>Review portal content</permission>
+ <permission>View</permission>
+ <state state_id="created" title="sr_created" i18n:attributes="title">
+  <exit-transition transition_id="propose_to_approve"/>
+  <permission-map name="Access contents information" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Add portal content" acquired="False">
+   <permission-role>Contributor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Delete objects" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Modify portal content" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Review portal content" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="View" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+ </state>
+ <state state_id="to_approve" title="sr_to_approve" i18n:attributes="title">
+  <exit-transition transition_id="propose_to_be_signed"/>
+  <exit-transition transition_id="back_to_creation"/>
+  <permission-map name="Access contents information" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Add portal content" acquired="False">
+   <permission-role>Contributor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Delete objects" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Modify portal content" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Review portal content" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="View" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+ </state>
+ <state state_id="to_be_signed" title="sr_to_be_signed" i18n:attributes="title">
+  <exit-transition transition_id="mark_as_signed"/>
+  <exit-transition transition_id="back_to_approve"/>
+  <exit-transition transition_id="back_to_creation"/>
+  <permission-map name="Access contents information" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Add portal content" acquired="False">
+   <permission-role>Contributor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Delete objects" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Modify portal content" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Review portal content" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="View" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+ </state>
+ <state state_id="signed" title="sr_signed" i18n:attributes="title">
+  <exit-transition transition_id="close"/>
+  <exit-transition transition_id="back_to_be_signed"/>
+  <permission-map name="Access contents information" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Add portal content" acquired="False">
+   <permission-role>Contributor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Delete objects" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Modify portal content" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Review portal content" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="View" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+ </state>
+ <state state_id="closed" title="sr_closed" i18n:attributes="title">
+  <exit-transition transition_id="back_to_signed"/>
+  <permission-map name="Access contents information" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Add portal content" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Delete objects" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Modify portal content" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="Review portal content" acquired="False">
+   <permission-role>Manager</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+  <permission-map name="View" acquired="False">
+   <permission-role>Editor</permission-role>
+   <permission-role>Manager</permission-role>
+   <permission-role>Owner</permission-role>
+   <permission-role>Reader</permission-role>
+   <permission-role>Reviewer</permission-role>
+   <permission-role>Site Administrator</permission-role>
+  </permission-map>
+ </state>
+ <transition transition_id="propose_to_approve" title="sr_propose_to_approve" new_state="to_approve" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+  <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_propose_to_approve.png" i18n:translate="">sr_propose_to_approve</action>
+  <guard>
+   <guard-permission>Review portal content</guard-permission>
+   <guard-expression>python:object.wf_conditions().can_be_approved()</guard-expression>
+  </guard>
+ </transition>
+ <transition transition_id="propose_to_be_signed" title="sr_propose_to_be_signed" new_state="to_be_signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+  <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_propose_to_be_signed.png" i18n:translate="">sr_propose_to_be_signed</action>
+  <guard>
+   <guard-permission>Review portal content</guard-permission>
+   <guard-expression>python:object.wf_conditions().can_be_signed()</guard-expression>
+  </guard>
+ </transition>
+ <transition transition_id="mark_as_signed" title="sr_mark_as_signed" new_state="signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+  <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_mark_as_signed.png" i18n:translate="">sr_mark_as_signed</action>
+  <guard>
+   <guard-permission>Review portal content</guard-permission>
+   <guard-expression>python:object.wf_conditions().can_mark_as_signed()</guard-expression>
+  </guard>
+ </transition>
+ <transition transition_id="close" title="sr_close" new_state="closed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+  <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/im_close.png" i18n:translate="">sr_close</action>
+  <guard>
+   <guard-permission>Review portal content</guard-permission>
+   <guard-expression>python:object.wf_conditions().can_close()</guard-expression>
+  </guard>
+ </transition>
+ <transition transition_id="back_to_creation" title="sr_back_to_creation" new_state="created" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+  <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_creation.png" i18n:translate="">sr_back_to_creation</action>
+  <guard>
+   <guard-permission>Review portal content</guard-permission>
+  </guard>
+ </transition>
+ <transition transition_id="back_to_approve" title="sr_back_to_approve" new_state="to_approve" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+  <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_approve.png" i18n:translate="">sr_back_to_approve</action>
+  <guard>
+   <guard-permission>Review portal content</guard-permission>
+  </guard>
+ </transition>
+ <transition transition_id="back_to_be_signed" title="sr_back_to_be_signed" new_state="to_be_signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+  <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_be_signed.png" i18n:translate="">sr_back_to_be_signed</action>
+  <guard>
+   <guard-permission>Review portal content</guard-permission>
+  </guard>
+ </transition>
+ <transition transition_id="back_to_signed" title="sr_back_to_signed" new_state="signed" trigger="USER" before_script="" after_script="" i18n:attributes="title">
+  <action url="" category="workflow" icon="%(portal_url)s/++resource++imio.dms.mail/om_back_to_signed.png" i18n:translate="">sr_back_to_signed</action>
+  <guard>
+   <guard-permission>Review portal content</guard-permission>
+  </guard>
+ </transition>
+ <variable variable_id="action" for_catalog="False" for_status="True" update_always="True">
+  <description>The last transition</description>
+  <default>
+
+   <expression>transition/getId|nothing</expression>
+  </default>
+  <guard>
+  </guard>
+ </variable>
+ <variable variable_id="actor" for_catalog="False" for_status="True" update_always="True">
+  <description>The ID of the user who performed the last transition</description>
+  <default>
+
+   <expression>user/getId</expression>
+  </default>
+  <guard>
+  </guard>
+ </variable>
+ <variable variable_id="comments" for_catalog="False" for_status="True" update_always="True">
+  <description>Comments about the last transition</description>
+  <default>
+
+   <expression>python:state_change.kwargs.get('comment', '')</expression>
+  </default>
+  <guard>
+  </guard>
+ </variable>
+ <variable variable_id="review_history" for_catalog="False" for_status="False" update_always="False">
+  <description>Provides access to workflow history</description>
+  <default>
+
+   <expression>state_change/getHistory</expression>
+  </default>
+  <guard>
+   <guard-permission>Request review</guard-permission>
+   <guard-permission>Review portal content</guard-permission>
+  </guard>
+ </variable>
+ <variable variable_id="time" for_catalog="False" for_status="True" update_always="True">
+  <description>Time of the last transition</description>
+  <default>
+
+   <expression>state_change/getDateTime</expression>
+  </default>
+  <guard>
+  </guard>
+ </variable>
+</dc-workflow>

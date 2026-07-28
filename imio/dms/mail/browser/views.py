@@ -7,21 +7,22 @@ from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
 from imio.dms.mail import _tr
+from imio.dms.mail import PLUS_MENU_TABS
 from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
-from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
 from imio.esign.browser.actions import RemoveItemFromSessionView
-from imio.esign.browser.actions import SessionAnnotationInfoView
+from imio.esign.browser.actions import SessionAnnotationInfoView as BaseSessionAnnotationInfoView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.config import get_esign_registry_enabled
+from imio.esign.utils import get_session_info
 from imio.esign.utils import persistent_to_native
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.content import richtextval
@@ -49,7 +50,7 @@ from unidecode import unidecode  # unidecode_expect_nonascii not yet available i
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
-from zope.interface import implements
+from zope.interface import implementer
 from zope.lifecycleevent import modified
 from zope.pagetemplate.pagetemplate import PageTemplate
 
@@ -100,10 +101,9 @@ def parse_query(text):
     return query
 
 
+@implementer(IAutocompleteSuggest)
 class ContactSuggest(BrowserView):
     """Contact Autocomplete view"""
-
-    implements(IAutocompleteSuggest)
 
     label = u"Contact"
 
@@ -145,10 +145,9 @@ class ContactSuggest(BrowserView):
         return json.dumps(result)
 
 
+@implementer(IAutocompleteSuggest)
 class SenderSuggest(BrowserView):
     """Contact Autocomplete view"""
-
-    implements(IAutocompleteSuggest)
 
     label = u"Sender"
 
@@ -467,15 +466,15 @@ class PlusPortaltabContent(BrowserView):
         self.context = context
         self.request = request
         self.portal = api.portal.get()
-        self.excluded_types = self.portal.portal_properties.navtree_properties.metaTypesNotToList
 
     def get_tabs(self):
+        displayed = api.portal.get_registry_record("imio.dms.mail.displayed_tabs", default=[]) or []
         res = self.portal.portal_catalog(
-            id=("contacts", "templates", "tree", "annexes_types"),
+            id=PLUS_MENU_TABS,
             path={"query": "/".join(self.portal.getPhysicalPath()), "depth": 1},
             sort_on="getObjPositionInParent",
         )
-        return [(b.Title, b.getURL()) for b in res if b.portal_type not in self.excluded_types]
+        return [(b.Title, b.getURL()) for b in res if b.getId in displayed]
 
 
 class DmsMailRestClientView(BrowserView):
@@ -488,14 +487,35 @@ class DmsMailRestClientView(BrowserView):
 
 class ImioSessionsListingView(SessionsListingView):
 
+    def session_portal_type(self, session):
+        """Content type concerned by a session."""
+        discriminators = tuple(session.get("discriminators", ()))
+        return discriminators[0] if discriminators else "dmsoutgoingmail"
+
     def get_dashboard_link(self, session):
-        collection_uid = api.portal.get()["outgoing-mail"]["mail-searches"]["in_esign_sessions"].UID()
-        return "{portal_url}/outgoing-mail/mail-searches#c3=20&b_start=0&c1={collection_uid}" \
+        portal = api.portal.get()
+        # a session holds files of a single content type: point to the matching dashboard
+        if self.session_portal_type(get_session_info(session["id"])) == "sign_request":
+            folder_id, searches_id = "requests", "requests-searches"
+        else:
+            folder_id, searches_id = "outgoing-mail", "mail-searches"
+        collection_uid = portal[folder_id][searches_id]["in_esign_sessions"].UID()
+        return "{portal_url}/{folder_id}/{searches_id}#c3=20&b_start=0&c1={collection_uid}" \
             "&esign_session_id={session_id}".format(
-                portal_url=api.portal.get().absolute_url(),
+                portal_url=portal.absolute_url(),
+                folder_id=folder_id,
+                searches_id=searches_id,
                 collection_uid=collection_uid,
                 session_id=session["id"],
             )
+
+    def get_sessions(self):
+        """Only list the sessions matching the dashboard type (set on the request by the viewlet)."""
+        sessions = super(ImioSessionsListingView, self).get_sessions()
+        portal_type = self.request.get("esign_portal_type", None)
+        if not portal_type:
+            return sessions
+        return [session for session in sessions if self.session_portal_type(session) == portal_type]
 
     def available(self):
         # check if esign is disabled
@@ -543,16 +563,16 @@ class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
 
     def actions(self):
         # remove from mail approval annotation
-        approval = IOMApproval(self.context.__parent__)
+        approval = self.context.__parent__.approval()
         approval.remove_pdf_file_from_approval(self.context.UID())
         # remove from global esign annotation
         remove_files_from_session([self.context.UID()])
 
     def available(self):
-        try:
-            approval = IOMApproval(self.context.__parent__)
-        except TypeError:  # when trying to adapt a file in incomingmail
+        # only outgoing mail and signing request have an approval process
+        if self.context.__parent__.portal_type not in ("dmsoutgoingmail", "sign_request"):
             return False
+        approval = self.context.__parent__.approval()
         return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
 
 
@@ -572,8 +592,8 @@ class ApprovalTableView(BrowserView):
         #     return False
         if not self.context.has_approvings():
             return False
-        state = api.content.get_state(self.context)
-        if state in ("to_print", "to_be_signed", "signed", "sent"):
+        # only available while the approval process is running (not after it)
+        if self.context.approval().is_state_after_approve():
             return False
         return True
 
@@ -592,7 +612,7 @@ class ApprovalTableView(BrowserView):
         save_button = form.get("form.button.Save", None) is not None
         cancel_button = form.get("form.button.Cancel", None) is not None
         if save_button and not cancel_button:
-            approval = IOMApproval(self.context)
+            approval = self.context.approval()
             to_approve = []
             for i_signer, signer in enumerate(approval.signers):
                 for fuid in approval.files_uids:
@@ -675,15 +695,15 @@ class ImioCatalogNavigationTabs(CatalogNavigationTabs):
         return result
 
 
-class OMSessionAnnotationInfoView(SessionAnnotationInfoView):
-    """Admin-only view displaying idm.approval and imio.esign session annotations for an outgoing mail."""
+class SessionAnnotationInfoView(BaseSessionAnnotationInfoView):
+    """Admin-only view displaying approval and imio.esign session annotations for an outgoing mail or sign request."""
 
     index = ViewPageTemplateFile("templates/session_annotation_info.pt")
 
     @property
     def approval_annot_html(self):
         """Renders approval annot in HTML"""
-        approval = IOMApproval(self.context)
+        approval = self.context.approval()
         native = persistent_to_native(approval.annot)
         return self._render_value(native)
 

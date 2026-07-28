@@ -86,7 +86,7 @@ from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.interface import alsoProvides
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface import Invalid
 from zope.schema import ValidationError
 from zope.schema.fieldproperty import FieldProperty
@@ -283,10 +283,10 @@ class ImioDmsIncomingMailSchemaPolicy(DexteritySchemaPolicy):
 # alsoProvides(IImioDmsIncomingMail, IFormFieldProvider) #needed for behavior
 
 
+@implementer(IImioDmsIncomingMail)
 class ImioDmsIncomingMail(DmsIncomingMail):
     """ """
 
-    implements(IImioDmsIncomingMail)
     __ac_local_roles_block__ = True
 
     treating_groups = FieldProperty(IImioDmsIncomingMail[u"treating_groups"])
@@ -317,8 +317,8 @@ class ImioDmsIncomingMail(DmsIncomingMail):
         return False
 
 
+@implementer(IImioDmsIncomingMailWfConditions)
 class ImioDmsIncomingMailWfConditionsAdapter(object):
-    implements(IImioDmsIncomingMailWfConditions)
     adapts(IImioDmsIncomingMail)
     security = ClassSecurityInfo()
 
@@ -736,19 +736,21 @@ class ImioDmsOutgoingMailSchemaPolicy(DexteritySchemaPolicy):
         return IImioDmsOutgoingMail, IFieldsetOutgoingEmail
 
 
+@implementer(IImioDmsOutgoingMail)
 class ImioDmsOutgoingMail(DmsOutgoingMail):
     """ """
 
-    implements(IImioDmsOutgoingMail)
     __ac_local_roles_block__ = True
 
     # Needed by collective.z3cform.rolefield. Need to be overriden here
     treating_groups = FieldProperty(IImioDmsOutgoingMail[u"treating_groups"])
     recipient_groups = FieldProperty(IImioDmsOutgoingMail[u"recipient_groups"])
 
-    @property
     def approval(self):
-        """Returns the adapter providing approval behavior"""
+        """Returns the adapter providing approval behavior.
+
+        Must be a method (not a property)
+        """
         return IOMApproval(self)
 
     def get_mainfiles(self):
@@ -879,7 +881,7 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         :param all_done: if True, check if all approvings are done
         :return: boolean
         """
-        approval = IOMApproval(self)
+        approval = self.approval()
         if not approval.approvers:
             return False
         elif not approval.files_uids:
@@ -897,8 +899,8 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         return need_mailing_value(document=document)
 
 
+@implementer(IImioDmsOutgoingMailWfConditions)
 class ImioDmsOutgoingMailWfConditionsAdapter(object):
-    implements(IImioDmsOutgoingMailWfConditions)
     adapts(IImioDmsOutgoingMail)
     security = ClassSecurityInfo()
 

@@ -132,6 +132,14 @@
      name="pretty_link" />
 
   <adapter
+     for="imio.dms.mail.interfaces.IReqDashboard
+          zope.publisher.interfaces.browser.IBrowserRequest
+          collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+     factory=".columns.OMTitleColumn"
+     provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
+     name="pretty_link" />
+
+  <adapter
      for="imio.dms.mail.interfaces.IOMDashboard
           zope.publisher.interfaces.browser.IBrowserRequest
           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
@@ -210,6 +218,24 @@
          collective.dms.basecontent.browser.listing.VersionsTable"
     provides="z3c.table.interfaces.IColumn"
     factory=".browser.iconified_category.SignedColumn"
+    />
+
+  <adapter
+    name="approved-column"
+    for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    provides="z3c.table.interfaces.IColumn"
+    factory=".browser.iconified_category.ApprovedColumn"
+    />
+
+  <adapter
+    name="signed-column"
+    for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    provides="z3c.table.interfaces.IColumn"
+    factory=".browser.iconified_category.SignRequestSignedColumn"
     />
 
   <adapter

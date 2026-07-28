@@ -1,5 +1,11 @@
 dmsmail = {};
 
+// Keep horizontal tabs instead of a dropdown when a form has more than 6 fieldsets
+// (Plone's form_tabbing.js switches to a <select> above ploneFormTabbing.max_tabs).
+if (typeof ploneFormTabbing !== 'undefined') {
+    ploneFormTabbing.max_tabs = 7;
+}
+
 /*
 dmsmail.manage_orgtype_filter = function () {
     // show org type widget only when organization type is selected

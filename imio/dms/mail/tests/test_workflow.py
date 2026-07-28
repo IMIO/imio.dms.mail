@@ -85,6 +85,34 @@ class TestWorkflows(unittest.TestCase):
         folder = self.portal["outgoing-mail"]["mail-searches"]
         self.assertFalse(folder["to_validate"].enabled)
 
+    def test_sign_request_workflow(self):
+        """Check workflow"""
+        self.srw = self.pw["sign_request_workflow"]
+        self.assertSetEqual(set(self.srw.states), {"created", "to_approve", "to_be_signed", "signed", "closed"})
+        self.assertSetEqual(
+            set(self.srw.transitions),
+            {
+                "propose_to_approve",
+                "propose_to_be_signed",
+                "mark_as_signed",
+                "close",
+                "back_to_creation",
+                "back_to_approve",
+                "back_to_be_signed",
+                "back_to_signed",
+            },
+        )
+        self.assertSetEqual(set(self.srw.states["created"].transitions), {"propose_to_approve"})
+        self.assertSetEqual(
+            set(self.srw.states["to_approve"].transitions), {"propose_to_be_signed", "back_to_creation"}
+        )
+        self.assertSetEqual(
+            set(self.srw.states["to_be_signed"].transitions),
+            {"mark_as_signed", "back_to_approve", "back_to_creation"},
+        )
+        self.assertSetEqual(set(self.srw.states["signed"].transitions), {"close", "back_to_be_signed"})
+        self.assertSetEqual(set(self.srw.states["closed"].transitions), {"back_to_signed"})
+
     def test_task_workflow0(self):
         """Check workflow"""
         self.tw = self.pw["task_workflow"]

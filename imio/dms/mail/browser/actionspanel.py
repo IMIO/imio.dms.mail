@@ -340,6 +340,39 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
     __call__ = DmsOMActionsPanelView__call__
 
 
+class DmsSignRequestActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
+    """Actions panel for signing request."""
+
+    typeupload = "dmsappendixfile"
+    transitions = [
+        "back_to_creation",
+        "back_to_approve",
+        "back_to_be_signed",
+        "back_to_signed",
+        "propose_to_approve",
+        "propose_to_be_signed",
+        "mark_as_signed",
+        "close",
+    ]
+    tr_order = dict((val, i) for (i, val) in enumerate(transitions))
+
+    def __init__(self, context, request):
+        super(DmsSignRequestActionsPanelView, self).__init__(context, request)
+        # portal_actions.object_buttons action ids to keep
+        self.ACCEPTABLE_ACTIONS = ["delete"]
+        self.SECTIONS_TO_RENDER += ("render_multiple_annexes_button",)
+
+    def sortTransitions(self, lst):
+        """Sort transitions following transitions list order"""
+        lst.sort(lambda x, y: cmp(self.tr_order.get(x["id"], 99), self.tr_order.get(y["id"], 99)))  # noqa F821
+
+    @ram.cache(actionspanelview_cachekey)
+    def DmsSignRequestActionsPanelView__call__(self, **kwargs):
+        return super(DmsSignRequestActionsPanelView, self).__call__(**kwargs)
+
+    __call__ = DmsSignRequestActionsPanelView__call__
+
+
 class DmsFileActionsPanelView(ActionsPanelView):
     def __init__(self, context, request):
         super(DmsFileActionsPanelView, self).__init__(context, request)

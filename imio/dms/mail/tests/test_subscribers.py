@@ -12,9 +12,12 @@ from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.interfaces import IOMApproval
+from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.subscribers import i_annex_removed
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
@@ -1289,7 +1292,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         """Helper to create an outgoing mail with esign approval and files."""
         self.change_user("admin")
         self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
         )
         set_esign_registry_file_url("https://downloads.files.com")
         intids = getUtility(IIntIds)
@@ -1636,3 +1639,57 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         mod2 = api.content.rename(mod2, "mod-nextgen")
         annot = IAnnotations(mod2)
         self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"héhéhé")
+
+
+class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
+    """Integration tests (no mock) for the sign_request event subscribers."""
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+        self.pf = self.portal["contacts"]["personnel-folder"]
+
+    def test_sign_request_added(self):
+        # a titled request computes signers/approvers on add (added -> modified -> update_signers)
+        request, _files = create_sign_request(self.portal, oid="sr-add", nb_files=0)
+        self.assertEqual(ISignRequestApproval(request).annot["approvers"], [["dirg"], ["bourgmestre"]])
+
+    def test_sign_request_transition(self):
+        request, _files = create_sign_request(self.portal, oid="sr-tr", nb_files=1)
+        self.assertIsNone(ISignRequestApproval(request).current_nb)
+        self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
+        self.assertEqual(ISignRequestApproval(request).current_nb, 0)
+
+    def test_sign_request_modified(self):
+        request, _files = create_sign_request(self.portal, oid="sr-mod", nb_files=0)
+        request.signers = [{"number": 1, "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
+                            "approvings": [u"_themself_"], "editor": True}]
+        modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
+        self.assertEqual(ISignRequestApproval(request).annot["approvers"], [["bourgmestre"]])
+
+    def test_sign_request_modified_duplicate_email(self):
+        request, _files = create_sign_request(self.portal, oid="sr-dup", nb_files=0)
+        # two signers resolving to the same person => update_signers raises, surfaced as Invalid
+        request.signers = [
+            {"number": 1, "signer": self.pf["dirg"]["directeur-general"].UID(),
+             "approvings": [u"_themself_"], "editor": True},
+            {"number": 2, "signer": self.pf["dirg"]["directeur-general"].UID(),
+             "approvings": [u"_themself_"], "editor": False},
+        ]
+        with self.assertRaises(Invalid):
+            modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
+
+    def test_i_annex_added(self):
+        request, _files = create_sign_request(self.portal, oid="sr-annex", nb_files=0)
+        approval = ISignRequestApproval(request)
+        self.assertEqual(approval.annot["files"], [])
+        ct = self.portal["annexes_types"]["sign_request_appendix_files"]["sign-request-appendix-file"]
+        filename = u"3-degradation-voirie.odt"
+        with open("%s/batchimport/toprocess/requests/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            afile = createContentInContainer(
+                request, "dmsappendixfile", id="f1", scan_id="012999900000601",
+                file=NamedBlobFile(fo.read(), filename=filename), content_category=calculate_category_id(ct),
+            )
+        self.assertIn(afile.UID(), approval.annot["files"])

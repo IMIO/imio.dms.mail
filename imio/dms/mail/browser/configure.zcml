@@ -27,6 +27,15 @@
         class=".settings.SettingsView"
         />
 
+    <!-- override the mailcontent settings configlet to add the signing request fields -->
+    <browser:page
+        name="dmsmailcontent-settings"
+        for="Products.CMFCore.interfaces.ISiteRoot"
+        permission="plone.app.controlpanel.Site"
+        class=".mailcontentsettings.SettingsView"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
     <browser:page
         name="im-listing"
         class=".listing.ListingView"
@@ -68,7 +77,15 @@
     <browser:page
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         name="session-annotation-info"
-        class=".views.OMSessionAnnotationInfoView"
+        class=".views.SessionAnnotationInfoView"
+        permission="cmf.ManagePortal"
+        allowed_attributes="available"
+        />
+
+    <browser:page
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+        name="session-annotation-info"
+        class=".views.SessionAnnotationInfoView"
         permission="cmf.ManagePortal"
         allowed_attributes="available"
         />
@@ -139,11 +156,26 @@
             class="imio.dms.mail.browser.actionspanel.DmsActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
-        <!-- common for dmsincomingmail and dmsoutgoingmail -->
         <browser:viewlet
             name="imio.actionspanel2"
-            for="collective.dms.basecontent.dmsdocument.IDmsDocument"
+            for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
             manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.DmsActionsPanelViewlet"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel2"
+            for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+            manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            class="imio.dms.mail.browser.actionspanel.DmsActionsPanelViewlet"
+            template="browser/actions_panel_viewlet.pt"
+            permission="zope2.View" />
+        <browser:viewlet
+            name="imio.actionspanel"
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             class="imio.dms.mail.browser.actionspanel.DmsActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"
@@ -172,6 +204,7 @@
             class="imio.dms.mail.browser.actionspanel.ContactActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
+        <!-- views -->
         <browser:page
             for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
             name="actions_panel"
@@ -188,6 +221,20 @@
             permission="zope2.View" />
         <browser:page
             for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+            name="signing_actions_panel"
+            class="imio.dms.mail.browser.actionspanel.SigningFieldsetActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View" />
+        <browser:page
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            name="actions_panel"
+            class="imio.dms.mail.browser.actionspanel.DmsSignRequestActionsPanelView"
+            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
+            template="browser/actions_panel.pt"
+            permission="zope2.View" />
+        <browser:page
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
             name="signing_actions_panel"
             class="imio.dms.mail.browser.actionspanel.SigningFieldsetActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
@@ -872,6 +919,14 @@
             template="browser/templates/versionsviewlet.pt"
             permission="zope2.View"
             />
+        <browser:viewlet
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            name="dms.files"
+            manager="collective.dms.basecontent.browser.viewlets.IDmsAboveContent"
+            class="imio.dms.mail.browser.viewlets.SignRequestVersionsViewlet"
+            template="browser/templates/versionsviewlet.pt"
+            permission="zope2.View"
+            />
     </configure>
 
     <unconfigure package="collective.dms.basecontent">
@@ -1181,6 +1236,16 @@
         />
 
         <browser:viewlet
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
+            view="plone.app.layout.globals.interfaces.IViewView"
+            name="esign-item-session-info"
+            template="browser/templates/session_info.pt"
+            class="imio.dms.mail.browser.viewlets.ImioItemSessionInfoViewlet"
+            permission="zope2.View"
+        />
+
+        <browser:viewlet
             for="eea.facetednavigation.subtypes.interfaces.IFacetedNavigable"
             manager="collective.eeafaceted.z3ctable.interfaces.ITopAboveNavManager"
             name="esign-faceted-session-info"
@@ -1194,6 +1259,14 @@
     <browser:page
         name="approvals"
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        template="templates/approvals.pt"
+        class="imio.dms.mail.browser.views.ApprovalTableView"
+        permission="cmf.ManagePortal"
+    />
+
+    <browser:page
+        name="approvals"
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
         template="templates/approvals.pt"
         class="imio.dms.mail.browser.views.ApprovalTableView"
         permission="cmf.ManagePortal"

@@ -61,6 +61,7 @@ OM_READER_SERVICE_FUNCTIONS = [
     "n_plus_5",
 ]
 TASK_EDITOR_SERVICE_FUNCTIONS = ["editeur", "n_plus_1"]
+REQUEST_TREATING_SERVICE_FUNCTIONS = ["demand_sign"]
 
 BACK_OR_AGAIN_ICONS = {
     "": False,
@@ -72,7 +73,13 @@ MAIN_FOLDERS = {
     "dmsincomingmail": "incoming-mail",
     "dmsincoming_email": "incoming-mail",
     "dmsoutgoingmail": "outgoing-mail",
+    "sign_request": "requests",
 }
+TOP_NAV_TABS = ["incoming-mail", "outgoing-mail", "requests", "folders", "tasks", "plus"]
+PLUS_MENU_TABS = ["contacts", "templates", "tree", "annexes_types"]
+DEFAULT_DISPLAYED_TABS = ["incoming-mail", "outgoing-mail", "folders", "tasks", "plus", "contacts", "templates",
+                          "tree", "annexes_types"]
+FIRST_LEVEL_TABS = TOP_NAV_TABS + PLUS_MENU_TABS
 GE_CONFIG = {  # group_encoder config
     "imail_group_encoder": {"pt": ["dmsincomingmail", "dmsincoming_email"], "idx": "assigned_group"},
     "omail_group_encoder": {"pt": ["dmsoutgoingmail"], "idx": "assigned_group"},

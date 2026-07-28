@@ -20,12 +20,17 @@ from imio.dms.mail.adapters import OutgoingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import OutgoingMailValidationCriterion
 from imio.dms.mail.adapters import ready_for_email_index
 from imio.dms.mail.adapters import ScanSearchableExtender
+from imio.dms.mail.adapters import signrequest_approvings_index
+from imio.dms.mail.adapters import SignRequestApprovalAdapter
+from imio.dms.mail.adapters import SignRequestInCopyGroupCriterion
+from imio.dms.mail.adapters import SignRequestInTreatingGroupCriterion
 from imio.dms.mail.adapters import state_group_index
 from imio.dms.mail.adapters import TaskInAssignedGroupCriterion
 from imio.dms.mail.adapters import TaskInProposingGroupCriterion
 from imio.dms.mail.adapters import TaskValidationCriterion
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import DummyView
@@ -181,6 +186,34 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         api.group.add_user(groupname="111_editeur", username="siteadmin")
         self.change_user("siteadmin")
         self.assertEqual(crit.query, {"recipient_groups": {"query": ["111"]}})
+
+    def test_SignRequestInTreatingGroupCriterion(self):
+        crit = SignRequestInTreatingGroupCriterion(self.portal)
+        self.assertEqual(crit.query, {"treating_groups": {"query": []}})
+        api.group.create(groupname="111_demand_sign")
+        api.group.add_user(groupname="111_demand_sign", username="siteadmin")
+        self.change_user("siteadmin")
+        self.assertEqual(crit.query, {"treating_groups": {"query": ["111"]}})
+
+    def test_SignRequestInCopyGroupCriterion(self):
+        crit = SignRequestInCopyGroupCriterion(self.portal)
+        self.assertEqual(crit.query, {"recipient_groups": {"query": []}})
+        api.group.create(groupname="111_editeur")
+        api.group.add_user(groupname="111_editeur", username="siteadmin")
+        self.change_user("siteadmin")
+        self.assertEqual(crit.query, {"recipient_groups": {"query": ["111"]}})
+
+    def test_approval_property(self):
+        om = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-disp")
+        self.assertIsInstance(om.approval(), OMApprovalAdapter)
+        request, files = create_sign_request(self.portal, oid="sr-disp", signers=[], nb_files=0)
+        self.assertIsInstance(request.approval(), SignRequestApprovalAdapter)
+
+    def test_signrequest_approvings_index(self):
+        request, files = create_sign_request(self.portal, oid="sr-idx", nb_files=1)
+        self.assertEqual(signrequest_approvings_index(request)(), [])
+        self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
+        self.assertEqual(signrequest_approvings_index(request)(), ["dirg"])
 
     def test_TaskInAssignedGroupCriterion(self):
         crit = TaskInAssignedGroupCriterion(self.portal)
@@ -473,7 +506,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.pw = self.portal.portal_workflow
         self.change_user("admin")
         self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
         )
         set_esign_registry_file_url("https://downloads.files.com")
         # Create outgoing mail with two eSign signers and two files to approve
@@ -1426,9 +1459,9 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                                     pdf_file.UID()),
                             }
                         ],
-                        "discriminators": (),
+                        "discriminators": ("dmsoutgoingmail",),
                         "watchers": [],
-                        "title": u'[ia.docs] 012999900000',
+                        "title": u'[ia.docs] Courrier sortant - 012999900000',
                         "state": "draft",
                         "signers": [
                             {
@@ -1484,9 +1517,9 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                                     pdf_file.UID()),
                             }
                         ],
-                        "discriminators": (),
+                        "discriminators": ("dmsoutgoingmail",),
                         "watchers": [],
-                        "title": u'[ia.docs] 012999900000',
+                        "title": u'[ia.docs] Courrier sortant - 012999900000',
                         "state": "draft",
                         "signers": [
                             {
@@ -1643,3 +1676,45 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(pdf_file.approved)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
+
+
+class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.pw = self.portal.portal_workflow
+        self.change_user("admin")
+        # sign_request with two signers (dirg then bourgmestre) and two files to approve
+        self.request, self.files = create_sign_request(self.portal, oid="sr", nb_files=2)
+        self.approval = SignRequestApprovalAdapter(self.request)
+
+    def test_after_approval_states(self):
+        self.assertEqual(self.approval.after_approval_states, ("to_be_signed", "signed", "closed"))
+
+    def test_is_state_after_or_approve(self):
+        self.assertFalse(self.approval.is_state_after_or_approve())  # created
+        self.pw.doActionFor(self.request, "propose_to_approve")
+        self.assertTrue(self.approval.is_state_after_or_approve())  # to_approve
+
+    def test_start_approval_process(self):
+        self.assertIsNone(self.approval.current_nb)
+        self.pw.doActionFor(self.request, "propose_to_approve")
+        self.assertEqual(self.approval.current_nb, 0)
+        self.assertEqual([level[0]["status"] for level in self.approval.annot["approval"]], ["p", "w"])
+
+    def test_approve_file(self):
+        self.pw.doActionFor(self.request, "propose_to_approve")
+        self.assertEqual(self.approval.current_nb, 0)
+        for afile in self.files:
+            self.approval.approve_file(afile, "dirg")
+        self.assertEqual(self.approval.current_nb, 1)
+        for afile in self.files:
+            self.approval.approve_file(afile, "bourgmestre")
+        self.assertEqual(self.approval.current_nb, -1)
+
+    def test_roles(self):
+        self.assertEqual(self.approval.roles, {})
+        self.pw.doActionFor(self.request, "propose_to_approve")
+        self.assertEqual(self.approval.roles, {"dirg": ("Reader", "Reviewer", "Editor")})
