@@ -53,6 +53,8 @@ from zope.event import notify
 from zope.interface import alsoProvides
 from zope.lifecycleevent import IObjectModifiedEvent
 
+import ast
+import json
 import logging
 import OFS
 import os
@@ -599,6 +601,39 @@ class Migrate_To_3_1(Migrator):  # noqa
             maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
             maintenance.sync()  # BATCHED
             response.write = original
+
+    def fix_localroles_json_quoting(self):
+        """Fixes JSON quoting in localroles configuration"""
+        fixed = []
+        for fti in self.portal.portal_types.objectValues():
+            localroles = getattr(fti, "localroles", None)
+            if not localroles:
+                continue
+            changed = False
+            for keyname, states in localroles.items():
+                if not isinstance(states, dict):
+                    continue
+                for state, principals in states.items():
+                    for principal, cfg in principals.items():
+                        rel = cfg.get("rel", "")
+                        if not rel:
+                            continue
+                        try:
+                            json.loads(rel)
+                            continue  # already valid JSON -> skip
+                        except (ValueError, TypeError):
+                            pass
+                        try:
+                            cfg["rel"] = json.dumps(ast.literal_eval(rel))
+                        except (ValueError, SyntaxError):
+                            logger.error("Cannot normalize rel %r on %s/%s/%s/%s",
+                                         rel, fti.getId(), keyname, state, principal)
+                            continue
+                        changed = True
+            if changed:
+                localroles._p_changed = True
+                fixed.append(fti.getId())
+        logger.info("Normalized localroles 'rel' on portal types: %s", fixed)
 
 
 def migrate(context):  # noqa

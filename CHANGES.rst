@@ -13,6 +13,8 @@ Changelog
   [chris-adam]
 - Considered seal when checking if a signer is defined on a sub/template.
   [sgeulette]
+- Fixed JSON quoting in localroles configuration (DMS-1218).
+  [chris-adam]
 - Added sign_request content to handle external documents to be signed.
   [sgeulette]
 - Redirected to container after an annex is added.
