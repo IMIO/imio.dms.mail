@@ -202,19 +202,26 @@ def setup_classification(site):
     logger.info("Classification configured")
 
 
+def collabora_server_url():
+    """Return the Collabora Online url for this deployment.
+
+    On servers Collabora is reverse proxied under /collabora on the site's own
+    domain, so a single origin serves both the browser (postMessage target) and
+    Plone's server side /hosting/discovery call. PUBLIC_URL is set by puppet
+    for every site declaring public_url. Without it (dev) we talk to the
+    container directly, see docker-compose.yaml.
+    """
+    public_url = os.getenv("PUBLIC_URL", "")
+    if public_url:
+        return u"{0}/collabora".format(public_url.rstrip("/"))
+    return u"http://localhost:9980"
+
+
 def configure_collabora():
-    """Set collective.collabora's server url, per environment."""
-    urls = {
-        "dev": u"http://localhost:9980",  # docker/docker-compose.yaml, network_mode: host
-        "prod": u"",  # TODO
-    }
-    env = get_environment()
-    url = urls.get(env)
-    if not url:
-        logger.info("collabora_server_url: no url for env %r, keeping default", env)
-        return
+    """Set collective.collabora's server url."""
+    url = collabora_server_url()
     api.portal.set_registry_record("collective.collabora.collabora_server_url", url)
-    logger.info("collabora_server_url set to %s (env: %s)", url, env)
+    logger.info("collabora_server_url set to %s", url)
 
 
 def postInstall(context):
