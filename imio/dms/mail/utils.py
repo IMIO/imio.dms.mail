@@ -120,6 +120,35 @@ dms_config
 """
 
 
+def add_remove_values_in_registry_list(record_name, to_add=(), to_remove=(), order=None):
+    """Add and/or remove values in a registry list record.
+
+    :param record_name : registry key
+    :param to_add : list of values to add
+    :param to_remove : list of values to remove
+    :param order : positional list of values to follow order
+    :return: bool indicating changes
+    """
+    values = list(api.portal.get_registry_record(record_name, default=[]) or [])
+    changed = False
+    for value in to_add:
+        if value not in values:
+            values.append(value)
+            changed = True
+    for value in to_remove:
+        if value in values:
+            values.remove(value)
+            changed = True
+    if order is not None:
+        ordered = [v for v in order if v in values] + [v for v in values if v not in order]
+        if ordered != values:
+            values = ordered
+            changed = True
+    if changed:
+        api.portal.set_registry_record(record_name, values)
+    return changed
+
+
 def set_dms_config(keys=None, value="list", force=True):
     """
     Set initial value in 'imio.dms.mail' portal annotation.
@@ -406,6 +435,7 @@ def list_wf_states(context, portal_type):
         "task": ["created", "to_assign", "to_do", "in_progress", "realized", "closed"],
         "dmsoutgoingmail": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print",
                             "to_approve", "to_be_signed", "signed", "sent"],
+        "sign_request": ["created", "to_approve", "to_be_signed", "signed", "closed"],
         # "dmsoutgoing_email": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print", "to_be_signed",
         #                       "signed", "sent"],
         "organization": ["active", "deactivated"],
@@ -1459,7 +1489,7 @@ def manage_fields(the_form, config_key, mode):
                 continue
             if field_name.startswith("email_"):
                 add(the_form, field, index=0, group="email")
-            elif field_name.startswith("ISigningBehavior."):
+            elif field_name.startswith(("ISigningBehavior.", "ISignRequestSigningBehavior.")):
                 add(the_form, field, index=0, group="signing")
             else:
                 add(the_form, field, index=0)
@@ -1655,10 +1685,11 @@ def update_approvers_settings():
         set_dms_config(["approvings"], approvings)
 
 
-def get_allowed_omf_content_types(esign=False):
-    """Get allowed outgoing mail file or e-signable content types.
+def get_allowed_content_types(esign=False, portal_type=None):
+    """Get allowed configured content types.
 
     :param esign: bool indicating if only esign content types must be returned
+    :param portal_type: portal_type owning the file.
     :return: list of content types
     """
     ct_by_type = {
@@ -1666,7 +1697,12 @@ def get_allowed_omf_content_types(esign=False):
         "odt": ("application/vnd.oasis.opendocument.text",),
         "doc": ("application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
     }
-    key = esign and "omail_esign_formats" or "omail_formats_mainfile"
+    if portal_type == "sign_request":
+        key = "request_esign_formats"
+    elif esign:
+        key = "omail_esign_formats"
+    else:
+        key = "omail_formats_mainfile"
     formats = api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig." + key)
     res = []
     for fmt in formats or []:

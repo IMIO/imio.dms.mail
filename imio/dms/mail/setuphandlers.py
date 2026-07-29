@@ -27,6 +27,8 @@ from dexterity.localroles.utils import fti_configuration
 from ftw.labels.interfaces import ILabelJar
 from ftw.labels.interfaces import ILabelRoot
 from imio.dms.mail import _tr as _
+from imio.dms.mail import DEFAULT_DISPLAYED_TABS
+from imio.dms.mail import FIRST_LEVEL_TABS
 # from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail.Extensions.demo import clean_examples
 # from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -44,6 +46,7 @@ from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import set_dms_config
@@ -108,7 +111,7 @@ def add_db_col_folder(folder, cid, title, displayed=""):
 
 def order_1st_level(site):
     """Order 1st level folders."""
-    ordered = ["incoming-mail", "outgoing-mail", "folders", "tasks", "plus", "contacts", "templates", "tree"]
+    ordered = FIRST_LEVEL_TABS
     for i, oid in enumerate(ordered):
         site.moveObjectToPosition(oid, i)
 
@@ -217,6 +220,7 @@ def postInstall(context):
     configure_rolefields(context)
     configure_iem_rolefields(context)
     configure_om_rolefields(context)
+    configure_signrequest_rolefields(context)
 
     if (
         base_hasattr(site.portal_types.task, "localroles")
@@ -290,6 +294,32 @@ def postInstall(context):
         om_folder.setImmediatelyAddableTypes(["dmsoutgoingmail"])
         do_transitions(om_folder, ["show_internally"])
         logger.info("outgoing-mail folder created")
+
+    if not base_hasattr(site, "requests"):
+        folderid = site.invokeFactory("Folder", id="requests", title=_(u"requests_tab"))
+        req_folder = getattr(site, folderid)
+        req_folder.setExcludeFromNav(True)
+        alsoProvides(req_folder, INextPrevNotNavigable)
+        alsoProvides(req_folder, ILabelRoot)
+        # alsoProvides(req_folder, ICountableTab)
+        alsoProvides(req_folder, IProtectedItem)
+        # add searches
+        col_folder = add_db_col_folder(req_folder, "requests-searches", _("Requests searches"), _("Requests"))
+        alsoProvides(col_folder, INextPrevNotNavigable)
+        alsoProvides(col_folder, IReqDashboard)
+        createReqCollections(col_folder)
+        createStateCollections(col_folder, "sign_request")
+        configure_faceted_folder(col_folder, xml="requests-searches.xml", default_UID=col_folder["all_requests"].UID())
+        # configure faceted
+        configure_faceted_folder(
+            req_folder, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_requests"].UID()
+        )
+
+        req_folder.setConstrainTypesMode(1)
+        req_folder.setLocallyAllowedTypes(["sign_request"])
+        req_folder.setImmediatelyAddableTypes(["sign_request"])
+        do_transitions(req_folder, ["show_internally"])
+        logger.info("requests folder created")
 
     if not base_hasattr(site, "tasks"):
         folderid = site.invokeFactory("Folder", id="tasks", title=_(u"tasks_tab"))
@@ -513,6 +543,9 @@ def postInstall(context):
 
     order_1st_level(site)
 
+    # seed the displayed tabs setting from the current site state
+    api.portal.set_registry_record("imio.dms.mail.displayed_tabs", DEFAULT_DISPLAYED_TABS)
+
     # add usefull methods
     try:
         from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
@@ -589,8 +622,12 @@ def setup_iconified_categories(portal):
             group = ccc[oid]
         return group
 
-    activated = {
+    om_activated = {
         "to_be_printed_activated": True,
+        "signed_activated": True,
+        "approved_activated": True,
+    }
+    sr_activated = {
         "signed_activated": True,
         "approved_activated": True,
     }
@@ -605,10 +642,13 @@ def setup_iconified_categories(portal):
         "incoming_appendix_files", _("Incoming Appendix Files"))
     # Content Category Group for dms main files in outgoing mails
     outgoing_dms_files_category_group = _create_category_group(
-        "outgoing_dms_files", _("Outgoing DMS Files"), **activated)
+        "outgoing_dms_files", _("Outgoing DMS Files"), **om_activated)
     # Content Category Group for appendix files in outgoing mails
     outgoing_appendix_files_category_group = _create_category_group(
-        "outgoing_appendix_files", _("Outgoing Appendix Files"), **activated)
+        "outgoing_appendix_files", _("Outgoing Appendix Files"), **om_activated)
+    # Content Category Group for appendix files in sign requests
+    sr_appendix_files_category_group = _create_category_group(
+        "sign_request_appendix_files", _("Sign Request Appendix Files"), **sr_activated)
 
     # Create ContentCategory objects inside each category group
     images_dir = pkg_resources.resource_filename('imio.dms.mail', 'profiles/examples/images')
@@ -645,6 +685,10 @@ def setup_iconified_categories(portal):
                      _("Outgoing Appendix File"), u"attach.png", to_sign=False, to_approve=False)
     _create_category(outgoing_appendix_files_category_group, "outgoing-signable-appendix-file",
                      _("Outgoing Signable Appendix File"), u"attach-esign.png", to_sign=True, to_approve=True)
+
+    # Content Categories for sign requests
+    _create_category(sr_appendix_files_category_group, "sign-request-appendix-file", _("Sign Request Appendix File"),
+                     u"attach.png", to_sign=True, to_approve=True)
 
 
 def createStateCollections(folder, content_type):
@@ -716,6 +760,15 @@ def createStateCollections(folder, content_type):
                 u"actions",
             ),
         },
+        "sign_request": {
+            "*": (
+                u"pretty_link",
+                u"treating_groups",
+                u"assigned_user",
+                u"CreationDate",
+                u"actions",
+            ),
+        },
         "organization": {
             "*": (u"select_row", u"pretty_link", u"CreationDate", u"actions"),
         },
@@ -740,6 +793,9 @@ def createStateCollections(folder, content_type):
         "task": {"*": u"created"},
         "dmsoutgoingmail": {
             "scanned": u"organization_type",
+            "*": u"created"
+        },
+        "sign_request": {
             "*": u"created"
         },
     }
@@ -1706,6 +1762,125 @@ def createOMailCollections(folder):
     createDashboardCollections(folder, collections)
 
 
+def createReqCollections(folder):
+    """
+    create some signing requests dashboard collections
+    """
+    flds = (
+        u"pretty_link",
+        u"review_state",
+        u"treating_groups",
+        u"assigned_user",
+        u"CreationDate",
+        u"actions",
+    )
+    collections = [
+        {
+            "id": "all_requests",
+            "tit": _("all_requests"),
+            "subj": (u"search",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]}
+            ],
+            "cond": u"",
+            "bypass": [],
+            "flds": flds,
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
+        {
+            "id": "to_approve",
+            "tit": _("req_to_approve"),
+            "subj": (u"todo",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
+                {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["to_approve"]},
+                {"i": "approvings", "o": "plone.app.querystring.operation.string.currentUser"},
+            ],
+            "cond": u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
+            "bypass": ["Manager", "Site Administrator"],
+            "flds": flds,
+            "sort": u"created",
+            "rev": True,
+            "count": True,
+        },
+        {
+            "id": "to_treat",
+            "tit": _("req_to_treat"),
+            "subj": (u"todo",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
+                {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
+            ],
+            "cond": u"",
+            "bypass": [],
+            "flds": flds,
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
+        {
+            "id": "in_my_group",
+            "tit": _("req_in_my_group"),
+            "subj": (u"search",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
+                {
+                    "i": "CompoundCriterion",
+                    "o": "plone.app.querystring.operation.compound.is",
+                    "v": "sign_request-in-treating-group",
+                },
+            ],
+            "cond": u"",
+            "bypass": [],
+            "flds": flds,
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
+        {
+            "id": "in_copy",
+            "tit": _("req_in_copy"),
+            "subj": (u"todo",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
+                {
+                    "i": "CompoundCriterion",
+                    "o": "plone.app.querystring.operation.compound.is",
+                    "v": "sign_request-in-copy-group",
+                },
+            ],
+            "cond": u"",
+            "bypass": [],
+            "flds": flds,
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
+        {
+            "id": "in_esign_sessions",
+            "tit": _("req_in_sessions"),
+            "subj": (u"search",),
+            "query": [
+                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
+                {
+                    "i": "CompoundCriterion",
+                    "o": "plone.app.querystring.operation.compound.is",
+                    "v": "files-belonging-to-a-given-session",
+                },
+            ],
+            "cond": u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
+            "bypass": ["Manager", "Site Administrator"],
+            "flds": flds,
+            "sort": u"created",
+            "rev": True,
+            "count": False,
+        },
+    ]
+    createDashboardCollections(folder, collections)
+
+
 def createOrganizationsCollections(folder):
     """create some dashboard collections"""
     collections = [
@@ -2343,6 +2518,63 @@ def configure_om_rolefields(context):
         #     logger.warn(msg)
 
 
+def configure_signrequest_rolefields(context):
+    """
+    Configure the rolefields for sign_request (per sign_request_workflow state).
+    """
+    roles_config = {
+        "treating_groups": {
+            "created": {
+                "demand_sign": {"roles": ["Contributor", "Editor", "Reviewer"]},
+            },
+            "to_approve": {
+                "demand_sign": {"roles": ["Contributor", "Reviewer"]},
+            },
+            "to_be_signed": {
+                "demand_sign": {"roles": ["Reader", "Reviewer"]},
+            },
+            "signed": {
+                "demand_sign": {"roles": ["Reader", "Reviewer"]},
+            },
+            "closed": {
+                "demand_sign": {"roles": ["Reader"]},
+            },
+        },
+        "recipient_groups": {
+            "created": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+            "to_approve": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+            "to_be_signed": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+            "signed": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+            "closed": {
+                "editeur": {"roles": ["Reader"]},
+                "encodeur": {"roles": ["Reader"]},
+                "lecteur": {"roles": ["Reader"]},
+            },
+        },
+    }
+    for keyname in roles_config:
+        # don't overwrite existing configuration
+        msg = add_fti_configuration("sign_request", roles_config[keyname], keyname=keyname)
+        if msg:
+            logger.warn(msg)
+
+
 def configure_task_rolefields(context, force=False):
     """
     Configure the rolefields on task
@@ -2524,6 +2756,10 @@ def configure_actions_panel(portal):
             "dmsoutgoingmail.back_to_be_signed|",
             "dmsoutgoingmail.back_to_signed|",
             "dmsoutgoingmail.back_to_scanned|",
+            "sign_request.back_to_creation|",
+            "sign_request.back_to_approve|",
+            "sign_request.back_to_be_signed|",
+            "sign_request.back_to_signed|",
         ]
 
 

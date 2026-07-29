@@ -15,8 +15,18 @@
         />
 
     <utility
+        name="imio.dms.mail.FirstLevelTabsVocabulary"
+        factory="imio.dms.mail.vocabularies.FirstLevelTabsVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.OMReviewStatesVocabulary"
         factory="imio.dms.mail.vocabularies.OMReviewStatesVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.SRReviewStatesVocabulary"
+        factory="imio.dms.mail.vocabularies.SRReviewStatesVocabulary"
         />
 
     <utility
@@ -130,6 +140,11 @@
         />
 
     <utility
+        name="imio.dms.mail.RequestFieldsVocabulary"
+        factory="imio.dms.mail.browser.settings.RequestFieldsVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.OMFileFormatsVocabulary"
         factory="imio.dms.mail.browser.settings.OMFileFormatsVocabulary"
         />
@@ -152,6 +167,16 @@
     <utility
         name="imio.dms.mail.SigningApprovingsVocabulary"
         factory="imio.dms.mail.vocabularies.SigningApprovingsVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.SigningRequestApprovingsVocabulary"
+        factory="imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.SignRequestActiveOrgsVocabulary"
+        factory="imio.dms.mail.vocabularies.SignRequestActiveOrgsVocabulary"
         />
 
     <utility

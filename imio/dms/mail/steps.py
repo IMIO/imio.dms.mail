@@ -19,13 +19,16 @@ from dexterity.localroles.utils import update_roles_in_fti
 from eea.facetednavigation.criteria.interfaces import ICriteria
 from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
+from imio.dms.mail import FIRST_LEVEL_TABS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.examples import add_test_sign_requests
 from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.setuphandlers import update_task_workflow
+from imio.dms.mail.utils import add_remove_values_in_registry_list
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import set_dms_config
@@ -38,6 +41,7 @@ from imio.dms.mail.wfadaptations import OMToPrintAdaptation
 from imio.dms.mail.wfadaptations import TaskServiceValidation
 from imio.esign.config import get_esign_registry_external_watchers
 from imio.esign.config import get_esign_registry_file_url
+from imio.esign.config import get_esign_registry_vat_number
 from imio.esign.config import set_esign_registry_enabled
 from imio.esign.config import set_esign_registry_external_watchers
 from imio.esign.config import set_esign_registry_file_url
@@ -93,24 +97,24 @@ def create_persons_from_users(portal, fn_first=True, functions=ALL_SERVICE_FUNCT
 # #############
 
 
-def activate_esigning(context):
-    """Activate approbation and esigning functionality for imio.dms.mail"""
-    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
-        return
-    logger.info("Activate signing functionality")
-    site = context.getSite()
+def install_and_configure_esign(site):
+    """Install and configure imio.esign.
 
-    site.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
-    # redo actions to add condition on installed actions
-    site.portal_setup.runImportStepFromProfile(
-        "profile-imio.dms.mail:default", "actions", run_dependencies=False
-    )
-    log = ["Installed imio.esign"]
-    load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # content category
-    load_type_from_package("PODTemplate", "profile-imio.dms.mail:default")  # views
-    load_type_from_package("SubTemplate", "profile-imio.dms.mail:default")  # views
-    # Changed permission after plone.restapi installation
-    site.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
+    :return: a list of log messages.
+    """
+    log = []
+    if not site.portal_quickinstaller.isProductInstalled("imio.esign"):
+        site.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
+        # redo actions to add condition on installed actions
+        site.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:default", "actions", run_dependencies=False
+        )
+        log.append("Installed imio.esign")
+        load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # content category
+        load_type_from_package("PODTemplate", "profile-imio.dms.mail:default")  # views
+        load_type_from_package("SubTemplate", "profile-imio.dms.mail:default")  # views
+        # Changed permission after plone.restapi installation
+        site.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
 
     # Configured imio.esign
     set_esign_registry_enabled(True)
@@ -129,10 +133,17 @@ def activate_esigning(context):
             set_esign_registry_file_url(u"https://documents.imio-egov.be/esign")
         else:
             set_esign_registry_file_url(u"https://documents.enwallonie.be/esign")
+    return log
 
-    if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"):
-        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
-                                       ["odt", "pdf"])
+
+def activate_om_signing(context):
+    """Activate approbation and esigning functionality for imio.dms.mail"""
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info("Activate signing functionality")
+    site = context.getSite()
+
+    log = install_and_configure_esign(site)
 
     omf = api.portal.get_registry_record(
         "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", default=[]
@@ -167,6 +178,40 @@ def activate_esigning(context):
 
     # update approvers settings
     update_approvers_settings()
+
+    return "\n".join(log)
+
+
+def activate_sign_request(context):
+    """Activate sign request functionality for imio.dms.mail"""
+    if not context.readDataFile("imiodmsmail_singles_marker.txt"):
+        return
+    logger.info("Activate sign request functionality")
+    site = context.getSite()
+
+    # install and configure imio.esign if not already done (signing requests rely on it)
+    log = install_and_configure_esign(site)
+
+    # show tab
+    add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_add=("requests",), order=FIRST_LEVEL_TABS)
+
+    # add "Demande Sign." plonegroup function (requester), used by signing requests
+    functions = get_registry_functions()
+    if u"demand_sign" not in [fct["fct_id"] for fct in functions]:
+        functions.append(
+            {
+                "fct_title": u"Demande Sign.",
+                "fct_id": u"demand_sign",
+                "fct_orgs": [],
+                "fct_management": False,
+                "enabled": True,
+            }
+        )
+        set_registry_functions(functions)
+        log.append("Added 'demand_sign' function to plonegroup functions")
+
+    # add some test signing requests (only when the demo users still exist)
+    add_test_sign_requests(site)
 
     return "\n".join(log)
 
@@ -368,18 +413,13 @@ def manage_classification(context, active):
     """Activate or deactivate classification"""
     logger.info("Manage classification by {}activating related things".format(not active and "de-" or ""))
     site = context.getSite()
-    # handle navtree_properties
-    unlisted = list(site.portal_properties.navtree_properties.metaTypesNotToList)
-    update = False
-    for ptype in ("ClassificationFolders", "ClassificationContainer"):
-        if active and ptype in unlisted:
-            unlisted.remove(ptype)
-            update = True
-        elif not active and ptype not in unlisted:
-            unlisted.append(ptype)
-            update = True
-    if update:
-        site.portal_properties.navtree_properties.manage_changeProperties(metaTypesNotToList=unlisted)
+    # handle displayed tabs: folders (top nav) and tree (plus sub-menu) visibility
+    if active:
+        add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_add=("folders", "tree"),
+                                           order=FIRST_LEVEL_TABS)
+    else:
+        add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_remove=("folders", "tree"),
+                                           order=FIRST_LEVEL_TABS)
     # handle fields
     for rec in ("imail_fields", "omail_fields"):
         update = False
@@ -915,26 +955,36 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             "profile-imio.dms.mail:singles", "imiodmsmail-task_n_plus_1_wfadaptation", run_dependencies=False
         )
 
-    # activate signing
-    rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
-    signer_rules = deepcopy(api.portal.get_registry_record(rk, default=[]))
+    # activate om signing
+    osr_rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+    om_signer_rules = deepcopy(api.portal.get_registry_record(osr_rk, default=[]))
     pf = site["contacts"]["personnel-folder"]
-    if not site.portal_quickinstaller.isProductInstalled("imio.esign"):
-        site.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
-        )
+    site.portal_setup.runImportStepFromProfile(
+        "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
+    )
+    activated_orgs = get_registry_organizations()
+    if not get_esign_registry_vat_number():
         set_esign_registry_vat_number(u"BE0000000097")
         set_esign_registry_seal_code(u"PADES_SEAL")
         set_esign_registry_seal_email(u"sceau@imio.be")
         # set_esign_registry_sign_code(u"BULK_VISA")
 
-        activated_orgs = get_registry_organizations()
-        for dic in signer_rules:
+        for dic in om_signer_rules:
             dic["esign"] = True
             dic["approvings"] = [u"_themself_"]
             dic["treating_groups"] = activated_orgs
             dic["tal_condition"] = u"python: member.getId() in ('admin', 'agent', 'agent1', 'chef', 'dirg')"
-        api.portal.set_registry_record(rk, signer_rules)
+        api.portal.set_registry_record(osr_rk, om_signer_rules)
+
+    # activate sign request
+    rsr_rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_signer_rules"
+    req_signer_rules = deepcopy(api.portal.get_registry_record(rsr_rk, default=[]))
+    site.portal_setup.runImportStepFromProfile(
+        "profile-imio.dms.mail:singles", "imiodmsmail-activate-sign-request", run_dependencies=False
+    )
+    for dic in req_signer_rules:
+        dic["tal_condition"] = u"python: member.getId() in ('admin', 'agent', 'agent1', 'chef', 'dirg')"
+    api.portal.set_registry_record(rsr_rk, req_signer_rules)
 
     # Change user passwords to 'courrier'
     for userid in ("agent", "agent1", "chef", "dirg", "encodeur", "lecteur"):
@@ -948,7 +998,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     username = os.getenv("USER", "zope")
     home_dir = pwd.getpwnam(username).pw_dir
     filename = os.path.join(home_dir, "demo_docs_users.csv")
-    sr_len = len(signer_rules)
+    om_sr_len = len(om_signer_rules)
+    req_sr_len = len(req_signer_rules)
     user_ids = ["agent", "agent1", "chef", "dirg", "encodeur"]
     logger.info("Loading users file: '{}' ?".format(filename))
     if os.path.exists(filename):
@@ -980,12 +1031,16 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                 own_service = None
                 if len(parts) == 2:
                     (org_path, usages) = parts
+                    org_uid = pgo.restrictedTraverse(org_path).UID()
+                    prim_org = org_uid
                 elif len(parts) == 3:
                     (org_path, usages, own_service_path) = parts
+                    org_uid = pgo.restrictedTraverse(org_path).UID()
                     try:
                         own_service = pgo.restrictedTraverse(own_service_path)
                     except KeyError:
                         own_service = None
+                    # create a plonegroup organization service and activate it
                     if not own_service:
                         parent = pgo.restrictedTraverse("/".join(own_service_path.split("/")[:-1]))
                         oid = own_service_path.split("/")[-1]
@@ -1003,54 +1058,88 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                         else:
                             activated_orgs.append(parent.UID())
                         set_registry_organizations(activated_orgs)
-
-                    for suffix in ("editeur", "encodeur"):
-                        api.group.add_user(groupname="{}_{}".format(own_service.UID(), suffix), user=user)
-                        for userid in ("agent", "chef"):
-                            api.group.add_user(groupname="{}_{}".format(own_service.UID(), suffix), username=userid)
+                    prim_org = own_service.UID()
+                    # add user to own_service groups
+                    if own_service:
+                        for suffix in ("editeur", "encodeur", "demand_sign"):
+                            api.group.add_user(groupname="{}_{}".format(own_service.UID(), suffix), user=user)
+                            for userid in ("agent", "chef"):
+                                api.group.add_user(groupname="{}_{}".format(own_service.UID(), suffix), username=userid)
                 else:
                     raise ValueError("Invalid esign value for user '{}': '{}'".format(u_id, esign))
 
+                # set usages on user hp org path
                 usages_list = [u.strip().lower() for u in usages.split(",")]
-                org_uid = pgo.restrictedTraverse(org_path).UID()
                 hp = pf[u_id][org_uid]
                 hp.usages = usages_list
                 hp.reindexObject()
                 if "signer" in usages_list:
-                    if hp.UID() not in [dic["signer"] for dic in signer_rules]:
-                        signer_rules.append(
+                    if hp.UID() not in [dic["signer"] for dic in om_signer_rules]:
+                        om_signer_rules.append(
                             {
                                 "number": 1,
                                 "signer": hp.UID(),
-                                "editor": False,
-                                "approvings": [u"_themself_"],
                                 "esign": True,
+                                "approvings": [u"_themself_"],
+                                "editor": False,
                                 "treating_groups": [],
                                 "mail_types": [],
                                 "send_modes": [],
                                 "tal_condition": u"python: member.getId() == '{}'".format(u_id),
                             },
                         )
-                    if (own_service and not [rule for rule in signer_rules
-                                             if rule["signer"] == hp.UID()
-                                             and rule["treating_groups"] == [own_service.UID()]]):
-                        signer_rules.insert(
-                            0,
+                    if hp.UID() not in [dic["signer"] for dic in req_signer_rules]:
+                        req_signer_rules.append(
                             {
                                 "number": 1,
                                 "signer": hp.UID(),
-                                "editor": True,
-                                "approvings": [u"_themself_"],
                                 "esign": True,
-                                "treating_groups": [own_service.UID()],
-                                "mail_types": [],
-                                "send_modes": [],
-                                "tal_condition": u"",
+                                "approvings": [u"_themself_"],
+                                "editor": False,
+                                "treating_groups": [],
+                                "tal_condition": u"python: member.getId() == '{}'".format(u_id),
                             },
                         )
-        if len(signer_rules) > sr_len:
-            api.portal.set_registry_record(rk, signer_rules)
-            update_approvers_settings()
+                    if own_service:
+                        if not [rule for rule in om_signer_rules
+                                if rule["signer"] == hp.UID() and rule["treating_groups"] == [own_service.UID()]]:
+                            om_signer_rules.insert(
+                                0,
+                                {
+                                    "number": 1,
+                                    "signer": hp.UID(),
+                                    "esign": True,
+                                    "approvings": [u"_themself_"],
+                                    "editor": True,
+                                    "treating_groups": [own_service.UID()],
+                                    "mail_types": [],
+                                    "send_modes": [],
+                                    "tal_condition": u"",
+                                },
+                            )
+                        if not [rule for rule in req_signer_rules
+                                if rule["signer"] == hp.UID() and rule["treating_groups"] == [own_service.UID()]]:
+                            req_signer_rules.insert(
+                                0,
+                                {
+                                    "number": 1,
+                                    "signer": hp.UID(),
+                                    "esign": True,
+                                    "approvings": [u"_themself_"],
+                                    "editor": True,
+                                    "treating_groups": [own_service.UID()],
+                                    "tal_condition": u"",
+                                },
+                            )
+                # set primary org
+                pers = pf[u_id]
+                if not pers.primary_organization:
+                    pers.primary_organization = prim_org
+        if len(om_signer_rules) > om_sr_len:
+            api.portal.set_registry_record(osr_rk, om_signer_rules)
+        if len(req_signer_rules) > req_sr_len:
+            api.portal.set_registry_record(rsr_rk, req_signer_rules)
+        update_approvers_settings()
 
     # Configure delib link
     prefix = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings"

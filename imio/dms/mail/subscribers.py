@@ -33,10 +33,12 @@ from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.adapters import SignRequestApprovalAdapter
 # from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.dmsfile import ImioDmsFile
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -47,7 +49,7 @@ from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
-from imio.dms.mail.utils import get_allowed_omf_content_types
+from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
@@ -327,6 +329,10 @@ def dmsdocument_modified(mail, event):
     elif mail.portal_type == "dmsoutgoingmail":
         replace_contact_list(mail, "recipients")
 
+    # sign_request
+    if mail.portal_type == "sign_request":
+        return
+
     if not event.descriptions:
         return
     mod_attr = [name for at in event.descriptions if base_hasattr(at, "attributes") for name in at.attributes]
@@ -519,27 +525,32 @@ def apply_substitutes_to_signers(signers, substitutes=None):
     return result
 
 
-def apply_signer_rules(mail):
-    """Compute and set mail.signers / seal / esign from the configured signer rules.
+def _apply_signer_rules(obj, registry_key):
+    """Compute and set obj.signers / seal / esign from the configured signer rules.
 
-    Resets mail.signers to [] then appends matching rules. Returns True if at least one
+    Shared implementation for outgoing mail (``omail_signer_rules``) and signing request
+    (``request_signer_rules``). The mail_type / send_modes filters are only applied when the
+    rule defines them and the object carries the corresponding attribute (signing requests
+    have neither), so they are simply skipped for signing requests.
+
+    Resets obj.signers to [] then appends matching rules. Returns True if at least one
     signer rule was applied. May raise Invalid on inconsistent rules.
     """
     today = datetime.date.today()
     rules_applied = False
-    mail.signers = []
-    signer_rules = api.portal.get_registry_record("omail_signer_rules", IImioDmsMailConfig, [])
+    obj.signers = []
+    signer_rules = api.portal.get_registry_record(registry_key, IImioDmsMailConfig, [])
     substitutes = get_active_signer_substitutes(today)
     used_numbers = set()
     used_signers = set()
     for signer in signer_rules:
-        if signer["treating_groups"] and mail.treating_groups not in signer["treating_groups"]:
+        if signer["treating_groups"] and obj.treating_groups not in signer["treating_groups"]:
             continue
-        if signer["mail_types"] and mail.mail_type not in signer["mail_types"]:
+        if signer.get("mail_types") and getattr(obj, "mail_type", None) not in signer["mail_types"]:
             continue
-        if signer["send_modes"] and not (set(mail.send_modes) & set(signer["send_modes"])):
+        if signer.get("send_modes") and not (set(getattr(obj, "send_modes", None) or []) & set(signer["send_modes"])):
             continue
-        if not _evaluateExpression(mail, expression=signer["tal_condition"]):
+        if not _evaluateExpression(obj, expression=signer["tal_condition"]):
             continue
         rules_applied = True
 
@@ -550,15 +561,15 @@ def apply_signer_rules(mail):
 
         if signer["number"] == 0:
             if signer["signer"] == u"_seal_":
-                mail.seal = True
-                mail.esign = True
+                obj.seal = True
+                obj.esign = True
             else:
-                mail.seal = False
+                obj.seal = False
         elif signer["number"] == 1:
-            mail.esign = signer.get("esign", False)
+            obj.esign = signer.get("esign", False)
 
         # only check if we have at least a signer 0 and 1 because 0 could be after 1 in rules
-        if 0 in used_numbers and 1 in used_numbers and mail.seal and not mail.esign:
+        if 0 in used_numbers and 1 in used_numbers and obj.seal and not obj.esign:
             raise Invalid(_(u"You cannot have a seal without electronic signature ! You have to adapt the rules !"))
 
         if signer["number"] == 0:
@@ -583,7 +594,7 @@ def apply_signer_rules(mail):
                 )
             used_signers.add(person.UID())
 
-        mail.signers.append(
+        obj.signers.append(
             {
                 "number": signer["number"],
                 "signer": effective_signer,
@@ -592,6 +603,16 @@ def apply_signer_rules(mail):
             }
         )
     return rules_applied
+
+
+def apply_signer_rules(mail):
+    """Compute and set mail.signers / seal / esign from the outgoing mail signer rules."""
+    return _apply_signer_rules(mail, "omail_signer_rules")
+
+
+def apply_request_signer_rules(request):
+    """Compute and set request.signers / seal / esign from the signing request signer rules."""
+    return _apply_signer_rules(request, "request_signer_rules")
 
 
 def dmsoutgoingmail_modified(mail, event):
@@ -640,6 +661,43 @@ def dmsoutgoingmail_added(mail, event):
     """If the content is manually created, we call the modified event after creation to set signers."""
     if mail.title:  # TODO handle email correctly ! owner info is different from scanner ?
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+
+
+def sign_request_transition(request, event):
+    """Start the approval process when a signing request is proposed to approve."""
+    if event.transition and event.transition.id == "propose_to_approve":
+        approval = SignRequestApprovalAdapter(request)
+        approval.start_approval_process()
+
+
+def sign_request_modified(request, event):
+    """Apply the request signer rules (when signers are still empty) and update the approval annotation.
+
+    Signers are computed from request_signer_rules only when still empty; if no rule matches,
+    signers are left empty (to be filled manually)."""
+    # Do not update signers field if request is being signed or already signed
+    request_state = api.content.get_state(request)
+    if request_state in ("signed", "closed", "to_approve", "to_be_signed"):
+        return
+    signers_update = False
+    if not request.signers:
+        signers_update = apply_request_signer_rules(request)
+    # check if this is the signers field that is modified
+    mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
+    if (signers_update or "ISignRequestSigningBehavior.signers" in mod_attr) and request.signers:
+        request.signers.sort(key=itemgetter("number"))
+        approval = SignRequestApprovalAdapter(request)
+        try:
+            approval.update_signers()
+        except ValueError as e:
+            raise Invalid(e.message)
+
+
+def sign_request_added(request, event):
+    """If the content is manually created, we call the modified event after creation to set signers."""
+    if request.title:
+        zope.event.notify(ObjectModifiedEvent(
+            request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers")))
 
 
 def dv_handle_file_creation(obj, event):
@@ -721,7 +779,7 @@ def _correct_to_sign(file_obj):
     """
     if getattr(file_obj.__parent__, "esign", False) and getattr(file_obj, "to_sign", False):
         mimetype = get_contenttype(file_obj.file)
-        if mimetype in get_allowed_omf_content_types(esign=True):
+        if mimetype in get_allowed_content_types(esign=True, portal_type=file_obj.__parent__.portal_type):
             return False  # no modification
         file_obj.to_sign = False
         file_obj.to_approve = False
@@ -755,7 +813,7 @@ def _correct_to_approve(file_obj):
     orig_value = getattr(file_obj, "to_approve", False)
     new_value = False
     om_obj = file_obj.__parent__
-    approval = OMApprovalAdapter(om_obj)
+    approval = om_obj.approval()
     if (
         orig_value
         and getattr(file_obj, "to_sign", False)
@@ -792,18 +850,19 @@ def i_annex_added(obj, event):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
-    elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type == "dmsoutgoingmail":
+    elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type in ("dmsoutgoingmail", "sign_request"):
         mail = obj.__parent__
-        # In "template_first" mode, the signer rules are applied only when the first main document is
-        # generated from a template (see browser.documentgenerator._copy_template_signers). When an
-        # appendix is added before any template generation, signers would otherwise stay empty, so we
-        # apply the rules here too. If the rules produce no signer, an _empty_ placeholder is set.
-        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
-        if mode == u"template_first" and not mail.signers:
-            apply_signer_rules(mail)
-            if not mail.signers:
-                mail.signers = get_empty_signers_value()
-            zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        if mail.portal_type == "dmsoutgoingmail":
+            # In "template_first" mode, the signer rules are applied only when the first main document is
+            # generated from a template (see browser.documentgenerator._copy_template_signers). When an
+            # appendix is added before any template generation, signers would otherwise stay empty, so we
+            # apply the rules here too. If the rules produce no signer, an _empty_ placeholder is set.
+            mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
+            if mode == u"template_first" and not mail.signers:
+                apply_signer_rules(mail)
+                if not mail.signers:
+                    mail.signers = get_empty_signers_value()
+                zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
         if getattr(obj, "to_sign", False):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):
@@ -812,7 +871,10 @@ def i_annex_added(obj, event):
 
 def i_annex_will_be_removed(obj, event):
     """when an annex file will be removed"""
-    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type in (
+        "dmsoutgoingmail",
+        "sign_request",
+    ):
         try:
             portal = api.portal.get()
             pp = portal.portal_properties
@@ -820,7 +882,7 @@ def i_annex_will_be_removed(obj, event):
             # When deleting site, the portal is no more found...
             return
         breach = None
-        approval = OMApprovalAdapter(obj.__parent__)
+        approval = obj.__parent__.approval()
         if obj.UID() in approval.files_uids:
             breach = (obj.__parent__, obj)
         if obj.UID() in [f_uid for lst in approval.pdf_files_uids for f_uid in lst]:
@@ -857,9 +919,12 @@ def i_annex_removed(obj, event):
             referencedObjectRemoved(obj, event)
         except TypeError:
             pass
-    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type == "dmsoutgoingmail":
+    if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type in (
+        "dmsoutgoingmail",
+        "sign_request",
+    ):
         current_uid = obj.UID()
-        approval = OMApprovalAdapter(obj.__parent__)
+        approval = obj.__parent__.approval()
         # Case 1: We are removing a file in a session. Can be a pdf from odt, a direct pdf, a sealed odf
         session_annot = get_session_annotation()
         if current_uid in session_annot["uids"]:
@@ -973,6 +1038,7 @@ def contact_plonegroup_change(event):
     * update workflow dms config (new groups).
     * invalidate vocabulary caches.
     * set localroles on contacts for _encodeur groups.
+    * set Contributor localrole on the requests folder for _demand_sign groups.
     * add a directory by organization in templates/om, templates/oem and contacts/contact-lists-folder.
     * set local roles on contacts, incoming-mail for group_encoder.
     """
@@ -1011,6 +1077,16 @@ def contact_plonegroup_change(event):
                 if editeur_too:
                     dic["%s_editeur" % uid] = ["Contributor"]  # an agent could add a contact on an email im
             folder._p_changed = True
+        # _demand_sign groups (signing request requesters) can create in the requests folder
+        if "requests" in portal and any(dic["fct_id"] == u"demand_sign" for dic in s_fcts):
+            req_folder = portal["requests"]
+            dic = req_folder.__ac_local_roles__
+            for principal in dic.keys():
+                if principal.endswith("_demand_sign"):
+                    del dic[principal]
+            for uid in s_orgs:
+                dic["%s_demand_sign" % uid] = ["Contributor"]
+            req_folder._p_changed = True
         # we add a directory by organization in templates/om
         om_folder = portal.templates.om
         oem_folder = portal.templates.oem
@@ -1341,6 +1417,7 @@ def group_assignment(event):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
     invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
     invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
@@ -1370,6 +1447,7 @@ def group_unassignment(event):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.ActiveCreatingGroupVocabulary")
     invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
     invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     # see comments in this method for tests
     invalidate_users_groups(user_id=event.principal)
@@ -1432,6 +1510,7 @@ def held_position_modified(obj, event):
     if IPersonnelContact.providedBy(obj):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
         mod_attr = [
             at
             for at in getattr(event, "descriptions", [])
@@ -1448,6 +1527,7 @@ def held_position_removed(obj, event):
             return
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
 
 
 def mark_contact(contact, event):

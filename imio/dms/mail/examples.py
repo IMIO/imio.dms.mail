@@ -17,7 +17,9 @@ from DateTime.DateTime import DateTime
 from imio.dms.mail import _tr as _
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.dmssignrequest import internalReferenceSignRequestDefaultValue
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
@@ -28,6 +30,7 @@ from imio.helpers.workflow import do_transitions
 from imio.pyutils.system import get_git_tag
 from imio.zamqp.core import base
 from itertools import cycle
+from pathlib import Path
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
@@ -411,7 +414,7 @@ def add_test_mails(context):
     files = sorted([
         safe_unicode(name)
         for name in os.listdir(filespath)  # noqa
-        if os.path.splitext(name)[1][1:] in ("pdf", "doc", "jpg")
+        if Path(name).suffix[1:] in ("pdf", "doc", "jpg")
     ])
     files_cycle = cycle(files)
 
@@ -437,8 +440,9 @@ def add_test_mails(context):
     ifld = site["incoming-mail"]
     data = DummyView(site, site.REQUEST)
     for i in range(1, 10):
-        if not "courrier%d" % i in ifld:
-            scan_date = receptionDateDefaultValue(data)
+        scan_date = receptionDateDefaultValue(data)
+        sub_folder = create_period_folder(ifld, scan_date)
+        if "courrier%d" % i not in sub_folder:
             params = {
                 "title": "Courrier %d" % i,
                 "mail_type": "courrier",
@@ -489,7 +493,7 @@ def add_test_mails(context):
     )
 
     filespath = "%s/batchimport/toprocess/outgoing-mail" % PRODUCT_DIR
-    files = [safe_unicode(name) for name in os.listdir(filespath) if os.path.splitext(name)[1][1:] in ("odt",)]
+    files = [safe_unicode(name) for name in os.listdir(filespath) if Path(name).suffix[1:] in ("odt",)]
     files.sort()
     files_cycle = cycle(files)
     pf = contacts["personnel-folder"]
@@ -502,8 +506,10 @@ def add_test_mails(context):
 
     # outgoing mails
     ofld = site["outgoing-mail"]
+    dte = datetime.datetime.now()
+    sub_folder = create_period_folder(ofld, dte)
     for i in range(1, 10):
-        if not "reponse%d" % i in ofld:
+        if "reponse%d" % i not in sub_folder:
             params = {
                 "title": "Réponse %d" % i,
                 "internal_reference_no": internalReferenceOutgoingMailDefaultValue(data),
@@ -517,7 +523,7 @@ def add_test_mails(context):
                 "recipients": [RelationValue(next(recipients_cycle))],
                 "send_modes": ["post"],
             }
-            mail = sub_create(ofld, "dmsoutgoingmail", datetime.datetime.now(), "reponse%d" % i, **params)
+            mail = sub_create(ofld, "dmsoutgoingmail", dte, "reponse%d" % i, **params)
             filename = next(files_cycle)
             with open(u"%s/%s" % (filespath, filename), "rb") as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
@@ -530,6 +536,67 @@ def add_test_mails(context):
                     scan_id="%s2%s000000%02d" % (client_id[0:2], client_id[2:6], i),
                     content_category=calculate_category_id(site["annexes_types"]["outgoing_dms_files"]
                                                            ["outgoing-dms-file"]),
+                )
+
+
+def add_test_sign_requests(site):
+    """
+    Add french test data: signing requests.
+
+    This is not a standalone GenericSetup import step: it is called from the
+    'imiodmsmail-activate-sign-request' single step (see steps.activate_sign_request),
+    because the sign_request 'treating_groups' vocabulary only lists organizations
+    that have at least one user in their '<org_uid>_demand_sign' Plone group, and that
+    group only exists once the 'demand_sign' function has been added by that step.
+
+    It only does something when the demo users 'chef' and 'dirg' still exist.
+    """
+    users = (u"chef", u"dirg")
+    if not all(api.user.get(userid=userid) for userid in users):
+        logger.info("Nothing done: demo users %s do not all exist anymore", ", ".join(users))
+        return
+    logger.info("Adding test sign requests")
+
+    own_orga = site["contacts"]["plonegroup-organization"]
+    directions = [own_orga["direction-financiere"], own_orga["direction-generale"], own_orga["direction-technique"]]
+    for org in directions:
+        for userid in users:
+            site.acl_users.source_groups.addPrincipalToGroup(userid, "%s_demand_sign" % org.UID())
+
+    data = DummyView(site, site.REQUEST)
+
+    orgas_cycle = cycle([org.UID() for org in directions])
+    users_cycle = cycle(users)
+
+    filespath = "%s/batchimport/toprocess/requests" % PRODUCT_DIR
+    files = [safe_unicode(name) for name in os.listdir(filespath) if Path(name).suffix[1:] in ("odt", "pdf")]
+    files.sort()
+    files_cycle = cycle(files)
+
+    rfld = site["requests"]
+    dte = datetime.datetime.now()
+    sub_folder = create_period_folder(rfld, dte)
+    for i in range(1, 4):
+        if "demande%d" % i not in sub_folder:
+            params = {
+                "title": "Demande de signature %d" % i,
+                "internal_reference_no": internalReferenceSignRequestDefaultValue(data),
+                "treating_groups": next(orgas_cycle),
+                "assigned_user": next(users_cycle),
+                "recipient_groups": [],
+            }
+            request = sub_create(rfld, "sign_request", dte, "demande%d" % i, **params)
+            filename = next(files_cycle)
+            with open(u"%s/%s" % (filespath, filename), "rb") as fo:
+                file_object = NamedBlobFile(fo.read(), filename=filename)
+                createContentInContainer(
+                    request,
+                    "dmsappendixfile",
+                    id="1",
+                    title="",
+                    file=file_object,
+                    content_category=calculate_category_id(site["annexes_types"]["sign_request_appendix_files"]
+                                                           ["sign-request-appendix-file"]),
                 )
 
 
@@ -861,6 +928,27 @@ def configure_contact_plone_group(context):
                 "tal_condition": None,
             },
         ])
+        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_signer_rules"
+        api.portal.set_registry_record(rk, [
+            {
+                "number": 1,
+                "signer": pf["dirg"]["directeur-general"].UID(),
+                "editor": True,
+                "approvings": [u"_themself_"],
+                "esign": True,
+                "treating_groups": [],
+                "tal_condition": None,
+            },
+            {
+                "number": 2,
+                "signer": pf["bourgmestre"]["bourgmestre"].UID(),
+                "editor": False,
+                "approvings": [u"_themself_"],
+                "esign": True,
+                "treating_groups": [],
+                "tal_condition": None,
+            },
+        ])
 
 
 def configure_imio_dms_mail(context):
@@ -967,8 +1055,10 @@ def configure_imio_dms_mail(context):
         ]
     if registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send") is None:
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send"] = False
-    if registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile") is None:
+    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile"] = ["odt"]
+    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"):
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"] = ["odt", "pdf"]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields"):
         fields = [
             "IDublinCore.title",
@@ -1057,6 +1147,23 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_email_signature"] = template.substitute(
             url=PUBLIC_URL
         )
+
+    # signrequest
+    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats"):
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats"] = ["odt", "pdf"]
+    if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields"):
+        fields = [
+            "IBasic.title",
+            "IBasic.description",
+            "treating_groups",
+            "ITask.assigned_user",
+            "recipient_groups",
+            "ISignRequestSigningBehavior.signers",
+            "ISignRequestSigningBehavior.esign",
+        ]
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields"] = [
+            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
+        ]
 
     # general
     api.portal.set_registry_record(

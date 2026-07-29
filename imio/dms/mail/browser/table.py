@@ -8,7 +8,6 @@ from collective.iconifiedcategory.browser.tabview import IconClickableColumn
 from collective.task import _ as _task
 from html import escape  # noqa F401
 from imio.dms.mail import _
-from imio.dms.mail.interfaces import IOMApproval
 from imio.esign.config import get_esign_registry_enabled
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import uuidToObject
@@ -157,6 +156,12 @@ class IMVersionsTable(BaseVersionsTable):
     portal_types = ["dmsmainfile", "dmsappendixfile"]
 
 
+class SignRequestVersionsTable(BaseVersionsTable):
+    """Versions table for signing requests: they only contain appendix files."""
+
+    portal_types = ["dmsappendixfile"]
+
+
 class OMVersionsTable(BaseVersionsTable):
     """Versions table for outgoing mails with PDF child row indentation.
 
@@ -183,7 +188,7 @@ class OMVersionsTable(BaseVersionsTable):
     def __init__(self, context, request, portal_type=None):
         """If received, this let's filter table for a given portal_type."""
         super(OMVersionsTable, self).__init__(context, request, portal_type=portal_type)
-        self.approval = IOMApproval(self.context)
+        self.approval = self.context.approval()
         # Set of PDF-generated child file UIDs that are distinct from their source
         self.pdf_child_uids = set(
             uid for lst in self.approval.pdf_files_uids for uid in lst
@@ -334,7 +339,7 @@ class ApprovalTable(Table):
 
     def __init__(self, context, request):
         super(ApprovalTable, self).__init__(context, request)
-        self.approval = IOMApproval(self.context)
+        self.approval = self.context.approval()
         self.portal = api.portal.getSite()
 
     def setUpColumns(self):

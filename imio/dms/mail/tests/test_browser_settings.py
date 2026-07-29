@@ -11,7 +11,11 @@ from eea.facetednavigation.criteria.interfaces import ICriteria
 from imio.dms.mail import _tr
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import DEFAULT_DISPLAYED_TABS
+from imio.dms.mail import FIRST_LEVEL_TABS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.views import ImioCatalogNavigationTabs
+from imio.dms.mail.browser.views import PlusPortaltabContent
 from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.Extensions.demo import activate_group_encoder
 from imio.dms.mail.testing import change_user
@@ -143,6 +147,84 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         ]}
         self.assertFalse(invariants.validate(data))
 
+    @staticmethod
+    def _omail_rule(**kw):
+        """Build a valid omail signer rule, overridable via kwargs."""
+        rule = {"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"], "esign": False,
+                "treating_groups": [], "mail_types": [], "send_modes": [], "tal_condition": None}
+        rule.update(kw)
+        return rule
+
+    @staticmethod
+    def _request_rule(**kw):
+        """Build a valid request signer rule, overridable via kwargs."""
+        rule = {"number": 1, "signer": u"_seal_", "editor": False, "approvings": [u"_empty_"], "esign": True,
+                "treating_groups": [], "tal_condition": None}
+        rule.update(kw)
+        return rule
+
+    def test_omail_signer_rules_validation(self):
+        """Check omail_signer_rules invariant validation."""
+        record_proxy = self.registry.forInterface(IImioDmsMailConfig)
+        invariants = validator.InvariantsValidator(record_proxy, None, None, IImioDmsMailConfig, None)
+        pf = self.portal["contacts"]["personnel-folder"]
+        signer = pf["dirg"]["directeur-general"].UID()
+
+        # a) valid rule with a real signer
+        self.assertFalse(invariants.validate({"omail_signer_rules": [self._omail_rule(signer=signer)]}))
+        # b) valid seal rule (number 0, seal signature)
+        self.assertFalse(invariants.validate({"omail_signer_rules": [self._omail_rule(number=0, signer=u"_seal_")]}))
+        # c) number 0 but a signer is set
+        errors = invariants.validate({"omail_signer_rules": [self._omail_rule(number=0, signer=signer)]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # d) seal signature but number is not 0
+        errors = invariants.validate({"omail_signer_rules": [self._omail_rule(number=1, signer=u"_seal_")]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # e) esign enabled but no valid approving
+        errors = invariants.validate({"omail_signer_rules": [
+            self._omail_rule(signer=signer, esign=True, approvings=[u"_empty_"])]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # f) two rules applying to the same signer
+        errors = invariants.validate({"omail_signer_rules": [
+            self._omail_rule(signer=signer), self._omail_rule(signer=signer)]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+
+    def test_request_signer_rules_validation(self):
+        """Check request_signer_rules invariant validation."""
+        record_proxy = self.registry.forInterface(IImioDmsMailConfig)
+        invariants = validator.InvariantsValidator(record_proxy, None, None, IImioDmsMailConfig, None)
+        pf = self.portal["contacts"]["personnel-folder"]
+        signer = pf["dirg"]["directeur-general"].UID()
+        approving = pf["bourgmestre"]["bourgmestre"].get_person().UID()
+
+        # a) valid rule with a real signer and approving
+        self.assertFalse(invariants.validate({"request_signer_rules": [
+            self._request_rule(signer=signer, approvings=[approving])]}))
+        # b) valid seal rule (number 0, seal signature)
+        self.assertFalse(invariants.validate({"request_signer_rules": [
+            self._request_rule(number=0, signer=u"_seal_", approvings=[approving])]}))
+        # c) electronic signature is mandatory for a signing request
+        errors = invariants.validate({"request_signer_rules": [
+            self._request_rule(signer=signer, approvings=[approving], esign=False)]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # d) number 0 but a signer is set
+        errors = invariants.validate({"request_signer_rules": [
+            self._request_rule(number=0, signer=signer, approvings=[approving])]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # e) seal signature but number is not 0
+        errors = invariants.validate({"request_signer_rules": [
+            self._request_rule(number=1, signer=u"_seal_", approvings=[approving])]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # f) esign enabled but no approving
+        errors = invariants.validate({"request_signer_rules": [
+            self._request_rule(signer=signer, approvings=[])]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        # g) two rules applying to the same signer
+        errors = invariants.validate({"request_signer_rules": [
+            self._request_rule(signer=signer, approvings=[approving]),
+            self._request_rule(signer=signer, approvings=[approving])]})
+        self.assertTrue(isinstance(errors[0], Invalid))
+
     def test_validate_settings2(self):
         """Check invariant"""
         record_proxy = self.registry.forInterface(IImioDmsMailConfig)
@@ -246,6 +328,57 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 3)
         self.registry[key] = True
         self.assertEqual(len(self.registry[FUNCTIONS_REGISTRY]), 4)
+
+    def test_displayed_tabs_setting_changed(self):
+        """Changing displayed_tabs toggles exclude_from_nav on top nav tabs"""
+        key = "imio.dms.mail.displayed_tabs"
+        tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
+        self.assertListEqual([t["id"] for t in tabs if t["id"] != "index_html"],
+                             ["incoming-mail", "outgoing-mail", "folders", "tasks", "plus"])
+        self.assertTrue(self.portal["requests"].getExcludeFromNav())
+        all_tabs = FIRST_LEVEL_TABS
+        api.portal.set_registry_record(key, all_tabs)
+        self.assertFalse(self.portal["requests"].getExcludeFromNav())
+        tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
+        self.assertIn("requests", [t["id"] for t in tabs])
+        # hide requests again
+        api.portal.set_registry_record(key, DEFAULT_DISPLAYED_TABS)
+        self.assertTrue(self.portal["requests"].getExcludeFromNav())
+        tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
+        self.assertNotIn("requests", [t["id"] for t in tabs])
+        self.assertIn("incoming-mail", [t["id"] for t in tabs])
+
+    def test_displayed_tabs_plus_submenu(self):
+        """The plus sub-menu shows managed items per displayed_tabs"""
+        key = "imio.dms.mail.displayed_tabs"
+        all_tabs = FIRST_LEVEL_TABS
+        api.portal.set_registry_record(key, all_tabs)
+        tabs = PlusPortaltabContent(self.portal, self.portal.REQUEST).get_tabs()
+        urls = [url for _, url in tabs]
+        self.assertTrue(any(u.endswith("/tree") for u in urls))
+        self.assertTrue(any(u.endswith("/annexes_types") for u in urls))
+        # hide tree
+        api.portal.set_registry_record(key, [t for t in all_tabs if t != u"tree"])
+        tabs = PlusPortaltabContent(self.portal, self.portal.REQUEST).get_tabs()
+        urls = [url for _, url in tabs]
+        self.assertFalse(any(u.endswith("/tree") for u in urls))
+        self.assertTrue(any(u.endswith("/annexes_types") for u in urls))
+
+    def test_manage_classification_tabs(self):
+        """Classification singles steps drive folders/tree via displayed_tabs"""
+        key = "imio.dms.mail.displayed_tabs"
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-deactivate_classification", run_dependencies=False)
+        displayed = api.portal.get_registry_record(key) or []
+        self.assertNotIn(u"folders", displayed)
+        self.assertNotIn(u"tree", displayed)
+        self.assertTrue(self.portal["folders"].exclude_from_nav)
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate_classification", run_dependencies=False)
+        displayed = api.portal.get_registry_record(key) or []
+        self.assertIn(u"folders", displayed)
+        self.assertIn(u"tree", displayed)
+        self.assertFalse(self.portal["folders"].exclude_from_nav)
 
     def test_default_creating_group(self):
         self.change_user("agent")

@@ -36,8 +36,14 @@
 
     <plone:behavior
         title="Dms Mail Signers"
-        description="Add a field to list the users that have to sign the document"
+        description="Add fields about signing information"
         provides=".behaviors.ISigningBehavior"
+        />
+
+    <plone:behavior
+        title="Dms Sign Request Signers"
+        description="Add fields about signing information for a signing request"
+        provides=".behaviors.ISignRequestSigningBehavior"
         />
 
     <adapter

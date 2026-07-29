@@ -7,6 +7,7 @@ from collective.contact.plonegroup.interfaces import INotPloneGroupContact
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.contact.plonegroup.utils import get_organizations
 from collective.contact.plonegroup.utils import get_person_from_userid
+from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.iconifiedcategory.vocabularies import CategoryVocabulary
@@ -16,6 +17,7 @@ from imio.dms.mail import _tr
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import FIRST_LEVEL_TABS
 from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import get_context_with_request
@@ -39,7 +41,7 @@ from zope.component import getUtility
 from zope.component import queryUtility
 from zope.i18n import translate
 from zope.interface import alsoProvides
-from zope.interface import implements
+from zope.interface import implementer
 from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
@@ -55,76 +57,76 @@ def voc_cache_key(method, self, context):
     return get_cachekey_volatile("%s.%s" % (self.__class__.__module__, self.__class__.__name__))
 
 
-class IMReviewStatesVocabulary(object):
+@implementer(IVocabularyFactory)
+class BaseReviewStatesVocabulary(object):
+    """Base wf states vocabulary: lists self.portal_type states, in configured order"""
+
+    portal_type = None
+    site_language = True  # translate in site language, otherwise negotiate with request
+
+    def __call__(self, context):
+        if self.site_language:
+            tl = api.portal.get().portal_properties.site_properties.getProperty("default_language", "fr")
+            kwargs = {"target_language": tl}
+        else:
+            kwargs = {"context": context.REQUEST}
+        return SimpleVocabulary(
+            [
+                SimpleVocabulary.createTerm(st_id, st_id, translate(safe_unicode(st_tit), domain="plone", **kwargs))
+                for st_id, st_tit in list_wf_states(context, self.portal_type)
+            ]
+        )
+
+
+class IMReviewStatesVocabulary(BaseReviewStatesVocabulary):
     """Incoming mail states vocabulary"""
 
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        terms = []
-        tl = api.portal.get().portal_properties.site_properties.getProperty("default_language", "fr")
-        for st_id, st_tit in list_wf_states(context, "dmsincomingmail"):  # i_e ok
-            terms.append(
-                SimpleVocabulary.createTerm(
-                    st_id, st_id, translate(safe_unicode(st_tit), domain="plone", target_language=tl)
-                )
-            )
-        return SimpleVocabulary(terms)
+    portal_type = "dmsincomingmail"  # i_e ok
 
 
-class OMReviewStatesVocabulary(object):
+class OMReviewStatesVocabulary(BaseReviewStatesVocabulary):
     """Outgoing mail states vocabulary"""
 
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        terms = []
-        tl = api.portal.get().portal_properties.site_properties.getProperty("default_language", "fr")
-        for st_id, st_tit in list_wf_states(context, "dmsoutgoingmail"):
-            terms.append(
-                SimpleVocabulary.createTerm(
-                    st_id, st_id, translate(safe_unicode(st_tit), domain="plone", target_language=tl)
-                )
-            )
-        return SimpleVocabulary(terms)
+    portal_type = "dmsoutgoingmail"
 
 
-class TaskReviewStatesVocabulary(object):
+class SRReviewStatesVocabulary(BaseReviewStatesVocabulary):
+    """Sign request states vocabulary"""
+
+    portal_type = "sign_request"
+
+
+class TaskReviewStatesVocabulary(BaseReviewStatesVocabulary):
     """Task states vocabulary"""
 
-    implements(IVocabularyFactory)
+    portal_type = "task"
+    site_language = False
+
+
+@implementer(IVocabularyFactory)
+class FirstLevelTabsVocabulary(object):
+    """First level tabs vocabulary (used to configure displayed tabs)"""
 
     def __call__(self, context):
+        portal = api.portal.get()
         terms = []
-        for st_id, st_tit in list_wf_states(context, "task"):
-            terms.append(
-                SimpleVocabulary.createTerm(
-                    st_id, st_id, translate(safe_unicode(st_tit), domain="plone", context=context.REQUEST)
-                )
-            )
+        for tab_id in FIRST_LEVEL_TABS:
+            folder = portal.get(tab_id)
+            title = folder is not None and safe_unicode(folder.Title()) or safe_unicode(tab_id)
+            terms.append(SimpleVocabulary.createTerm(tab_id, tab_id, title))
         return SimpleVocabulary(terms)
 
 
-class ContactsReviewStatesVocabulary(object):
+class ContactsReviewStatesVocabulary(BaseReviewStatesVocabulary):
     """Contacts states vocabulary"""
 
-    implements(IVocabularyFactory)
-
-    def __call__(self, context):
-        terms = []
-        for st_id, st_tit in list_wf_states(context, "organization"):
-            terms.append(
-                SimpleVocabulary.createTerm(
-                    st_id, st_id, translate(safe_unicode(st_tit), domain="plone", context=context.REQUEST)
-                )
-            )
-        return SimpleVocabulary(terms)
+    portal_type = "organization"
+    site_language = False
 
 
+@implementer(IVocabularyFactory)
 class HeldPositionUsagesVocabulary(object):
     """Vocabulary for held position usages."""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         res = [
@@ -135,10 +137,9 @@ class HeldPositionUsagesVocabulary(object):
         return SimpleVocabulary(res)
 
 
+@implementer(IVocabularyFactory)
 class AssignedUsersWithDeactivatedVocabulary(object):
     """All users, activated first."""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(users_groups_cache_key)
     def AssignedUsersWithDeactivatedVocabulary__call__(self, context):
@@ -175,10 +176,9 @@ class AssignedUsersWithDeactivatedVocabulary(object):
     __call__ = AssignedUsersWithDeactivatedVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class AssignedUsersForFacetedFilterVocabulary(object):
     """All users, activated first."""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         factory = getUtility(IVocabularyFactory, "imio.dms.mail.AssignedUsersWithDeactivatedVocabulary")
@@ -209,10 +209,9 @@ def get_settings_vta_table(field, active=(True, False), choose=False):
     return SimpleVocabulary(terms)
 
 
+@implementer(IVocabularyFactory)
 class IMMailTypesVocabulary(object):
     """Mail types vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def IMMailTypesVocabulary__call__(self, context):
@@ -221,10 +220,9 @@ class IMMailTypesVocabulary(object):
     __call__ = IMMailTypesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class IMActiveMailTypesVocabulary(object):
     """Active mail types vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def IMActiveMailTypesVocabulary__call__(self, context):
@@ -233,10 +231,9 @@ class IMActiveMailTypesVocabulary(object):
     __call__ = IMActiveMailTypesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class PloneGroupInterfacesVocabulary(object):
     """List interfaces that will be shown in contacts faceted navigation."""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         interfaces = [IPloneGroupContact, INotPloneGroupContact, IPersonnelContact]
@@ -311,6 +308,7 @@ def get_internal_held_positions_vocabulary(states=(), usages=(), as_person=False
         return SimpleVocabulary([term for pers, hpo, term in sorted(terms, key=sort_hps)])
 
 
+@implementer(IVocabularyFactory)
 class OMActiveSenderVocabulary(object):
     """
     Outgoing mail sender vocabulary
@@ -319,8 +317,6 @@ class OMActiveSenderVocabulary(object):
     term title = hp title
     """
 
-    implements(IVocabularyFactory)
-
     @ram.cache(voc_cache_key)
     def OMActiveSenderVocabulary__call__(self, context):
         return get_internal_held_positions_vocabulary(["active"])
@@ -328,6 +324,7 @@ class OMActiveSenderVocabulary(object):
     __call__ = OMActiveSenderVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMSenderVocabulary(object):
     """
     Outgoing mail sender vocabulary
@@ -336,8 +333,6 @@ class OMSenderVocabulary(object):
     term title = hp title
     """
 
-    implements(IVocabularyFactory)
-
     @ram.cache(voc_cache_key)
     def OMSenderVocabulary__call__(self, context):
         return get_internal_held_positions_vocabulary(["active", "deactivated"])
@@ -345,10 +340,9 @@ class OMSenderVocabulary(object):
     __call__ = OMSenderVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMMailTypesVocabulary(object):
     """Mail types vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def OMMailTypesVocabulary__call__(self, context):
@@ -357,10 +351,9 @@ class OMMailTypesVocabulary(object):
     __call__ = OMMailTypesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMActiveMailTypesVocabulary(object):
     """Active mail types vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def OMActiveMailTypesVocabulary__call__(self, context):
@@ -369,10 +362,9 @@ class OMActiveMailTypesVocabulary(object):
     __call__ = OMActiveMailTypesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMSendModesVocabulary(object):
     """All send modes vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def OMSendModesVocabulary__call__(self, context):
@@ -381,10 +373,9 @@ class OMSendModesVocabulary(object):
     __call__ = OMSendModesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMActiveSendModesVocabulary(object):
     """Active send modes vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def OMActiveSendModesVocabulary__call__(self, context):
@@ -393,10 +384,9 @@ class OMActiveSendModesVocabulary(object):
     __call__ = OMActiveSendModesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class IMSendModesVocabulary(object):
     """All incoming send modes vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def IMSendModesVocabulary__call__(self, context):
@@ -405,10 +395,9 @@ class IMSendModesVocabulary(object):
     __call__ = IMSendModesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class IMActiveSendModesVocabulary(object):
     """Active incoming send modes vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def IMActiveSendModesVocabulary__call__(self, context):
@@ -417,10 +406,9 @@ class IMActiveSendModesVocabulary(object):
     __call__ = IMActiveSendModesVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class OMSignersVocabulary(object):
     """Signers vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def OMSignersVocabulary__call__(self, context):
@@ -429,8 +417,8 @@ class OMSignersVocabulary(object):
     __call__ = OMSignersVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class SigningApprovingsVocabulary(object):
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def SigningApprovingsVocabulary__call__(self, context):
@@ -442,6 +430,21 @@ class SigningApprovingsVocabulary(object):
         )
 
     __call__ = SigningApprovingsVocabulary__call__
+
+
+@implementer(IVocabularyFactory)
+class SigningRequestApprovingsVocabulary(object):
+    """Same as SigningApprovingsVocabulary but without the "_empty_" value."""
+
+    @ram.cache(voc_cache_key)
+    def SigningRequestApprovingsVocabulary__call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=u"_themself_", title=_("* Themself")),
+            ] + get_internal_held_positions_vocabulary(usages="approving", as_person=True)._terms
+        )
+
+    __call__ = SigningRequestApprovingsVocabulary__call__
 
 
 def encodeur_active_orgs(context):
@@ -470,7 +473,7 @@ def encodeur_active_orgs(context):
         orgs = organizations_with_suffixes(
             get_plone_groups_for_user(user=current_user), OM_EDITOR_SERVICE_FUNCTIONS, group_as_str=True
         )
-        pers = get_person_from_userid(current_user.id)
+        pers = get_person_from_userid(current_user.getId())
         if pers and pers.primary_organization and pers.primary_organization in orgs:
             return SimpleVocabulary(
                 [voc.vocab.getTerm(pers.primary_organization)]
@@ -484,10 +487,75 @@ def encodeur_active_orgs(context):
 alsoProvides(encodeur_active_orgs, IContextSourceBinder)
 
 
+@implementer(IVocabularyFactory)
+class SignRequestActiveOrgsVocabulary(object):
+    """This vocabulary only keeps organizations that have at least one user defined in their
+    '<org_uid>_demand_sign' Plone group.
+
+    The result is cached on the '_users_groups_value' volatile, which is invalidated
+    on group (un)assignment and on plonegroup registry changes (see subscribers).
+    """
+
+    @ram.cache(users_groups_cache_key)
+    def SignRequestActiveOrgsVocabulary__call__(self, context):
+        factory = getUtility(IVocabularyFactory, u"collective.dms.basecontent.treating_groups")
+        voc = factory(context)
+        terms = [
+            term for term in voc.vocab._terms if get_selected_org_suffix_principal_ids(term.value, [u"demand_sign"])
+        ]
+        return SimpleVocabulary(terms)
+
+    __call__ = SignRequestActiveOrgsVocabulary__call__
+
+
+def signrequest_active_orgs(context):
+    """This vocabulary source is used on the sign_request treating_groups field.
+
+    It is based on the named 'imio.dms.mail.SignRequestActiveOrgsVocabulary' and puts the current user
+    primary organization first when it is part of the list or the user is only in one demand_sign group (org).
+
+    :param context:
+    :return: the (possibly reordered) organizations vocabulary
+    """
+    factory = getUtility(IVocabularyFactory, u"imio.dms.mail.SignRequestActiveOrgsVocabulary")
+    voc = factory(context)
+    current_user = api.user.get_current()
+    # this is the case when calling ++widget++...
+    if current_user.getId() is None:
+        return voc
+    # we filter orgs if
+    #   * current user is not admin
+    #   * portal_type is not sign_request (on adding)
+    #   * state is created
+    if not current_user.has_role(["Manager", "Site Administrator"]) and (
+        context.portal_type != "sign_request" or api.content.get_state(context) == "created"
+    ):
+        pers = get_person_from_userid(current_user.getId())
+        first_org = None
+        if pers and pers.primary_organization and pers.primary_organization in voc.by_value:
+            first_org = pers.primary_organization
+        else:
+            groups = get_plone_groups_for_user(user=current_user)
+            orgs = [
+                org
+                for org in organizations_with_suffixes(groups, [u"demand_sign"], group_as_str=True)
+                if org in voc.by_value
+            ]
+            if len(orgs) == 1:
+                first_org = orgs[0]
+        if first_org:
+            return SimpleVocabulary(
+                [voc.getTerm(first_org)] + [term for term in voc._terms if term.value != first_org]
+            )
+    return voc
+
+
+alsoProvides(signrequest_active_orgs, IContextSourceBinder)
+
+
+@implementer(IVocabularyFactory)
 class MyLabelsVocabulary(object):
     """My Labels vocabulary. Creating a vocabulary for connected user labels"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         terms = []
@@ -500,18 +568,17 @@ class MyLabelsVocabulary(object):
             if label["by_user"]:
                 terms.append(
                     SimpleVocabulary.createTerm(
-                        "%s:%s" % (user.id, label["label_id"]),
-                        "%s_%s" % (user.id, label["label_id"]),
+                        "%s:%s" % (user.getId(), label["label_id"]),
+                        "%s_%s" % (user.getId(), label["label_id"]),
                         safe_unicode(label["title"]),
                     )
                 )
         return SimpleVocabulary(terms)
 
 
+@implementer(IVocabularyFactory)
 class LabelsVocabulary(object):
     """Global labels vocabulary"""
-
-    implements(IVocabularyFactory)
 
     def LabelsVocabulary__call__(self, context):
         terms = []
@@ -530,10 +597,9 @@ class LabelsVocabulary(object):
     __call__ = LabelsVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class CreatingGroupVocabulary(object):
     """Creating group vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def CreatingGroupVocabulary__call__(self, context):
@@ -554,10 +620,9 @@ class CreatingGroupVocabulary(object):
     __call__ = CreatingGroupVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class ActiveCreatingGroupVocabulary(object):
     """Active creating group vocabulary"""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def ActiveCreatingGroupVocabulary__call__(self, context):
@@ -584,8 +649,8 @@ class ActiveCreatingGroupVocabulary(object):
     __call__ = ActiveCreatingGroupVocabulary__call__
 
 
+@implementer(IQuerySource)
 class SourceAbleVocabulary(object):
-    implements(IQuerySource)
 
     vocabulary_name = ""
     vocabulary = None
@@ -619,8 +684,8 @@ class SourceAbleVocabulary(object):
         return [t for t in self.vocabulary._terms if all([s in self.flattened_titles[t.value] for s in searched])]
 
 
+@implementer(IContextSourceBinder)
 class SourceAbleContextBinder(object):
-    implements(IContextSourceBinder)
     source_class = None
 
     def __call__(self, context):
@@ -635,10 +700,9 @@ class ServicesSourceBinder(SourceAbleContextBinder):
     source_class = ServicesSourceAbleVocabulary
 
 
+@implementer(IVocabularyFactory)
 class ActionCategoriesVocabularyFactory(object):
     """Provides an actions categories vocabulary"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         portal_actions = api.portal.get_tool("portal_actions")
@@ -648,10 +712,9 @@ class ActionCategoriesVocabularyFactory(object):
         return SimpleVocabulary([SimpleTerm(cat, title=cat) for cat in categories])
 
 
+@implementer(IVocabularyFactory)
 class IMPortalTypesVocabulary(object):
     """"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary(
@@ -662,10 +725,9 @@ class IMPortalTypesVocabulary(object):
         )
 
 
+@implementer(IVocabularyFactory)
 class TreatingGroupsWithDeactivatedVocabulary(object):
     """Get all groups, activated first."""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def TreatingGroupsWithDeactivatedVocabulary__call__(self, context):
@@ -696,10 +758,9 @@ class TreatingGroupsWithDeactivatedVocabulary(object):
     __call__ = TreatingGroupsWithDeactivatedVocabulary__call__
 
 
+@implementer(IVocabularyFactory)
 class TreatingGroupsForFacetedFilterVocabulary(object):
     """Will be used in faceted criteria with deactivated orgs at the end."""
-
-    implements(IVocabularyFactory)
 
     @ram.cache(voc_cache_key)
     def TreatingGroupsForFacetedFilterVocabulary__call__(self, context):
@@ -727,10 +788,9 @@ class DmsPrimaryOrganizationsVocabulary(PrimaryOrganizationsVocabulary):
         )
 
 
+@implementer(IVocabularyFactory)
 class ActiveInactiveStatesVocabulary(object):
     """States of active_inactive_workflow"""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         return SimpleVocabulary(
@@ -738,10 +798,10 @@ class ActiveInactiveStatesVocabulary(object):
         )
 
 
+@implementer(IVocabularyFactory)
 class DmsFilesCategoryVocabulary(CategoryVocabulary):
-    """Vocabulary to retrieve available content categories for incoming mails, outgoing mails and classification folders"""
-
-    implements(IVocabularyFactory)
+    """Vocabulary to retrieve available content categories for incoming mails, outgoing mails and
+    classification folders"""
 
     def _get_categories(self, context, only_enabled=True):
         catalog = api.portal.get_tool('portal_catalog')
@@ -758,13 +818,17 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
         if {"dmsincomingmail", "dmsincoming_email"}.intersection({parent_type, context_type}):
             if context_type == "dmsmainfile" or url.endswith("dmsmainfile"):
                 query["path"] = "{}/annexes_types/incoming_dms_files".format(portal_path)
-            elif context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile') or typeupload == 'dmsappendixfile':
+            elif (context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile')
+                  or typeupload == 'dmsappendixfile'):
                 query["path"] = "{}/annexes_types/incoming_appendix_files".format(portal_path)
         elif {"dmsoutgoingmail", "dmsoutgoing_email"}.intersection({parent_type, context_type}):
             if context_type == "dmsommainfile" or url.endswith("dmsommainfile"):
                 query["path"] = "{}/annexes_types/outgoing_dms_files".format(portal_path)
-            elif context_type == "dmsappendixfile" or url.endswith("dmsappendixfile") or typeupload == 'dmsappendixfile':
+            elif (context_type == "dmsappendixfile" or url.endswith("dmsappendixfile")
+                  or typeupload == 'dmsappendixfile'):
                 query["path"] = "{}/annexes_types/outgoing_appendix_files".format(portal_path)
+        elif {"sign_request"}.intersection({parent_type, context_type}):
+            query["path"] = "{}/annexes_types/sign_request_appendix_files".format(portal_path)
         elif {"ClassificationFolder", "ClassificationSubfolder", "annex"}.intersection({parent_type, context_type}):
             query["path"] = "{}/annexes_types/annexes".format(portal_path)
         else:
@@ -773,10 +837,9 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
         return [b.getObject() for b in catalog.unrestrictedSearchResults(**query)]
 
 
+@implementer(IVocabularyFactory)
 class PODTemplateContentCategoriesVocabulary(object):
     """Return content categories vocabulary for POD templates."""
-
-    implements(IVocabularyFactory)
 
     def __call__(self, context):
         catalog = api.portal.get_tool('portal_catalog')

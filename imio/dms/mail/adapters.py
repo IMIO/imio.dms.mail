@@ -30,12 +30,15 @@ from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
+from imio.dms.mail import REQUEST_TREATING_SERVICE_FUNCTIONS
 from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IOMApproval
+from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.utils import back_or_again_state
-from imio.dms.mail.utils import get_allowed_omf_content_types
+from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_post_approval_transition
 from imio.dms.mail.utils import get_scan_id
@@ -91,7 +94,6 @@ from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.interface import implementer
-from zope.interface import implements
 from zope.interface import Interface
 from zope.schema.interfaces import IField
 from zope.schema.interfaces import IVocabularyFactory
@@ -336,6 +338,38 @@ class OutgoingMailInCopyGroupCriterion(object):
         return {"recipient_groups": {"query": orgs}}
 
 
+class SignRequestInTreatingGroupCriterion(object):
+    """
+    Return catalog criteria following treating group member (demand_sign function)
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, REQUEST_TREATING_SERVICE_FUNCTIONS, group_as_str=True)
+        # if orgs is empty list, nothing is returned => ok
+        return {"treating_groups": {"query": orgs}}
+
+
+class SignRequestInCopyGroupCriterion(object):
+    """
+    Return catalog criteria following recipient group member
+    """
+
+    def __init__(self, context):
+        self.context = context
+
+    @property
+    def query(self):
+        groups = get_plone_groups_for_user(user=api.user.get_current())
+        orgs = organizations_with_suffixes(groups, OM_READER_SERVICE_FUNCTIONS, group_as_str=True)
+        # if orgs is empty list, nothing is returned => ok
+        return {"recipient_groups": {"query": orgs}}
+
+
 class TaskInAssignedGroupCriterion(object):
     """
     Return catalog criteria following assigned group member
@@ -476,6 +510,16 @@ def approvings_index(obj):
     Stores userid:number for each approver.
     """
     approval = OMApprovalAdapter(obj)
+    return approval.current_approvers
+
+
+@indexer(IImioDmsSignRequest)
+def signrequest_approvings_index(obj):
+    """Indexer of 'approvings' for IImioDmsSignRequest.
+
+    Stores the userids of the approvers of the current approval step.
+    """
+    approval = SignRequestApprovalAdapter(obj)
     return approval.current_approvers
 
 
@@ -770,7 +814,7 @@ def state_group_index(obj):
     # set_dms_config(['review_states', 'dmsincomingmail'],  # i_e ok
     #                OrderedDict([('proposed_to_manager', {'group': 'dir_general'}),
     #                             ('proposed_to_n_plus_1', {'group': '_n_plus_1', 'org': 'treating_groups'})]))
-    config = get_dms_config(["review_states", portal_type])
+    config = get_dms_config(["review_states", portal_type], missing_key_handling=True, missing_key_value=[])
     if state not in config or not config[state]["group"].startswith("_"):
         return state
     else:
@@ -800,9 +844,9 @@ def imio_contact_source(contact):
     return value.replace(", ,", "").replace("  ,", "").replace(",  ", "")
 
 
+@implementer(IDynamicTextIndexExtender)
 class ScanSearchableExtender(object):
     adapts(IScanFields)
-    implements(IDynamicTextIndexExtender)
 
     def __init__(self, context):
         self.context = context
@@ -850,6 +894,7 @@ class ScanSearchableExtender(object):
             return self.searchable_text()
 
 
+@implementer(IDynamicTextIndexExtender)
 class IdmSearchableExtender(object):
     """
     Extends SearchableText of scanned dms document.
@@ -857,7 +902,6 @@ class IdmSearchableExtender(object):
     """
 
     adapts(IImioDmsIncomingMail)
-    implements(IDynamicTextIndexExtender)
 
     def __init__(self, context):
         self.context = context
@@ -1135,13 +1179,11 @@ class ApprovalRoleAdapter(object):
 
     @property
     def config(self):
-        approval = OMApprovalAdapter(self.context)
-        return approval.roles
+        return self.context.approval().roles
 
 
-@implementer(IOMApproval)
-class OMApprovalAdapter(object):
-    """Adapter for outgoing mail approval.
+class ApprovalAdapter(object):
+    """Base adapter for content approval (outgoing mail, signing request).
 
     Annotation structure: metadata + 2D matrix with n signers and m files
 
@@ -1166,6 +1208,12 @@ class OMApprovalAdapter(object):
         "approved_by": userid,
     }
     """
+
+    # workflow state(s) in which the approval process is running
+    approval_states = ("to_approve",)
+    # workflow states strictly after the approval process (approval is frozen/done)
+    # overridden in subclasses to match each content type workflow
+    after_approval_states = ()
 
     def __init__(self, context):
         self.context = context
@@ -1306,7 +1354,7 @@ class OMApprovalAdapter(object):
         """Return True if the current state is before approval process."""
         if state is None:
             state = api.content.get_state(self.context)
-        if state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+        if state not in self.approval_states + self.after_approval_states:
             return True
         return False
 
@@ -1314,7 +1362,7 @@ class OMApprovalAdapter(object):
         """Return True if the current state is before or in approval process."""
         if state is None:
             state = api.content.get_state(self.context)
-        if state not in ("to_print", "to_be_signed", "signed", "sent"):
+        if state not in self.after_approval_states:
             return True
         return False
 
@@ -1322,7 +1370,7 @@ class OMApprovalAdapter(object):
         """Return True if the current state is after approval process."""
         if state is None:
             state = api.content.get_state(self.context)
-        if state in ("to_print", "to_be_signed", "signed", "sent"):
+        if state in self.after_approval_states:
             return True
         return False
 
@@ -1330,7 +1378,7 @@ class OMApprovalAdapter(object):
         """Return True if the current state is after or in approval process."""
         if state is None:
             state = api.content.get_state(self.context)
-        if state in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
+        if state in self.approval_states + self.after_approval_states:
             return True
         return False
 
@@ -1814,7 +1862,7 @@ class OMApprovalAdapter(object):
             )
 
         new_filename = u"{}.pdf".format(f_title)
-        if nbf.contentType not in get_allowed_omf_content_types(esign=True):
+        if nbf.contentType not in get_allowed_content_types(esign=True, portal_type=self.context.portal_type):
             raise NotImplementedError("Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType))
         gen_context = {}
         orig_template = get_original_template(orig_fobj)
@@ -1954,8 +2002,14 @@ class OMApprovalAdapter(object):
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
         pdf_session_ids = set()
+        type_label = translate(
+            api.portal.get_tool("portal_types")[self.context.portal_type].Title(),
+            domain="plone",
+            context=self.context.REQUEST,
+        )
         sessions_used = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
-                                             title=_("[ia.docs] {sign_id}"),
+                                             title=u"[ia.docs] {} - {{sign_id}}".format(type_label),
+                                             discriminators=(self.context.portal_type,),
                                              watchers=watcher_emails)
         for sid, _session in sessions_used:
             pdf_session_ids.add(sid)
@@ -1964,6 +2018,27 @@ class OMApprovalAdapter(object):
         return True, _("${count} file(s) added to session(s) ${session_ids}",
                        mapping={"count": str(len(session_file_uids)),
                                 "session_ids": u", ".join([str(sid) for sid in sorted(pdf_session_ids)])})
+
+
+@implementer(IOMApproval)
+class OMApprovalAdapter(ApprovalAdapter):
+    """Approval adapter for outgoing mail.
+
+    An outgoing mail may contain main files (dmsommainfile) and appendix files (dmsappendixfile).
+    """
+
+    # to_print is added by the OMToPrintAdaptation (handsigned flow)
+    after_approval_states = ("to_print", "to_be_signed", "signed", "sent")
+
+
+@implementer(ISignRequestApproval)
+class SignRequestApprovalAdapter(ApprovalAdapter):
+    """Approval adapter for a signing request.
+
+    A signing request only contains appendix files (dmsappendixfile), no main file.
+    """
+
+    after_approval_states = ("to_be_signed", "signed", "closed")
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):

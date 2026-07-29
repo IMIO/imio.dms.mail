@@ -8,6 +8,8 @@
  <object name="outgoingmail_workflow" meta_type="Workflow"/>
  <object name="active_inactive_workflow" meta_type="Workflow" remove="True"/>
  <object name="active_inactive_workflow" meta_type="Workflow"/>
+ <object name="sign_request_workflow" meta_type="Workflow" remove="True"/>
+ <object name="sign_request_workflow" meta_type="Workflow"/>
  <bindings>
   <default>
    <bound-workflow workflow_id="internal_application_workflow" />
@@ -26,6 +28,9 @@
   </type-->
   <type type_id="dmsommainfile">
    <bound-workflow workflow_id=""/>
+  </type>
+  <type type_id="sign_request">
+   <bound-workflow workflow_id="sign_request_workflow" />
   </type>
   <type type_id="contact_list">
    <bound-workflow workflow_id="active_inactive_workflow"/>

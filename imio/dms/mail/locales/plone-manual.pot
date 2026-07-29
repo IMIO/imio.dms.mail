@@ -17,76 +17,173 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: plone\n"
 
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "- Only has two states: Private and Internally published."
+msgstr ""
+
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Activate"
 msgstr ""
 
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Activate the object"
 msgstr ""
 
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Active"
 msgstr ""
 
-#: ../profiles/default/types/cktemplate.xml
-msgid "CK Template"
-msgstr ""
-
-#: ../profiles/default/types/cktemplate.xml
-msgid "CKEditor custom template"
-msgstr ""
-
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
-msgid "Deactivate"
-msgstr ""
-
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
-msgid "Deactivate the object"
-msgstr ""
-
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
-msgid "Deactivated"
-msgstr ""
-
-#: profiles/default/types/dmsmainfile.xml
-msgid "Dms main file of a Dms document"
-msgstr ""
-
-#: profiles/default/types/dmsmainfile.xml
-msgid "DmsMainFile"
-msgstr ""
-
-#: profiles/default/rolemap.xml
+#: profiles/default/sharing.xml
 msgid "Base Field Writer"
 msgstr ""
 
-#: profiles/default/rolemap.xml
+#: profiles/default/types/cktemplate.xml
+msgid "CK Template"
+msgstr ""
+
+#: profiles/default/types/cktemplate.xml
+msgid "CKEditor custom template"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Can only be seen and edited by the owner."
+msgstr ""
+
+#: profiles/default/registry.xml
+msgid "Dates"
+msgstr ""
+
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
+msgid "Deactivate"
+msgstr ""
+
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
+msgid "Deactivate the object"
+msgstr ""
+
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
+msgid "Deactivated"
+msgstr ""
+
+#: profiles/default/types/dmsommainfile.xml
+msgid "Dms main file of an outgoing mail"
+msgstr ""
+
+#: profiles/default/sharing.xml
 msgid "DmsFile Contributor"
 msgstr ""
 
-#: profiles/default/types/dmsincoming_email.xml
-msgid "Incoming Email"
+#: profiles/default/types/dmsommainfile.xml
+msgid "DmsMainFile"
 msgstr ""
 
-#: profiles/default/types/member_area.xml
-msgid "Member Area"
+#: profiles/default/sharing.xml
+msgid "IM Field Writer"
 msgstr ""
 
-#: profiles/default/types/dmsoutgoing_email.xml
-msgid "Outgoing Email"
-msgstr ""
-
-#: profiles/default/rolemap.xml
-msgid "Treating Group Writer"
+#: profiles/default/sharing.xml
+msgid "IM Treating Group Writer"
 msgstr ""
 
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
 msgstr ""
 
+#: profiles/default/types/dmsincoming_email.xml
+msgid "Incoming Email"
+msgstr ""
+
+#: profiles/default/types/dmsincoming_email.xml
+msgid "Incoming dms email"
+msgstr ""
+
 #: profiles/default/portal_atct.xml
 msgid "Internal Reference Number"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Internally published"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Make private"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Makes the folder visible internally."
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Making an item private means that it will not be visible to anyone but the owner and the site administrator."
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Member makes content private"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Member makes content visible to other internal users"
+msgstr ""
+
+#: profiles/default/types/member_area.xml
+msgid "Member Area"
+msgstr ""
+
+#: profiles/default/registry.xml
+msgid "Metadata"
+msgstr ""
+
+#: profiles/default/actions.xml
+msgid "My Folder"
+msgstr ""
+
+#: profiles/default/types/dmsoutgoing_email.xml
+msgid "Outgoing Email"
+msgstr ""
+
+#: profiles/default/types/dmsoutgoing_email.xml
+msgid "Outgoing dms email"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Private"
+msgstr ""
+
+msgid "Recipient groups"
+msgstr ""
+
+#: profiles/default/types/sign_request.xml
+msgid "Signing request"
+msgstr ""
+
+#: profiles/default/types/sign_request.xml
+msgid "Simplified document used to request a signature"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Show internally"
+msgstr ""
+
+#: profiles/default/sharing.xml
+msgid "Treating Group Writer"
+msgstr ""
+
+msgid "Treating groups"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Visible to all application users."
+msgstr ""
+
+msgid "back_to_pre_manager"
+msgstr ""
+
+#: adapters.zcml
+msgid "classificationfolder-in-copy-group"
+msgstr ""
+
+#: adapters.zcml
+msgid "classificationfolder-in-treating-group"
 msgstr ""
 
 #: plone/app/layout/viewlets/footer.pt
@@ -97,88 +194,94 @@ msgstr ""
 msgid "description_license"
 msgstr ""
 
-#: configure.zcml
-msgid "dmsincomingmail-validation"
+#: adapters.zcml
+msgid "dmsincomingmail-followed"
 msgstr ""
 
-#: configure.zcml
-msgid "dmsincomingmail-in-treating-group"
-msgstr ""
-
-#: configure.zcml
+#: adapters.zcml
 msgid "dmsincomingmail-in-copy-group"
 msgstr ""
 
-#: configure.zcml
+#: adapters.zcml
 msgid "dmsincomingmail-in-copy-group-unread"
 msgstr ""
 
-#: ../profiles/default/workflows/internal_application_workflow/definition.xml
-msgid "internally_published"
+#: adapters.zcml
+msgid "dmsincomingmail-in-treating-group"
 msgstr ""
 
-#: configure.zcml
-msgid "task-validation"
+#: adapters.zcml
+msgid "dmsincomingmail-validation"
 msgstr ""
 
-#: configure.zcml
-msgid "task-in-assigned-group"
-msgstr ""
-
-#: configure.zcml
-msgid "task-in-proposing-group"
-msgstr ""
-
-#: configure.zcml
-msgid "dmsoutgoingmail-validation"
-msgstr ""
-
-#: configure.zcml
-msgid "dmsoutgoingmail-in-treating-group"
-msgstr ""
-
-#: configure.zcml
+#: adapters.zcml
 msgid "dmsoutgoingmail-in-copy-group"
 msgstr ""
 
-msgid "Recipient groups"
+#: adapters.zcml
+msgid "dmsoutgoingmail-in-treating-group"
 msgstr ""
 
-msgid "Treating groups"
+#: adapters.zcml
+msgid "dmsoutgoingmail-validation"
 msgstr ""
 
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "internally_published"
+msgstr ""
+
+#: wfadaptations.py
 msgid "om_back_to_approve"
 msgstr ""
 
+#: wfadaptations.py
 msgid "om_back_to_print"
 msgstr ""
 
+#: wfadaptations.py
 msgid "om_back_to_validated"
 msgstr ""
 
+#: wfadaptations.py
 msgid "om_propose_to_approve"
 msgstr ""
 
+#: wfadaptations.py
 msgid "om_set_to_print"
 msgstr ""
 
+#: wfadaptations.py
 msgid "om_set_validated"
 msgstr ""
 
+#: wfadaptations.py
 msgid "om_to_approve"
 msgstr ""
 
+#: wfadaptations.py
 msgid "om_to_print"
 msgstr ""
 
+#: wfadaptations.py
 msgid "om_validated"
 msgstr ""
 
-msgid "back_to_pre_manager"
-msgstr ""
-
+#: wfadaptations.py
 msgid "propose_to_pre_manager"
 msgstr ""
 
+#: wfadaptations.py
 msgid "proposed_to_pre_manager"
+msgstr ""
+
+#: adapters.zcml
+msgid "task-in-assigned-group"
+msgstr ""
+
+#: adapters.zcml
+msgid "task-in-proposing-group"
+msgstr ""
+
+#: adapters.zcml
+msgid "task-validation"
 msgstr ""
