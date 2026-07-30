@@ -92,8 +92,8 @@
   <criterion name="c8" i18n:attributes="title">
    <property name="widget">checkbox</property>
    <property name="title">Held position usages</property>
-   <property name="position">left</property>
-   <property name="section">default</property>
+   <property name="position">top</property>
+   <property name="section">advanced</property>
    <property name="hidden">False</property>
    <property name="count">False</property>
    <property name="sortcountable">False</property>
