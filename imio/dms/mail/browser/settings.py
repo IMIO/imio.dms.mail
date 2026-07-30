@@ -480,6 +480,9 @@ class IRequestSignerRuleSchema(ISignerRuleBaseSchema):
     )
     widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
 
+    # a signing request is always an electronic signature request: checked by default (inherited) and not uncheckable.
+    widget("esign", onclick=u"return false;")
+
     tal_condition = schema.TextLine(
         title=_("TAL condition"),
         required=False,

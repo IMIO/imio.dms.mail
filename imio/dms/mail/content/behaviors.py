@@ -29,6 +29,8 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
+from z3c.form.interfaces import IAddForm
+from z3c.form.interfaces import IEditForm
 from zope import schema
 from zope.interface import alsoProvides
 from zope.interface import Interface
@@ -374,6 +376,15 @@ class ISignRequestSigningBehavior(ISigningBehavior):
         allow_reorder=False,
         auto_append=False,
     )
+
+    # a signing request is always an electronic signature request: always True, hidden on add / edit forms
+    esign = schema.Bool(
+        title=_(u"Electronic signature"),
+        required=False,
+        default=True,
+    )
+    form.mode(IAddForm, esign="hidden")
+    form.mode(IEditForm, esign="hidden")
 
 
 class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):

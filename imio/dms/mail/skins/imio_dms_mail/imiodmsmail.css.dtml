@@ -1174,6 +1174,12 @@ body.template-imiodmsmail-settings #form-widgets-request_signer_rules td.cell-5 
     width: 2%;
 }
 
+/* signing request: esign is always enabled, the checkbox is locked (see IRequestSignerRuleSchema) */
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-3 input {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3 label,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 label,
 body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-3 label,
