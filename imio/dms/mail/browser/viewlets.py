@@ -16,7 +16,6 @@ from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.table import SignRequestVersionsTable
 from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
-from imio.dms.mail.interfaces import IPersonnelDashboard
 from imio.esign.browser.views import FacetedSessionInfoViewlet
 from imio.esign.browser.views import ItemSessionInfoViewlet
 from imio.helpers.content import richtextval
@@ -187,6 +186,10 @@ class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
     sessions_listing_view = ImioSessionsListingView
 
     @property
+    def sessions_collection_uid(self):
+        return "__not_needed__"
+
+    @property
     def _esign_collection(self):
         """The currently selected collection if it is an "in_esign_sessions" one."""
         try:
@@ -209,11 +212,6 @@ class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
         self.request.set("esign_portal_type",
                          collection.aq_parent.aq_parent.getId() == "requests" and "sign_request" or "dmsoutgoingmail")
         return self.sessions_listing_view(self.context, self.request).render_table()
-
-    def render(self):
-        if IPersonnelDashboard.providedBy(self.context):
-            return u""
-        return super(ImioFacetedSessionInfoViewlet, self).render()
 
 
 class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):

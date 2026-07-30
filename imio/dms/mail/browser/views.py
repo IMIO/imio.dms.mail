@@ -12,8 +12,6 @@ from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
-from imio.dms.mail.interfaces import IOMApproval
-from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
