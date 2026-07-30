@@ -4,6 +4,7 @@ from borg.localrole.interfaces import ILocalRoleProvider
 from collective.classification.folder.interfaces import IServiceInCharge
 from collective.classification.folder.interfaces import IServiceInCopy
 from collective.contact.core.content.organization import IOrganization
+from collective.contact.core.content.person import IPerson
 from collective.contact.core.indexers import contact_source
 from collective.contact.core.interfaces import IContactContent
 from collective.contact.plonegroup.utils import organizations_with_suffixes
@@ -521,6 +522,25 @@ def signrequest_approvings_index(obj):
     """
     approval = SignRequestApprovalAdapter(obj)
     return approval.current_approvers
+
+
+@indexer(IPerson)
+def person_usages_index(obj):
+    """Indexer of 'usages' for IPerson.
+
+    Aggregates the usages (signer/approving) of the person's held positions.
+    """
+    res = sorted({usage for hp in obj.get_held_positions() for usage in (getattr(hp, "usages", None) or [])})
+    return res or common_marker
+
+
+# @indexer(IPerson)
+# def person_primary_organization_index(obj):
+#     """Indexer of 'primary_organization' for IPerson.
+#
+#     Stores imio.helpers EMPTY_STRING for persons without a primary organization.
+#     """
+#     return getattr(obj, "primary_organization", None) or EMPTY_STRING
 
 
 @indexer(IDmsMailCreatingGroup)

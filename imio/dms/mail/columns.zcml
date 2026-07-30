@@ -369,60 +369,42 @@
       factory=".columns.CKTemplatesActionsColumn"
       />
 
-  <!-- personnel-listing columns -->
+  <!-- personnel dashboard columns -->
   <adapter
-      name="select_row"
-      for="zope.interface.Interface
+      for="imio.dms.mail.interfaces.IPersonnelDashboard
            zope.publisher.interfaces.browser.IBrowserRequest
-           imio.dms.mail.browser.table.PersonnelTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory="collective.documentgenerator.browser.table.CheckBoxColumn"
-      />
-
-  <adapter
-      name="title"
-      for="zope.interface.Interface
-           zope.interface.Interface
-           imio.dms.mail.browser.table.PersonnelTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory=".columns.PersonTitleColumn"
-      />
-
-  <adapter
+           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+      factory=".columns.PersonnelUseridFacetedColumn"
+      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
       name="userid"
-      for="zope.interface.Interface
-           zope.interface.Interface
-           imio.dms.mail.browser.table.PersonnelTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory=".columns.UseridColumn"
-      />
+  />
 
   <adapter
+      for="imio.dms.mail.interfaces.IPersonnelDashboard
+           zope.publisher.interfaces.browser.IBrowserRequest
+           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+      factory=".columns.PersonnelPrimaryOrganisationFacetedColumn"
+      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
       name="primary_organization"
-      for="zope.interface.Interface
-           zope.interface.Interface
-           imio.dms.mail.browser.table.PersonnelTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory=".columns.PrimaryOrganizationColumn"
-      />
+  />
 
   <adapter
+      for="imio.dms.mail.interfaces.IPersonnelDashboard
+           zope.publisher.interfaces.browser.IBrowserRequest
+           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+      factory=".columns.PersonnelHPFacetedColumn"
+      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
       name="hps"
-      for="zope.interface.Interface
-           zope.interface.Interface
-           imio.dms.mail.browser.table.PersonnelTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory=".columns.HPColumn"
-      />
+  />
 
   <adapter
+      for="imio.dms.mail.interfaces.IPersonnelDashboard
+           zope.publisher.interfaces.browser.IBrowserRequest
+           collective.eeafaceted.z3ctable.interfaces.IFacetedTable"
+      factory=".columns.PersonnelActionsFacetedColumn"
+      provides="collective.eeafaceted.z3ctable.interfaces.IFacetedColumn"
       name="actions"
-      for="zope.interface.Interface
-           zope.interface.Interface
-           imio.dms.mail.browser.table.PersonnelTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory=".columns.PersonnelActionsColumn"
-      />
+  />
 
   <!-- collective.classification columns -->
 

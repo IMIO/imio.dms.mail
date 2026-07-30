@@ -13,10 +13,12 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
+from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.subscribers import i_annex_removed
+from imio.dms.mail.subscribers import reindex_person_usages
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
@@ -1639,6 +1641,69 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         mod2 = api.content.rename(mod2, "mod-nextgen")
         annot = IAnnotations(mod2)
         self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"héhéhé")
+
+    def _person_usages(self, person):
+        """Return the value stored in the 'usages' catalog index for the given person."""
+        pc = self.portal.portal_catalog
+        rid = pc(UID=person.UID())[0].getRID()
+        return pc._catalog.getIndex("usages").getEntryForObject(rid, default=[])
+
+    def test_reindex_person_usages(self):
+        # the person's 'usages' index aggregates its held positions' usages
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+        )
+        hp = person["hp1"]
+        hp.usages = ["signer", "approving"]
+        reindex_person_usages(hp)
+        self.assertListEqual(sorted(self._person_usages(person)), ["approving", "signer"])
+
+    def test_held_position_added(self):
+        # a fresh person without held positions is not present in the 'usages' index
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        self.assertListEqual(self._person_usages(person), [])
+        # adding a held position with a usage reindexes the person (held_position_added subscriber)
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+            usages=["signer"],
+        )
+        self.assertListEqual(self._person_usages(person), ["signer"])
+
+    def test_held_position_modified(self):
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+        )
+        hp = person["hp1"]
+        self.assertListEqual(self._person_usages(person), [])
+        # modifying the usages reindexes the person (held_position_modified subscriber)
+        hp.usages = ["approving"]
+        modified(hp, Attributes(IUsagesBehavior, "IUsagesBehavior.usages"))
+        self.assertListEqual(self._person_usages(person), ["approving"])
+        # a modification not touching usages leaves the index untouched
+        hp.usages = ["signer"]
+        modified(hp, Attributes(IBasic, "IBasic.title"))
+        self.assertListEqual(self._person_usages(person), ["approving"])
+
+    def test_held_position_removed(self):
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+            usages=["signer"],
+        )
+        self.assertListEqual(self._person_usages(person), ["signer"])
+        # removing the held position reindexes the person (held_position_removed subscriber)
+        api.content.delete(person["hp1"])
+        self.assertListEqual(self._person_usages(person), [])
 
 
 class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):

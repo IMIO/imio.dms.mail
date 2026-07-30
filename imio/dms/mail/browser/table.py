@@ -285,24 +285,6 @@ class CKTemplatesTable(Table):
         return self.results
 
 
-class PersonnelTable(Table):
-    """Table that displays personnel listing."""
-
-    cssClassEven = u"even"
-    cssClassOdd = u"odd"
-    cssClasses = {"table": "listing nosort personnel-listing icons-on"}
-
-    # ?table-batchSize=10&table-batchStart=30
-    batchSize = 100
-    startBatchingAt = 100
-    sortOn = None
-    results = []
-
-    @CachedProperty
-    def values(self):
-        return self.results
-
-
 class FileNameColumn(Column):
     """Column displaying file name."""
 

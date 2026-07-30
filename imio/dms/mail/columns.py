@@ -458,65 +458,47 @@ class CKTemplatesActionsColumn(DGActionsColumn):
     cssClasses = {"td": "actions-column"}
 
 
-class PersonTitleColumn(LinkColumn):
-    """Personnel table. xss ok"""
-
-    header = PMF("Title")
-    weight = 10
-    cssClasses = {"td": "title-column"}
-
-    def getLinkCSS(self, item):
-        return ' class="state-%s"' % (api.content.get_state(obj=item))
-
-    def getLinkContent(self, item):
-        return item.title
-
-
-class UseridColumn(LinkColumn):
-    """Personnel table. xss ok"""
-
-    header = _cez("header_userid")
-    weight = 15
-    cssClasses = {"td": "userid-column"}
-    linkTarget = "_blank"
-
-    def __init__(self, context, request, table):
-        super(UseridColumn, self).__init__(context, request, table)
-        self.purl = api.portal.get_tool("portal_url")()
-
-    def getLinkURL(self, item):
-        """Setup link url."""
-        return "{}/@@usergroup-usermembership?userid={}".format(self.purl, item.userid)
-
-    def getLinkContent(self, item):
-        return item.userid
-
-    def renderCell(self, item):
-        if item.userid:
-            return super(UseridColumn, self).renderCell(item)
-        return "-"
-
-
-class PrimaryOrganizationColumn(VocabularyColumn):
-    """Personnel table. xss ok"""
+class PersonnelPrimaryOrganisationFacetedColumn(VocabularyColumn):
+    """Personnel dashboard: person primary organization. xss ok"""
 
     header = _cez("header_primary_org")
     weight = 20
     attrName = "primary_organization"
     vocabulary = u"collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary"
+    the_object = True
 
 
-class HPColumn(BaseColumn):
-    """Personnel table. xss ok"""
+class PersonnelUseridFacetedColumn(BaseColumn):
+    """Personnel dashboard: person userid as a link to its user-membership view. xss ok"""
+
+    the_object = True
+    escape = False
+    header = _cez("header_userid")
+    weight = 15
+    cssClasses = {"td": "userid-column"}
+
+    def renderCell(self, item):
+        obj = self._getObject(item)
+        if obj.userid:
+            return u'<a href="{}/@@usergroup-usermembership?userid={}" target="_blank">{}</a>'.format(
+                self.table.portal_url, safe_unicode(escape(obj.userid)), safe_unicode(escape(obj.userid))
+            )
+        return u"-"
+
+
+class PersonnelHPFacetedColumn(BaseColumn):
+    """Personnel dashboard: person held positions. xss ok"""
 
     header = _cez("header_hps")
     weight = 25
     ul_class = "hp_col"
-    # the_object = True
+    the_object = True
+    escape = False
 
     def renderCell(self, item):
         """ """
-        hps = item.objectValues()  # no need to use object_values with one sub items type
+        obj = self._getObject(item)
+        hps = obj.objectValues()
         if not hps:
             return "-"
         ret = []
@@ -553,8 +535,8 @@ class HPColumn(BaseColumn):
             return "-"
 
 
-class PersonnelActionsColumn(DGActionsColumn):
-    """Personnel table. xss ok"""
+class PersonnelActionsFacetedColumn(ActionsColumn):
+    """Personnel dashboard: edit action only (no transitions/history). xss ok"""
 
     weight = 70
     params = {

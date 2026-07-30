@@ -295,6 +295,12 @@
 
     <subscriber
         for="collective.contact.core.interfaces.IHeldPosition
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.held_position_added"
+        />
+
+    <subscriber
+        for="collective.contact.core.interfaces.IHeldPosition
              zope.lifecycleevent.interfaces.IObjectModifiedEvent"
         handler=".subscribers.held_position_modified"
         />

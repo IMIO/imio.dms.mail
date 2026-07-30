@@ -11,8 +11,8 @@ from imio.dms.mail import PLUS_MENU_TABS
 from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
-from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
@@ -377,54 +377,6 @@ class CKTemplatesListing(BrowserView):
             self.local_search = local_search
         else:
             self.local_search = "local_search" in self.request or self.local_search
-        self.update()
-        return self.index()
-
-
-class PersonnelListing(BrowserView):
-
-    __table__ = PersonnelTable
-    provides = [IPersonnelContact.__identifier__]
-    depth = None
-    local_search = True
-
-    def __init__(self, context, request):
-        super(PersonnelListing, self).__init__(context, request)
-        self.table = self.__table__(self.context, self.request)
-
-    def query_dict(self):
-        # crit = {'portal_type': ['person'], 'object_provides': self.provides}
-        crit = {"portal_type": ["person"]}
-        if self.local_search:
-            container_path = "/".join(self.context.getPhysicalPath())
-            crit["path"] = {"query": container_path}
-            if self.depth is not None:
-                crit["path"]["depth"] = self.depth
-        crit["sort_on"] = "sortable_title"
-        return crit
-
-    def update(self):
-        self.table.__name__ = u"personnel-listing"
-        catalog = api.portal.get_tool("portal_catalog")
-        brains = catalog.searchResults(**self.query_dict())
-        self.table.results = [brain.getObject() for brain in brains]
-        self.table.update()
-
-    def __call__(self, local_search=None, search_depth=None):
-        """
-        search_depth = int value (0)
-        local_search = bool value
-        """
-        # if search_depth is not None:
-        #     self.depth = search_depth
-        # else:
-        #     sd = self.request.get('search_depth', '')
-        #     if sd:
-        #         self.depth = int(sd)
-        # if local_search is not None:
-        #     self.local_search = local_search
-        # else:
-        #     self.local_search = 'local_search' in self.request or self.local_search
         self.update()
         return self.index()
 
