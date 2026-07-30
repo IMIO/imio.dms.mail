@@ -4,6 +4,7 @@
     xmlns:plone="http://namespaces.plone.org/plone"
     xmlns:i18n="http://namespaces.zope.org/i18n"
     xmlns:z3c="http://namespaces.zope.org/z3c"
+    xmlns:zcml="http://namespaces.zope.org/zcml"
     i18n_domain="imio.dms.mail">
 
     <include package="plone.app.portlets"/>
@@ -12,6 +13,20 @@
       name="imio.dms.mail"
       directory="static"
       />
+
+    <!-- Collabora: turn Writer field shadings on by default (merge fields
+         greyed, like desktop LibreOffice). -->
+    <configure zcml:condition="installed collective.collabora">
+      <browser:viewlet
+          name="imio.dms.mail.collabora-field-shadings"
+          for="*"
+          manager="plone.app.layout.viewlets.interfaces.IHtmlHead"
+          layer="collective.collabora.interfaces.ICollectiveCollaboraLayer"
+          view="collective.collabora.browser.edit.CollaboraEditView"
+          class=".viewlets.CollaboraFieldShadingsViewlet"
+          permission="zope2.View"
+          />
+    </configure>
 
     <browser:page
         name="create-from-template"
@@ -789,6 +804,39 @@
             interface="zope.publisher.interfaces.browser.IBrowserPage"
             />
     </class>
+
+    <configure package="collective.collabora.browser">
+        <browser:page
+            name="external_edit"
+            for="imio.annex.content.annex.IAnnex"
+            class="collective.collabora.browser.edit.CollaboraEditView"
+            template="templates/edit.pt"
+            permission="zope2.View"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            />
+
+        <browser:page
+            name="external_edit"
+            for="collective.documentgenerator.content.pod_template.IPODTemplate"
+            class="collective.collabora.browser.edit.CollaboraEditView"
+            template="templates/edit.pt"
+            permission="zope2.View"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            />
+    </configure>
+
+    <browser:page
+        name="collabora-wopi"
+        for="collective.documentgenerator.content.pod_template.IPODTemplate"
+        class="collective.collabora.browser.wopi.CollaboraWOPIView"
+        permission="zope2.View"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
+    <adapter factory="imio.dms.mail.adapters.StoredPodTemplate"
+        for="collective.documentgenerator.content.pod_template.IPODTemplate"
+        provides="collective.collabora.interfaces.IStoredFile"
+        />
 
     <!-- Viewlets -->
     <!-- common for dmsincomingmail, dmsoutgoingmail and task -->

@@ -71,9 +71,10 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         # right state
         self.assertEqual(
             self.view.renderAssignUser(),
-            u'<td>\n    <form action="">\n      <select name="Assign" onchange="javascript:'
+            u'<td>\n    <form action="">\n      <select name="Assign" class="apButton apButtonSelect '
+            u'apButtonAction apButtonAction_assign" onchange="javascript:'
             u"callViewAndReload(base_url='{}', view_name='@@update_item', params={{'assigned_user': "
-            u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign">\n'
+            u'this.value}})">\n'
             u'        <option style="display:none" value="#">Assign</option>\n        \n        '
             u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
             u"</option>\n      </select>\n    </form>\n</td>"
@@ -82,10 +83,11 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.view.useIcons = True
         self.assertEqual(
             self.view.renderAssignUser(),
-            u'<td>\n    <form action="">\n      <select name="Assign" onchange="javascript:'
+            u'<td>\n    <form action="">\n      <select name="Assign" class="apButton apButtonSelect '
+            u'apButtonAction apButtonAction_assign '
+            u'apUseIcons" onchange="javascript:'
             u"callViewAndReload(base_url='{}', view_name='@@update_item', params={{'assigned_user': "
-            u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign '
-            u'apUseIcons">\n        \n        <option style="display:none" value="#"></option>\n        '
+            u'this.value}})">\n        \n        <option style="display:none" value="#"></option>\n        '
             u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
             u"</option>\n      </select>\n    </form>\n</td>"
             u"\n".format(self.im2.absolute_url()),

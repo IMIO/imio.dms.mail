@@ -226,3 +226,34 @@ class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):
 
     def collapsible_content_css_default(self):
         return "collapsible-content discreet"
+
+
+# Sends the .uno:Marks toggle once the Collabora document is loaded, so Writer
+# field shadings (grey background on mail-merge fields, like desktop
+# LibreOffice) are on by default. The toggle has no persistent
+# LibreOffice-profile default, so it is re-sent each editing session. It reads
+# the iframe at message time, so rendering in <head> is fine.
+COLLABORA_FIELD_SHADINGS_SCRIPT = u"""\
+<script type="text/javascript">
+(function () {
+  window.addEventListener("message", function (e) {
+    var msg;
+    try { msg = JSON.parse(e.data); } catch (err) { return; }
+    if (!msg || !msg.Values || msg.Values.Status !== "Document_Loaded") { return; }
+    var iframe = document.getElementById("cool-iframe");
+    if (!iframe || !iframe.contentWindow) { return; }
+    iframe.contentWindow.postMessage(JSON.stringify({
+      MessageId: "Send_UNO_Command",
+      Values: { Command: ".uno:Marks" }
+    }), iframe.getAttribute("collabora_server_url"));
+  }, false);
+})();
+</script>
+"""
+
+
+class CollaboraFieldShadingsViewlet(ViewletBase):
+    """Enable Writer field shadings by default in the Collabora editor."""
+
+    def render(self):
+        return COLLABORA_FIELD_SHADINGS_SCRIPT
