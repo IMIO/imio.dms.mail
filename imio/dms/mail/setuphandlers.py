@@ -1963,10 +1963,13 @@ def create_personnel_dashboard(pf):
     createDashboardCollections(col_folder, collections)
     alsoProvides(pf, IPersonnelDashboardBatchActions)
     configure_faceted_folder(
-        pf,
+        col_folder,
         xml="personnel-searches.xml",
         default_UID=col_folder["all_personnel"].UID(),
         show_left_column=False,
+    )
+    configure_faceted_folder(
+        pf, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_personnel"].UID()
     )
     return col_folder
 

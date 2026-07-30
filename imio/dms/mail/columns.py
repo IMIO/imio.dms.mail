@@ -497,7 +497,8 @@ class PersonnelHPFacetedColumn(BaseColumn):
 
     def renderCell(self, item):
         """ """
-        hps = item.objectValues()  # no need to use object_values with one sub items type
+        obj = self._getObject(item)
+        hps = obj.objectValues()
         if not hps:
             return "-"
         ret = []
