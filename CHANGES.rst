@@ -13,6 +13,16 @@ Changelog
   [chris-adam]
 - Considered seal when checking if a signer is defined on a sub/template.
   [sgeulette]
+- Converted personnel-folder from z3c.table listing to faceted dashboard.
+  [chris-adam, sgeulette]
+- Fixed JSON quoting in localroles configuration (DMS-1218).
+  [chris-adam]
+- Added sign_request content to handle external documents to be signed.
+  [sgeulette]
+- Redirected to container after an annex is added.
+  [sgeulette]
+- Replaced implements by implementer
+  [sgeulette]
 - Document generation "d-print" now takes into account "to_print" attribute of files. (PARAF-220)
   [chris-adam]
 - Automatically set the "to print" flag on outgoing mail files. (PARAF-220)

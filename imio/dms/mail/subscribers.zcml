@@ -110,6 +110,25 @@
         handler=".subscribers.dmsoutgoingmail_added"
       />
 
+    <!-- IImioDmsSignRequest -->
+    <subscriber
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+             Products.DCWorkflow.interfaces.IAfterTransitionEvent"
+        handler=".subscribers.sign_request_transition"
+      />
+
+    <subscriber
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.sign_request_modified"
+      />
+
+    <subscriber
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.sign_request_added"
+      />
+
     <!-- Various -->
     <subscriber
         for="plone.dexterity.interfaces.IDexterityContent
@@ -272,6 +291,12 @@
         for="collective.contact.core.content.organization.IOrganization
              zope.lifecycleevent.interfaces.IObjectMovedEvent"
         handler=".subscribers.organization_modified"
+        />
+
+    <subscriber
+        for="collective.contact.core.interfaces.IHeldPosition
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.held_position_added"
         />
 
     <subscriber

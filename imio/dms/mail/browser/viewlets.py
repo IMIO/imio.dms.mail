@@ -3,12 +3,17 @@ from collective.contact.core.browser.address import get_address
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
 from collective.eeafaceted.batchactions.browser.viewlets import BatchActionsViewlet
+from collective.eeafaceted.collectionwidget.interfaces import NotDashboardContextException
+from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
+from collective.iconifiedcategory.interfaces import ICategorizedApproved
+from collective.iconifiedcategory.interfaces import ICategorizedSigned
 from collective.messagesviewlet.browser.messagesviewlet import GlobalMessagesViewlet
 from collective.messagesviewlet.message import generate_uid
 from collective.messagesviewlet.message import PseudoMessage
 from collective.task.browser.viewlets import TaskParentViewlet
 from imio.dms.mail.browser.table import IMVersionsTable
 from imio.dms.mail.browser.table import OMVersionsTable
+from imio.dms.mail.browser.table import SignRequestVersionsTable
 from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.esign.browser.views import FacetedSessionInfoViewlet
@@ -23,6 +28,7 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zc.relation.interfaces import ICatalog
 from zope.component import getUtility
 from zope.i18n import translate
+from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
 
 
@@ -85,6 +91,17 @@ class OMVersionsViewlet(VersionsViewlet):
 
     portal_type = "dmsommainfile"
     __table__ = OMVersionsTable
+
+
+class SignRequestVersionsViewlet(VersionsViewlet):
+
+    portal_type = "dmsappendixfile"
+    __table__ = SignRequestVersionsTable
+
+    def _prepare_table_render(self):
+        # a signing request has no print flow, but files can be signed and approved
+        alsoProvides(self.table, ICategorizedSigned)
+        alsoProvides(self.table, ICategorizedApproved)
 
 
 class PrettyLinkTitleViewlet(ViewletBase):
@@ -170,10 +187,31 @@ class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
 
     @property
     def sessions_collection_uid(self):
-        om_searches_folder = api.portal.get()["outgoing-mail"]["mail-searches"]
-        if "in_esign_sessions" not in om_searches_folder:
+        return "__not_needed__"
+
+    @property
+    def _esign_collection(self):
+        """The currently selected collection if it is an "in_esign_sessions" one."""
+        try:
+            collection = getCurrentCollection(self.context)
+        except NotDashboardContextException:
             return None
-        return om_searches_folder["in_esign_sessions"].UID()
+        if collection is not None and collection.getId() == "in_esign_sessions":
+            return collection
+        return None
+
+    def available(self):
+        return self._esign_collection is not None
+
+    def render(self):
+        collection = self._esign_collection
+        if collection is None:
+            return ""
+        if self.sessions:
+            return self.index()
+        self.request.set("esign_portal_type",
+                         collection.aq_parent.aq_parent.getId() == "requests" and "sign_request" or "dmsoutgoingmail")
+        return self.sessions_listing_view(self.context, self.request).render_table()
 
 
 class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):

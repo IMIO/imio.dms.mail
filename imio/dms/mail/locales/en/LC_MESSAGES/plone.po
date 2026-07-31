@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2025-09-03 13:36+0000\n"
+"POT-Creation-Date: 2026-07-14 09:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,53 +15,73 @@ msgstr ""
 "Domain: plone\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "- Only has two states: Private and Internally published."
+msgstr ""
+
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Activate"
 msgstr ""
 
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Activate the object"
 msgstr ""
 
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Active"
 msgstr ""
 
-#: profiles/default/rolemap.xml
+#: profiles/default/sharing.xml
 msgid "Base Field Writer"
 msgstr ""
 
-#: ../profiles/default/types/cktemplate.xml
+#: profiles/default/types/cktemplate.xml
 msgid "CK Template"
 msgstr ""
 
-#: ../profiles/default/types/cktemplate.xml
+#: profiles/default/types/cktemplate.xml
 msgid "CKEditor custom template"
 msgstr ""
 
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Can only be seen and edited by the owner."
+msgstr ""
+
+#: profiles/default/registry.xml
+msgid "Dates"
+msgstr ""
+
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Deactivate"
 msgstr ""
 
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Deactivate the object"
 msgstr ""
 
-#: ../profiles/default/workflows/active_inactive_workflow/definition.xml
+#: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Deactivated"
 msgstr ""
 
-#: profiles/default/types/dmsmainfile.xml
-msgid "Dms main file of a Dms document"
+#: profiles/default/types/dmsommainfile.xml
+msgid "Dms main file of an outgoing mail"
 msgstr ""
 
-#: profiles/default/rolemap.xml
+#: profiles/default/sharing.xml
 msgid "DmsFile Contributor"
 msgstr ""
 
-#: profiles/default/types/dmsmainfile.xml
+#: profiles/default/types/dmsommainfile.xml
 msgid "DmsMainFile"
 msgstr "Dms main file"
+
+#: profiles/default/sharing.xml
+msgid "IM Field Writer"
+msgstr ""
+
+#: profiles/default/sharing.xml
+msgid "IM Treating Group Writer"
+msgstr ""
 
 #: profiles/default/controlpanel.xml
 msgid "Imio Dms Mail settings"
@@ -71,26 +91,86 @@ msgstr ""
 msgid "Incoming Email"
 msgstr ""
 
+#: profiles/default/types/dmsincoming_email.xml
+msgid "Incoming dms email"
+msgstr ""
+
 #: profiles/default/portal_atct.xml
 msgid "Internal Reference Number"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Internally published"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Make private"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Makes the folder visible internally."
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Making an item private means that it will not be visible to anyone but the owner and the site administrator."
 msgstr ""
 
 #: profiles/default/types/member_area.xml
 msgid "Member Area"
 msgstr ""
 
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Member makes content private"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Member makes content visible to other internal users"
+msgstr ""
+
+#: profiles/default/registry.xml
+msgid "Metadata"
+msgstr ""
+
+#: profiles/default/actions.xml
+msgid "My Folder"
+msgstr ""
+
 #: profiles/default/types/dmsoutgoing_email.xml
 msgid "Outgoing Email"
+msgstr ""
+
+#: profiles/default/types/dmsoutgoing_email.xml
+msgid "Outgoing dms email"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Private"
 msgstr ""
 
 msgid "Recipient groups"
 msgstr ""
 
-#: profiles/default/rolemap.xml
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Show internally"
+msgstr ""
+
+#: profiles/default/types/sign_request.xml
+msgid "Signing request"
+msgstr ""
+
+#: profiles/default/types/sign_request.xml
+msgid "Simplified document used to request a signature"
+msgstr ""
+
+#: profiles/default/sharing.xml
 msgid "Treating Group Writer"
 msgstr ""
 
 msgid "Treating groups"
+msgstr ""
+
+#: profiles/default/workflows/internal_application_workflow/definition.xml
+msgid "Visible to all application users."
 msgstr ""
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
@@ -105,12 +185,21 @@ msgstr "Back to creation"
 msgid "back_to_manager"
 msgstr "Back to manager"
 
+#: wfadaptations.py
 msgid "back_to_pre_manager"
 msgstr "Back to pre manager"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "back_to_treatment"
 msgstr "Back to treatment"
+
+#: adapters.zcml
+msgid "classificationfolder-in-copy-group"
+msgstr "Classification folder in copy group"
+
+#: adapters.zcml
+msgid "classificationfolder-in-treating-group"
+msgstr "Classification folder in treating group"
 
 #: profiles/default/workflows/incomingmail_workflow/definition.xml
 msgid "close"
@@ -126,37 +215,41 @@ msgstr "Created"
 
 #: plone/app/layout/viewlets/footer.pt
 msgid "description_copyright"
-msgstr ""
+msgstr "iA.Docs ● Version <a href='https://docs.imio.be/iadocs/changelog/minor_versions_3_1.html#version-${dashversion}' target='_blank'>${version}</a>"
 
 #: plone/app/layout/viewlets/footer.pt
 msgid "description_license"
-msgstr ""
+msgstr " ● <a href='https://docs.imio.be/iadocs/guides/index.html' target='_blank'>Guides Vidéo fr</a> ● <a href='https://docs.imio.be/iadocs/index.html' target='_blank'>Documentation complète fr</a>"
 
-#: configure.zcml
+#: adapters.zcml
+msgid "dmsincomingmail-followed"
+msgstr "Incoming mail followed"
+
+#: adapters.zcml
 msgid "dmsincomingmail-in-copy-group"
 msgstr "Incoming mail in copy group"
 
-#: configure.zcml
+#: adapters.zcml
 msgid "dmsincomingmail-in-copy-group-unread"
 msgstr "Incoming mail in copy group, unread"
 
-#: configure.zcml
+#: adapters.zcml
 msgid "dmsincomingmail-in-treating-group"
 msgstr "Incoming mail in my treating groups"
 
-#: configure.zcml
+#: adapters.zcml
 msgid "dmsincomingmail-validation"
 msgstr "Incoming mail to validate"
 
-#: configure.zcml
+#: adapters.zcml
 msgid "dmsoutgoingmail-in-copy-group"
 msgstr "Outgoing mail in copy group"
 
-#: configure.zcml
+#: adapters.zcml
 msgid "dmsoutgoingmail-in-treating-group"
 msgstr "Outgoing mail in my treating groups"
 
-#: configure.zcml
+#: adapters.zcml
 msgid "dmsoutgoingmail-validation"
 msgstr "Outgoing mail to validate"
 
@@ -166,12 +259,13 @@ msgstr "In treatment"
 
 #: ../profiles/default/workflows/internal_application_workflow/definition.xml
 msgid "internally_published"
-msgstr ""
+msgstr "Internally published"
 
 #: profiles/default/workflows/outgoingmail_workflow/definition.xml
 msgid "om_back_to_agent"
 msgstr "Back to agent"
 
+#: wfadaptations.py
 msgid "om_back_to_approve"
 msgstr "Back to approve"
 
@@ -183,6 +277,7 @@ msgstr "Back to be signed"
 msgid "om_back_to_creation"
 msgstr "Back to creation"
 
+#: wfadaptations.py
 msgid "om_back_to_print"
 msgstr "Back to print"
 
@@ -194,6 +289,7 @@ msgstr "Back to scanned"
 msgid "om_back_to_signed"
 msgstr "Back to signed"
 
+#: wfadaptations.py
 msgid "om_back_to_validated"
 msgstr "Back to validated"
 
@@ -209,6 +305,7 @@ msgstr "Mark as sent"
 msgid "om_mark_as_signed"
 msgstr "Mark as signed"
 
+#: wfadaptations.py
 msgid "om_propose_to_approve"
 msgstr "Propose to approve"
 
@@ -228,9 +325,11 @@ msgstr "Sent"
 msgid "om_set_scanned"
 msgstr "Set to scanned"
 
+#: wfadaptations.py
 msgid "om_set_to_print"
 msgstr "Set to print"
 
+#: wfadaptations.py
 msgid "om_set_validated"
 msgstr "Set to validated"
 
@@ -238,6 +337,7 @@ msgstr "Set to validated"
 msgid "om_signed"
 msgstr "Signed"
 
+#: wfadaptations.py
 msgid "om_to_approve"
 msgstr "To approve"
 
@@ -245,9 +345,11 @@ msgstr "To approve"
 msgid "om_to_be_signed"
 msgstr "To be signed"
 
+#: wfadaptations.py
 msgid "om_to_print"
 msgstr "To print"
 
+#: wfadaptations.py
 msgid "om_validated"
 msgstr "Validated"
 
@@ -259,6 +361,7 @@ msgstr "Propose to agent"
 msgid "propose_to_manager"
 msgstr "Propose to manager"
 
+#: wfadaptations.py
 msgid "propose_to_pre_manager"
 msgstr "Propose to pre manager"
 
@@ -270,18 +373,76 @@ msgstr "Proposed to agent"
 msgid "proposed_to_manager"
 msgstr "Proposed to manager"
 
+#: wfadaptations.py
 msgid "proposed_to_pre_manager"
 msgstr "Propose to pre manager"
 
-#: configure.zcml
+#: adapters.zcml
+msgid "sign_request-in-copy-group"
+msgstr "Sign request in copy group"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_back_to_approve"
+msgstr "Back to approve"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_back_to_be_signed"
+msgstr "Back to be signed"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_back_to_creation"
+msgstr "Back to creation"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_back_to_signed"
+msgstr "Back to signed"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_close"
+msgstr "Close"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_closed"
+msgstr "Closed"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_created"
+msgstr "Created"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_mark_as_signed"
+msgstr "Mark as signed"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_propose_to_approve"
+msgstr "Propose to approve"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_propose_to_be_signed"
+msgstr "Propose to be signed"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_signed"
+msgstr "Signed"
+
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_to_approve"
+msgstr "To approve"
+
+#: adapters.zcml
+#: profiles/default/workflows/sign_request_workflow/definition.xml
+msgid "sr_to_be_signed"
+msgstr "To be signed"
+
+#: adapters.zcml
 msgid "task-in-assigned-group"
 msgstr "Task in my groups"
 
-#: configure.zcml
+#: adapters.zcml
 msgid "task-in-proposing-group"
 msgstr "Task in proposing group"
 
-#: configure.zcml
+#: adapters.zcml
 msgid "task-validation"
 msgstr "Task to validate"
 

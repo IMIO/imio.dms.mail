@@ -8,10 +8,12 @@ from datetime import datetime
 from HTMLParser import HTMLParser
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
-from imio.dms.mail.browser.views import OMSessionAnnotationInfoView
 from imio.dms.mail.browser.views import parse_query
+from imio.dms.mail.browser.views import SessionAnnotationInfoView
 from imio.dms.mail.interfaces import IOMApproval
+from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.testing import change_user
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
@@ -317,8 +319,8 @@ class TestRenderEmailSignature(unittest.TestCase):
         self.assertIn(u">5032 Isnes<", rendered)
 
 
-class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
-    """Test OMSessionAnnotationInfoView"""
+class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
+    """Test SessionAnnotationInfoView"""
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
@@ -326,7 +328,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         self.portal = self.layer["portal"]
         change_user(self.portal)
         self.om1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
-        self.view = OMSessionAnnotationInfoView(self.om1, self.portal.REQUEST)
+        self.view = SessionAnnotationInfoView(self.om1, self.portal.REQUEST)
         self.pf = self.portal["contacts"]["personnel-folder"]
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
 
@@ -334,7 +336,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         """Create a new outgoing mail with esign enabled and two files."""
         login(self.layer["app"], "admin")
         self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
         )
         set_esign_registry_file_url("https://downloads.files.com")
         intids = getUtility(IIntIds)
@@ -401,7 +403,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         omail, files, approval = self._setup_esign_omail()
         self._approve_all_files(omail, files, approval)
 
-        view = OMSessionAnnotationInfoView(omail, self.portal.REQUEST)
+        view = SessionAnnotationInfoView(omail, self.portal.REQUEST)
 
         # approval annot html
         self.assertEqual(
@@ -494,12 +496,15 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(esign_session[0], 0)
 
         # esign session html
+        # self.maxDiff = None
         self.assertEqual(
             HTMLParser().unescape(view.esign_session_html(esign_session[1])),
             u"""{{
   'acroform': True,
   'client_id': '0129999',
-  'discriminators': [],
+  'discriminators': [
+    'dmsoutgoingmail',
+  ],
   'files': [
     {{
       'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
@@ -541,7 +546,7 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
   ],
   'size': {size},
   'state': 'draft',
-  'title': u'[ia.docs] 012999900000',
+  'title': u'[ia.docs] Courrier sortant - 012999900000',
   'watchers': [],
 }}""".format(  # noqa E501
                 c_uid=omail.UID(),
@@ -555,6 +560,31 @@ class TestOMSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
                                   + "/modele-de-base-s0010-courrier-test-esign.pdf").file.size,
             ),
         )
+
+    def _setup_esign_sign_request(self):
+        """Create an esign sign_request with one file (the view is also registered for sign_request)."""
+        login(self.layer["app"], "admin")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-sign-request", run_dependencies=False
+        )
+        set_esign_registry_file_url("https://downloads.files.com")
+        return create_sign_request(self.portal, oid="sr-esign", nb_files=1, esign=True)
+
+    def test_sign_request_annot_html(self):
+        request, files = self._setup_esign_sign_request()
+        pw = self.portal.portal_workflow
+        pw.doActionFor(request, "propose_to_approve")
+        approval = ISignRequestApproval(request)
+        for userid in ("dirg", "bourgmestre"):
+            approval.approve_file(files[0], userid, transition="propose_to_be_signed")
+
+        view = SessionAnnotationInfoView(request, self.portal.REQUEST)
+        # approval annotation rendered as HTML
+        html = view.approval_annot_html
+        self.assertIn("approved_by", html)
+        self.assertIn("dirg", html)
+        # esign session created for the request
+        self.assertEqual(len(view.esign_sessions), 1)
 
 
 class TestObjectRenameTitleView(unittest.TestCase):

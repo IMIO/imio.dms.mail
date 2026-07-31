@@ -5,18 +5,30 @@ from collective.iconifiedcategory.content.events import content_updated
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.iconifiedcategory.utils import update_all_categorized_elements
 from collective.messagesviewlet.utils import add_message
+from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.quickupload.browser.quickupload_settings import IQuickUploadControlPanel
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
 from datetime import datetime
 from datetime import timedelta
 from dexterity.localroles.utils import fti_configuration
+from ftw.labels.interfaces import ILabelRoot
 from imio.dms.mail import _tr as _
 from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail.examples import add_special_model_mail
+from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.dms.mail.interfaces import IReqDashboard
+from imio.dms.mail.setuphandlers import add_db_col_folder
+from imio.dms.mail.setuphandlers import configure_faceted_folder
+from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
+from imio.dms.mail.setuphandlers import create_personnel_dashboard
+from imio.dms.mail.setuphandlers import createReqCollections
+from imio.dms.mail.setuphandlers import createStateCollections
+from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import setup_iconified_categories
 from imio.dms.mail.utils import message_status
 from imio.dms.mail.utils import update_solr_config
@@ -30,17 +42,22 @@ from imio.helpers.batching import can_delete_batch_files
 from imio.helpers.content import object_values
 from imio.helpers.setup import load_type_from_package
 from imio.helpers.setup import load_workflow_from_package
+from imio.helpers.workflow import do_transitions
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from plone import api
 from plone.registry.events import RecordModifiedEvent
+from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from zope.component import getGlobalSiteManager
 from zope.event import notify
 from zope.interface import alsoProvides
+from zope.interface import noLongerProvides
 from zope.lifecycleevent import IObjectModifiedEvent
 
+import ast
+import json
 import logging
 import OFS
 import os
@@ -180,8 +197,11 @@ class Migrate_To_3_1(Migrator):  # noqa
                 # change back confirmation message
                 key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
                 values = list(api.portal.get_registry_record(key, default=[]))
+                changes = False
                 if values and "dmsoutgoingmail.back_to_signed|" not in values:
                     values.append("dmsoutgoingmail.back_to_signed|")
+                    changes = True
+                if changes:
                     api.portal.set_registry_record(key, values)
 
             # clean catalog
@@ -283,6 +303,9 @@ class Migrate_To_3_1(Migrator):  # noqa
                 batch_loop_else(batch_keys, batch_config)
             if can_delete_batch_files(batch_keys, batch_config):
                 batch_delete_files(batch_keys, batch_config, log=True)
+
+        if self.is_in_part("g"):  # 3.1.6 sign_request
+            self.add_sign_request()
 
         if self.is_in_part("t"):  # final steps
             # finished = True  # can be eventually returned and set by batched method
@@ -461,6 +484,172 @@ class Migrate_To_3_1(Migrator):  # noqa
             maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
             maintenance.sync()  # BATCHED
             response.write = original
+
+    def add_sign_request(self):
+        """sign_request type and workflow, requests folder, related settings."""
+        # reload type and workflow
+        load_type_from_package("sign_request", "imio.dms.mail:default", create=True)  # new type
+        load_workflow_from_package("sign_request_workflow", "imio.dms.mail:default", create=True)  # new workflow
+        wtool = api.portal.get_tool("portal_workflow")
+        if "sign_request_workflow" not in wtool.getChainForPortalType("sign_request"):
+            wtool.setChainForPortalTypes(("sign_request",), ("sign_request_workflow",))
+            # reapply permissions on existing sign_request
+            wtool.updateRoleMappings()
+
+        self.runProfileSteps("imio.dms.mail", steps=["rolemap"])
+
+        # folder
+        if not base_hasattr(self.portal, "requests"):
+            # configure the local roles per state for the sign_request rolefields
+            configure_signrequest_rolefields(self.portal)
+
+            folderid = self.portal.invokeFactory("Folder", id="requests", title=_(u"requests_tab"))
+            req_folder = getattr(self.portal, folderid)
+            req_folder.setExcludeFromNav(True)
+            alsoProvides(req_folder, INextPrevNotNavigable)
+            alsoProvides(req_folder, ILabelRoot)
+            # alsoProvides(req_folder, ICountableTab)
+            alsoProvides(req_folder, IProtectedItem)
+            # add searches
+            col_folder = add_db_col_folder(req_folder, "requests-searches", _("Requests searches"), _("Requests"))
+            alsoProvides(col_folder, INextPrevNotNavigable)
+            alsoProvides(col_folder, IReqDashboard)
+            createReqCollections(col_folder)
+            createStateCollections(col_folder, "sign_request")
+            configure_faceted_folder(col_folder, xml="requests-searches.xml",
+                                     default_UID=col_folder["all_requests"].UID())
+            # configure faceted
+            configure_faceted_folder(
+                req_folder, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_requests"].UID()
+            )
+
+            req_folder.setConstrainTypesMode(1)
+            req_folder.setLocallyAllowedTypes(["sign_request"])
+            req_folder.setImmediatelyAddableTypes(["sign_request"])
+            do_transitions(req_folder, ["show_internally"])
+            logger.info("requests folder created")
+            order_1st_level(self.portal)
+
+        # signrequest settings
+        if not api.portal.get_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats"):
+            api.portal.set_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats", ["odt", "pdf"])
+        if not api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields"):
+            fields = [
+                "IBasic.title",
+                "IBasic.description",
+                "treating_groups",
+                "ITask.assigned_user",
+                "recipient_groups",
+                "ISignRequestSigningBehavior.signers",
+                "ISignRequestSigningBehavior.esign",
+            ]
+            api.portal.set_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields", [
+                    {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
+                ]
+            )
+
+        # change back confirmation message
+        key = "imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions"
+        values = list(api.portal.get_registry_record(key, default=[]))
+        if values and "sign_request.back_to_creation|" not in values:
+            values.extend(["sign_request.back_to_creation|",
+                           "sign_request.back_to_approve|",
+                           "sign_request.back_to_be_signed|",
+                           "sign_request.back_to_signed|", ])
+            api.portal.set_registry_record(key, values)
+
+        # sign request categories
+        setup_iconified_categories(self.portal)
+
+        # corrected collections
+        for col_id in ("searchfor_to_approve", "to_approve", "in_esign_sessions"):
+            col_folder = self.omf["mail-searches"].get(col_id)
+            if col_folder is not None and col_folder.sort_on != u"created":
+                col_folder.sort_on = u"created"
+
+        # restrict the outgoing-mail in_esign_sessions collection
+        om_esign_col = self.omf["mail-searches"].get("in_esign_sessions")
+        if om_esign_col is not None:
+            query = list(om_esign_col.query)
+            if not any(dic.get("i") == "portal_type" for dic in query):
+                query.insert(
+                    0,
+                    {
+                        "i": "portal_type",
+                        "o": "plone.app.querystring.operation.selection.is",
+                        "v": ["dmsoutgoingmail"],
+                    },
+                )
+                om_esign_col.query = query
+
+        # first level tabs are now driven by the displayed_tabs setting
+        if not api.portal.get_registry_record("imio.dms.mail.displayed_tabs"):
+            np = self.portal.portal_properties.navtree_properties
+            displayed = []
+            for tab_id in DEFAULT_DISPLAYED_TABS:
+                if tab_id == "folders":
+                    visible = "ClassificationFolders" not in list(np.metaTypesNotToList)
+                elif tab_id == "tree":
+                    visible = "ClassificationContainer" not in list(np.metaTypesNotToList)
+                else:
+                    visible = base_hasattr(self.portal, tab_id)
+                if visible:
+                    displayed.append(tab_id)
+            api.portal.set_registry_record(
+                "imio.dms.mail.displayed_tabs", displayed)
+            unlisted = [t for t in np.metaTypesNotToList
+                        if t not in ("ClassificationFolders", "ClassificationContainer")]
+            if list(np.metaTypesNotToList) != unlisted:
+                np.manage_changeProperties(metaTypesNotToList=unlisted)
+
+    def fix_localroles_json_quoting(self):
+        """Fixes JSON quoting in localroles configuration"""
+        fixed = []
+        for fti in self.portal.portal_types.objectValues():
+            localroles = getattr(fti, "localroles", None)
+            if not localroles:
+                continue
+            changed = False
+            for keyname, states in localroles.items():
+                if not isinstance(states, dict):
+                    continue
+                for state, principals in states.items():
+                    for principal, cfg in principals.items():
+                        rel = cfg.get("rel", "")
+                        if not rel:
+                            continue
+                        try:
+                            json.loads(rel)
+                            continue  # already valid JSON -> skip
+                        except (ValueError, TypeError):
+                            pass
+                        try:
+                            cfg["rel"] = json.dumps(ast.literal_eval(rel))
+                        except (ValueError, SyntaxError):
+                            logger.error("Cannot normalize rel %r on %s/%s/%s/%s",
+                                         rel, fti.getId(), keyname, state, principal)
+                            continue
+                        changed = True
+            if changed:
+                localroles._p_changed = True
+                fixed.append(fti.getId())
+        logger.info("Normalized localroles 'rel' on portal types: %s", fixed)
+
+    def setup_personnel_dashboard(self):
+        """Convert personnel-folder from z3c.table listing to faceted dashboard."""
+        pf = self.contacts["personnel-folder"]
+        if IPersonnelFolder.providedBy(pf):
+            noLongerProvides(pf, IPersonnelFolder)
+        pf.setLocallyAllowedTypes(["person", "Folder"])
+        pf.setImmediatelyAddableTypes(["person"])
+        create_personnel_dashboard(pf)
+        pf.setLayout("facetednavigation_view")
+        pf.setLocallyAllowedTypes(["person"])
+        pf.setDefaultPage(None)
+        logger.info("Converted personnel-folder to faceted dashboard")
 
 
 def migrate(context):  # noqa

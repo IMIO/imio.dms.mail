@@ -34,7 +34,8 @@
 
 .template-view.portaltype-dmsincomingmail #fieldset-versions,
 .template-view.portaltype-dmsoutgoingmail #fieldset-versions,
-.template-view.portaltype-dmsincoming_email #fieldset-versions {
+.template-view.portaltype-dmsincoming_email #fieldset-versions,
+.template-view.portaltype-sign_request #fieldset-versions {
     display:table-cell;
     min-width: 60%;
     max-width: 60%;
@@ -43,34 +44,42 @@
 
 .template-view.portaltype-dmsincomingmail #fields,
 .template-view.portaltype-dmsoutgoingmail #fields,
-.template-view.portaltype-dmsincoming_email #fields {
+.template-view.portaltype-dmsincoming_email #fields,
+.template-view.portaltype-sign_request #fields {
     display:table-cell;
     float:none !important;
 }
 
 body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table th:nth-child(1),
 body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(1),
-body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table th:nth-child(4) {
+body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table th:nth-child(4),
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers table th:nth-child(1),
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers table td:nth-child(1),
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers table th:nth-child(4) {
     width: 1%;
     white-space: nowrap;
 }
 
-body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) {
+body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4),
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers table td:nth-child(4) {
     width: 1%;
     white-space: nowrap;
     text-align: center;
 }
 
-body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option {
+body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option,
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers table td:nth-child(4) span.selected-option {
     font-size: 0;
 }
-body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option::before {
+body.template-view.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers table td:nth-child(4) span.selected-option::before,
+body.template-view.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers table td:nth-child(4) span.selected-option::before {
     content: "✔️";
     font-size: 12px;
     font-weight: bold;
 }
 
-body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-seal span.selected-option::before {
+body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-seal span.selected-option::before,
+body.template-view.portaltype-sign_request #form-widgets-ISignRequestSigningBehavior-seal span.selected-option::before {
     content: "";
     display: inline-block;
     vertical-align: top;
@@ -82,7 +91,8 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-sea
     height: 16px;
 }
 
-body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esign span.selected-option::before {
+body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esign span.selected-option::before,
+body.template-view.portaltype-sign_request #form-widgets-ISignRequestSigningBehavior-esign span.selected-option::before {
     content: "";
     display: inline-block;
     vertical-align: top;
@@ -106,44 +116,55 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 .template-view.portaltype-dmsoutgoingmail.read-mode #fieldset-versions,
 .template-view.portaltype-dmsincomingmail.read-mode #fieldset-versions,
 .template-view.portaltype-dmsincoming_email.read-mode #fieldset-versions,
+.template-view.portaltype-sign_request.read-mode #fieldset-versions,
 .template-view.portaltype-dmsoutgoingmail.read-mode div#DV-container,
 .template-view.portaltype-dmsincomingmail.read-mode div#DV-container,
-.template-view.portaltype-dmsincoming_email.read-mode div#DV-container {
+.template-view.portaltype-dmsincoming_email.read-mode div#DV-container,
+.template-view.portaltype-sign_request.read-mode div#DV-container {
     width: 100% !important;
     max-width: 100% !important;
 }
 
 .template-view.portaltype-dmsoutgoingmail.read-mode div#portal-column-content,
 .template-view.portaltype-dmsincomingmail.read-mode div#portal-column-content,
-.template-view.portaltype-dmsincoming_email.read-mode div#portal-column-content {
+.template-view.portaltype-dmsincoming_email.read-mode div#portal-column-content,
+.template-view.portaltype-sign_request.read-mode div#portal-column-content {
     margin-left: -100% !important;
     width: 100% !important;
 }
 
-.template-view.portaltype-dmsoutgoingmail.read-mode  #fields,
-.template-view.portaltype-dmsincomingmail.read-mode  #fields,
-.template-view.portaltype-dmsincoming_email.read-mode  #fields,
-.template-view.portaltype-dmsoutgoingmail.read-mode  #messagesviewlet,
-.template-view.portaltype-dmsincomingmail.read-mode  #messagesviewlet,
-.template-view.portaltype-dmsincoming_email.read-mode  #messagesviewlet,
-.template-view.portaltype-dmsoutgoingmail.read-mode  #content #plone-document-byline,
-.template-view.portaltype-dmsincomingmail.read-mode  #content #plone-document-byline,
-.template-view.portaltype-dmsincoming_email.read-mode  #content #plone-document-byline,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div.viewlet_workflowstate,
-.template-view.portaltype-dmsincomingmail.read-mode  div.viewlet_workflowstate,
-.template-view.portaltype-dmsincoming_email.read-mode  div.viewlet_workflowstate,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div#viewlet-below-content-body,
-.template-view.portaltype-dmsincomingmail.read-mode  div#viewlet-below-content-body,
-.template-view.portaltype-dmsincoming_email.read-mode  div#viewlet-below-content-body,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div#portal-column-one,
-.template-view.portaltype-dmsincomingmail.read-mode  div#portal-column-one,
-.template-view.portaltype-dmsincoming_email.read-mode  div#portal-column-one,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div#portal-breadcrumbs,
-.template-view.portaltype-dmsincomingmail.read-mode  div#portal-breadcrumbs,
-.template-view.portaltype-dmsincoming_email.read-mode  div#portal-breadcrumbs,
-.template-view.portaltype-dmsoutgoingmail.read-mode  div.DV-fullscreen,
-.template-view.portaltype-dmsincomingmail.read-mode  div.DV-fullscreen,
-.template-view.portaltype-dmsincoming_email.read-mode  div.DV-fullscreen {
+.template-view.portaltype-dmsoutgoingmail.read-mode #fields,
+.template-view.portaltype-dmsincomingmail.read-mode #fields,
+.template-view.portaltype-dmsincoming_email.read-mode #fields,
+.template-view.portaltype-sign_request.read-mode #fields,
+.template-view.portaltype-dmsoutgoingmail.read-mode #messagesviewlet,
+.template-view.portaltype-dmsincomingmail.read-mode #messagesviewlet,
+.template-view.portaltype-dmsincoming_email.read-mode #messagesviewlet,
+.template-view.portaltype-sign_request.read-mode #messagesviewlet,
+.template-view.portaltype-dmsoutgoingmail.read-mode #content #plone-document-byline,
+.template-view.portaltype-dmsincomingmail.read-mode #content #plone-document-byline,
+.template-view.portaltype-dmsincoming_email.read-mode #content #plone-document-byline,
+.template-view.portaltype-sign_request.read-mode #content #plone-document-byline,
+.template-view.portaltype-dmsoutgoingmail.read-mode div.viewlet_workflowstate,
+.template-view.portaltype-dmsincomingmail.read-mode div.viewlet_workflowstate,
+.template-view.portaltype-dmsincoming_email.read-mode div.viewlet_workflowstate,
+.template-view.portaltype-sign_request.read-mode div.viewlet_workflowstate,
+.template-view.portaltype-dmsoutgoingmail.read-mode div#viewlet-below-content-body,
+.template-view.portaltype-dmsincomingmail.read-mode div#viewlet-below-content-body,
+.template-view.portaltype-dmsincoming_email.read-mode div#viewlet-below-content-body,
+.template-view.portaltype-sign_request.read-mode div#viewlet-below-content-body,
+.template-view.portaltype-dmsoutgoingmail.read-mode div#portal-column-one,
+.template-view.portaltype-dmsincomingmail.read-mode div#portal-column-one,
+.template-view.portaltype-dmsincoming_email.read-mode div#portal-column-one,
+.template-view.portaltype-sign_request.read-mode div#portal-column-one,
+.template-view.portaltype-dmsoutgoingmail.read-mode div#portal-breadcrumbs,
+.template-view.portaltype-dmsincomingmail.read-mode div#portal-breadcrumbs,
+.template-view.portaltype-dmsincoming_email.read-mode div#portal-breadcrumbs,
+.template-view.portaltype-sign_request.read-mode div#portal-breadcrumbs,
+.template-view.portaltype-dmsoutgoingmail.read-mode div.DV-fullscreen,
+.template-view.portaltype-dmsincomingmail.read-mode div.DV-fullscreen,
+.template-view.portaltype-dmsincoming_email.read-mode div.DV-fullscreen,
+.template-view.portaltype-sign_request.read-mode div.DV-fullscreen {
     display: none !important;
 }
 
@@ -171,7 +192,8 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 .template-dmsdocument-edit #form-widgets-email_cc,
 .template-dmsdocument-edit #form-widgets-email_bcc,
 .template-dmsdocument-edit #form-widgets-email_status,
-.template-dmsdocument-edit #form-widgets-ISigningBehavior-signers {
+.template-dmsdocument-edit #form-widgets-ISigningBehavior-signers,
+.template-dmsdocument-edit #form-widgets-ISignRequestSigningBehavior-signers {
     width: 100% !important;
 }
 
@@ -252,7 +274,8 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
     display: None;
 }
 
-.template-dmsdocument-edit.portaltype-dmsoutgoingmail #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs  {
+.template-dmsdocument-edit.portaltype-dmsoutgoingmail #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs,
+.template-dmsdocument-edit.portaltype-sign_request #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs {
     display: block;
 }
 
@@ -277,7 +300,9 @@ body.template-view.portaltype-dmsoutgoingmail #form-widgets-ISigningBehavior-esi
 }
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
-body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"] {
+body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers span[id$="widgets-approvings"],
+body.template-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers span[id$="widgets-approvings"] {
     border: 1px solid #ddd;
     padding: 4px;
     display: block;
@@ -287,28 +312,36 @@ body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers s
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4,
 body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-1,
-body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 {
+body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-1,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-4,
+body.template-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-1,
+body.template-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-4 {
     width: 1%;
     white-space: nowrap;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2 {
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-2 {
     width: 55%;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2 select {
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-2 select,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-2 select {
     width: 100%;
     white-space: normal;
     word-wrap: break-word;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3 {
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-3,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-3 {
     word-wrap: break-word;
     white-space: normal;
     width: 39%;
 }
 
-body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label {
+body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label,
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-4 label {
     display: none;
 }
 
@@ -318,7 +351,8 @@ body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widget
 
 /* Display None */
 
-body.section-outgoing-mail .mail-searches-in_esign_sessions {
+body.section-outgoing-mail .mail-searches-in_esign_sessions,
+body.section-requests .requests-searches-in_esign_sessions {
     display: none;
 }
 
@@ -424,6 +458,7 @@ table.faceted-table-results a.contact-list + div.tooltip.pb-ajax {
 body.template-view.portaltype-dmsincomingmail h1#parent-fieldname-title:not(.keep-it),
 body.template-view.portaltype-dmsincoming_email h1#parent-fieldname-title:not(.keep-it),
 body.template-view.portaltype-dmsoutgoingmail h1#parent-fieldname-title:not(.keep-it),
+body.template-view.portaltype-sign_request h1#parent-fieldname-title:not(.keep-it),
 body.template-item_view.portaltype-task h1#parent-fieldname-title:not(.keep-it),
 body.portaltype-classificationfolders h1.documentFirstHeading:not(.keep-it),
 body.portaltype-classificationfolder h1.documentFirstHeading:not(.keep-it),
@@ -458,7 +493,7 @@ td.td_cell_actions select.apButtonAction_assign {
     text-shadow: 0 0 0 #213C68;
 } /* disable dotted border when using select button in dashboard */
 
-table.personnel-listing li.plonegroup_0 {
+body.section-contacts.subsection-personnel-folder table.faceted-table-results li.plonegroup_0 {
   list-style-type: circle;
 }  /* Different bullet for an hp not in plonegroup orgs */
 
@@ -650,7 +685,7 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
   color: #75ad0a;
 }
 
-.template-personnel-listing td.td_cell_hps li span.signer-icon::before {
+body.section-contacts.subsection-personnel-folder table.faceted-table-results td.td_cell_hps li span.signer-icon::before {
     content: "\f044";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
@@ -658,7 +693,7 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     padding-left: 3px;
 }
 
-.template-personnel-listing td.td_cell_hps li span.approving-icon::before {
+body.section-contacts.subsection-personnel-folder table.faceted-table-results td.td_cell_hps li span.approving-icon::before {
     content: "\f00c";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
@@ -900,6 +935,7 @@ fieldset table.listing td.td_cell_convert img {
 
 #newIMCreation img, #newIEMCreation img,
 #newOMCreation img, #newOEMCreation img,
+#newRequestCreation img,
 #parent-fieldname-title .pretty_link_icons img,
 div.contactcontent_backrefs img {
     width: 18px;
@@ -1051,7 +1087,8 @@ body.template-imiodmsmail-settings .beware {
 }
 
 body.template-imiodmsmail-settings #form-widgets-imail_fields .cell-1,
-body.template-imiodmsmail-settings #form-widgets-omail_fields .cell-1 {
+body.template-imiodmsmail-settings #form-widgets-omail_fields .cell-1,
+body.template-imiodmsmail-settings #form-widgets-request_fields .cell-1 {
     width: 220px;
 }
 
@@ -1087,7 +1124,9 @@ body.template-imiodmsmail-settings #form-widgets-iemail_state_set .cell-4 {
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-approvings"],
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-treating_groups"],
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-mail_types"],
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-send_modes"] {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="widgets-send_modes"],
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules span[id$="widgets-approvings"],
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules span[id$="widgets-treating_groups"] {
     border: 1px solid #ddd;
     padding: 4px;
     display: block;
@@ -1097,7 +1136,8 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules span[id$="wi
     background: #f1f1f1;
 }*/
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-1 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-1,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-1 {
     width: 1%;
     white-space: nowrap;
 }
@@ -1107,25 +1147,43 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 {
     /*max-width: 20%;*/
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 select {
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-2 {
+    width: 35%;
+    /*max-width: 20%;*/
+}
+
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 select,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-2 select {
     width: 100%;
     white-space: normal;
     word-wrap: break-word;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 select option {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-2 select option,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-2 select option {
     white-space: normal;
     word-wrap: break-word;
     /*padding: 2px 4px;*/
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.cell-3,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.cell-5 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.cell-5,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules td.cell-3,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules td.cell-5 {
     text-align: center;
+    width: 2%;
+}
+
+/* signing request: esign is always enabled, the checkbox is locked (see IRequestSignerRuleSchema) */
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-3 input {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3 label,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 label {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 label,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-3 label,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-5 label {
     display: none;
 }
 
@@ -1136,20 +1194,26 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8 {
     width: 15%;
 }
 
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-4 {
+    width: 20%;
+}
+
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-6 {
+    width: 35%;
+}
+
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-4 label,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-6 label,
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-7 label,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8 label {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-8 label,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-4 label,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-6 label {
     white-space: normal;
     word-wrap: break-word;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3,
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-5 {
-    width: 2%;
-}
-
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9 {
+body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9,
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-7 {
     width: 3%;
 }
 
@@ -1158,9 +1222,9 @@ body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-9 inpu
     min-width: 15ch;
 }
 
-body.template-imiodmsmail-settings #form-widgets-omail_signer_rules td.datagridwidget-manipulator {
-    width: 16px;
-    min-width: 16px;
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-7 input {
+    width: 30ch;
+    min-width: 30ch;
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_substitutes .cell-1 select,

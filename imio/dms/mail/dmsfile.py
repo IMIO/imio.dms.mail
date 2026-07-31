@@ -5,13 +5,15 @@ from collective.dms.basecontent.dmsfile import DmsFile
 from collective.dms.basecontent.dmsfile import IDmsFile
 from imio.dms.mail import _
 from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
-from imio.dms.mail.utils import get_allowed_omf_content_types
+from imio.dms.mail.utils import get_allowed_content_types
 from plone import api
+from plone.dexterity.browser.add import DefaultAddForm
+from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.schema import DexteritySchemaPolicy
 from plone.namedfile.field import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
 from plone.supermodel import model
-from zope.interface import implements
+from zope.interface import implementer
 from zope.interface import Invalid
 
 
@@ -27,7 +29,7 @@ class RestrictedNamedBlobFile(NamedBlobFile):
             ):
                 return
             mimetype = get_contenttype(value)
-            if mimetype not in get_allowed_omf_content_types():
+            if mimetype not in get_allowed_content_types():
                 allowed_formats = api.portal.get_registry_record(
                     "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile")
                 raise Invalid(_("Invalid file format. Allowed formats are: ${formats}.",
@@ -45,10 +47,10 @@ class IImioDmsFile(IDmsFile):
     )
 
 
+@implementer(IImioDmsFile)
 class ImioDmsFile(DmsFile):
     """DmsFile"""
 
-    implements(IImioDmsFile)
     __ac_local_roles_block__ = False
 
     def Title(self):
@@ -67,3 +69,27 @@ class ImioDmsFileSchemaPolicy(DexteritySchemaPolicy):
 
     def bases(self, schemaName, tree):
         return (IImioDmsFile,)
+
+
+class AppendixFileAddForm(DefaultAddForm):
+    portal_type = "dmsappendixfile"
+
+    def nextURL(self):
+        # after adding an annex via the UI, go back to the container, not the annex view
+        return self.context.absolute_url()
+
+
+class AddAppendixFile(DefaultAddView):
+    form = AppendixFileAddForm
+
+
+class AnnexAddForm(DefaultAddForm):
+    portal_type = "annex"
+
+    def nextURL(self):
+        # after adding an annex via the UI, go back to the container, not the annex view
+        return self.context.absolute_url()
+
+
+class AddAnnex(DefaultAddView):
+    form = AnnexAddForm

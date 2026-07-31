@@ -12,9 +12,14 @@ from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
+from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.interfaces import IOMApproval
+from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.subscribers import i_annex_removed
+from imio.dms.mail.subscribers import reindex_person_usages
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
@@ -1332,7 +1337,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         """Helper to create an outgoing mail with esign approval and files."""
         self.change_user("admin")
         self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-activate-esigning", run_dependencies=False
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
         )
         set_esign_registry_file_url("https://downloads.files.com")
         intids = getUtility(IIntIds)
@@ -1679,3 +1684,120 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         mod2 = api.content.rename(mod2, "mod-nextgen")
         annot = IAnnotations(mod2)
         self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"héhéhé")
+
+    def _person_usages(self, person):
+        """Return the value stored in the 'usages' catalog index for the given person."""
+        pc = self.portal.portal_catalog
+        rid = pc(UID=person.UID())[0].getRID()
+        return pc._catalog.getIndex("usages").getEntryForObject(rid, default=[])
+
+    def test_reindex_person_usages(self):
+        # the person's 'usages' index aggregates its held positions' usages
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+        )
+        hp = person["hp1"]
+        hp.usages = ["signer", "approving"]
+        reindex_person_usages(hp)
+        self.assertListEqual(sorted(self._person_usages(person)), ["approving", "signer"])
+
+    def test_held_position_added(self):
+        # a fresh person without held positions is not present in the 'usages' index
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        self.assertListEqual(self._person_usages(person), [])
+        # adding a held position with a usage reindexes the person (held_position_added subscriber)
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+            usages=["signer"],
+        )
+        self.assertListEqual(self._person_usages(person), ["signer"])
+
+    def test_held_position_modified(self):
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+        )
+        hp = person["hp1"]
+        self.assertListEqual(self._person_usages(person), [])
+        # modifying the usages reindexes the person (held_position_modified subscriber)
+        hp.usages = ["approving"]
+        modified(hp, Attributes(IUsagesBehavior, "IUsagesBehavior.usages"))
+        self.assertListEqual(self._person_usages(person), ["approving"])
+        # a modification not touching usages leaves the index untouched
+        hp.usages = ["signer"]
+        modified(hp, Attributes(IBasic, "IBasic.title"))
+        self.assertListEqual(self._person_usages(person), ["approving"])
+
+    def test_held_position_removed(self):
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+            usages=["signer"],
+        )
+        self.assertListEqual(self._person_usages(person), ["signer"])
+        # removing the held position reindexes the person (held_position_removed subscriber)
+        api.content.delete(person["hp1"])
+        self.assertListEqual(self._person_usages(person), [])
+
+
+class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
+    """Integration tests (no mock) for the sign_request event subscribers."""
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+        self.pf = self.portal["contacts"]["personnel-folder"]
+
+    def test_sign_request_added(self):
+        # a titled request computes signers/approvers on add (added -> modified -> update_signers)
+        request, _files = create_sign_request(self.portal, oid="sr-add", nb_files=0)
+        self.assertEqual(ISignRequestApproval(request).annot["approvers"], [["dirg"], ["bourgmestre"]])
+
+    def test_sign_request_transition(self):
+        request, _files = create_sign_request(self.portal, oid="sr-tr", nb_files=1)
+        self.assertIsNone(ISignRequestApproval(request).current_nb)
+        self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
+        self.assertEqual(ISignRequestApproval(request).current_nb, 0)
+
+    def test_sign_request_modified(self):
+        request, _files = create_sign_request(self.portal, oid="sr-mod", nb_files=0)
+        request.signers = [{"number": 1, "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
+                            "approvings": [u"_themself_"], "editor": True}]
+        modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
+        self.assertEqual(ISignRequestApproval(request).annot["approvers"], [["bourgmestre"]])
+
+    def test_sign_request_modified_duplicate_email(self):
+        request, _files = create_sign_request(self.portal, oid="sr-dup", nb_files=0)
+        # two signers resolving to the same person => update_signers raises, surfaced as Invalid
+        request.signers = [
+            {"number": 1, "signer": self.pf["dirg"]["directeur-general"].UID(),
+             "approvings": [u"_themself_"], "editor": True},
+            {"number": 2, "signer": self.pf["dirg"]["directeur-general"].UID(),
+             "approvings": [u"_themself_"], "editor": False},
+        ]
+        with self.assertRaises(Invalid):
+            modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
+
+    def test_i_annex_added(self):
+        request, _files = create_sign_request(self.portal, oid="sr-annex", nb_files=0)
+        approval = ISignRequestApproval(request)
+        self.assertEqual(approval.annot["files"], [])
+        ct = self.portal["annexes_types"]["sign_request_appendix_files"]["sign-request-appendix-file"]
+        filename = u"3-degradation-voirie.odt"
+        with open("%s/batchimport/toprocess/requests/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            afile = createContentInContainer(
+                request, "dmsappendixfile", id="f1", scan_id="012999900000601",
+                file=NamedBlobFile(fo.read(), filename=filename), content_category=calculate_category_id(ct),
+            )
+        self.assertIn(afile.UID(), approval.annot["files"])

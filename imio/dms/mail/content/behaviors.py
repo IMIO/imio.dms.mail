@@ -10,9 +10,9 @@ from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
-from imio.dms.mail.dmsmail import IOMApproval
+from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IPersonnelContact
-from imio.dms.mail.utils import get_allowed_omf_content_types
+from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.cache import get_plone_groups_for_user
@@ -29,6 +29,8 @@ from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
+from z3c.form.interfaces import IAddForm
+from z3c.form.interfaces import IEditForm
 from zope import schema
 from zope.interface import alsoProvides
 from zope.interface import Interface
@@ -98,6 +100,14 @@ def signing_signers(context):
         SimpleTerm(value=None, title=_("Choose a value !")),
         SimpleTerm(value=u"_empty_", title=_("* No signature")),
     ]
+    terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
+    return SimpleVocabulary(terms)
+
+
+@provider(IContextSourceBinder)
+def signing_request_signers(context):
+    """Like signing_signers but a signature is mandatory: no "_empty_" choice."""
+    terms = [SimpleTerm(value=None, title=_("Choose a value !"))]
     terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
     return SimpleVocabulary(terms)
 
@@ -177,9 +187,9 @@ class ISigningBehavior(model.Schema):
     @invariant
     def validate_signing(data):
         context = data.__context__
-        if context and IImioDmsOutgoingMail.providedBy(context):
+        if context and context.portal_type in ("dmsoutgoingmail", "sign_request"):
             is_user_admin = api.user.has_permission("Manage portal")
-            approval = IOMApproval(context)
+            approval = context.approval()
             if not is_user_admin and (approval.is_state_after_or_approve() or approval.current_nb == -1):
                 fields_have_changed = (context.esign != data.esign or context.seal != data.seal
                                        or context.signers != data.signers)
@@ -288,8 +298,9 @@ class ISigningBehavior(model.Schema):
                     )
                 approvers[userid] = signer["number"]
 
-        # Validate file formats if eSignature is enabled (only on outgoing mail, not on templates)
-        if context and data.esign and IImioDmsOutgoingMail.providedBy(context):
+        # Validate file formats if eSignature is enabled (only on outgoing mail or sign request, not on templates)
+        if context and data.esign and (IImioDmsOutgoingMail.providedBy(context)
+                                       or IImioDmsSignRequest.providedBy(context)):
             for afile in context.values():
                 # Skip files already converted for esign
                 if base_hasattr(afile, "conv_from_uid"):
@@ -298,7 +309,7 @@ class ISigningBehavior(model.Schema):
                 if not afile.to_sign:
                     continue
                 mimetype = get_contenttype(afile.file)
-                if mimetype not in get_allowed_omf_content_types(esign=True):
+                if mimetype not in get_allowed_content_types(esign=True, portal_type=context.portal_type):
                     raise Invalid(
                         _(
                             "You cannot enable electronic signature because the file '${filename}' "
@@ -319,6 +330,61 @@ class ISigningBehavior(model.Schema):
                             },
                         )
                     )
+
+
+class ISignRequestSignerSchema(ISignerSchema):
+    """Signer row for sign_request: a signature is mandatory, so no "_empty_" choice."""
+
+    signer = schema.Choice(
+        title=_(u"Signer"),
+        description=_(u"Related userid will be the signer. Position name of the held position will be used."),
+        source=signing_request_signers,
+        required=True,
+    )
+
+    approvings = schema.List(
+        title=_(u"Approvings"),
+        description=_(u"User(s) that can approve the item before the signing session."),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningRequestApprovingsVocabulary"),
+        required=True,
+        constraint=validate_approvings,
+        min_length=1,
+    )
+    form.widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
+
+
+# keep original column order despite redeclaring the fields
+# (the DataGridField orders columns by field.order, not by plone.autoform order directives)
+ISignRequestSignerSchema["signer"].order = ISignerSchema["signer"].order
+ISignRequestSignerSchema["approvings"].order = ISignerSchema["approvings"].order
+
+
+@provider(IFormFieldProvider)
+class ISignRequestSigningBehavior(ISigningBehavior):
+    """Signing behavior for sign_request: mandatory signature (no "_empty_" for signer/approvings)."""
+
+    signers = schema.List(
+        title=_(u"Signers"),
+        description=_("List of users who have to sign this document"),
+        value_type=DictRow(title=_("Signer"), schema=ISignRequestSignerSchema),
+        required=False,
+        default=None,
+    )
+    form.widget(
+        "signers",
+        ExpandableDataGridFieldFactory,
+        allow_reorder=False,
+        auto_append=False,
+    )
+
+    # a signing request is always an electronic signature request: always True, hidden on add / edit forms
+    esign = schema.Bool(
+        title=_(u"Electronic signature"),
+        required=False,
+        default=True,
+    )
+    form.mode(IAddForm, esign="hidden")
+    form.mode(IEditForm, esign="hidden")
 
 
 class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):

@@ -15,6 +15,10 @@ class IImioDmsOutgoingMailWfConditions(Interface):
     """Adapter interface adding methods used in om workflow conditions"""
 
 
+class ISignRequestWfConditions(Interface):
+    """Adapter interface adding methods used in sign_request workflow conditions"""
+
+
 class IImioDmsMailLayer(IDefaultPloneLayer, IActionsPanelLayer):
     """Marker interface that defines a Zope 3 browser layer."""
 
@@ -42,6 +46,11 @@ class IOMDashboard(IDocsDashboard):
 class IOMDashboardBatchActions(IOMDashboard, IBatchActionsMarker):
 
     """Marker interface for outgoing mail dashboard with batch actions."""
+
+
+class IReqDashboard(IDocsDashboard):
+
+    """Marker interface for signing-requests dashboard."""
 
 
 class ITaskDashboard(IDocsDashboard):
@@ -100,6 +109,16 @@ class IContactListsDashboardBatchActions(IContactListsDashboard, IBatchActionsMa
     """Marker interface for contact lists dashboard with batch actions."""
 
 
+class IPersonnelDashboard(IContactsDashboard):
+
+    """Marker interface for personnel dashboard."""
+
+
+class IPersonnelDashboardBatchActions(IPersonnelDashboard, IBatchActionsMarker):
+
+    """Marker interface for personnel dashboard with batch actions."""
+
+
 class IClassificationFoldersDashboard(IDocsDashboard):
 
     """Marker interface for folders dashboard."""
@@ -143,7 +162,12 @@ class IPersonnelContact(Interface):
 
 class IPersonnelFolder(Interface):
 
-    """Marker interface for folder displaying personnel-listing"""
+    """DEPRECATED marker interface for the personnel folder (contacts/personnel-folder).
+
+    No longer applied (since 3.1.6) nor checked by any code. Kept only so existing
+    objects that still provide it can be unpickled and cleaned by the 3.1 migration.
+    Delete this class in a future version once all sites are > 3.1.6.
+    """
 
 
 class IMemberAreaFolder(IDexterityContainer):
@@ -156,5 +180,13 @@ class IProtectedItem(Interface):
     """Marker interface to protect object against deletion, cut and rename"""
 
 
-class IOMApproval(Interface):
+class IApproval(Interface):
+    """Base interface for approval adapters (outgoing mail, signing request)."""
+
+
+class IOMApproval(IApproval):
     """Interface for outgoing mail approval adapter."""
+
+
+class ISignRequestApproval(IApproval):
+    """Interface for signing request approval adapter."""

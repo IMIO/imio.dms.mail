@@ -17,6 +17,8 @@
                 title="imio.dms.mail: Write mail base fields"/>
     <permission id="imio.dms.mail.write_treating_group_field"
                 title="imio.dms.mail: Write treating group field"/>
+    <permission id="imio.dms.mail.sign_request.add"
+                title="imio.dms.mail: Add Signing request"/>
     <!--permission id="imio.dms.mail.write_creating_group_field"
                 title="imio.dms.mail: Write creating group field"/-->
 
@@ -69,6 +71,11 @@
         name="schema_policy_imiodmsfile"
     />
 
+    <utility
+        factory=".dmssignrequest.ImioDmsSignRequestSchemaPolicy"
+        name="schema_policy_imiodmssignrequest"
+    />
+
     <interface interface=".browser.settings.IImioDmsMailConfig" />
     <interface interface=".interfaces.IProtectedItem" />
 
@@ -95,6 +102,23 @@
         class=".dmsmail.OMEdit"
         permission="cmf.ModifyPortalContent"
     />
+
+    <browser:page
+        for=".dmssignrequest.IImioDmsSignRequest"
+        name="dmsdocument-edit"
+        class=".dmssignrequest.SignRequestEdit"
+        permission="cmf.ModifyPortalContent"
+    />
+
+    <configure package="collective.dms.basecontent">
+        <browser:page
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            name="view"
+            class="imio.dms.mail.dmssignrequest.SignRequestView"
+            template="browser/templates/dmsdocument_view.pt"
+            permission="zope2.View"
+        />
+    </configure>
 
     <configure package="collective.dms.basecontent">
         <browser:page
@@ -172,6 +196,61 @@
             interface="zope.publisher.interfaces.browser.IBrowserPage"
             />
     </class>
+
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             zope.publisher.interfaces.browser.IDefaultBrowserLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".dmssignrequest.AddSignRequest"
+        name="sign_request"
+        />
+    <class class=".dmssignrequest.AddSignRequest">
+        <require
+            permission="imio.dms.mail.sign_request.add"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+
+    <!-- Custom add form for annexes: redirect back to the container after add -->
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             zope.publisher.interfaces.browser.IDefaultBrowserLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".dmsfile.AddAppendixFile"
+        name="dmsappendixfile"
+        />
+    <class class=".dmsfile.AddAppendixFile">
+        <require
+            permission="cmf.AddPortalContent"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+    <adapter
+        for="Products.CMFCore.interfaces.IFolderish
+             zope.publisher.interfaces.browser.IDefaultBrowserLayer
+             plone.dexterity.interfaces.IDexterityFTI"
+        provides="zope.publisher.interfaces.browser.IBrowserPage"
+        factory=".dmsfile.AddAnnex"
+        name="annex"
+        />
+    <class class=".dmsfile.AddAnnex">
+        <require
+            permission="cmf.AddPortalContent"
+            interface="zope.publisher.interfaces.browser.IBrowserPage"
+            />
+    </class>
+
+    <!-- sign_request internal reference auto-numbering -->
+    <adapter factory=".dmssignrequest.InternalReferenceSignRequestValidator" />
+    <adapter name="internal_reference_number"
+             factory=".dmssignrequest.signrequest_internal_reference_number_indexer" />
+    <subscriber
+        for=".dmssignrequest.IImioDmsSignRequest
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".dmssignrequest.incrementSignRequestNumber"
+        />
 
     <!-- CLASS INTERFACES -->
     <class class="plone.app.collection.collection.Collection">

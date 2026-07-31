@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Batch actions views."""
+from Acquisition import aq_parent
 from collective.classification.folder.content.classification_folder import IClassificationFolder
+from collective.contact.core.content.directory import IDirectory
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.contact.plonegroup.utils import get_selected_org_suffix_users
 from collective.contact.widget.schema import ContactChoice
@@ -274,7 +276,10 @@ class DuplicatedBatchActionForm(BaseBatchActionForm):
             return ""
         self.request["uids"] = self.request["uids"].split(",")
         self.request["no_redirect"] = 1
-        view = getMultiAdapter((self.context.getParentNode(), self.request), name="merge-contacts")
+        directory = self.context
+        while directory is not None and not IDirectory.providedBy(directory):
+            directory = aq_parent(directory)
+        view = getMultiAdapter((directory, self.request), name="merge-contacts")
         with api.env.adopt_roles(["Manager"]):
             return view()
 
