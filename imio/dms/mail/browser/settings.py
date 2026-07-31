@@ -59,6 +59,7 @@ from zope.interface import Invalid
 from zope.interface import invariant
 from zope.interface import provider
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.schema import getFieldsInOrder
 from zope.schema import ValidationError
 from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
@@ -1480,29 +1481,19 @@ class SettingsEditForm(RegistryEditForm):
     form.extends(RegistryEditForm)
     schema = IImioDmsMailConfig
 
-    _datagrid_row_schemas = {
-        "mail_types": ITableListSchema,
-        "imail_fields": IIMFieldsSchema,
-        "imail_send_modes": ITableListSchema,
-        "iemail_routing": IRoutingSchema,
-        "iemail_state_set": IStateSetSchema,
-        "omail_types": ITableListSchema,
-        "omail_send_modes": ITableListSchema,
-        "omail_signer_substitutes": ISignerSubstituteSchema,
-        "omail_signer_rules": ISignerRuleSchema,
-        "omail_fields": IOMFieldsSchema,
-    }
+    _DATAGRID_VALUE_TYPES = [
+        (field, field.value_type.schema, field.value_type.required)
+        for _name, field in getFieldsInOrder(IImioDmsMailConfig)
+        if isinstance(getattr(field, "value_type", None), DictRow)
+    ]
 
     def _heal_datagrid_value_types(self):
-        for name, row_schema in self._datagrid_row_schemas.items():
-            field = self.schema.get(name)
-            if field is None or getattr(field, "value_type", None) is None:
-                continue
+        for field, row_schema, required in self._DATAGRID_VALUE_TYPES:
             try:
                 field.value_type.schema
             except ConnectionStateError:
-                logger.warn("DMS-434: rebuilding stale datagrid value_type for %r", name)
-                field.value_type = DictRow(title=field.title, schema=row_schema, required=False)
+                logger.warning("DMS-434: rebuilding stale datagrid value_type for %r", field.__name__)
+                field.value_type = DictRow(title=field.title, schema=row_schema, required=required)
 
     def update(self):
         self._heal_datagrid_value_types()
