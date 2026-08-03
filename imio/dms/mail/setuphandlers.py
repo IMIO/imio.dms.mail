@@ -203,13 +203,10 @@ def setup_classification(site):
 
 
 def collabora_server_url():
-    """Return the Collabora Online url for this deployment.
+    """Return the Collabora url: the site's own origin, /collabora proxied.
 
-    On servers Collabora is reverse proxied under /collabora on the site's own
-    domain, so a single origin serves both the browser (postMessage target) and
-    Plone's server side /hosting/discovery call. PUBLIC_URL is set by puppet
-    for every site declaring public_url. Without it (dev) we talk to the
-    container directly, see docker-compose.yaml.
+    One origin for both the browser and Plone's /hosting/discovery call.
+    No PUBLIC_URL means dev: reach the container directly.
     """
     public_url = os.getenv("PUBLIC_URL", "")
     if public_url:

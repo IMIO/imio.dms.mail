@@ -19,6 +19,8 @@ Changelog
   [sgeulette]
 - Replaced implements by implementer
   [sgeulette]
+- Replace ZopeEdit by Collabora. (DMS-1106)
+  [chris-adam]
 
 3.1.5 (2026-06-19)
 ------------------
