@@ -11,6 +11,8 @@ Changelog
   files converted to pdf) are not listed. On a folder, subfolder files are listed but not preselected,
   an option stores them in a directory by subfolder. The element form opens in an overlay.
   [sgeulette]
+- Replace ZopeEdit by Collabora. (DMS-1106)
+  [chris-adam]
 - Updated `ExportToPDFBatchActionForm` after imio.annex refactoring
   [sgeulette]
 - Fixed amqp consumer crash on scanned outgoing mail in `template_first` signers mode: signer rules
