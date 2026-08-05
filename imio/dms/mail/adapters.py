@@ -1489,7 +1489,7 @@ class ApprovalAdapter(object):
                     )
                 )
             signer_person = signer_hp.get_person()
-            user_email = api.user.get(signer_person.userid).getProperty("email")
+            user_email = api.user.get(signer_person.userid).getProperty("email") or "NO EMAIL"
             if user_email in signer_emails:
                 raise ValueError(
                     _(
