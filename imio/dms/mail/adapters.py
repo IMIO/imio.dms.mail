@@ -1872,14 +1872,12 @@ class ApprovalAdapter(object):
             pdf_file.to_sign = True
             pdf_file.to_approve = False
             pdf_file.approved = orig_fobj.approved
-            category_obj = get_category_object(self.context, pdf_file.content_category)
-            if (pdf_file.portal_type == "dmsommainfile"
-                    and category_obj.get_category_group().to_be_printed_activated):
-                pdf_file.to_print = True
+            if base_hasattr(orig_fobj, "to_print"):
+                pdf_file.to_print = orig_fobj.to_print
             update_categorized_elements(
                 self.context,
                 pdf_file,
-                category_obj,
+                get_category_object(self.context, pdf_file.content_category),
                 limited=True,
                 sort=False,
                 logging=True,
@@ -1952,15 +1950,6 @@ class ApprovalAdapter(object):
                 merged = merge_pdf(pdf_file_content, download_page)
                 pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
                 Converter(pdf_file)()  # Refresh pdf preview
-            # this branch updates orig_fobj in place: flag it to_print and refresh categorized info
-            if pdf_file.portal_type == "dmsommainfile":
-                category_obj = get_category_object(self.context, pdf_file.content_category)
-                if (pdf_file.portal_type == "dmsommainfile"
-                        and category_obj.get_category_group().to_be_printed_activated):
-                    pdf_file.to_print = True
-                update_categorized_elements(
-                    self.context, pdf_file, category_obj, limited=True, sort=False, logging=True
-                )
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
