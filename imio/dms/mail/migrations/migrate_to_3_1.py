@@ -329,6 +329,14 @@ class Migrate_To_3_1(Migrator):  # noqa
                             {"pod_context_name": u"doc_cb_download", "do_rendering": False,
                              "template": doc_cb_download_uid})
                         obj.merge_templates = merge_templates
+                    if obj.id == "d-print":
+                        if obj.tal_condition == "python: context.restrictedTraverse('odm-utils').is_odt_activated()":
+                            obj.tal_condition = ("python: object.portal_workflow.getInfoFor(object, 'review_state') in "
+                                                 "('created', 'validated', 'to_print')")
+                            obj.title = _(u"To sign files print template")
+                            obj.reindexObject(idxs=["Title", "sortable_title", "SearchableText"])
+                        else:
+                            logger.error("d-print template has another tal condition '{}'".format(obj.tal_condition))
                 # Changed permission after plone.restapi installation
                 self.portal.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
 

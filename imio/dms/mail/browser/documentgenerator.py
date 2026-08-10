@@ -344,12 +344,20 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
     Methods used in document generation view, for IOMDashboard
     """
 
-    def get_dms_files(self, limit=None):
+    def get_dms_files(self, signed=False, limit=None):
         """Return the files to print for the selected mails.
 
-        For each mail of the dashboard selection, return every categorized file
-        whose `to_print` attribute is True, main files first then appendix files,
-        each group kept in folder position order.
+        For each mail of the dashboard selection, return the files to print, main files
+        first then appendix files, each group kept in folder position order.
+        In both signed cases, a file superseded by derived files still present in the mail is
+        skipped: the odt converted to pdf when added to a sign session (`conv_from_uid`)
+        and the not yet mailed document when its mailing exists (`from_doc_uid`).
+
+        :param signed:
+            * False: before signature, every file whose `to_print` is True, to be signed by hand.
+            * True: after signature, every e-signed file + the appendix files with `to_print` is True.
+        :param limit: maximum number of files to return
+        :return: list of file objects
         """
         files = []
         if not self.is_dashboard():
@@ -360,9 +368,22 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
                 mail,
                 result_type="objects",
                 sort_on="getObjPositionInParent",
-                filters={"to_print": True},
                 caching=False,
             )
+            superseded = set()
+            for obj in elements:
+                superseded.add(getattr(obj, "conv_from_uid", None))
+                superseded.add(IAnnotations(obj).get("documentgenerator", {}).get("from_doc_uid"))
+            if signed:
+                elements = [
+                    obj
+                    for obj in elements
+                    if getattr(obj, "esigned", False)
+                    or (obj.portal_type == "dmsappendixfile" and getattr(obj, "to_print", False))
+                ]
+            else:
+                elements = [obj for obj in elements if getattr(obj, "to_print", False)]
+            elements = [obj for obj in elements if obj.UID() not in superseded]
             elements = sorted(elements, key=lambda o: 0 if o.portal_type == "dmsommainfile" else 1)
             files.extend(elements)
         if limit is not None:

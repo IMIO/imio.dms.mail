@@ -2837,6 +2837,7 @@ def list_templates():
         (125, "templates/om/download_barcode", os.path.join(dpath, "om-download-barcode.odt")),
         (150, "templates/om/mailing", os.path.join(dpath, "om-mailing.odt")),
         (200, "templates/om/d-print", os.path.join(dpath, "d-print.odt")),
+        (201, "templates/om/d-print-signed", os.path.join(dpath, "d-print.odt")),
         (205, "templates/om/main", os.path.join(dpath, "om-main.odt")),
         (210, "templates/om/common/receipt", os.path.join(dpath, "om-receipt.odt")),
     ]
@@ -3042,12 +3043,25 @@ def add_templates(site):
 
     data = {
         200: {
-            "title": _(u"Print template"),
+            "title": _(u"To sign files print template"),
             "type": "DashboardPODTemplate",
             "trans": ["show_internally"],
             "attrs": {
                 "pod_formats": ["odt"],
-                "tal_condition": "python: context.restrictedTraverse('odm-utils').is_odt_activated()",
+                "tal_condition": "python: object.portal_workflow.getInfoFor(object, 'review_state') in "
+                                 "('created', 'validated', 'to_print')",
+                "dashboard_collections": get_dashboard_collections(site["outgoing-mail"]["mail-searches"], uids=True),
+                "style_template": [cids[90].UID()],
+                "rename_page_styles": True,
+            },
+        },
+        201: {
+            "title": _(u"E-signed files print template"),
+            "type": "DashboardPODTemplate",
+            "trans": ["show_internally"],
+            "attrs": {
+                "pod_formats": ["odt"],
+                "tal_condition": "python: object.portal_workflow.getInfoFor(object, 'review_state') == 'signed'",
                 "dashboard_collections": get_dashboard_collections(site["outgoing-mail"]["mail-searches"], uids=True),
                 "style_template": [cids[90].UID()],
                 "rename_page_styles": True,
@@ -3109,8 +3123,9 @@ def add_templates(site):
 
     if not exists:
         site["templates"]["om"].moveObjectToPosition("d-print", 1)
-        site["templates"]["om"].moveObjectToPosition("main", 10)
-        site["templates"]["om"].moveObjectToPosition("common", 11)
+        site["templates"]["om"].moveObjectToPosition("d-print-signed", 2)
+        site["templates"]["om"].moveObjectToPosition("main", 15)
+        site["templates"]["om"].moveObjectToPosition("common", 16)
 
 
 def add_transforms(site):

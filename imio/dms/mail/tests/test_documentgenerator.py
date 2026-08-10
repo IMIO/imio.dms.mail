@@ -313,6 +313,33 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertListEqual(view.get_dms_files(), [m0["1"], appendix, m1["1"]])
         # limit caps the total number of returned files
         self.assertListEqual(view.get_dms_files(limit=2), [m0["1"], appendix])
+        # signed=True: e-signed files + appendix files to_print, whatever the main files to_print
+        self.assertListEqual(view.get_dms_files(signed=True), [appendix])
+        m1["1"].esigned = True
+        m2["1"].esigned = True
+        self.assertListEqual(view.get_dms_files(signed=True), [appendix, m1["1"], m2["1"]])
+        # m0 main file converted to pdf when added to a sign session: only the pdf is considered
+        with open(u"%s/in-courrier2.pdf" % filespath, "rb") as fo:
+            pdf = createContentInContainer(
+                m0, "dmsommainfile", id="pdf1", title=u"converted",
+                file=NamedBlobFile(fo.read(), filename=u"converted.pdf"),
+                content_category=m0["1"].content_category, conv_from_uid=m0["1"].UID(),
+            )
+        set_to_print(pdf, True)
+        pdf.esigned = True
+        self.assertListEqual(view.get_dms_files(), [pdf, appendix, m1["1"]])
+        self.assertListEqual(view.get_dms_files(signed=True), [pdf, appendix, m1["1"], m2["1"]])
+        # m1 main file mailed: only the mailed version is considered, even if it's not e-signed
+        with open(u"%s/in-courrier2.pdf" % filespath, "rb") as fo:
+            mailed = createContentInContainer(
+                m1, "dmsommainfile", id="mailed1", title=u"mailed",
+                file=NamedBlobFile(fo.read(), filename=u"mailed.pdf"),
+                content_category=m1["1"].content_category,
+            )
+        set_to_print(mailed, True)
+        IAnnotations(mailed)["documentgenerator"] = {"mailed": True, "from_doc_uid": m1["1"].UID()}
+        self.assertListEqual(view.get_dms_files(), [pdf, appendix, mailed])
+        self.assertListEqual(view.get_dms_files(signed=True), [pdf, appendix, m2["1"]])
         # not rendered from a dashboard -> empty
         del view.request.form["facetedQuery"]
         self.assertListEqual(view.get_dms_files(), [])
