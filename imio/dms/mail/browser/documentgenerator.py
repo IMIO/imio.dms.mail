@@ -443,7 +443,7 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         """Return the preview page images to insert for a non-ODT file.
 
         ODT files are embedded as ODT content and image files at their native size
-        directly by the d-print template, so an empty list is returned for them. For
+        directly by the d-print templates, so an empty list is returned for them. For
         any other file (PDF, scans...), return one dict per collective.documentviewer
         preview page, in page order: {'data': <image bytes>, 'format': <image extension>}.
         """

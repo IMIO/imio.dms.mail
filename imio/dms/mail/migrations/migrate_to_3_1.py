@@ -81,6 +81,16 @@ class Migrate_To_3_1(Migrator):  # noqa
     def run_parts(self):
         """Run some parts between b and x."""
         if self.is_in_part("c"):  # various, update workflow, localroles and security
+            # Update d-print model
+            obj = self.portal.templates.om["d-print"]
+            api.content.rename(obj=obj, new_id="d-print-to-sign", safe_id=False)
+            if obj.tal_condition == "python: context.restrictedTraverse('odm-utils').is_odt_activated()":
+                obj.tal_condition = ("python: object.portal_workflow.getInfoFor(object, 'review_state') in "
+                                     "('created', 'validated', 'to_print')")
+                obj.title = _(u"To sign files print template")
+                obj.reindexObject(idxs=["Title", "sortable_title", "SearchableText"])
+            else:
+                logger.error("d-print template has not expected condition: '{}'".format(obj.tal_condition))
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
@@ -329,14 +339,6 @@ class Migrate_To_3_1(Migrator):  # noqa
                             {"pod_context_name": u"doc_cb_download", "do_rendering": False,
                              "template": doc_cb_download_uid})
                         obj.merge_templates = merge_templates
-                    if obj.id == "d-print":
-                        if obj.tal_condition == "python: context.restrictedTraverse('odm-utils').is_odt_activated()":
-                            obj.tal_condition = ("python: object.portal_workflow.getInfoFor(object, 'review_state') in "
-                                                 "('created', 'validated', 'to_print')")
-                            obj.title = _(u"To sign files print template")
-                            obj.reindexObject(idxs=["Title", "sortable_title", "SearchableText"])
-                        else:
-                            logger.error("d-print template has another tal condition '{}'".format(obj.tal_condition))
                 # Changed permission after plone.restapi installation
                 self.portal.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
 

@@ -2836,7 +2836,7 @@ def list_templates():
         (120, "templates/om/ending", os.path.join(dpath, "om-ending.odt")),
         (125, "templates/om/download_barcode", os.path.join(dpath, "om-download-barcode.odt")),
         (150, "templates/om/mailing", os.path.join(dpath, "om-mailing.odt")),
-        (200, "templates/om/d-print", os.path.join(dpath, "d-print.odt")),
+        (200, "templates/om/d-print-to-sign", os.path.join(dpath, "d-print.odt")),
         (201, "templates/om/d-print-signed", os.path.join(dpath, "d-print.odt")),
         (205, "templates/om/main", os.path.join(dpath, "om-main.odt")),
         (210, "templates/om/common/receipt", os.path.join(dpath, "om-receipt.odt")),
@@ -3122,10 +3122,10 @@ def add_templates(site):
         alsoProvides(obj, IProtectedItem)
 
     if not exists:
-        site["templates"]["om"].moveObjectToPosition("d-print", 1)
+        site["templates"]["om"].moveObjectToPosition("d-print-to-sign", 1)
         site["templates"]["om"].moveObjectToPosition("d-print-signed", 2)
-        site["templates"]["om"].moveObjectToPosition("main", 15)
-        site["templates"]["om"].moveObjectToPosition("common", 16)
+        site["templates"]["om"].moveObjectToPosition("main", 10)
+        site["templates"]["om"].moveObjectToPosition("common", 11)
 
 
 def add_transforms(site):

@@ -617,11 +617,12 @@ def remove_om_nplus1_wfadaptation(context):
     if modif:
         col.query = query
     # Remove collection from template
-    tmpl = site["templates"]["om"]["d-print"]
-    cols = tmpl.dashboard_collections
-    if val_col_uid in cols:
-        cols.remove(val_col_uid)
-        tmpl.dashboard_collections = cols
+    for name in ("d-print-to-sign", "d-print-signed"):
+        tmpl = site["templates"]["om"][name]
+        cols = tmpl.dashboard_collections
+        if val_col_uid in cols:
+            cols.remove(val_col_uid)
+            tmpl.dashboard_collections = cols
     # update cache
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     invalidate_cachekey_volatile_for("imio.dms.mail.utils.list_wf_states.dmsoutgoingmail")
