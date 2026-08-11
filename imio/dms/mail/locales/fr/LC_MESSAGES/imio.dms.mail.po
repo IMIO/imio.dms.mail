@@ -1366,7 +1366,7 @@ msgstr "Spécifications techniques"
 
 #: ./adapters.py:1513
 #: ./content/behaviors.py:290
-msgid "The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
+msgid "${userid} already exists in the approvings with another order ${o} <=> ${c}"
 msgstr "L'utilisateur ${userid} existe déjà dans les approbateurs lignes ${o} <=> ${c}"
 
 #: ./overrides.zcml:42

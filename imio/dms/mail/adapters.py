@@ -1511,7 +1511,7 @@ class ApprovalAdapter(object):
                 if userid in self.approvers:
                     raise ValueError(
                         _(
-                            "The ${userid} already exists in the approvings with another order ${o} <=> ${c}",
+                            "${userid} already exists in the approvings with another order ${o} <=> ${c}",
                             mapping={
                                 "userid": userid,
                                 "o": next(

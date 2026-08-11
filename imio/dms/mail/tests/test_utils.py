@@ -9,6 +9,9 @@ from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
+from imio.dms.mail.tests.utils import create_om_with_tags
+from imio.dms.mail.tests.utils import odt_with_tags
+from imio.dms.mail.utils import acroform_errors
 from imio.dms.mail.utils import add_remove_values_in_registry_list
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import create_period_folder
@@ -135,6 +138,51 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             get_allowed_content_types(portal_type="sign_request"),
             ["application/vnd.oasis.opendocument.text", "application/pdf"],
         )
+
+    def test_acroform_errors(self):
+        """Signable files are checked against the non empty signers and the seal of their item."""
+        omail, afile = create_om_with_tags(self.portal, "omail-acroform", tag_ids=(1,), nb_signers=2)
+
+        # --- esign off: signature tags are not used ---
+        omail.esign = False
+        self.assertEqual(acroform_errors(omail), [])
+
+        # --- two signers but only one tag: the missing one is reported ---
+        omail.esign = True
+        errors = acroform_errors(omail)
+        self.assertEqual([obj for obj, _messages in errors], [afile])
+        self.assertEqual(errors[0][1][0].mapping, {"nb": 2})
+
+        # --- a complete set of tags ---
+        afile.file = odt_with_tags(1, 2)
+        self.assertEqual(acroform_errors(omail), [])
+
+        # --- an empty signer row does not count as a signer ---
+        omail.signers[1]["signer"] = u"_empty_"
+        errors = acroform_errors(omail)
+        self.assertEqual(len(errors), 1)
+        self.assertEqual(errors[0][1][0].mapping, {"nb": 2, "count": 1})
+
+        # --- a file that is not to be signed is not checked ---
+        afile.to_sign = False
+        self.assertEqual(acroform_errors(omail), [])
+
+        # --- the seal tag is checked against the seal field ---
+        sealed, sfile = create_om_with_tags(self.portal, "omail-acroform-seal", tag_ids=(1, u"SCEAU"))
+        self.assertEqual(len(acroform_errors(sealed)), 1)  # a seal tag but no seal
+        sealed.seal = True
+        self.assertEqual(acroform_errors(sealed), [])
+        sfile.file = odt_with_tags(1, u"SCEAU", u"SCEAU")
+        self.assertEqual(len(acroform_errors(sealed)), 1)
+
+        # --- a seal with no signer and no esign is still checked, and its signature tags are not ---
+        seal_only, sofile = create_om_with_tags(
+            self.portal, "omail-acroform-seal-only", tag_ids=(u"SCEAU", u"SCEAU"),
+            nb_signers=0, esign=False, seal=True,
+        )
+        self.assertEqual(len(acroform_errors(seal_only)), 1)
+        sofile.file = odt_with_tags(1, u"SCEAU")
+        self.assertEqual(acroform_errors(seal_only), [])
 
     def test_ensure_set_field(self):
         now1 = datetime.now()
