@@ -16,6 +16,8 @@ from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.table import SignRequestVersionsTable
 from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
+from imio.dms.mail.utils import acroform_errors
 from imio.esign.browser.views import FacetedSessionInfoViewlet
 from imio.esign.browser.views import ItemSessionInfoViewlet
 from imio.helpers.content import richtextval
@@ -125,11 +127,14 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
     """
 
     def getAllMessages(self):
-        """Check if an address field is empty"""
+        """Warn about empty contact address fields and about wrong signature tags."""
+        return self.get_contacts_messages() + self.get_acroform_messages()
+
+    def get_contacts_messages(self):
+        contacts = []
         if IContactContent.providedBy(self.context):
             contacts = [self.context]
         elif IImioDmsOutgoingMail.providedBy(self.context):
-            contacts = []
             for rv in self.context.recipients or []:
                 if not rv.isBroken() and rv.to_path:
                     contacts.append(self.context.restrictedTraverse(rv.to_path))
@@ -159,6 +164,29 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
                 mapping={
                     "title": object_link(contact, view="edit", attribute="get_full_title"),
                     "keys": ", ".join(keys),
+                },
+            )
+            ret.append(
+                PseudoMessage(msg_type="significant", text=richtextval(msg), hidden_uid=generate_uid(), can_hide=False)
+            )
+        return ret
+
+    def get_acroform_messages(self):
+        """Wrong signature or seal tags, while the item can still be corrected."""
+        if not (IImioDmsOutgoingMail.providedBy(self.context) or IImioDmsSignRequest.providedBy(self.context)):
+            return []
+        signed_states = ("to_be_signed", "signed", "sent", "closed")
+        if api.content.get_state(self.context) in signed_states:
+            return []
+        ret = []
+        for fobj, errors in acroform_errors(self.context):
+            msg = translate(
+                u"The signature or seal tags of file '${title}' are wrong: ${errors}",
+                domain="imio.dms.mail",
+                context=self.request,
+                mapping={
+                    "title": object_link(fobj),
+                    "errors": u" ".join([translate(error, context=self.request) for error in errors]),
                 },
             )
             ret.append(

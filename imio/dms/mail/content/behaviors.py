@@ -288,7 +288,7 @@ class ISigningBehavior(model.Schema):
                 if userid in approvers:
                     raise Invalid(
                         _(
-                            "The ${userid} already exists in the approvings with another order ${o} <=> ${c}",
+                            "${userid} already exists in the approvings with another order ${o} <=> ${c}",
                             mapping={
                                 "userid": userid,
                                 "o": approvers[userid],

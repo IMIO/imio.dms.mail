@@ -45,6 +45,7 @@ from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 # from imio.dms.mail.utils import separate_fullname
+from imio.dms.mail.utils import acroform_errors
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import eml_preview
@@ -57,6 +58,7 @@ from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import update_approvers_settings
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
+from imio.esign.acroform import format_errors
 from imio.esign.audit import audit as esign_audit
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.config import get_esign_registry_seal_code
@@ -418,6 +420,21 @@ def dmsincomingmail_transition(mail, event):
             mail.assigned_user = userid
             # TODO must use in a second time the future imio.helpers reindex_object
             mail.portal_catalog.reindexObject(mail, ["assigned_user"], update_metadata=0)
+
+
+def signing_before_transition(obj, event):
+    """Refuse to advance towards signing when the acroform tags of a signable file are wrong."""
+    if not event.transition or event.transition.id not in ("propose_to_approve", "propose_to_be_signed"):
+        return
+    errors = acroform_errors(obj)
+    if errors:
+        raise Invalid(
+            translate(
+                _("Signature or seal tags are wrong: ${details}",
+                  mapping={"details": format_errors(errors, obj.REQUEST)}),
+                context=obj.REQUEST,
+            )
+        )
 
 
 def dmsoutgoingmail_transition(mail, event):

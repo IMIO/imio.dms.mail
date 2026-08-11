@@ -23,6 +23,9 @@ Changelog
   [sgeulette]
 - Replaced implements by implementer
   [sgeulette]
+- Validated the acroform signature and seal tags of the signable files against the signers and seal
+  fields (PARAF-503).
+  [chris-adam]
 
 3.1.5 (2026-06-19)
 ------------------

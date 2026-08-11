@@ -26,6 +26,7 @@ from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.esign.acroform import check_file
 from imio.helpers.batching import batch_delete_files
 from imio.helpers.batching import batch_get_keys
 from imio.helpers.batching import batch_handle_key
@@ -1683,6 +1684,27 @@ def update_approvers_settings():
     old_approvings = set(get_dms_config(["approvings"], missing_key_handling=True, missing_key_value=[]))
     if old_approvings != set(approvings):
         set_dms_config(["approvings"], approvings)
+
+
+def acroform_errors(container):
+    """Return the acroform tag errors of the signable files of an outgoing mail or sign request.
+
+    :param container: outgoing mail or sign request
+    :return: list of (file object, [error messages]) for the files in error only
+    """
+    if not (container.esign or container.seal):
+        return []
+    nb_signers = None
+    if container.esign:
+        nb_signers = len([s for s in (container.signers or []) if s["signer"] != u"_empty_"])
+    res = []
+    for fobj in container.values():
+        if fobj.portal_type not in ("dmsommainfile", "dmsappendixfile") or not getattr(fobj, "to_sign", False):
+            continue
+        errors = check_file(fobj, nb_signers, container.seal)
+        if errors:
+            res.append((fobj, errors))
+    return res
 
 
 def get_allowed_content_types(esign=False, portal_type=None):

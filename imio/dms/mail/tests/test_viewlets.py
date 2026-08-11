@@ -5,6 +5,8 @@ from imio.dms.mail.browser.viewlets import ContactContentBackrefsViewlet
 from imio.dms.mail.browser.viewlets import ContextInformationViewlet
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.tests.utils import create_om_with_tags
+from imio.dms.mail.tests.utils import odt_with_tags
 from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import login
@@ -108,3 +110,36 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         self.assertEqual(len(sorg_v.getAllMessages()), 1)  # suborganization has missing street too
         self.assertEqual(len(hp_v.getAllMessages()), 1)  # held position has missing street too
         self.assertEqual(len(om_v.getAllMessages()), 1)  # outgoing mail has missing street too
+
+    def test_get_acroform_messages(self):
+        """Acroform tag errors are shown while the mail can still be corrected."""
+        login(self.portal, "siteadmin")
+        omail, afile = create_om_with_tags(self.portal, "omail-acroform-viewlet",
+                                           tag_ids=(1,), nb_signers=2)
+        viewlet = ContextInformationViewlet(omail, omail.REQUEST, None)
+        msgs = viewlet.get_acroform_messages()
+        self.assertEqual(len(msgs), 1)
+        self.assertTrue(isinstance(msgs[0], PseudoMessage))
+        self.assertIn("signature or seal tags of file", msgs[0].text.output)
+        self.assertIn("Signer2", msgs[0].text.output)
+        self.assertEqual(len(viewlet.getAllMessages()), 1)
+
+        # --- a complete set of tags: no message ---
+        afile.file = odt_with_tags(1, 2)
+        self.assertEqual(viewlet.get_acroform_messages(), [])
+
+        # --- a seal tag while no seal is defined ---
+        afile.file = odt_with_tags(1, 2, u"SCEAU")
+        msgs = viewlet.get_acroform_messages()
+        self.assertEqual(len(msgs), 1)
+        self.assertIn("no seal is defined", msgs[0].text.output)
+        omail.seal = True
+        self.assertEqual(viewlet.get_acroform_messages(), [])
+        afile.file = odt_with_tags(1, 2)
+
+        # --- once the mail left the correctable states, nothing is shown any more ---
+        afile.file = odt_with_tags(1)
+        self.assertEqual(len(viewlet.get_acroform_messages()), 1)
+        api.content.transition(obj=omail, transition="mark_as_sent")
+        self.assertEqual(api.content.get_state(omail), "sent")
+        self.assertEqual(viewlet.get_acroform_messages(), [])
