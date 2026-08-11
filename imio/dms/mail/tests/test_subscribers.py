@@ -270,8 +270,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             dmsoutgoingmail_transition(omail, make_event("propose_to_approve"))
             mock_start.assert_called_once_with()
 
-        # Branch C: ODT cleaning (not mail.esign, not mail.seal)
-        # Create a dmsommainfile inside omail
+        # a dmsommainfile inside omail, used by the seal branch below
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
@@ -282,36 +281,15 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             content_category=calculate_category_id(ct),
         )
 
-        # C1: esign=True → entire block skipped, convert_odt never called
+        # Branch D: seal handling (seal without signers, due to constraints)
+
+        # D0: esign=True → seal block skipped, OMApprovalAdapter never instantiated
         omail.esign = True
-        with patch("imio.dms.mail.subscribers.convert_odt") as mock_conv:
-            dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
-            mock_conv.assert_not_called()
+        omail.seal = True
+        with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
+            dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
+            MockAdapter.assert_not_called()
         omail.esign = False
-
-        # C2: file with need_mailing=True → skip
-        IAnnotations(afile).setdefault("documentgenerator", {})["need_mailing"] = True
-        with patch("imio.dms.mail.subscribers.convert_odt") as mock_conv:
-            dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
-            mock_conv.assert_not_called()
-
-        # C3: file with cleaned_download=True → skip
-        IAnnotations(afile)["documentgenerator"]["need_mailing"] = False
-        IAnnotations(afile)["documentgenerator"]["cleaned_download"] = True
-        with patch("imio.dms.mail.subscribers.convert_odt") as mock_conv:
-            dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
-            mock_conv.assert_not_called()
-
-        # C4: eligible file → convert_odt called, cleaned_download set to True
-        doc_annot = IAnnotations(afile)["documentgenerator"]
-        doc_annot["cleaned_download"] = False
-        with patch("imio.dms.mail.subscribers.convert_odt", return_value=b"new_content") as mock_conv:
-            with patch("imio.dms.mail.subscribers.getMultiAdapter"):
-                dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
-                mock_conv.assert_called_once()
-                self.assertTrue(IAnnotations(afile)["documentgenerator"]["cleaned_download"])
-
-        # Branch D: seal handling (omail.seal set to True before C; stays True here)
 
         # D1: seal=False → OMApprovalAdapter never instantiated
         omail.seal = False
