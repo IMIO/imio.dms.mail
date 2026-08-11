@@ -456,6 +456,16 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
             annot = IAnnotations(afile).get("collective.documentviewer", "")
         if (not annot or not annot.get("successfully_converted") or not annot.get("num_pages")
                 or not annot.get("blob_files")):
+            api.portal.show_message(
+                message=translate(
+                    _(u"Warning: no preview image found for document '${doc}' of mail '${mail}'. "
+                      u"This document will not be included in the printing.",
+                      mapping={u"doc": safe_unicode(afile.Title()),
+                               u"mail": safe_unicode(afile.aq_parent.Title())}),
+                    context=self.request),
+                request=self.request,
+                type="warning",
+            )
             return []
         fmt = annot["pdf_image_format"]
         files = annot["blob_files"]

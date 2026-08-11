@@ -405,6 +405,12 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertNotEqual(
             IAnnotations(appendix)["collective.documentviewer"]["last_updated"], "2010-01-01T00:00:00"
         )
+        # no usable preview -> warning message and the file is left out of the printing
+        IAnnotations(appendix)["collective.documentviewer"] = {"successfully_converted": False}
+        self.assertListEqual(view.get_print_pages(appendix), [])
+        msgs = IStatusMessage(view.request).show()
+        self.assertEqual(len(msgs), 1)
+        self.assertIn(u"no preview image found", msgs[0].message)
         # restore the borrowed annotation for the following assertions
         IAnnotations(appendix)["collective.documentviewer"] = dv_annot
 
