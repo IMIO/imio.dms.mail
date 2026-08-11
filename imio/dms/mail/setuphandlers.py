@@ -2821,25 +2821,26 @@ def get_dashboard_collections(folder, uids=False):
 def list_templates():
     """Templates list used in add_templates method but also in update method"""
     dpath = pkg_resources.resource_filename("imio.dms.mail", "profiles/default/templates")
-    # (cid, plone_path, os_path)
+    # (cid, plone_path, os_path, position in parent folder: subfolders are not moved, so 'templates/om'
+    #  stays first in 'templates', as 'templates/om/common' in 'templates/om')
     return [
-        (10, "templates/d-im-listing", os.path.join(dpath, "d-im-listing.odt")),
-        (12, "templates/d-im-listing-tab", os.path.join(dpath, "d-im-listing.ods")),
-        (13, "templates/d-im-listing-tab-details", os.path.join(dpath, "d-im-listing-details.ods")),
-        (20, "templates/all-contacts-export", os.path.join(dpath, "contacts-export.ods")),
-        (30, "templates/export-users-groups", os.path.join(dpath, "export-users-groups.ods")),
-        (40, "templates/audit-contacts", os.path.join(dpath, "audit-contacts.ods")),
-        (90, "templates/om/style", os.path.join(dpath, "om-styles.odt")),
-        (100, "templates/om/header", os.path.join(dpath, "om-header.odt")),
-        (105, "templates/om/footer", os.path.join(dpath, "om-footer.odt")),
-        (110, "templates/om/intro", os.path.join(dpath, "om-intro.odt")),
-        (120, "templates/om/ending", os.path.join(dpath, "om-ending.odt")),
-        (125, "templates/om/download_barcode", os.path.join(dpath, "om-download-barcode.odt")),
-        (150, "templates/om/mailing", os.path.join(dpath, "om-mailing.odt")),
-        (200, "templates/om/d-print-to-sign", os.path.join(dpath, "d-print.odt")),
-        (201, "templates/om/d-print-signed", os.path.join(dpath, "d-print.odt")),
-        (205, "templates/om/main", os.path.join(dpath, "om-main.odt")),
-        (210, "templates/om/common/receipt", os.path.join(dpath, "om-receipt.odt")),
+        (10, "templates/d-im-listing", os.path.join(dpath, "d-im-listing.odt"), 2),
+        (12, "templates/d-im-listing-tab", os.path.join(dpath, "d-im-listing.ods"), 3),
+        (13, "templates/d-im-listing-tab-details", os.path.join(dpath, "d-im-listing-details.ods"), 4),
+        (20, "templates/all-contacts-export", os.path.join(dpath, "contacts-export.ods"), 5),
+        (30, "templates/export-users-groups", os.path.join(dpath, "export-users-groups.ods"), 6),
+        (40, "templates/audit-contacts", os.path.join(dpath, "audit-contacts.ods"), 7),
+        (90, "templates/om/style", os.path.join(dpath, "om-styles.odt"), 1),
+        (100, "templates/om/header", os.path.join(dpath, "om-header.odt"), 2),
+        (105, "templates/om/footer", os.path.join(dpath, "om-footer.odt"), 3),
+        (110, "templates/om/intro", os.path.join(dpath, "om-intro.odt"), 4),
+        (120, "templates/om/ending", os.path.join(dpath, "om-ending.odt"), 5),
+        (125, "templates/om/download_barcode", os.path.join(dpath, "om-download-barcode.odt"), 6),
+        (150, "templates/om/mailing", os.path.join(dpath, "om-mailing.odt"), 10),
+        (200, "templates/om/d-print-to-sign", os.path.join(dpath, "d-print.odt"), 8),
+        (201, "templates/om/d-print-signed", os.path.join(dpath, "d-print.odt"), 9),
+        (205, "templates/om/main", os.path.join(dpath, "om-main.odt"), 7),
+        (210, "templates/om/common/receipt", os.path.join(dpath, "om-receipt.odt"), 0),
     ]
 
 
@@ -2882,7 +2883,7 @@ def add_templates(site):
     def combine_data(data, test=None):
         templates_list = list_templates()
         ret = []
-        for cid, ppath, ospath in templates_list:
+        for cid, ppath, ospath, pos in templates_list:
             if not test or test(cid):
                 dic = data[cid]
                 dic["cid"] = cid
@@ -2997,7 +2998,6 @@ def add_templates(site):
 
     templates = combine_data(data, test=lambda x: x < 100)
     cids = create(templates, pos=False)
-    exists = "main" in site["templates"]["om"]
 
     data = {
         100: {
@@ -3121,11 +3121,10 @@ def add_templates(site):
     for obj in cids.values():
         alsoProvides(obj, IProtectedItem)
 
-    if not exists:
-        site["templates"]["om"].moveObjectToPosition("d-print-to-sign", 1)
-        site["templates"]["om"].moveObjectToPosition("d-print-signed", 2)
-        site["templates"]["om"].moveObjectToPosition("main", 10)
-        site["templates"]["om"].moveObjectToPosition("common", 11)
+    # order templates in their folder: ascending position, so already placed templates aren't moved again
+    for tup in sorted(list_templates(), key=lambda t: t[3]):
+        parts = tup[1].split("/")
+        site.unrestrictedTraverse("/".join(parts[:-1])).moveObjectToPosition(parts[-1], tup[3])
 
 
 def add_transforms(site):

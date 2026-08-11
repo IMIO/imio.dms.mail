@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from imio.dms.mail.interfaces import IPersonnelDashboard
+from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 
@@ -20,6 +21,17 @@ class TestSetuphandlers(unittest.TestCase):
     def test_postInstall(self):
         self.assertTrue(hasattr(self.portal, "incoming-mail"))
         self.assertTrue(hasattr(self.portal, "outgoing-mail"))
+
+    def test_add_templates_order(self):
+        self.assertEqual([o.getId() for o in self.portal["templates"].objectValues()],
+                         ['om', 'oem', 'd-im-listing', 'd-im-listing-tab', 'd-im-listing-tab-details',
+                          'all-contacts-export', 'export-users-groups', 'audit-contacts'])
+        for tup in list_templates():
+            parts = tup[1].split("/")
+            folder = self.portal.unrestrictedTraverse("/".join(parts[:-1]))
+            self.assertEqual(folder.getObjectPosition(parts[-1]), tup[3], parts[-1])
+        # subfolders are not moved: om stays first in templates, common first in om
+        self.assertEqual(self.portal["templates"]["om"].getObjectPosition("common"), 0)
 
     def test_requests_dashboard(self):
         self.assertTrue(hasattr(self.portal, "requests"))
