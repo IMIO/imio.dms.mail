@@ -948,14 +948,13 @@ class OMServiceValidation(WorkflowAdaptationBase):
             folder["to_validate"].enabled = True
             folder["to_validate"].reindexObject()
 
-        # Add collection to template
-        for name in ("d-print-to-sign", "d-print-signed"):
-            tmpl = portal["templates"]["om"][name]
-            cols = tmpl.dashboard_collections
-            col = folder["searchfor_{}".format(val_state_id)]
-            if col.UID() not in cols:
-                cols.append(col.UID())
-                tmpl.dashboard_collections = cols
+        # Add collection to template (state before signature)
+        tmpl = portal["templates"]["om"]["d-print-to-sign"]
+        cols = tmpl.dashboard_collections
+        col = folder["searchfor_{}".format(val_state_id)]
+        if col.UID() not in cols:
+            cols.append(col.UID())
+            tmpl.dashboard_collections = cols
 
         # update configuration annotation
         config = get_dms_config(["review_levels", "dmsoutgoingmail"])
@@ -1253,13 +1252,6 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("searchfor_to_be_signed"))
-            # Add template to folder
-            for name in ("d-print-to-sign", "d-print-signed"):
-                tmpl = portal["templates"]["om"][name]
-                cols = tmpl.dashboard_collections
-                if col.UID() not in cols:
-                    cols.append(col.UID())
-                    tmpl.dashboard_collections = cols
         col_id = "to_approve"
         if col_id not in folder:
             next_col = folder["to_validate"]
@@ -1526,13 +1518,12 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("searchfor_to_be_signed"))
-            # Add template to folder
-            for name in ("d-print-to-sign", "d-print-signed"):
-                tmpl = portal["templates"]["om"][name]
-                cols = tmpl.dashboard_collections
-                if col.UID() not in cols:
-                    cols.append(col.UID())
-                    tmpl.dashboard_collections = cols
+            # Add collection to template (state before signature)
+            tmpl = portal["templates"]["om"]["d-print-to-sign"]
+            cols = tmpl.dashboard_collections
+            if col.UID() not in cols:
+                cols.append(col.UID())
+                tmpl.dashboard_collections = cols
 
         # update treating collection
         col = folder["om_treating"]

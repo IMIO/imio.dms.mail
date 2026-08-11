@@ -87,6 +87,9 @@ import pkg_resources
 
 logger = logging.getLogger("imio.dms.mail: setuphandlers")
 
+OM_PRINT_TO_SIGN_COLS = ("to_treat", "searchfor_created")
+OM_PRINT_SIGNED_COLS = ("om_treating", "om_to_email", "searchfor_signed")
+
 
 def _no_more_used(msgid, domain="imio.dms.mail"):  # TODO delete if no more necessary
     translation_domain = queryUtility(ITranslationDomain, domain)
@@ -3048,9 +3051,11 @@ def add_templates(site):
             "trans": ["show_internally"],
             "attrs": {
                 "pod_formats": ["odt"],
-                "tal_condition": "python: object.portal_workflow.getInfoFor(object, 'review_state') in "
-                                 "('created', 'validated', 'to_print')",
-                "dashboard_collections": get_dashboard_collections(site["outgoing-mail"]["mail-searches"], uids=True),
+                "dashboard_collections": [
+                    b.UID
+                    for b in get_dashboard_collections(site["outgoing-mail"]["mail-searches"])
+                    if b.id in OM_PRINT_TO_SIGN_COLS
+                ],
                 "style_template": [cids[90].UID()],
                 "rename_page_styles": True,
             },
@@ -3061,8 +3066,11 @@ def add_templates(site):
             "trans": ["show_internally"],
             "attrs": {
                 "pod_formats": ["odt"],
-                "tal_condition": "python: object.portal_workflow.getInfoFor(object, 'review_state') == 'signed'",
-                "dashboard_collections": get_dashboard_collections(site["outgoing-mail"]["mail-searches"], uids=True),
+                "dashboard_collections": [
+                    b.UID
+                    for b in get_dashboard_collections(site["outgoing-mail"]["mail-searches"])
+                    if b.id in OM_PRINT_SIGNED_COLS
+                ],
                 "style_template": [cids[90].UID()],
                 "rename_page_styles": True,
             },

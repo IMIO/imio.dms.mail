@@ -28,6 +28,7 @@ from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
 from imio.dms.mail.setuphandlers import create_personnel_dashboard
 from imio.dms.mail.setuphandlers import createReqCollections
 from imio.dms.mail.setuphandlers import createStateCollections
+from imio.dms.mail.setuphandlers import get_dashboard_collections
 from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import setup_iconified_categories
 from imio.dms.mail.utils import message_status
@@ -82,15 +83,7 @@ class Migrate_To_3_1(Migrator):  # noqa
         """Run some parts between b and x."""
         if self.is_in_part("c"):  # various, update workflow, localroles and security
             # Update d-print model
-            obj = self.portal.templates.om["d-print"]
-            api.content.rename(obj=obj, new_id="d-print-to-sign", safe_id=False)
-            if obj.tal_condition == "python: context.restrictedTraverse('odm-utils').is_odt_activated()":
-                obj.tal_condition = ("python: object.portal_workflow.getInfoFor(object, 'review_state') in "
-                                     "('created', 'validated', 'to_print')")
-                obj.title = _(u"To sign files print template")
-                obj.reindexObject(idxs=["Title", "sortable_title", "SearchableText"])
-            else:
-                logger.error("d-print template has not expected condition: '{}'".format(obj.tal_condition))
+            self.update_print_template()
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
@@ -660,6 +653,20 @@ class Migrate_To_3_1(Migrator):  # noqa
         pf.setLocallyAllowedTypes(["person"])
         pf.setDefaultPage(None)
         logger.info("Converted personnel-folder to faceted dashboard")
+
+    def update_print_template(self):
+        """Rename d-print template and display the print template only on the concerned collections."""
+        om_print_to_sign_cols = ("to_treat", "searchfor_created", "searchfor_validated", "searchfor_to_print")
+        om_tmplts = self.portal["templates"]["om"]
+        if "d-print" in om_tmplts:
+            api.content.rename(obj=om_tmplts["d-print"], new_id="d-print-to-sign", safe_id=False)
+        obj = om_tmplts["d-print-to-sign"]
+        obj.title = _(u"To sign files print template")
+        obj.reindexObject(idxs=["Title", "sortable_title", "SearchableText"])
+        obj.tal_condition = ""
+        cols = get_dashboard_collections(self.omf["mail-searches"])
+        obj.dashboard_collections = [b.UID for b in cols if b.UID in obj.dashboard_collections
+                                     and b.id in om_print_to_sign_cols]
 
 
 def migrate(context):  # noqa
