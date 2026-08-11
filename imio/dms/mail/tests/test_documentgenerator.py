@@ -495,6 +495,10 @@ class TestDocumentGenerator(unittest.TestCase):
         # Test generation context
         gen_con = view._get_generation_context(hview, view.pod_template)
         self.assertEqual(gen_con["scan_id"], "IMIO012999900000011")
+        self.assertTrue(gen_con["render_download_barcode"])
+        hview.real_context.seal = True
+        self.assertFalse(view._get_generation_context(hview, view.pod_template)["render_download_barcode"])
+        hview.real_context.seal = False
         get_object(oid="reponse1", ptype="dmsoutgoingmail").id = "test_creation_modele"
         gen_con = view._get_generation_context(hview, view.pod_template)
         self.assertEqual(gen_con["scan_id"], "IMIO012999900000000")
