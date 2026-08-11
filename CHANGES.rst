@@ -15,6 +15,9 @@ Changelog
   [sgeulette]
 - Reindexed the scan_id given to a file added to a signing session, so its signed version is consumed (PARAF-580).
   [chris-adam,sgeulette]
+- Validated the acroform signature and seal tags of the signable files against the signers and seal
+  fields (PARAF-503).
+  [chris-adam]
 
 3.1.7 (2026-11-17)
 ------------------

@@ -1322,6 +1322,32 @@
             permission="zope2.View"
         />
 
+        <!-- Wrong signature tags of the files of a draft session, see PARAF-503.
+             Registered on the containers and on the files themselves. -->
+        <browser:viewlet
+            for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            name="esign-acroform-errors"
+            class="imio.esign.browser.views.AcroformErrorsViewlet"
+            permission="zope2.View"
+        />
+
+        <browser:viewlet
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            name="esign-acroform-errors"
+            class="imio.esign.browser.views.AcroformErrorsViewlet"
+            permission="zope2.View"
+        />
+
+        <browser:viewlet
+            for="imio.dms.mail.dmsfile.IImioDmsFile"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            name="esign-acroform-errors"
+            class="imio.esign.browser.views.AcroformErrorsViewlet"
+            permission="zope2.View"
+        />
+
         <browser:viewlet
             for="eea.facetednavigation.subtypes.interfaces.IFacetedNavigable"
             manager="collective.eeafaceted.z3ctable.interfaces.ITopAboveNavManager"
