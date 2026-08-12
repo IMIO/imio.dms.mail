@@ -394,6 +394,14 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         """Return True if the given file object is an ODT."""
         return getattr(afile.file, "contentType", "") == "application/vnd.oasis.opendocument.text"
 
+    def is_main_odt(self, afile):
+        """Return True if the given file object is a mainfile and an ODT."""
+        return afile.portal_type == "dmsommainfile" and self.is_odt(afile)
+
+    def is_appendix_odt(self, afile):
+        """Return True if the given file object is a appendixfile and an ODT."""
+        return afile.portal_type == "dmsappendixfile" and self.is_odt(afile)
+
     def is_image(self, afile):
         """Return True if the file is itself an image (png/jpg/...)."""
         return getattr(afile.file, "contentType", "").startswith("image/")
