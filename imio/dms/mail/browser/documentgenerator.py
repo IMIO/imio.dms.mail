@@ -357,7 +357,9 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
             * False: before signature, every file whose `to_print` is True, to be signed by hand.
             * True: after signature, every e-signed file + the appendix files with `to_print` is True.
         :param limit: maximum number of files to return
-        :return: list of file objects
+        :return: list of (file object, number of pages) tuples. The page count comes from the
+            collective.documentviewer preview: a file whose page count cannot be determined is
+            skipped and a warning message is shown.
         """
         files = []
         if not self.is_dashboard():
@@ -385,7 +387,21 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
                 elements = [obj for obj in elements if getattr(obj, "to_print", False)]
             elements = [obj for obj in elements if obj.UID() not in superseded]
             elements = sorted(elements, key=lambda o: 0 if o.portal_type == "dmsommainfile" else 1)
-            files.extend(elements)
+            for obj in elements:
+                pages = self.print_page_count(obj)
+                if not pages:
+                    api.portal.show_message(
+                        message=translate(
+                            _(u"Warning: cannot determine the page count of document '${doc}' of mail "
+                              u"'${mail}'. This document will not be included in the printing.",
+                              mapping={u"doc": safe_unicode(obj.Title()),
+                                       u"mail": safe_unicode(mail.Title())}),
+                            context=self.request),
+                        request=self.request,
+                        type="warning",
+                    )
+                    continue
+                files.append((obj, pages))
         if limit is not None:
             files = files[:limit]
         return files
