@@ -12,14 +12,17 @@ from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
+from imio.esign.browser.actions import RecreateSessionView
 from imio.esign.browser.actions import RemoveItemFromSessionView
 from imio.esign.browser.actions import SessionAnnotationInfoView as BaseSessionAnnotationInfoView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.config import get_esign_registry_enabled
+from imio.esign.utils import get_session_annotation
 from imio.esign.utils import get_session_info
 from imio.esign.utils import persistent_to_native
 from imio.esign.utils import remove_files_from_session
@@ -524,6 +527,38 @@ class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
             return False
         approval = self.context.__parent__.approval()
         return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
+
+
+class ImioRecreateSessionView(RecreateSessionView):
+    """Recreate session and sync OMApprovalAdapter session_ids for impacted mails."""
+
+    def __call__(self):
+        result = super(ImioRecreateSessionView, self).__call__()
+        new_id = self._new_session_id
+        if new_id is None:
+            return result
+        annot = get_session_annotation()
+        new_session = annot["sessions"][new_id]
+        context_uids = set(f["context_uid"] for f in new_session["files"])
+        pc = api.portal.get_tool("portal_catalog")
+        for c_uid in context_uids:
+            obj = uuidToObject(c_uid, unrestricted=True)
+            if obj is None:
+                continue
+            approval = obj.approval()
+            if new_id not in approval.annot["session_ids"]:
+                approval.annot["session_ids"].append(new_id)
+            pc.reindexObject(obj, idxs=("approvings",), update_metadata=0)
+        return result
+
+    def get_new_session_title(self, old, old_session_id):
+        obj = uuidToObject(old["files"][0]["context_uid"])
+        type_label = translate(
+            api.portal.get_tool("portal_types")[obj.portal_type].Title(),
+            domain="plone",
+            context=self.context.REQUEST,
+        )
+        return u"[iA.Docs] {} - {{sign_id}}".format(type_label)
 
 
 class ApprovalTableView(BrowserView):

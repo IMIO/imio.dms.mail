@@ -1461,7 +1461,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                         ],
                         "discriminators": ("dmsoutgoingmail",),
                         "watchers": [],
-                        "title": u'[ia.docs] Courrier sortant - 012999900000',
+                        "title": u'[iA.Docs] Courrier sortant - 012999900000',
                         "state": "draft",
                         "signers": [
                             {
@@ -1519,7 +1519,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                         ],
                         "discriminators": ("dmsoutgoingmail",),
                         "watchers": [],
-                        "title": u'[ia.docs] Courrier sortant - 012999900000',
+                        "title": u'[iA.Docs] Courrier sortant - 012999900000',
                         "state": "draft",
                         "signers": [
                             {

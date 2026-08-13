@@ -2028,7 +2028,7 @@ class ApprovalAdapter(object):
             context=self.context.REQUEST,
         )
         sessions_used = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
-                                             title=u"[ia.docs] {} - {{sign_id}}".format(type_label),
+                                             title=u"[iA.Docs] {} - {{sign_id}}".format(type_label),
                                              discriminators=(self.context.portal_type,),
                                              watchers=watcher_emails)
         for sid, _session in sessions_used:
