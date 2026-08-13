@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 """ dmsfile.py tests for this package."""
+from datetime import datetime
+from imio.dms.mail.dmsfile import AppendixFileAddForm
 from imio.dms.mail.dmsfile import RestrictedNamedBlobFile
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
+from plone.dexterity.utils import addContentToContainer
+from plone.dexterity.utils import createContent
 from plone.namedfile.file import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRegistry
@@ -25,6 +30,7 @@ class TestDmsfile(unittest.TestCase):
         self.pc = self.portal.portal_catalog
         self.imf = self.portal["incoming-mail"]
         self.omf = self.portal["outgoing-mail"]
+        self.imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id")
 
     def test_RestrictedNamedBlobFile(self):
         path = "%s/batchimport/toprocess/outgoing-mail/Accusé de réception.odt" % imiodmsmail.__path__[0]
@@ -48,3 +54,20 @@ class TestDmsfile(unittest.TestCase):
         # bad file, validation adapted
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile"] = ["odt", "pdf"]
         field._validate(otherblob)
+
+    def test_AppendixFileAddForm(self):
+        # the annex form shows one title field and does not require it (DMS-1217, DMS-605)
+        form = AppendixFileAddForm(self.imail, self.portal.REQUEST)
+        form.update()
+        self.assertNotIn("IBasic.title", form.widgets)
+        self.assertEqual(form.widgets["title"].mode, "input")
+        self.assertFalse(form.widgets["title"].field.required)
+        # an annex left without a title takes the name of the attached file
+        annex = createContent("dmsappendixfile", file=NamedBlobFile(data="pdf", filename=u"Ma pièce.pdf"))
+        annex = addContentToContainer(self.imail, annex)
+        self.assertEqual(annex.title, u"Ma pièce.pdf")
+        # a title given by the user is kept
+        titled = createContent("dmsappendixfile", title=u"CV",
+                               file=NamedBlobFile(data="pdf", filename=u"Ma pièce.pdf"))
+        titled = addContentToContainer(self.imail, titled)
+        self.assertEqual(titled.title, u"CV")

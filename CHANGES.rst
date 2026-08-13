@@ -35,6 +35,10 @@ Changelog
   [chris-adam,sgeulette]
 - Set max_objects to 0 for some templates
   [sgeulette]
+- Removed the default predefined title on annexes categories (DMS-1217).
+  [chris-adam]
+- An annex left without a title now takes the file name (DMS-605).
+  [chris-adam]
 
 3.1.5 (2026-06-19)
 ------------------

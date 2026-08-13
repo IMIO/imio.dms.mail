@@ -668,7 +668,6 @@ def setup_iconified_categories(portal):
                 container=group,
                 icon=icon,
                 id=oid,
-                predefined_title=title,
                 **kwargs
             )
             alsoProvides(cat, IProtectedItem)

@@ -133,7 +133,6 @@ def add_test_annexes_types(context):
             container=annexes_category_group,
             icon=icon,
             id=oid,
-            predefined_title=title,
         )
 
 

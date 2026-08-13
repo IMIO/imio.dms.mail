@@ -3,10 +3,12 @@
 from collective.dms.basecontent import _ as _CDB
 from collective.dms.basecontent.dmsfile import DmsFile
 from collective.dms.basecontent.dmsfile import IDmsFile
+from imio.annex.content.annex import IAnnex
 from imio.dms.mail import _
 from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
 from imio.dms.mail.utils import get_allowed_content_types
 from plone import api
+from plone.autoform import directives as form
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.schema import DexteritySchemaPolicy
@@ -93,3 +95,16 @@ class AnnexAddForm(DefaultAddForm):
 
 class AddAnnex(DefaultAddView):
     form = AnnexAddForm
+
+
+class IImioDmsAppendixFile(IAnnex):
+    """Schema for DmsAppendixFile: optional title, hidden description."""
+
+    form.mode(description="hidden")
+
+
+class ImioDmsAppendixFileSchemaPolicy(DexteritySchemaPolicy):
+    """Schema Policy for DmsAppendixFile"""
+
+    def bases(self, schemaName, tree):
+        return (IImioDmsAppendixFile,)

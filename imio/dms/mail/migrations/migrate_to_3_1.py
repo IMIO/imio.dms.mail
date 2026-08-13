@@ -207,6 +207,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                 if changes:
                     api.portal.set_registry_record(key, values)
 
+            self.remove_category_predefined_titles()
             # clean catalog
             self.clean_catalog()
             # update permissions, roles and reindex allowedRolesAndUsers
@@ -668,6 +669,18 @@ class Migrate_To_3_1(Migrator):  # noqa
         cols = get_dashboard_collections(self.omf["mail-searches"])
         obj.dashboard_collections = [b.UID for b in cols if b.UID in obj.dashboard_collections
                                      and b.id in om_print_to_sign_cols]
+
+    def remove_category_predefined_titles(self):
+        """Reload dmsappendixfile type, empty categories predefined_title."""
+        load_type_from_package("dmsappendixfile", "imio.dms.mail:default")  # behaviors, schema policy
+        emptied = []
+        for brain in self.catalog.unrestrictedSearchResults(
+                portal_type=["ContentCategory", "ContentSubcategory"]):
+            category = brain._unrestrictedGetObject()
+            if category.predefined_title:
+                category.predefined_title = u""
+                emptied.append(brain.getPath())
+        logger.info("Emptied predefined_title on categories: %s", emptied)
 
 
 def migrate(context):  # noqa

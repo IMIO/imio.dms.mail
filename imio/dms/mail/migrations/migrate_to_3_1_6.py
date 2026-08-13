@@ -21,6 +21,8 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
             self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry"])
             # DMS-995: convert personnel-folder to faceted dashboard
             self.setup_personnel_dashboard()
+            # DMS-1217, DMS-605: allow empty annex titles, default to file name
+            self.remove_category_predefined_titles()
             catalog = self.portal.portal_catalog
             for brain in catalog.unrestrictedSearchResults(portal_type="person",
                                                            object_provides=IPersonnelContact.__identifier__):
