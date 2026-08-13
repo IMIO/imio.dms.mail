@@ -1,13 +1,23 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.adapters import SignRequestApprovalAdapter
+from imio.dms.mail.browser.table import OMVersionsTable
+from imio.dms.mail.browser.table import SignRequestVersionsTable
 from imio.dms.mail.columns import SenderColumn
+from imio.dms.mail.columns import SessionIdColumn
 from imio.dms.mail.columns import TaskActionsColumn
 from imio.dms.mail.columns import TaskParentColumn
 from imio.dms.mail.testing import change_user
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
+from imio.esign.utils import add_files_to_session
+from imio.esign.utils import create_session
 from imio.helpers.content import get_object
+from persistent.list import PersistentList
 from plone import api
+from plone.app.testing import login
 from plone.app.testing import TEST_USER_ID
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
@@ -99,3 +109,98 @@ class TestColumns(unittest.TestCase):
         self.assertIn('"overlay-history"', rendered)
         column.view_name = ""
         self.assertRaises(KeyError, column.renderCell, self.ta1)
+
+
+class TestSessionIdColumn(unittest.TestCase):
+    """Tests for SessionIdColumn."""
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        login(self.layer["app"], "admin")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
+        )
+        change_user(self.portal)
+
+        # 1 omail, 3 files: file_a in 2 sessions, file_b in 1 session, file_c in no session
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        file_a = omail["1"]
+        file_b = get_object(oid="reponse2", ptype="dmsoutgoingmail")["1"]
+        file_c = get_object(oid="reponse3", ptype="dmsoutgoingmail")["1"]
+
+        signers = [("agent", "agent@macommune.be", u"Test Agent", u"Agent")]
+        self.sid0, _session = create_session(signers)
+        add_files_to_session(signers, [file_a.UID(), file_b.UID()], session_id=self.sid0)
+        self.sid1, _session = create_session(signers)
+        add_files_to_session(signers, [file_a.UID()], session_id=self.sid1)
+
+        approval = OMApprovalAdapter(omail)
+        approval.annot["session_ids"] = PersistentList([self.sid0, self.sid1])
+
+        # 1 sign request, 1 file in 2 sessions discriminated on the sign_request portal_type
+        sign_request, sr_files = create_sign_request(self.portal, oid="sr-session-id")
+        self.sid2, _session = create_session(signers, discriminators=("sign_request",))
+        add_files_to_session(signers, [sr_files[0].UID()], session_id=self.sid2)
+        self.sid3, _session = create_session(signers, discriminators=("sign_request",))
+        add_files_to_session(signers, [sr_files[0].UID()], session_id=self.sid3)
+        sr_approval = SignRequestApprovalAdapter(sign_request)
+        sr_approval.annot["session_ids"] = PersistentList([self.sid2, self.sid3])
+
+        pc = api.portal.get_tool("portal_catalog")
+        self.brain_a = pc(UID=file_a.UID())[0]  # in sid0 and sid1
+        self.brain_b = pc(UID=file_b.UID())[0]  # in sid0 only
+        self.brain_c = pc(UID=file_c.UID())[0]  # in no session
+        self.brain_sr = pc(UID=sr_files[0].UID())[0]  # in sid2 and sid3
+        self.table = OMVersionsTable(omail, self.portal.REQUEST, None)
+        self.sr_table = SignRequestVersionsTable(sign_request, self.portal.REQUEST, None)
+        self.column = SessionIdColumn(self.portal, self.portal.REQUEST, None)
+        self.column.table = self.table
+
+    def test_renderCell(self):
+        """Empty for <=1 sessions; empty when file not in any session; single badge; comma-separated badges."""
+        approval = self.table.approval
+
+        # Guard: <=1 session_ids -> empty regardless of which file
+        approval.annot["session_ids"] = PersistentList([])
+        self.assertEqual(self.column.renderCell(self.brain_a), u"")
+        approval.annot["session_ids"] = PersistentList([self.sid0])
+        self.assertEqual(self.column.renderCell(self.brain_a), u"")
+        approval.annot["session_ids"] = PersistentList([self.sid0, self.sid1])  # back to setUp
+
+        # File not in any session -> empty
+        self.assertEqual(self.column.renderCell(self.brain_c), u"")
+
+        # File in exactly one of the two sessions -> one badge, no comma
+        rendered = self.column.renderCell(self.brain_b)
+        collection_uid = self.portal["outgoing-mail"]["mail-searches"]["in_esign_sessions"].UID()
+        self.assertEqual(
+            rendered,
+            u"<a href=http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id=0 "
+            u'title="Paraphéo session ID: 0" class="pdf-session-badge">0</a>'.format(collection_uid),
+        )
+
+        # File in both sessions -> two badges, comma-separated, sorted by session id
+        rendered = self.column.renderCell(self.brain_a)
+        self.assertEqual(
+            rendered,
+            u"<a href=http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id=0 "
+            u'title="Paraphéo session ID: 0" class="pdf-session-badge">0</a>, '
+            u"<a href=http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id=1 "
+            u'title="Paraphéo session ID: 1" class="pdf-session-badge">1</a>'.format(collection_uid, collection_uid),
+        )
+
+        # Signing request table: approval and _session_annotation are inherited from OMVersionsTable parent
+        # class, badges point to the requests dashboard
+        self.column.table = self.sr_table
+        sr_collection_uid = self.portal["requests"]["requests-searches"]["in_esign_sessions"].UID()
+        self.assertEqual(
+            self.column.renderCell(self.brain_sr),
+            u"<a href=http://nohost/plone/requests/requests-searches#c3=20&b_start=0&c1={0}&esign_session_id={1} "
+            u'title="Paraphéo session ID: {1}" class="pdf-session-badge">{1}</a>, '
+            u"<a href=http://nohost/plone/requests/requests-searches#c3=20&b_start=0&c1={0}&esign_session_id={2} "
+            u'title="Paraphéo session ID: {2}" class="pdf-session-badge">{2}</a>'.format(
+                sr_collection_uid, self.sid2, self.sid3
+            ),
+        )

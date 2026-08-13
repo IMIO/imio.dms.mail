@@ -648,7 +648,7 @@ def dmsoutgoingmail_modified(mail, event):
         try:
             approval.update_signers()
         except ValueError as e:
-            raise Invalid(e.message)
+            raise Invalid(translate(e.message, context=mail.REQUEST))
 
 
 def dmsoutgoingmail_added(mail, event):

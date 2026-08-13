@@ -157,12 +157,36 @@ class IMVersionsTable(BaseVersionsTable):
 
 
 class SignRequestVersionsTable(BaseVersionsTable):
-    """Versions table for signing requests: they only contain appendix files."""
+    """Versions table for signing requests: they only contain appendix files.
+
+    Base class of OMVersionsTable: holds the approval and esign session data needed
+    by SessionIdColumn. The session-id-column only appears when the content spans
+    multiple esign sessions.
+    """
 
     portal_types = ["dmsappendixfile"]
 
+    def __init__(self, context, request, portal_type=None):
+        """If received, this let's filter table for a given portal_type."""
+        super(SignRequestVersionsTable, self).__init__(context, request, portal_type=portal_type)
+        self.approval = self.context.approval()
 
-class OMVersionsTable(BaseVersionsTable):
+    @CachedProperty
+    def _session_annotation(self):
+        return get_session_annotation()
+
+    def setUpColumns(self):
+        """
+        Manage columns depending on context state (eSign sesions, approval requested)
+        """
+        columns = super(SignRequestVersionsTable, self).setUpColumns()
+        # Removes SessionIdColumn if eSignature is disabled or this mail doesn't belong to multiple sessions
+        if not get_esign_registry_enabled() or len(self.approval.session_ids) < 2:
+            columns = [col for col in columns if col.__name__ != "session-id-column"]
+        return columns
+
+
+class OMVersionsTable(SignRequestVersionsTable):
     """Versions table for outgoing mails with PDF child row indentation.
 
     When the esign approval process generates PDF files from source files, the
@@ -180,7 +204,7 @@ class OMVersionsTable(BaseVersionsTable):
         +----------------------------------+-----+--------+
 
     # Notes:
-    - The session-id-column appears only when the mail spans multiple esign sessions.
+    - The approved-column appears only when approvers are configured for the mail.
     """
 
     portal_types = ["dmsommainfile", "dmsappendixfile"]
@@ -188,21 +212,16 @@ class OMVersionsTable(BaseVersionsTable):
     def __init__(self, context, request, portal_type=None):
         """If received, this let's filter table for a given portal_type."""
         super(OMVersionsTable, self).__init__(context, request, portal_type=portal_type)
-        self.approval = self.context.approval()
         # Set of PDF-generated child file UIDs that are distinct from their source
         self.pdf_child_uids = set(
             uid for lst in self.approval.pdf_files_uids for uid in lst
             if uid not in self.approval.files_uids
         )
 
-    @CachedProperty
-    def _session_annotation(self):
-        return get_session_annotation()
-
     @property
     def values(self):
         """
-        Values (DMS files and appendixes) in orginal order except children are below their parent.
+        Values (DMS files and appendixes) in original order except children are below their parent.
         Note: Children mean files generated for eSignature, parent is the file originally created by the user.
         """
         raw_data = super(OMVersionsTable, self).values
@@ -233,9 +252,6 @@ class OMVersionsTable(BaseVersionsTable):
         Manage columns depending on context state (eSign sesions, approval requested)
         """
         columns = super(OMVersionsTable, self).setUpColumns()
-        # Removes SessionIdColumn if eSignature is disabled or this mail doesn't belong to multiple sessions
-        if not get_esign_registry_enabled() or len(self.approval.session_ids) < 2:
-            columns = [col for col in columns if col.__name__ != "session-id-column"]
         # Removes ApprovedColumn if no approvers configured for this mail
         if not self.approval.approvers:
             columns = [col for col in columns if col.__name__ != "approved-column"]

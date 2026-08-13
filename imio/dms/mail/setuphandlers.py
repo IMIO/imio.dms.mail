@@ -2962,6 +2962,7 @@ def add_templates(site):
                 ],
                 "tal_condition": "python: False",
                 "roles_bypassing_talcondition": ["Manager", "Site Administrator"],
+                "max_objects": 0,
             },
         },
         30: {
@@ -2976,6 +2977,7 @@ def add_templates(site):
                 ],
                 "tal_condition": "python: False",
                 "roles_bypassing_talcondition": ["Manager", "Site Administrator"],
+                "max_objects": 0,
             },
         },
         40: {

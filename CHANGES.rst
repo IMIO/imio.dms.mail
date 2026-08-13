@@ -31,6 +31,10 @@ Changelog
   [sgeulette]
 - Automatically set the "to print" flag on outgoing mail files. (PARAF-220)
   [chris-adam]
+- Added action RecreateSession.
+  [chris-adam,sgeulette]
+- Set max_objects to 0 for some templates
+  [sgeulette]
 
 3.1.5 (2026-06-19)
 ------------------

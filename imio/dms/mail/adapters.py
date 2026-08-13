@@ -1489,7 +1489,7 @@ class ApprovalAdapter(object):
                     )
                 )
             signer_person = signer_hp.get_person()
-            user_email = api.user.get(signer_person.userid).getProperty("email")
+            user_email = api.user.get(signer_person.userid).getProperty("email") or "NO EMAIL"
             if user_email in signer_emails:
                 raise ValueError(
                     _(
@@ -2030,7 +2030,7 @@ class ApprovalAdapter(object):
             context=self.context.REQUEST,
         )
         sessions_used = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
-                                             title=u"[ia.docs] {} - {{sign_id}}".format(type_label),
+                                             title=u"[iA.Docs] {} - {{sign_id}}".format(type_label),
                                              discriminators=(self.context.portal_type,),
                                              watchers=watcher_emails)
         for sid, _session in sessions_used:
