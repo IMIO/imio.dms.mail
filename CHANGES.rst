@@ -24,7 +24,9 @@ Changelog
 - Replaced implements by implementer
   [sgeulette]
 - Added action RecreateSession.
-  [chris-adam]
+  [chris-adam,sgeulette]
+- Set max_objects to 0 for some templates
+  [sgeulette]
 
 3.1.5 (2026-06-19)
 ------------------

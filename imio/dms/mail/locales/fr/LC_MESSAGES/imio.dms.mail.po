@@ -1037,7 +1037,7 @@ msgstr "Personnel interne"
 
 #: ./setuphandlers.py:1946
 msgid "Personnel searches"
-msgstr "Recherches personnel int"
+msgstr "Recherches personnel interne"
 
 #: ./migrations/migrate_to_2_1.py:410
 #: ./setuphandlers.py:409
