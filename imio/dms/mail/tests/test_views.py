@@ -752,4 +752,4 @@ class TestImioRecreateSessionView(unittest.TestCase):
         annot = get_session_annotation()
         # the old session is consumed by the recreation, the new one gets a title with the new sign_id
         self.assertNotIn(old_id, annot["sessions"])
-        self.assertEqual(annot["sessions"][new_id]["title"], u"[iA.Docs] Session 012999900001")
+        self.assertEqual(annot["sessions"][new_id]["title"], u"[iA.Docs] Courrier sortant - 012999900001")

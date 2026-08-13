@@ -943,7 +943,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message, u"The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
+            cm.exception.message, u"The chef already exists in the approvings with another order 1 <=> 2"
         )
 
         # Test signers have same email
@@ -979,7 +979,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.message, u"You cannot have the same email (${email}) for multiple signers !")
+        self.assertEqual(cm.exception.message, u"You cannot have the same email (duplicate@belleville.eb) "
+                                               u"for multiple signers !")
         api.user.get("dirg").setMemberProperties({"email": "deduplicate@belleville.eb"})
 
         # Test mail in sent or to_be_signed states
