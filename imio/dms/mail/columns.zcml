@@ -221,6 +221,15 @@
     />
 
   <adapter
+    name="session-id-column"
+    for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    provides="z3c.table.interfaces.IColumn"
+    factory=".columns.SessionIdColumn"
+  />
+
+  <adapter
     name="approved-column"
     for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
          zope.interface.Interface

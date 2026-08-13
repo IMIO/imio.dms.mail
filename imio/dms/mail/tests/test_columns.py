@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.browser.table import OMVersionsTable
+from imio.dms.mail.browser.table import SignRequestVersionsTable
 from imio.dms.mail.columns import SenderColumn
 from imio.dms.mail.columns import SessionIdColumn
 from imio.dms.mail.columns import TaskActionsColumn
 from imio.dms.mail.columns import TaskParentColumn
 from imio.dms.mail.testing import change_user
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.esign.utils import add_files_to_session
@@ -136,11 +139,22 @@ class TestSessionIdColumn(unittest.TestCase):
         approval = OMApprovalAdapter(omail)
         approval.annot["session_ids"] = PersistentList([self.sid0, self.sid1])
 
+        # 1 sign request, 1 file in 2 sessions discriminated on the sign_request portal_type
+        sign_request, sr_files = create_sign_request(self.portal, oid="sr-session-id")
+        self.sid2, _session = create_session(signers, discriminators=("sign_request",))
+        add_files_to_session(signers, [sr_files[0].UID()], session_id=self.sid2)
+        self.sid3, _session = create_session(signers, discriminators=("sign_request",))
+        add_files_to_session(signers, [sr_files[0].UID()], session_id=self.sid3)
+        sr_approval = SignRequestApprovalAdapter(sign_request)
+        sr_approval.annot["session_ids"] = PersistentList([self.sid2, self.sid3])
+
         pc = api.portal.get_tool("portal_catalog")
         self.brain_a = pc(UID=file_a.UID())[0]  # in sid0 and sid1
         self.brain_b = pc(UID=file_b.UID())[0]  # in sid0 only
         self.brain_c = pc(UID=file_c.UID())[0]  # in no session
+        self.brain_sr = pc(UID=sr_files[0].UID())[0]  # in sid2 and sid3
         self.table = OMVersionsTable(omail, self.portal.REQUEST, None)
+        self.sr_table = SignRequestVersionsTable(sign_request, self.portal.REQUEST, None)
         self.column = SessionIdColumn(self.portal, self.portal.REQUEST, None)
         self.column.table = self.table
 
@@ -175,4 +189,18 @@ class TestSessionIdColumn(unittest.TestCase):
             u'title="Paraphéo session ID: 0" class="pdf-session-badge">0</a>, '
             u"<a href=http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id=1 "
             u'title="Paraphéo session ID: 1" class="pdf-session-badge">1</a>'.format(collection_uid, collection_uid),
+        )
+
+        # Signing request table: approval and _session_annotation are inherited from OMVersionsTable parent
+        # class, badges point to the requests dashboard
+        self.column.table = self.sr_table
+        sr_collection_uid = self.portal["requests"]["requests-searches"]["in_esign_sessions"].UID()
+        self.assertEqual(
+            self.column.renderCell(self.brain_sr),
+            u"<a href=http://nohost/plone/requests/requests-searches#c3=20&b_start=0&c1={0}&esign_session_id={1} "
+            u'title="Paraphéo session ID: {1}" class="pdf-session-badge">{1}</a>, '
+            u"<a href=http://nohost/plone/requests/requests-searches#c3=20&b_start=0&c1={0}&esign_session_id={2} "
+            u'title="Paraphéo session ID: {2}" class="pdf-session-badge">{2}</a>'.format(
+                sr_collection_uid, self.sid2, self.sid3
+            ),
         )
