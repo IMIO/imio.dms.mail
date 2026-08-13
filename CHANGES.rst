@@ -23,6 +23,14 @@ Changelog
   [sgeulette]
 - Replaced implements by implementer
   [sgeulette]
+- Document generation "d-print-to-sign" now takes into account "to_print" attribute of files. (PARAF-220)
+  [chris-adam]
+- Added "d-print-signed" template to bulk print signed files
+  [sgeulette]
+- Removed download barcode paragraph at first generation when not esigned related
+  [sgeulette]
+- Automatically set the "to print" flag on outgoing mail files. (PARAF-220)
+  [chris-adam]
 - Added action RecreateSession.
   [chris-adam,sgeulette]
 - Set max_objects to 0 for some templates

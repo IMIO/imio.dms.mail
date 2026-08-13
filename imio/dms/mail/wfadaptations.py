@@ -948,8 +948,8 @@ class OMServiceValidation(WorkflowAdaptationBase):
             folder["to_validate"].enabled = True
             folder["to_validate"].reindexObject()
 
-        # Add collection to template
-        tmpl = portal["templates"]["om"]["d-print"]
+        # Add collection to template (state before signature)
+        tmpl = portal["templates"]["om"]["d-print-to-sign"]
         cols = tmpl.dashboard_collections
         col = folder["searchfor_{}".format(val_state_id)]
         if col.UID() not in cols:
@@ -1252,12 +1252,6 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("searchfor_to_be_signed"))
-            # Add template to folder
-            tmpl = portal["templates"]["om"]["d-print"]
-            cols = tmpl.dashboard_collections
-            if col.UID() not in cols:
-                cols.append(col.UID())
-                tmpl.dashboard_collections = cols
         col_id = "to_approve"
         if col_id not in folder:
             next_col = folder["to_validate"]
@@ -1524,8 +1518,8 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("searchfor_to_be_signed"))
-            # Add template to folder
-            tmpl = portal["templates"]["om"]["d-print"]
+            # Add collection to template (state before signature)
+            tmpl = portal["templates"]["om"]["d-print-to-sign"]
             cols = tmpl.dashboard_collections
             if col.UID() not in cols:
                 cols.append(col.UID())

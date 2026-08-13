@@ -1872,6 +1872,8 @@ class ApprovalAdapter(object):
             pdf_file.to_sign = True
             pdf_file.to_approve = False
             pdf_file.approved = orig_fobj.approved
+            if base_hasattr(orig_fobj, "to_print"):
+                pdf_file.to_print = orig_fobj.to_print
             update_categorized_elements(
                 self.context,
                 pdf_file,

@@ -13,7 +13,6 @@ from collective.contact.plonegroup.utils import get_own_organization_path
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
-from collective.documentgenerator.utils import convert_odt
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
 from collective.iconifiedcategory.content.events import categorized_content_created
@@ -39,12 +38,10 @@ from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
-from imio.dms.mail.dmsfile import ImioDmsFile
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
-# from imio.dms.mail.utils import separate_fullname
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import eml_preview
@@ -65,8 +62,6 @@ from imio.esign.utils import get_session_annotation
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import setup_ram_cache
-# from imio.helpers.content import get_vocab_values
-from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
 from imio.helpers.security import get_environment
@@ -81,7 +76,6 @@ from plone.app.linkintegrity.handlers import referencedObjectRemoved
 from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.interfaces import IDexterityFTI
-from plone.namedfile.file import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
@@ -431,29 +425,29 @@ def dmsoutgoingmail_transition(mail, event):
         approval.start_approval_process()
     if not mail.esign:
         # if not mail.seal, we render odt to remove download subdocument comment
-        if (
-            not mail.seal
-            and event.transition
-            and event.transition.id in ("set_validated", "set_to_print", "propose_to_be_signed", "mark_as_sent")
-        ):
-            for afile in object_values(mail, ("ImioDmsFile",)):
-                doc_annot = IAnnotations(afile).get("documentgenerator", {})
-                # if not a generated odt (or needing mailing) or already done, we pass
-                if doc_annot.get("need_mailing", True) is True or doc_annot.get("cleaned_download") is True:
-                    continue
-                helper_view = getMultiAdapter((mail, mail.REQUEST), name="document_generation_helper_view")
-                helper_view.pod_template = doc_annot.get("template_uid")
-                helper_view.output_format = "odt"
-                gen_context = {
-                    "context": mail,
-                    "portal": api.portal.get(),
-                    "view": helper_view,
-                    "render_download_barcode": True,
-                }
-                new_file_content = convert_odt(afile.file, fmt="odt", gen_context=gen_context)
-                afile.file = NamedBlobFile(new_file_content, filename=afile.file.filename)
-                modified(afile, Attributes(ImioDmsFile, "file"))
-                doc_annot["cleaned_download"] = True
+        # if (
+        #     not mail.seal
+        #     and event.transition
+        #     and event.transition.id in ("set_validated", "set_to_print", "propose_to_be_signed", "mark_as_sent")
+        # ):
+        #     for afile in object_values(mail, ("ImioDmsFile",)):
+        #         doc_annot = IAnnotations(afile).get("documentgenerator", {})
+        #         # if not a generated odt (or needing mailing) or already done, we pass
+        #         if doc_annot.get("need_mailing", True) is True or doc_annot.get("cleaned_download") is True:
+        #             continue
+        #         helper_view = getMultiAdapter((mail, mail.REQUEST), name="document_generation_helper_view")
+        #         helper_view.pod_template = doc_annot.get("template_uid")
+        #         helper_view.output_format = "odt"
+        #         gen_context = {
+        #             "context": mail,
+        #             "portal": api.portal.get(),
+        #             "view": helper_view,
+        #             "render_download_barcode": True,
+        #         }
+        #         new_file_content = convert_odt(afile.file, fmt="odt", gen_context=gen_context)
+        #         afile.file = NamedBlobFile(new_file_content, filename=afile.file.filename)
+        #         modified(afile, Attributes(ImioDmsFile, "file"))
+        #         doc_annot["cleaned_download"] = True
 
         # seal without signers (due to constraints)
         if mail.seal and event.transition and event.transition.id == "propose_to_be_signed":
@@ -486,7 +480,7 @@ def dmsoutgoingmail_transition(mail, event):
                     for sid in approval.session_ids:
                         ExternalSessionCreateView(mail, mail.REQUEST)(session_id=sid)
     else:
-        # TODO check if to_sign and approved files have a pdf version
+        # TODO for esign mails, check if to_sign and approved files have a pdf version
         pass
 
 
@@ -829,6 +823,32 @@ def _correct_to_approve(file_obj):
         update_categorized_elements(om_obj, file_obj, category_object, limited=True, sort=False, logging=True)
 
 
+def _correct_to_print(file_obj):
+    """Automatically set to_print following file type and esign mode.
+
+    - dmsappendixfile -> always False
+    - dmsommainfile   -> True when the parent mail esign is off, else False
+    """
+    om = file_obj.__parent__
+    if file_obj.portal_type == "dmsappendixfile":
+        new_value = False
+    elif file_obj.portal_type == "dmsommainfile":
+        new_value = not getattr(om, "esign", False)
+    else:
+        return
+    try:
+        category = get_category_object(file_obj, getattr(file_obj, "content_category", "_none"))
+    except KeyError:
+        return
+    if new_value:
+        category_group = category.get_category_group()
+        if not category_group.to_be_printed_activated:
+            new_value = False
+    if getattr(file_obj, "to_print", None) != new_value:
+        file_obj.to_print = new_value
+        update_categorized_elements(om, file_obj, category, limited=True, sort=False, logging=True)
+
+
 def i_annex_added(obj, event):
     """Called for IAnnex (appendix, mainfile, annex)"""
     blacklistPortletCategory(obj)
@@ -850,6 +870,7 @@ def i_annex_added(obj, event):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
+        _correct_to_print(obj)
     elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type in ("dmsoutgoingmail", "sign_request"):
         mail = obj.__parent__
         if mail.portal_type == "dmsoutgoingmail":
@@ -867,6 +888,7 @@ def i_annex_added(obj, event):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):
             _correct_to_approve(obj)
+        _correct_to_print(obj)
 
 
 def i_annex_will_be_removed(obj, event):
