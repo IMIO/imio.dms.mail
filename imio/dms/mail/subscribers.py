@@ -1800,3 +1800,13 @@ def zope_ready(event):
         # disable_resources_debug_mode(site)
     if change:
         transaction.commit()
+
+
+def i_annex_created(obj, event):
+    """Set an annex title left empty to the file name, without its extension."""
+    if IDmsFile.providedBy(obj):
+        return
+    filename = getattr(getattr(obj, "file", None), "filename", None)
+    if not filename or obj.title not in (None, u"", filename):
+        return
+    obj.title = safe_unicode(filename).rsplit(u".", 1)[0] or safe_unicode(filename)

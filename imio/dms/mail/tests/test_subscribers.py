@@ -80,6 +80,23 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
         self.pf = self.portal["contacts"]["personnel-folder"]
 
+    def test_i_annex_created(self):
+        # an annex left without a title takes the file name, without its extension (DMS-1217, DMS-605)
+        annex = createContentInContainer(self.imail, "dmsappendixfile",
+                                         file=NamedBlobFile("pdf", filename=u"Ma pièce.pdf"))
+        self.assertEqual(annex.title, u"Ma pièce")
+        # a title given by the user is kept
+        titled = createContentInContainer(self.imail, "dmsappendixfile", title=u"CV",
+                                          file=NamedBlobFile("pdf", filename=u"Ma pièce.pdf"))
+        self.assertEqual(titled.title, u"CV")
+        # a file name without extension is kept as is
+        noext = createContentInContainer(self.imail, "dmsappendixfile",
+                                         file=NamedBlobFile("pdf", filename=u"README"))
+        self.assertEqual(noext.title, u"README")
+        # an annex without file does not break
+        nofile = createContentInContainer(self.imail, "dmsappendixfile", title=u"No file")
+        self.assertEqual(nofile.title, u"No file")
+
     def test_item_copied(self):
         # check if protection markers are removed from copied item
         source = self.portal["templates"]["om"]["main"]

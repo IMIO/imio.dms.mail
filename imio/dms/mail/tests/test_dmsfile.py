@@ -7,8 +7,6 @@ from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
-from plone.dexterity.utils import addContentToContainer
-from plone.dexterity.utils import createContent
 from plone.namedfile.file import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRegistry
@@ -62,12 +60,3 @@ class TestDmsfile(unittest.TestCase):
         self.assertNotIn("IBasic.title", form.widgets)
         self.assertEqual(form.widgets["title"].mode, "input")
         self.assertFalse(form.widgets["title"].field.required)
-        # an annex left without a title takes the name of the attached file
-        annex = createContent("dmsappendixfile", file=NamedBlobFile(data="pdf", filename=u"Ma pièce.pdf"))
-        annex = addContentToContainer(self.imail, annex)
-        self.assertEqual(annex.title, u"Ma pièce.pdf")
-        # a title given by the user is kept
-        titled = createContent("dmsappendixfile", title=u"CV",
-                               file=NamedBlobFile(data="pdf", filename=u"Ma pièce.pdf"))
-        titled = addContentToContainer(self.imail, titled)
-        self.assertEqual(titled.title, u"CV")
