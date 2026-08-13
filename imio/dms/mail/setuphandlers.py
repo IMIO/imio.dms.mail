@@ -3060,6 +3060,7 @@ def add_templates(site):
                 ],
                 "style_template": [cids[90].UID()],
                 "rename_page_styles": True,
+                "enabled": False,
             },
         },
         201: {
@@ -3075,6 +3076,7 @@ def add_templates(site):
                 ],
                 "style_template": [cids[90].UID()],
                 "rename_page_styles": True,
+                "enabled": False,
             },
         },
         205: {

@@ -662,7 +662,8 @@ class Migrate_To_3_1(Migrator):  # noqa
             api.content.rename(obj=om_tmplts["d-print"], new_id="d-print-to-sign", safe_id=False)
         obj = om_tmplts["d-print-to-sign"]
         obj.title = _(u"To sign files print template")
-        obj.reindexObject(idxs=["Title", "sortable_title", "SearchableText"])
+        obj.enabled = False
+        obj.reindexObject(idxs=["enabled", "Title", "sortable_title", "SearchableText"])
         obj.tal_condition = ""
         cols = get_dashboard_collections(self.omf["mail-searches"])
         obj.dashboard_collections = [b.UID for b in cols if b.UID in obj.dashboard_collections
