@@ -67,6 +67,13 @@ class TestSetuphandlers(unittest.TestCase):
         # check old Topic activation
         self.assertTrue("Collection (old-style)" in [pt.title for pt in self.portal.allowedContentTypes()])
 
+    def test_setup_iconified_categories(self):
+        brains = self.portal.portal_catalog.unrestrictedSearchResults(
+            portal_type=["ContentCategory", "ContentSubcategory"])
+        self.assertTrue(brains)
+        for brain in brains:
+            self.assertFalse(brain._unrestrictedGetObject().predefined_title)
+
     def ttest_addTemplates(self):
         self.assertIn("templates", self.portal)
         self.assertEqual(len(self.portal["templates"].listFolderContents()), 2)

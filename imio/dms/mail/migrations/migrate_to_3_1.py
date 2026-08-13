@@ -83,7 +83,9 @@ class Migrate_To_3_1(Migrator):  # noqa
         """Run some parts between b and x."""
         if self.is_in_part("c"):  # various, update workflow, localroles and security
             # Update d-print model
-            self.update_print_template()
+            if "d-print" in self.portal["templates"]["om"]:
+                self.update_print_template()
+                self.remove_category_predefined_titles()
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
@@ -246,7 +248,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                 load_type_from_package("dmsmainfile", "imio.dms.mail:default")
                 load_type_from_package("dmsommainfile", "imio.dms.mail:default")  # iconified
                 load_type_from_package("dmsappendixfile", "imio.dms.mail:default")  # iconified
-                load_type_from_package("dmsappendixfile", "imio.dms.mail:default")  # iconified
+                load_type_from_package("dmsappendixfile", "imio.dms.mail:default")  # iconified, schema
                 load_type_from_package("annex", "imio.dms.mail:default")  # behavior
                 load_type_from_package("ConfigurablePODTemplate", "imio.dms.mail:default")  # content category, behavior
                 load_type_from_package("SubTemplate", "imio.dms.mail:default")  # behavior
@@ -653,6 +655,17 @@ class Migrate_To_3_1(Migrator):  # noqa
         pf.setLocallyAllowedTypes(["person"])
         pf.setDefaultPage(None)
         logger.info("Converted personnel-folder to faceted dashboard")
+
+    def remove_category_predefined_titles(self):
+        """Empty categories predefined_title."""
+        emptied = []
+        for brain in self.catalog.unrestrictedSearchResults(
+                portal_type=["ContentCategory", "ContentSubcategory"]):
+            category = brain._unrestrictedGetObject()
+            if category.predefined_title:
+                category.predefined_title = u""
+                emptied.append(brain.getPath())
+        logger.info("Emptied predefined_title on categories: %s", emptied)
 
     def update_print_template(self):
         """Rename d-print template and display the print template only on the concerned collections."""
