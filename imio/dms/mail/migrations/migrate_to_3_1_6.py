@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
+from imio.helpers.setup import load_type_from_package
 
 import logging
 
@@ -17,6 +18,8 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
             self.update_print_template()
             # Correct localroles config
             self.fix_localroles_json_quoting()
+            # reload type
+            load_type_from_package("dmsappendixfile", "imio.dms.mail:default")  # behaviors, schema policy
             # update settings
             self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry"])
             # DMS-995: convert personnel-folder to faceted dashboard
