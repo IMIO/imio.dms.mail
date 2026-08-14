@@ -1554,7 +1554,7 @@ Debug
 
 *** Keywords ***
 Suite Setup
-    ${FF_PROFILE_DIR} =  Get Environment Variable  ROBOT_FF_PROFILE_DIR  None
+    ${FF_PROFILE_DIR} =  Get Environment Variable  ROBOT_FF_PROFILE_DIR  ${EMPTY}
     Set global variable  ${FF_PROFILE_DIR}
     Open test browser
     # Set Window Size  1080  1920
