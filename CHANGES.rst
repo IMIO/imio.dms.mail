@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.1.6 (unreleased)
+3.1.6 (2026-08-14)
 ------------------
 
 - Added icon colum to show if signers are defined on sub/templates.
