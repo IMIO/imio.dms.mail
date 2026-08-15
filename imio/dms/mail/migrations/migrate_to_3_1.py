@@ -85,11 +85,12 @@ class Migrate_To_3_1(Migrator):  # noqa
             # Update d-print model
             if "d-print" in self.portal["templates"]["om"]:
                 self.update_print_template()
-                self.remove_category_predefined_titles()
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
 
+                self.remove_category_predefined_titles()
+                self.setup_personnel_dashboard()
                 self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
 
                 # Update dashboard pod templates
