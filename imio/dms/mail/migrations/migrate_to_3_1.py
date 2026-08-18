@@ -499,8 +499,8 @@ class Migrate_To_3_1(Migrator):  # noqa
         wtool = api.portal.get_tool("portal_workflow")
         if "sign_request_workflow" not in wtool.getChainForPortalType("sign_request"):
             wtool.setChainForPortalTypes(("sign_request",), ("sign_request_workflow",))
-            # reapply permissions on existing sign_request
-            wtool.updateRoleMappings()
+            # reapply permissions on all objects linked to all workflows
+            # wtool.updateRoleMappings()
 
         self.runProfileSteps("imio.dms.mail", steps=["rolemap"])
 
