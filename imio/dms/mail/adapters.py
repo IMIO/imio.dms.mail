@@ -1178,9 +1178,10 @@ class ItemSignersAdapter(object):
 
 
 class BaseItemOrderProvider(object):
-    """Group children by portal_type, most recent first within each group."""
+    """Group children by portal_type: ged files most recent first, appendices by title."""
 
     portal_types = ()
+    alphabetical_types = ("dmsappendixfile",)
 
     def __init__(self, context):
         self.context = context
@@ -1193,7 +1194,11 @@ class BaseItemOrderProvider(object):
                 obj for obj in self.context.objectValues()
                 if getattr(obj, "portal_type", None) == portal_type
             ]
-            for obj in reversed(children):
+            if portal_type in self.alphabetical_types:
+                children = sorted(children, key=lambda obj: safe_unicode(obj.Title()).lower())
+            else:
+                children = reversed(children)
+            for obj in children:
                 order[obj.UID()] = idx
                 idx += 1
         return order
