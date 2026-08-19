@@ -30,6 +30,8 @@ Changelog
   [chris-adam]
 - Added SAVE_RAM handling in configure_group_encoder settings method
   [sgeulette]
+- Improved file ordering in eSign session: ged files most recent first, appendices sorted alphabetically.
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
@@ -117,8 +119,6 @@ Changelog
   [chris-adam, sgeulette]
 - Improved download barcode (type, size).
   [sgeulette, chris-adam]
-- Improved file ordering in eSign session.
-  [chris-adam]
 
 3.1.3 (2026-05-08)
 ------------------
