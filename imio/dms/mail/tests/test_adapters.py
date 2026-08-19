@@ -1735,11 +1735,13 @@ class TestOMItemOrderProvider(unittest.TestCase, ImioTestHelpers):
         self.change_user("siteadmin")
 
     def test_get_item_order(self):
-        """OMItemOrderProvider returns dmsommainfile recent-first, then dmsappendixfile recent-first."""
+        """OMItemOrderProvider returns dmsommainfile recent-first, then dmsappendixfile by title."""
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-order")
 
         filename = u"Réponse salle.odt"
+        # titles chosen so creation order and alphabetical order differ, with mixed case
+        titles = [u"Main first", u"zeta annex", u"Main second", u"Alpha annex"]
         created = []
         for i, ptype in enumerate(["dmsommainfile", "dmsappendixfile", "dmsommainfile", "dmsappendixfile"]):
             with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
@@ -1747,20 +1749,22 @@ class TestOMItemOrderProvider(unittest.TestCase, ImioTestHelpers):
                     omail,
                     ptype,
                     id="order-file%s" % i,
+                    title=titles[i],
                     scan_id="012999900000601",
                     file=NamedBlobFile(fo.read(), filename=filename),
                     content_category=calculate_category_id(ct),
                 )
                 created.append(obj)
 
-        # created: [main0, appendix1, main2, appendix3]
-        main0, appendix1, main2, appendix3 = created
+        # created: [main0, zeta_annex, main2, alpha_annex]
+        main0, zeta_annex, main2, alpha_annex = created
         provider = getAdapter(omail, IItemOrderProvider)
         order = provider.get_item_order()
 
-        # mainfiles: reversed → main2 before main0
+        # mainfiles: reversed, so main2 comes before main0
         self.assertLess(order[main2.UID()], order[main0.UID()])
-        # appendixfiles: reversed → appendix3 before appendix1
-        self.assertLess(order[appendix3.UID()], order[appendix1.UID()])
+        # appendixfiles: alphabetical on title, case insensitive, so "Alpha" comes before
+        # "zeta", the opposite of their creation order
+        self.assertLess(order[alpha_annex.UID()], order[zeta_annex.UID()])
         # all mainfiles before all appendixfiles
-        self.assertLess(order[main0.UID()], order[appendix3.UID()])
+        self.assertLess(order[main0.UID()], order[alpha_annex.UID()])
