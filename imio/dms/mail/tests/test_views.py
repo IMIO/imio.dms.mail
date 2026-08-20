@@ -405,6 +405,10 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
 
     def test_annot_html(self):
         """Test approval_annot_html and esign_session_html."""
+        def fmt_dt(dte):
+            """Format a datetime like the view does."""
+            return u"datetime({})".format(dte.strftime("%d/%m/%Y %H:%M:%S"))
+
         omail, files, approval = self._setup_esign_omail()
         self._approve_all_files(omail, files, approval)
 
@@ -414,50 +418,50 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             HTMLParser().unescape(view.approval_annot_html),
             u"""{{
-  'approval': [
+  "approval": [
     [
       {{
-        'approved_by': 'dirg',
-        'approved_on': {},
-        'status': 'a',
+        "approved_by": "dirg",
+        "approved_on": {},
+        "status": "a",
       }},
       {{
-        'approved_by': 'dirg',
-        'approved_on': {},
-        'status': 'a',
-      }},
-    ],
-    [
-      {{
-        'approved_by': 'bourgmestre',
-        'approved_on': {},
-        'status': 'a',
-      }},
-      {{
-        'approved_by': 'bourgmestre',
-        'approved_on': {},
-        'status': 'a',
+        "approved_by": "dirg",
+        "approved_on": {},
+        "status": "a",
       }},
     ],
-  ],
-  'approvers': [
     [
-      'dirg',
-    ],
-    [
-      'bourgmestre',
+      {{
+        "approved_by": "bourgmestre",
+        "approved_on": {},
+        "status": "a",
+      }},
+      {{
+        "approved_by": "bourgmestre",
+        "approved_on": {},
+        "status": "a",
+      }},
     ],
   ],
-  'current_nb': -1,
-  'editors': [
+  "approvers": [
+    [
+      "dirg",
+    ],
+    [
+      "bourgmestre",
+    ],
+  ],
+  "current_nb": -1,
+  "editors": [
     True,
     False,
   ],
-  'files': [
+  "files": [
     <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({uid1}),
     <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/012999900000602/view' title='/plone/outgoing-mail/{folder_name}/om-esign/012999900000602'>Modèle de base</a> ({uid2}),
   ],
-  'pdf_files': [
+  "pdf_files": [
     [
       <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({puid1}),
     ],
@@ -465,26 +469,26 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
       <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a> ({puid2}),
     ],
   ],
-  'session_ids': [
+  "session_ids": [
     0,
   ],
-  'signers': [
+  "signers": [
     [
-      'dirg',
-      u'Maxime DG',
-      u'Directeur G\\xe9n\\xe9ral',
+      "dirg",
+      "Maxime DG",
+      "Directeur Général",
     ],
     [
-      'bourgmestre',
-      u'Paul BM',
-      u'Bourgmestre',
+      "bourgmestre",
+      "Paul BM",
+      "Bourgmestre",
     ],
   ],
 }}""".format(  # noqa E501
-                repr(approval.annot["approval"][0][0]["approved_on"]),
-                repr(approval.annot["approval"][0][1]["approved_on"]),
-                repr(approval.annot["approval"][1][0]["approved_on"]),
-                repr(approval.annot["approval"][1][1]["approved_on"]),
+                fmt_dt(approval.annot["approval"][0][0]["approved_on"]),
+                fmt_dt(approval.annot["approval"][0][1]["approved_on"]),
+                fmt_dt(approval.annot["approval"][1][0]["approved_on"]),
+                fmt_dt(approval.annot["approval"][1][1]["approved_on"]),
                 folder_name=omail.__parent__.__name__,
                 uid1=approval.files_uids[0],
                 uid2=approval.files_uids[1],
@@ -505,61 +509,61 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             HTMLParser().unescape(view.esign_session_html(esign_session[1])),
             u"""{{
-  'acroform': True,
-  'client_id': '0129999',
-  'discriminators': [
-    'dmsoutgoingmail',
+  "acroform": True,
+  "client_id": "0129999",
+  "discriminators": [
+    "dmsoutgoingmail",
   ],
-  'files': [
+  "files": [
     {{
-      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
-      'filename': u'R\\xe9ponse salle__{pdf1_uid}.pdf',
-      'scan_id': '012999900000601',
-      'status': '',
-      'title': u'R\\xe9ponse salle.odt',
-      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({pdf1_uid}),
+      "context_uid": <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
+      "filename": "Réponse salle__{pdf1_uid}.pdf",
+      "scan_id": "012999900000601",
+      "status": "",
+      "title": "Réponse salle.odt",
+      "uid": <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({pdf1_uid}),
     }},
     {{
-      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
-      'filename': u'Modele de base S0010 Courrier test esign__{pdf2_uid}.pdf',
-      'scan_id': '012999900000602',
-      'status': '',
-      'title': u'Modele de base S0010 Courrier test esign.pdf',
-      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a> ({pdf2_uid}),
-    }},
-  ],
-  'last_update': {last_update},
-  'returns': [],
-  'seal': False,
-  'sign_id': '012999900000',
-  'sign_url': None,
-  'signers': [
-    {{
-      'email': 'dirg@macommune.be',
-      'fullname': u'Maxime DG',
-      'position': u'Directeur G\\xe9n\\xe9ral',
-      'status': '',
-      'userid': 'dirg',
-    }},
-    {{
-      'email': 'bourgmestre@macommune.be',
-      'fullname': u'Paul BM',
-      'position': u'Bourgmestre',
-      'status': '',
-      'userid': 'bourgmestre',
+      "context_uid": <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
+      "filename": "Modele de base S0010 Courrier test esign__{pdf2_uid}.pdf",
+      "scan_id": "012999900000602",
+      "status": "",
+      "title": "Modele de base S0010 Courrier test esign.pdf",
+      "uid": <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a> ({pdf2_uid}),
     }},
   ],
-  'size': {size},
-  'state': 'draft',
-  'title': u'[iA.Docs] Courrier sortant - 012999900000',
-  'watchers': [],
+  "last_update": {last_update},
+  "returns": [],
+  "seal": False,
+  "sign_id": "012999900000",
+  "sign_url": None,
+  "signers": [
+    {{
+      "email": "dirg@macommune.be",
+      "fullname": "Maxime DG",
+      "position": "Directeur Général",
+      "status": "",
+      "userid": "dirg",
+    }},
+    {{
+      "email": "bourgmestre@macommune.be",
+      "fullname": "Paul BM",
+      "position": "Bourgmestre",
+      "status": "",
+      "userid": "bourgmestre",
+    }},
+  ],
+  "size": {size},
+  "state": "draft",
+  "title": "[iA.Docs] Courrier sortant - 012999900000",
+  "watchers": [],
 }}""".format(  # noqa E501
                 c_uid=omail.UID(),
                 pdf1_uid=api.content.get(omail.absolute_url_path() + "/file0").UID(),
                 pdf2_uid=api.content.get(omail.absolute_url_path()
                                          + "/modele-de-base-s0010-courrier-test-esign.pdf").UID(),
                 folder_name=omail.__parent__.__name__,
-                last_update=repr(get_session_annotation()["sessions"][0]["last_update"]),
+                last_update=fmt_dt(get_session_annotation()["sessions"][0]["last_update"]),
                 size=api.content.get(omail.absolute_url_path() + "/file0").file.size
                 + api.content.get(omail.absolute_url_path()
                                   + "/modele-de-base-s0010-courrier-test-esign.pdf").file.size,
