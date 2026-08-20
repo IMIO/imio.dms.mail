@@ -24,6 +24,7 @@ from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
+from collective.iconifiedcategory.adapter import CategorizedObjectPrintableAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.task.interfaces import ITaskContent
@@ -39,6 +40,7 @@ from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import esign_formats_key
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_post_approval_transition
@@ -724,13 +726,13 @@ def markers_im_index(obj):
 def om_markers(obj):
     """Calculates IImioDmsOutgoingMail markers:
 
-    * lastDmsFileIsOdt
+    * lastDmsFileToPrint
     """
     markers = []
-    # Set lastDmsFileIsOdt
+    # Set lastDmsFileToPrint
     dfiles = object_values(obj, ["ImioDmsFile"])
-    if dfiles and dfiles[-1].is_odt():
-        markers.append("lastDmsFileIsOdt")
+    if dfiles and getattr(dfiles[-1], "to_print", False):
+        markers.append("lastDmsFileToPrint")
     # Set emailSent:
     if obj.email_status:
         markers.append("emailSent")
@@ -1921,7 +1923,7 @@ class ApprovalAdapter(object):
             )
 
         new_filename = u"{}.pdf".format(f_title)
-        if nbf.contentType not in get_allowed_content_types(esign=True, portal_type=self.context.portal_type):
+        if nbf.contentType not in get_allowed_content_types(esign_formats_key(self.context.portal_type)):
             raise NotImplementedError("Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType))
         gen_context = {}
         orig_template = get_original_template(orig_fobj)
@@ -2098,6 +2100,28 @@ class SignRequestApprovalAdapter(ApprovalAdapter):
     """
 
     after_approval_states = ("to_be_signed", "signed", "closed")
+
+
+class DmsCategorizedObjectPrintableAdapter(CategorizedObjectPrintableAdapter):
+    """Refuses printing a file with no preview or in a format that is not configured."""
+
+    @property
+    def _convertible(self):
+        """Return the upstream check: can the file be converted to a preview at all."""
+        return super(DmsCategorizedObjectPrintableAdapter, self).is_printable
+
+    @property
+    def is_printable(self):
+        if not self._convertible:
+            return False
+        content_type = getattr(getattr(self.context, "file", None), "contentType", "")
+        return content_type in get_allowed_content_types("omail_print_formats")
+
+    @property
+    def error_message(self):
+        if not self._convertible:
+            return super(DmsCategorizedObjectPrintableAdapter, self).error_message
+        return u"File format can not be printed"
 
 
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):

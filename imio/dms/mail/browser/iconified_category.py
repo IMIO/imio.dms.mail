@@ -8,6 +8,7 @@ from collective.iconifiedcategory.browser.actionview import SignedChangeView as 
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
 from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSignedColumn
 from imio.dms.mail.utils import get_allowed_content_types
+from imio.dms.mail.utils import esign_formats_key
 from imio.dms.mail.utils import logger  # noqa F401
 # from imio.esign.audit import audit as esign_audit
 from plone import api
@@ -253,7 +254,7 @@ class SignedColumn(BaseSignedColumn):
         # allowed file type for signing
         allowed_type = (not getattr(self.context, "esign", False)
                         or content.contentType in get_allowed_content_types(
-                            esign=True, portal_type=self.context.portal_type))
+                            esign_formats_key(self.context.portal_type)))
         editable = allowed_type and self.is_editable(content) and " editable" or ""
         # when deactivated, anyone will see a grey icon
         # before to_approve

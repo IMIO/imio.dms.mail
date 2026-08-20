@@ -89,6 +89,7 @@ logger = logging.getLogger("imio.dms.mail: setuphandlers")
 
 OM_PRINT_TO_SIGN_COLS = ("to_treat", "searchfor_created")
 OM_PRINT_SIGNED_COLS = ("om_treating", "om_to_email", "searchfor_signed")
+REQ_PRINT_SIGNED_COLS = ("searchfor_signed",)
 
 
 def _no_more_used(msgid, domain="imio.dms.mail"):  # TODO delete if no more necessary
@@ -631,6 +632,7 @@ def setup_iconified_categories(portal):
         "approved_activated": True,
     }
     sr_activated = {
+        "to_be_printed_activated": True,
         "signed_activated": True,
         "approved_activated": True,
     }
@@ -2838,9 +2840,10 @@ def list_templates():
         (110, "templates/om/intro", os.path.join(dpath, "om-intro.odt"), 3),
         (120, "templates/om/ending", os.path.join(dpath, "om-ending.odt"), 4),
         (125, "templates/om/download_barcode", os.path.join(dpath, "om-download-barcode.odt"), 5),
-        (150, "templates/om/mailing", os.path.join(dpath, "om-mailing.odt"), 9),
+        (150, "templates/om/mailing", os.path.join(dpath, "om-mailing.odt"), 10),
         (200, "templates/om/d-print-to-sign", os.path.join(dpath, "d-print.odt"), 7),
         (201, "templates/om/d-print-signed", os.path.join(dpath, "d-print.odt"), 8),
+        (203, "templates/om/d-print-request", os.path.join(dpath, "d-print.odt"), 9),
         (205, "templates/om/main", os.path.join(dpath, "om-main.odt"), 6),
         (210, "templates/om/common/receipt", os.path.join(dpath, "om-receipt.odt"), 0),
     ]
@@ -3051,7 +3054,7 @@ def add_templates(site):
             "type": "DashboardPODTemplate",
             "trans": ["show_internally"],
             "attrs": {
-                "pod_formats": ["odt"],
+                "pod_formats": ["odt", "pdf"],
                 "dashboard_collections": [
                     b.UID
                     for b in get_dashboard_collections(site["outgoing-mail"]["mail-searches"])
@@ -3059,7 +3062,6 @@ def add_templates(site):
                 ],
                 "style_template": [cids[90].UID()],
                 "rename_page_styles": True,
-                "enabled": False,
             },
         },
         201: {
@@ -3067,7 +3069,7 @@ def add_templates(site):
             "type": "DashboardPODTemplate",
             "trans": ["show_internally"],
             "attrs": {
-                "pod_formats": ["odt"],
+                "pod_formats": ["odt", "pdf"],
                 "dashboard_collections": [
                     b.UID
                     for b in get_dashboard_collections(site["outgoing-mail"]["mail-searches"])
@@ -3075,7 +3077,21 @@ def add_templates(site):
                 ],
                 "style_template": [cids[90].UID()],
                 "rename_page_styles": True,
-                "enabled": False,
+            },
+        },
+        203: {
+            "title": _(u"Signing request files print template"),
+            "type": "DashboardPODTemplate",
+            "trans": ["show_internally"],
+            "attrs": {
+                "pod_formats": ["odt", "pdf"],
+                "dashboard_collections": [
+                    b.UID
+                    for b in ([] if site.get("requests", None) is None else get_dashboard_collections(site["requests"]["requests-searches"]))
+                    if b.id in REQ_PRINT_SIGNED_COLS
+                ],
+                "style_template": [cids[90].UID()],
+                "rename_page_styles": True,
             },
         },
         205: {
@@ -3126,7 +3142,8 @@ def add_templates(site):
         },
     }
 
-    templates = combine_data(data, test=lambda x: x >= 200)
+    # 203 needs the requests folder, skip it while that folder does not exist yet
+    templates = combine_data(data, test=lambda x: x >= 200 and (x != 203 or bool(site.get("requests", None))))
     cids = create(templates, pos=False, cids=cids)
 
     for obj in cids.values():
@@ -3135,7 +3152,10 @@ def add_templates(site):
     # order templates in their folder: ascending position, so already placed templates aren't moved again
     for tup in sorted(list_templates(), key=lambda t: t[3]):
         parts = tup[1].split("/")
-        site.unrestrictedTraverse("/".join(parts[:-1])).moveObjectToPosition(parts[-1], tup[3])
+        folder = site.unrestrictedTraverse("/".join(parts[:-1]))
+        if parts[-1] not in folder:  # a template not created yet, like 203 without the requests folder
+            continue
+        folder.moveObjectToPosition(parts[-1], tup[3])
 
 
 def add_transforms(site):

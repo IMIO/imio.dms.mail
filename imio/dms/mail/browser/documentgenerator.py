@@ -21,6 +21,7 @@ from collective.documentviewer.convert import Converter
 from collective.documentviewer.views import DXDocumentViewerView
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
 from collective.iconifiedcategory.utils import get_categorized_elements
+from imio.annex.utils import get_annexes_to_print
 from imio.dms.mail import _
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail.adapters import OMApprovalAdapter
@@ -28,6 +29,9 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.subscribers import apply_signer_rules
 from imio.dms.mail.subscribers import apply_substitutes_to_signers
+from imio.dms.mail.utils import PREVIEW_CLEANED_DATE
+from imio.dms.mail.utils import PREVIEW_EML_DATE
+from imio.esign.interfaces import IItemOrderProvider
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
@@ -43,6 +47,7 @@ from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
+from zope.component import queryAdapter
 from zope.i18n import translate
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -197,6 +202,182 @@ class IMDGHelper(BaseDGHelper):
     """
 
 
+class BasePrintDGHelper(object):
+    """Collect the files to print, as documentviewer preview images.
+
+    A container is the outgoing mail or the signing request holding the files.
+    """
+
+    print_image_size = (17.0, 25.7)  # Printable area of the print template page, in centimetres
+    SIGNED_PRINT_TEMPLATE_IDS = ("d-print-signed", "d-print-request")
+    PRINT_HEADER_SETTINGS = {
+        "d-print-to-sign": "omail_print_manual_annex_header",
+        "d-print-signed": "omail_print_esign_annex_header",
+        "d-print-request": "request_print_esign_annex_header",
+    }
+
+    def print_containers(self):
+        """Return the containers whose files must be printed."""
+        raise NotImplementedError
+
+    def is_signed_print(self):
+        """Return True when rendering the print template for electronically signed files."""
+        # Derive whether the print template is for signed files from the pod_template id
+        pod_template = getattr(self, "pod_template", None)
+        return pod_template is not None and pod_template.getId() in self.SIGNED_PRINT_TEMPLATE_IDS
+
+    def print_annex_header(self):
+        """Return True if the annex header must be printed above each annex page."""
+        pod_template = getattr(self, "pod_template", None)
+        pod_template_id = pod_template is not None and pod_template.getId() or None
+        key = self.PRINT_HEADER_SETTINGS.get(pod_template_id)
+        if key is None:
+            raise KeyError("No print annex header setting for pod_template id {}".format(pod_template_id))
+        return api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(key), default=False
+        )
+
+    def _usable_preview(self, fobj):
+        """Return True if the file has printable preview images, regenerating them if needed."""
+        annot = IAnnotations(fobj).get("collective.documentviewer", "")
+        if not annot:
+            return False
+        if annot.get("last_updated") == PREVIEW_EML_DATE:
+            return False
+        if annot.get("last_updated") == PREVIEW_CLEANED_DATE:
+            Converter(fobj)()
+            annot = IAnnotations(fobj).get("collective.documentviewer", "")
+        return bool(annot and annot.get("successfully_converted") and annot.get("num_pages"))
+
+    def _superseded_uids(self, container):
+        """Return the uids of files replaced by a derived file still present in the container.
+
+        If related files are both marked to_print, keep the derived one :
+        * A file converted from ODT to PDF (see ApprovalAdapter): keep the PDF, remove the ODT.
+        * A mailing loop template: keep the generated files, remove the template.
+        """
+        uids = set()
+        for obj in get_categorized_elements(container, result_type="objects", caching=False):
+            uids.add(getattr(obj, "conv_from_uid", None))
+            uids.add(IAnnotations(obj).get("documentgenerator", {}).get("from_doc_uid"))
+        uids.discard(None)
+        return uids
+
+    def _printable_uids(self, container, portal_type, filters, superseded):
+        """Return the uids of the files to print, warning about those without preview."""
+        uids = set()
+        for fobj in get_categorized_elements(
+            container, result_type="objects", portal_type=portal_type, filters=filters, caching=False
+        ):
+            if fobj.UID() in superseded:
+                continue
+            if not self._usable_preview(fobj):
+                api.portal.show_message(
+                    message=translate(
+                        _(u"Warning: no preview image found for document '${doc}' of mail '${mail}'. "
+                          u"This document will not be included in the printing.",
+                          mapping={u"doc": safe_unicode(fobj.Title()),
+                                   u"mail": safe_unicode(container.Title())}),
+                        context=self.request),
+                    request=self.request,
+                    type="warning",
+                )
+                continue
+            uids.add(fobj.UID())
+        return uids
+
+    def _annexes(self, container, portal_type, filters, superseded):
+        """Return the annex dicts to print for one portal_type of one container.
+
+        Each dict comes from imio.annex.utils.get_annexes_to_print: 'title', 'UID',
+        'number', 'number_of_images' and 'images', a list of {'number', 'path'}.
+        They are ordered by the item order provider of the container, so the printed order
+        matches the file table, and renumbered accordingly.
+        """
+        uids = self._printable_uids(container, portal_type, filters, superseded)
+        if not uids:
+            return []
+        annexes = [dic for dic in get_annexes_to_print(container, portal_type=portal_type,
+                                                       filters=filters, caching=False)
+                   if dic["UID"] in uids]
+        return self._ordered(container, annexes)
+
+    def _ordered(self, container, annexes):
+        """Sort annex dicts in the file table order of the container and renumber them."""
+        provider = queryAdapter(container, IItemOrderProvider)
+        if provider is not None:
+            order = provider.get_item_order()
+            annexes = sorted(annexes, key=lambda dic: order.get(dic["UID"], len(order)))
+        for i, dic in enumerate(annexes):
+            dic["number"] = i + 1
+        return annexes
+
+    def get_dms_files(self):
+        """Return the files to print, grouped by container, as preview images.
+
+                :return: list of dicts {'container': <outgoing mail or signing request>,
+            'mainfiles': [...], 'annexes': [...]}, ged files and appendix files kept
+            apart so the template prints the annex header above annexes only.
+        """
+        to_print = {"to_print": True}
+        res = []
+        for container in self.print_containers():
+            ged_type = None
+            if container.portal_type != "sign_request":
+                ged_type = "dmsommainfile"
+            if self.is_signed_print():
+                main_type, main_filters = ged_type or "dmsappendixfile", {"esigned": True, "to_print": True}
+            else:
+                main_type, main_filters = ged_type, to_print
+            superseded = self._superseded_uids(container)
+            mainfiles = main_type and self._annexes(container, main_type, main_filters, superseded) or []
+            # a file already printed as a ged file must not be printed again as an annex
+            done = superseded | set(dic["UID"] for dic in mainfiles)
+            annexes = self._annexes(container, "dmsappendixfile", to_print, done)
+            if ged_type is None:
+                # every file of a signing request is an appendix file, so every page it
+                # prints is an annex page: only the header setting decides the header
+                mainfiles, annexes = [], self._ordered(container, mainfiles + annexes)
+            if mainfiles or annexes:
+                res.append({"container": container, "mainfiles": mainfiles, "annexes": annexes})
+        return res
+
+    def annex_header(self, entry, annex, image):
+        """Return the header line printed above one annex page."""
+        return _(u"Annex ${nb}/${total} - ${title} - Page ${page}/${pages}",
+                 mapping={u"nb": annex["number"],
+                          u"total": len(entry["annexes"]),
+                          u"title": safe_unicode(annex["title"]),
+                          u"page": image["number"],
+                          u"pages": annex["number_of_images"]})
+
+    def get_print_pages(self):
+        """Return one entry per page to print, in printing order."""
+        with_header = self.print_annex_header()
+        pages = []
+        for entry in self.get_dms_files():
+            for kind in ("mainfiles", "annexes"):
+                for annex in entry[kind]:
+                    for image in annex["images"]:
+                        if not image["path"]:
+                            continue
+                        pages.append({
+                            "path": image["path"],
+                            "header": (kind == "annexes" and with_header
+                                       and translate(self.annex_header(entry, annex, image),
+                                                     context=self.request) or u""),
+                        })
+        return pages
+
+    def image_orientation(self, image):
+        """Rotate a landscape image 270 degrees clockwise so it fills the page.
+
+        Used as the appy.pod 'document' convertOptions parameter.
+        """
+        if image.width > image.height:
+            return "-rotate 270"
+
+
 class OMDGHelper(BaseDGHelper):
     """
     Helper methods used for outgoing mail generation
@@ -339,167 +520,23 @@ class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, Dash
         return res
 
 
-class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper):
+class DocumentGenerationOMDashboardHelper(BasePrintDGHelper, DocumentGenerationDocsDashboardHelper):
     """
     Methods used in document generation view, for IOMDashboard
     """
 
-    def get_dms_files(self, signed=False, limit=None):
-        """Return the files to print for the selected mails.
+    def print_containers(self):
+        """The outgoing mails selected on the dashboard, in the selection order."""
+        return [brain._unrestrictedGetObject() for brain in self.context_var("brains")]
 
-        For each mail of the dashboard selection, return the files to print, main files
-        first then appendix files, each group kept in folder position order.
-        In both signed cases, a file superseded by derived files still present in the mail is
-        skipped: the odt converted to pdf when added to a sign session (`conv_from_uid`)
-        and the not yet mailed document when its mailing exists (`from_doc_uid`).
 
-        :param signed:
-            * False: before signature, every file whose `to_print` is True, to be signed by hand.
-            * True: after signature, every e-signed file + the appendix files with `to_print` is True.
-        :param limit: maximum number of files by mail to return
-        :return: list of (file object, number of pages) tuples. The page count comes from the
-            collective.documentviewer preview: a file whose page count cannot be determined is
-            skipped and a warning message is shown.
-        """
-        files = []
-        if not self.is_dashboard():
-            return files
-        for brain in self.context_var("brains"):
-            mail = brain._unrestrictedGetObject()
-            elements = get_categorized_elements(
-                mail,
-                result_type="objects",
-                sort_on="getObjPositionInParent",
-                caching=False,
-            )
-            superseded = set()
-            for obj in elements:
-                superseded.add(getattr(obj, "conv_from_uid", None))
-                superseded.add(IAnnotations(obj).get("documentgenerator", {}).get("from_doc_uid"))
-            if signed:
-                elements = [
-                    obj
-                    for obj in elements
-                    if getattr(obj, "esigned", False)
-                    or (obj.portal_type == "dmsappendixfile" and getattr(obj, "to_print", False))
-                ]
-            else:
-                elements = [obj for obj in elements if getattr(obj, "to_print", False)]
-            elements = [obj for obj in elements if obj.UID() not in superseded]
-            elements = sorted(elements, key=lambda o: 0 if o.portal_type == "dmsommainfile" else 1)
-            count = 0
-            for obj in elements:
-                pages = self.print_page_count(obj)
-                if not pages:
-                    api.portal.show_message(
-                        message=translate(
-                            _(u"Warning: cannot determine the page count of document '${doc}' of mail "
-                              u"'${mail}'. This document will not be included in the printing.",
-                              mapping={u"doc": safe_unicode(obj.Title()),
-                                       u"mail": safe_unicode(mail.Title())}),
-                            context=self.request),
-                        request=self.request,
-                        type="warning",
-                    )
-                    continue
-                count += 1
-                if limit is not None and count > limit:
-                    break
-                files.append((obj, pages))
-        return files
+class DocumentGenerationReqDashboardHelper(DocumentGenerationOMDashboardHelper):
+    """
+    Methods used in document generation view, for IReqDashboard.
 
-    def is_odt(self, afile):
-        """Return True if the given file object is an ODT."""
-        return getattr(afile.file, "contentType", "") == "application/vnd.oasis.opendocument.text"
-
-    def is_main_odt(self, afile):
-        """Return True if the given file object is a mainfile and an ODT."""
-        return afile.portal_type == "dmsommainfile" and self.is_odt(afile)
-
-    def is_appendix_odt(self, afile):
-        """Return True if the given file object is a appendixfile and an ODT."""
-        return afile.portal_type == "dmsappendixfile" and self.is_odt(afile)
-
-    def is_image(self, afile):
-        """Return True if the file is itself an image (png/jpg/...)."""
-        return getattr(afile.file, "contentType", "").startswith("image/")
-
-    def img_format(self, afile):
-        """Return the appy/pod image format for an image file, derived from its mimetype."""
-        fmt = getattr(afile.file, "contentType", "").split("/")[-1].lower()
-        return {"jpeg": "jpg", "x-png": "png", "svg+xml": "svg"}.get(fmt, fmt)
-
-    def print_page_count(self, afile):
-        """Return the number of pages a non-ODT file occupies once printed."""
-        if self.is_image(afile):
-            return 1
-        return self.get_num_pages(afile)
-
-    def needs_blank_after(self, afile):
-        """Return True if a blank page must follow this non-ODT file for duplex printing.
-
-        Mirrors the ``pageBreakAfter='duplex'`` behaviour applied to ODT files: when a
-        file occupies an odd number of pages, a blank page is inserted after it so the
-        next file starts on the front side (recto) of a new sheet. ODT files manage this
-        themselves (via pod's duplex mode), so they are excluded here.
-        """
-        if self.is_odt(afile):
-            return False
-        return self.print_page_count(afile) % 2 == 1
-
-    def get_num_pages(self, obj):
-        annot = IAnnotations(obj).get("collective.documentviewer", "")
-        if not annot or not annot["successfully_converted"] or not annot.get("num_pages", None):
-            return 0
-        return annot["num_pages"]
-
-    def get_dv_images(self, obj):
-        images = []
-        annot = IAnnotations(obj).get("collective.documentviewer", "")
-        if not annot or not annot["successfully_converted"] or not annot.get("blob_files", None):
-            return []
-        files = annot.get("blob_files", {})
-        for page in range(1, annot["num_pages"] + 1):
-            img = "large/dump_%d.%s" % (page, annot["pdf_image_format"])
-            blob = files[img]
-            images.append(blob.open())
-        return images
-
-    def get_print_pages(self, afile):
-        """Return the preview page images to insert for a non-ODT file.
-
-        ODT files are embedded as ODT content and image files at their native size
-        directly by the d-print templates, so an empty list is returned for them. For
-        any other file (PDF, scans...), return one dict per collective.documentviewer
-        preview page, in page order: {'data': <image bytes>, 'format': <image extension>}.
-        """
-        if self.is_odt(afile) or self.is_image(afile):
-            return []
-        annot = IAnnotations(afile).get("collective.documentviewer", "")
-        if annot and annot.get("last_updated") == "2010-01-01T00:00:00":
-            # preview was removed by dv_clean: regenerate it before printing
-            Converter(afile)()
-            annot = IAnnotations(afile).get("collective.documentviewer", "")
-        if (not annot or not annot.get("successfully_converted") or not annot.get("num_pages")
-                or not annot.get("blob_files")):
-            api.portal.show_message(
-                message=translate(
-                    _(u"Warning: no preview image found for document '${doc}' of mail '${mail}'. "
-                      u"This document will not be included in the printing.",
-                      mapping={u"doc": safe_unicode(afile.Title()),
-                               u"mail": safe_unicode(afile.aq_parent.Title())}),
-                    context=self.request),
-                request=self.request,
-                type="warning",
-            )
-            return []
-        fmt = annot["pdf_image_format"]
-        files = annot["blob_files"]
-        pages = []
-        for page in range(1, annot["num_pages"] + 1):
-            with files["large/dump_%d.%s" % (page, fmt)].open() as blob:
-                pages.append({"data": blob.read(), "format": fmt})
-        return pages
+    Same print methods as the outgoing mail dashboard: get_dms_files adapts itself to
+    the portal type of every selected item.
+    """
 
 
 class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):

@@ -52,7 +52,7 @@ class OMColorColumn(ColorColumn):
     )
 
     def is_printable(self, item):
-        return bool(item.markers) and "lastDmsFileIsOdt" in item.markers  # Missing.Value is False
+        return bool(item.markers) and "lastDmsFileToPrint" in item.markers  # Missing.Value is False
 
     def renderCell(self, item):
         """Display a message."""

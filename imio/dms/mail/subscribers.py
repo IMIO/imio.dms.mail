@@ -46,6 +46,7 @@ from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
+from imio.dms.mail.utils import esign_formats_key
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import invalidate_users_groups
@@ -773,7 +774,7 @@ def _correct_to_sign(file_obj):
     """
     if getattr(file_obj.__parent__, "esign", False) and getattr(file_obj, "to_sign", False):
         mimetype = get_contenttype(file_obj.file)
-        if mimetype in get_allowed_content_types(esign=True, portal_type=file_obj.__parent__.portal_type):
+        if mimetype in get_allowed_content_types(esign_formats_key(file_obj.__parent__.portal_type)):
             return False  # no modification
         file_obj.to_sign = False
         file_obj.to_approve = False
@@ -824,16 +825,17 @@ def _correct_to_approve(file_obj):
 
 
 def _correct_to_print(file_obj):
-    """Automatically set to_print following file type and esign mode.
+    """Automatically set to_print following the file type and its container.
 
-    - dmsappendixfile -> always False
-    - dmsommainfile   -> True when the parent mail esign is off, else False
+    - dmsommainfile                       -> True
+    - dmsappendixfile in a sign request   -> True
+    - dmsappendixfile in an outgoing mail -> False
     """
-    om = file_obj.__parent__
-    if file_obj.portal_type == "dmsappendixfile":
-        new_value = False
-    elif file_obj.portal_type == "dmsommainfile":
-        new_value = not getattr(om, "esign", False)
+    container = file_obj.__parent__
+    if file_obj.portal_type == "dmsommainfile":
+        new_value = True
+    elif file_obj.portal_type == "dmsappendixfile":
+        new_value = container.portal_type == "sign_request"
     else:
         return
     try:
@@ -846,7 +848,7 @@ def _correct_to_print(file_obj):
             new_value = False
     if getattr(file_obj, "to_print", None) != new_value:
         file_obj.to_print = new_value
-        update_categorized_elements(om, file_obj, category, limited=True, sort=False, logging=True)
+        update_categorized_elements(container, file_obj, category, limited=True, sort=False, logging=True)
 
 
 def i_annex_added(obj, event):
