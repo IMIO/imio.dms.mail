@@ -25,7 +25,7 @@ Premiers pas
     #Log to console  LOG
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1-acces-a-lapplication.png  css=.site-plone  id=portal-footer-wrapper
-    Enable autologin as  encodeur
+    Enable autologin as  dirg
     #Log in  encodeur  Dmsmail69!
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1-page-daccueil.png  css=.site-plone  id=portal-footer-wrapper
@@ -1569,5 +1569,5 @@ Suite Setup
     Go to  ${PLONE_URL}/robot_init
     Add Cookie  dv_zoom_size  500  path=/
     Disable autologin
-    Activate esigning
+    # Activate esigning  (done in testing.py)
     # Pause
