@@ -4,7 +4,8 @@ Changelog
 3.1.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Improved file ordering in eSign session: ged files most recent first, appendices sorted alphabetically.
+  [chris-adam]
 
 
 3.1.6 (2026-08-14)
