@@ -311,8 +311,9 @@ class TestDocumentGenerator(unittest.TestCase):
         set_to_print(m1["1"], True)
         # main file before appendix within m0, then m1 main; m2 (not to_print) excluded
         self.assertListEqual(view.get_dms_files(), [(m0["1"], 1), (appendix, 1), (m1["1"], 2)])
-        # limit caps the total number of returned files
-        self.assertListEqual(view.get_dms_files(limit=2), [(m0["1"], 1), (appendix, 1)])
+        # limit caps the number of returned files by mail, not the total
+        self.assertListEqual(view.get_dms_files(limit=1), [(m0["1"], 1), (m1["1"], 2)])
+        self.assertListEqual(view.get_dms_files(limit=2), [(m0["1"], 1), (appendix, 1), (m1["1"], 2)])
         # signed=True: e-signed files + appendix files to_print, whatever the main files to_print
         self.assertListEqual(view.get_dms_files(signed=True), [(appendix, 1)])
         m1["1"].esigned = True

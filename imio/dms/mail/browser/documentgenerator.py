@@ -356,7 +356,7 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         :param signed:
             * False: before signature, every file whose `to_print` is True, to be signed by hand.
             * True: after signature, every e-signed file + the appendix files with `to_print` is True.
-        :param limit: maximum number of files to return
+        :param limit: maximum number of files by mail to return
         :return: list of (file object, number of pages) tuples. The page count comes from the
             collective.documentviewer preview: a file whose page count cannot be determined is
             skipped and a warning message is shown.
@@ -387,6 +387,7 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
                 elements = [obj for obj in elements if getattr(obj, "to_print", False)]
             elements = [obj for obj in elements if obj.UID() not in superseded]
             elements = sorted(elements, key=lambda o: 0 if o.portal_type == "dmsommainfile" else 1)
+            count = 0
             for obj in elements:
                 pages = self.print_page_count(obj)
                 if not pages:
@@ -401,9 +402,10 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
                         type="warning",
                     )
                     continue
+                count += 1
+                if limit is not None and count > limit:
+                    break
                 files.append((obj, pages))
-        if limit is not None:
-            files = files[:limit]
         return files
 
     def is_odt(self, afile):
