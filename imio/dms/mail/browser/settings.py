@@ -49,6 +49,7 @@ from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
 # from z3c.form.browser.radio import RadioFieldWidget
 # from z3c.form.interfaces import WidgetActionExecutionError
 from z3c.form.validator import NoInputData
+from ZODB.POSException import ConnectionStateError
 from zope import schema
 from zope.component import getUtility
 from zope.globalrequest import getRequest
@@ -58,6 +59,7 @@ from zope.interface import Invalid
 from zope.interface import invariant
 from zope.interface import provider
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.schema import getFieldsInOrder
 from zope.schema import ValidationError
 from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
@@ -1479,7 +1481,22 @@ class SettingsEditForm(RegistryEditForm):
     form.extends(RegistryEditForm)
     schema = IImioDmsMailConfig
 
+    _DATAGRID_VALUE_TYPES = [
+        (field, field.value_type.schema, field.value_type.required)
+        for _name, field in getFieldsInOrder(IImioDmsMailConfig)
+        if isinstance(getattr(field, "value_type", None), DictRow)
+    ]
+
+    def _heal_datagrid_value_types(self):
+        for field, row_schema, required in self._DATAGRID_VALUE_TYPES:
+            try:
+                field.value_type.schema
+            except ConnectionStateError:
+                logger.warning("DMS-434: rebuilding stale datagrid value_type for %r", field.__name__)
+                field.value_type = DictRow(title=field.title, schema=row_schema, required=required)
+
     def update(self):
+        self._heal_datagrid_value_types()
         super(SettingsEditForm, self).update()
         # !! groups are updated outside and after updateWidgets
         # we will display unconfigured fields
