@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.iconifiedcategory.interfaces import IIconifiedPrintable
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
@@ -1594,7 +1595,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(pdf_file.signed)
         self.assertTrue(pdf_file.to_approve)
         self.assertTrue(pdf_file.approved)
-        self.assertFalse(pdf_file.to_print)
+        self.assertTrue(pdf_file.to_print)  # a ged file is always marked to print
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
 
@@ -1624,8 +1625,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(pdf_file.signed)
         self.assertTrue(pdf_file.to_approve)
         self.assertTrue(pdf_file.approved)
-        self.assertFalse(pdf_file.to_print)
-        self.assertFalse(self.files[1].to_print)
+        self.assertTrue(pdf_file.to_print)  # a ged file is always marked to print
+        self.assertTrue(self.files[1].to_print)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
 
@@ -1679,7 +1680,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(pdf_file.signed)
         self.assertTrue(pdf_file.to_approve)
         self.assertTrue(pdf_file.approved)
-        self.assertFalse(pdf_file.to_print)
+        self.assertTrue(pdf_file.to_print)  # a ged file is always marked to print
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
 
@@ -1724,6 +1725,55 @@ class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.approval.roles, {})
         self.pw.doActionFor(self.request, "propose_to_approve")
         self.assertEqual(self.approval.roles, {"dirg": ("Reader", "Reviewer", "Editor")})
+
+
+class TestDmsCategorizedObjectPrintableAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+        self.rec = ("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_print_formats")
+        self.omail = self.portal["outgoing-mail"]["202633"]["reponse1"]
+
+    def _file(self, oid, filename, content_type):
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        return createContentInContainer(
+            self.omail, "dmsappendixfile", id=oid, title=oid,
+            file=NamedBlobFile(b"x", filename=filename, contentType=content_type),
+            content_category=calculate_category_id(ct),
+        )
+
+    def test_is_printable(self):
+        """Only a convertible file in a configured format may be marked to be printed."""
+        api.portal.set_registry_record(self.rec, ["odt", "pdf"])
+        pdf = self._file("p-pdf", u"a.pdf", "application/pdf")
+        self.assertTrue(getAdapter(pdf, IIconifiedPrintable).is_printable)
+        # a convertible file in a format left out of the configuration is refused
+        api.portal.set_registry_record(self.rec, ["odt"])
+        self.assertFalse(getAdapter(pdf, IIconifiedPrintable).is_printable)
+        self.assertEqual(getAdapter(pdf, IIconifiedPrintable).error_message,
+                         u"File format can not be printed")
+        # a file that cannot be converted at all keeps the upstream refusal message
+        api.portal.set_registry_record(self.rec, ["odt", "pdf"])
+        other = self._file("p-zip", u"a.zip", "application/zip")
+        adapter = getAdapter(other, IIconifiedPrintable)
+        self.assertFalse(adapter.is_printable)
+        self.assertEqual(adapter.error_message, u"Can not be printed")
+
+    def test_update_object(self):
+        """A refused file gets to_print deactivated and the reason stored on it."""
+        api.portal.set_registry_record(self.rec, ["odt", "pdf"])
+        pdf = self._file("u-pdf", u"b.pdf", "application/pdf")
+        pdf.to_print = True
+        getAdapter(pdf, IIconifiedPrintable).update_object()
+        self.assertTrue(pdf.to_print)
+        self.assertIsNone(pdf.to_print_message)
+        api.portal.set_registry_record(self.rec, ["odt"])
+        getAdapter(pdf, IIconifiedPrintable).update_object()
+        self.assertIsNone(pdf.to_print)  # None means deactivated
+        self.assertEqual(pdf.to_print_message, u"File format can not be printed")
 
 
 class TestOMItemOrderProvider(unittest.TestCase, ImioTestHelpers):

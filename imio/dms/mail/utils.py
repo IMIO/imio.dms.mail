@@ -81,6 +81,11 @@ import os
 
 cg_separator = " ___ "
 PREVIEW_DIR = os.path.join(PRODUCT_DIR, "base_images")
+# sentinel dates written in the documentviewer annotation "last_updated"
+# PREVIEW_CLEANED_DATE: when using image saying preview has been deleted
+PREVIEW_CLEANED_DATE = DateTime("2010/01/01").ISO8601()
+# PREVIEW_EML_DATE: when using image saying eml cannot be converted
+PREVIEW_EML_DATE = DateTime("2011/01/01").ISO8601()
 
 # methods
 
@@ -551,8 +556,6 @@ def dv_clean(portal, days_back="365", date_back=None):
         # mod_date = add_timezone(mod_date, force=True)
     else:
         mod_date = start - timedelta(days=int(days_back))
-    already_done = DateTime("2010/01/01").ISO8601()  # when using image saying preview has been deleted
-    already_eml = DateTime("2011/01/01").ISO8601()  # when using image saying eml cannot be converted
     get_same_blob = True  # we will get previously blobs
     pc = portal.portal_catalog
     brains = []
@@ -574,13 +577,13 @@ def dv_clean(portal, days_back="365", date_back=None):
             annot = IAnnotations(fobj).get("collective.documentviewer", "")
             if not annot or not annot.get("successfully_converted"):
                 continue
-            if annot["last_updated"] == already_done:
+            if annot["last_updated"] == PREVIEW_CLEANED_DATE:
                 if get_same_blob:
                     for name in ("large", "normal", "small"):
                         blobs[name] = annot["blob_files"]["{}/dump_1.jpg".format(name)]
                     get_same_blob = False
                 continue
-            if annot["last_updated"] == already_eml:
+            if annot["last_updated"] == PREVIEW_EML_DATE:
                 continue
             get_same_blob = False
             total["files"] += 1
@@ -594,7 +597,7 @@ def dv_clean(portal, days_back="365", date_back=None):
             annot["blob_files"] = files
             annot["num_pages"] = 1
             annot["pdf_image_format"] = "jpg"
-            annot["last_updated"] = already_done
+            annot["last_updated"] = PREVIEW_CLEANED_DATE
         if batch_handle_key(brain.UID, batch_keys, batch_config):
             break
     else:
@@ -684,7 +687,6 @@ def eml_preview(obj):
         }
     converter = Converter(obj)
     annot = IAnnotations(obj).get("collective.documentviewer", "")
-    already_done = DateTime("2011/01/01").ISO8601()
     files = OOBTree()
     for name in ["large", "normal", "small"]:
         files["{}/dump_1.jpg".format(name)] = blobs[name]
@@ -692,7 +694,7 @@ def eml_preview(obj):
     annot["num_pages"] = 1
     annot["pdf_image_format"] = "jpg"
     annot["storage_type"] = converter.gsettings.storage_type
-    annot["last_updated"] = already_done
+    annot["last_updated"] = PREVIEW_EML_DATE
     annot["catalog"] = None
     converter.initialize_filehash()  # get md5
     annot["filehash"] = converter.filehash
@@ -1685,24 +1687,35 @@ def update_approvers_settings():
         set_dms_config(["approvings"], approvings)
 
 
-def get_allowed_content_types(esign=False, portal_type=None):
-    """Get allowed configured content types.
+def esign_formats_key(portal_type):
+    """Return the configuration key holding the electronic signature formats of a portal type.
 
-    :param esign: bool indicating if only esign content types must be returned
-    :param portal_type: portal_type owning the file.
+    :param portal_type: portal_type owning the file
+    :return: key to pass to get_allowed_content_types
+    """
+    return portal_type == "sign_request" and "request_esign_formats" or "omail_esign_formats"
+
+
+def get_allowed_content_types(key):
+    """Get the content types allowed by one format configuration record.
+
+    :param key: name of the configuration record listing the allowed formats, one of:
+
+        * "omail_formats_mainfile": ged main file of an outgoing mail
+        * "omail_esign_formats": file signed electronically on an outgoing mail
+        * "request_esign_formats": file signed electronically on a signing request
+        * "omail_print_formats": file that may be marked as to be printed
+
     :return: list of content types
+    :raises KeyError: if key is not one of the keys listed above
     """
     ct_by_type = {
         "pdf": ("application/pdf",),
         "odt": ("application/vnd.oasis.opendocument.text",),
         "doc": ("application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
     }
-    if portal_type == "sign_request":
-        key = "request_esign_formats"
-    elif esign:
-        key = "omail_esign_formats"
-    else:
-        key = "omail_formats_mainfile"
+    if key not in ("omail_formats_mainfile", "omail_esign_formats", "request_esign_formats", "omail_print_formats"):
+        raise KeyError("Unknown allowed formats key '{}'".format(key))
     formats = api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig." + key)
     res = []
     for fmt in formats or []:

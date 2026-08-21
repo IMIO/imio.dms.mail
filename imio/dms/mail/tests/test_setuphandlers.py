@@ -31,7 +31,34 @@ class TestSetuphandlers(unittest.TestCase):
             folder = self.portal.unrestrictedTraverse("/".join(parts[:-1]))
             self.assertEqual(folder.getObjectPosition(parts[-1]), tup[3], parts[-1])
         # subfolders are not moved: om stays first in templates, common first in om
-        self.assertEqual(self.portal["templates"]["om"].getObjectPosition("common"), 10)
+        self.assertEqual(self.portal["templates"]["om"].getObjectPosition("common"), 11)
+
+    def test_print_templates(self):
+        """The three print templates exist, are enabled and offer odt and pdf."""
+        om_tmplts = self.portal["templates"]["om"]
+        for tid in ("d-print-to-sign", "d-print-signed", "d-print-request"):
+            tmpl = om_tmplts[tid]
+            self.assertTrue(tmpl.enabled, tid)
+            self.assertEqual(tmpl.pod_formats, ["odt", "pdf"], tid)
+        # printing is offered from a dashboard selection only
+        self.assertNotIn("d-print-mail", om_tmplts)
+
+        def tabs(tid, folder):
+            uids = om_tmplts[tid].dashboard_collections
+            cols = self.portal[folder[0]][folder[1]]
+            return sorted(c.getId() for c in cols.listFolderContents() if c.UID() in uids)
+
+        om = ("outgoing-mail", "mail-searches")
+        # pre signature tabs on the first template, post signature tabs on the second
+        self.assertEqual(tabs("d-print-to-sign", om), ["searchfor_created", "to_treat"])
+        self.assertEqual(tabs("d-print-signed", om),
+                         ["om_to_email", "om_treating", "searchfor_signed"])
+        # the signing request template only lists a signing request tab
+        self.assertEqual(tabs("d-print-request", ("requests", "requests-searches")),
+                         ["searchfor_signed"])
+        # no print template carries a condition
+        for tid in ("d-print-to-sign", "d-print-signed", "d-print-request"):
+            self.assertFalse(getattr(om_tmplts[tid], "tal_condition", u""))
 
     def test_requests_dashboard(self):
         self.assertTrue(hasattr(self.portal, "requests"))

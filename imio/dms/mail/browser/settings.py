@@ -714,6 +714,9 @@ class IImioDmsMailConfig(model.Schema):
             "omail_response_prefix",
             "omail_formats_mainfile",
             "omail_esign_formats",
+            "omail_print_formats",
+            "omail_print_manual_annex_header",
+            "omail_print_esign_annex_header",
             "omail_sender_firstname_sorting",
             "org_templates_encoder_can_edit",
             "omail_fullname_used_form",
@@ -769,6 +772,26 @@ class IImioDmsMailConfig(model.Schema):
     )
 
     widget("omail_esign_formats", CheckBoxFieldWidget, multiple="multiple")
+
+    omail_print_formats = schema.List(
+        title=_(u"Allowed file formats to be printed"),
+        description=_(u"A file in another format cannot be marked as to be printed."),
+        value_type=schema.Choice(vocabulary=u"imio.dms.mail.OMFileFormatsVocabulary"),
+        default=["odt", "pdf"],
+        required=True,
+    )
+
+    widget("omail_print_formats", CheckBoxFieldWidget, multiple="multiple")
+
+    omail_print_manual_annex_header = schema.Bool(
+        title=_(u"Include annexes header for to be signed files when bulk printing"),
+        default=False,
+    )
+
+    omail_print_esign_annex_header = schema.Bool(
+        title=_(u"Include annexes header for electronically signed files when bulk printing"),
+        default=False,
+    )
 
     omail_sender_firstname_sorting = schema.Bool(title=_(u"Sender list is sorted on firstname"), default=True)
 
@@ -905,6 +928,7 @@ class IImioDmsMailConfig(model.Schema):
         label=_(u"Signing request"),
         fields=[
             "request_esign_formats",
+            "request_print_esign_annex_header",
             "request_signer_rules",
             "request_fields",
         ],
@@ -917,6 +941,11 @@ class IImioDmsMailConfig(model.Schema):
         required=False,
     )
     widget("request_esign_formats", CheckBoxFieldWidget, multiple="multiple")
+
+    request_print_esign_annex_header = schema.Bool(
+        title=_(u"Include annexes header when bulk printing"),
+        default=False,
+    )
 
     request_signer_rules = schema.List(
         title=_(u"${type} signers rules", mapping={"type": _("Signing request")}),

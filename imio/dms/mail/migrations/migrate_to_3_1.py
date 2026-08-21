@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.documentgenerator.utils import update_oo_config
+from collective.documentgenerator.utils import update_templates
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
 from collective.iconifiedcategory.utils import calculate_category_id
@@ -23,13 +24,18 @@ from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.setuphandlers import add_db_col_folder
+from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
 from imio.dms.mail.setuphandlers import create_personnel_dashboard
 from imio.dms.mail.setuphandlers import createReqCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import get_dashboard_collections
+from imio.dms.mail.setuphandlers import list_templates
+from imio.dms.mail.setuphandlers import OM_PRINT_SIGNED_COLS
+from imio.dms.mail.setuphandlers import OM_PRINT_TO_SIGN_COLS
 from imio.dms.mail.setuphandlers import order_1st_level
+from imio.dms.mail.setuphandlers import REQ_PRINT_SIGNED_COLS
 from imio.dms.mail.setuphandlers import setup_iconified_categories
 from imio.dms.mail.utils import message_status
 from imio.dms.mail.utils import update_solr_config
@@ -66,6 +72,8 @@ import os
 
 logger = logging.getLogger("imio.dms.mail")
 
+PRINT_TEMPLATE_IDS = ("d-print-to-sign", "d-print-signed", "d-print-request")
+
 
 class Migrate_To_3_1(Migrator):  # noqa
     def __init__(self, context, disable_linkintegrity_checks=False):
@@ -85,6 +93,8 @@ class Migrate_To_3_1(Migrator):  # noqa
             # Update d-print model
             if "d-print" in self.portal["templates"]["om"]:
                 self.update_print_template()
+            self.update_print_templates()
+            self.activate_request_printing()
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
@@ -535,6 +545,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             do_transitions(req_folder, ["show_internally"])
             logger.info("requests folder created")
             order_1st_level(self.portal)
+            self.update_print_templates()
 
         # signrequest settings
         if not api.portal.get_registry_record(
@@ -682,6 +693,52 @@ class Migrate_To_3_1(Migrator):  # noqa
         cols = get_dashboard_collections(self.omf["mail-searches"])
         obj.dashboard_collections = [b.UID for b in cols if b.UID in obj.dashboard_collections
                                      and b.id in om_print_to_sign_cols]
+
+    def update_print_templates(self):
+        """Add the signing request print template, reload the print model and enable them all."""
+        # creates the signing request print template, existing templates are left untouched
+        add_templates(self.portal)
+        # the print model itself changed completely: force the replacement
+        templates = [(tup[1], tup[2]) for tup in list_templates()
+                     if tup[1].split("/")[-1] in PRINT_TEMPLATE_IDS]
+        for ppath, ospath, status in update_templates(templates, force=True):
+            logger.info("Print template '%s': %s", ppath, status)
+        # existing templates are not touched by add_templates, so the dashboard tabs are
+        # set here for sites that already have them
+        om_cols = get_dashboard_collections(self.omf["mail-searches"])
+        req_folder = self.portal.get("requests", None)
+        req_cols = []
+        if req_folder is not None and "requests-searches" in req_folder:
+            req_cols = get_dashboard_collections(req_folder["requests-searches"])
+        # template id -> allowed dashboard collections
+        conf = {
+            "d-print-to-sign": [b.UID for b in om_cols if b.id in OM_PRINT_TO_SIGN_COLS],
+            "d-print-signed": [b.UID for b in om_cols if b.id in OM_PRINT_SIGNED_COLS],
+            "d-print-request": [b.UID for b in req_cols if b.id in REQ_PRINT_SIGNED_COLS],
+        }
+        om_tmplts = self.portal["templates"]["om"]
+        for tid in PRINT_TEMPLATE_IDS:
+            if tid not in om_tmplts:  # 203 is missing while the requests folder does not exist
+                continue
+            obj = om_tmplts[tid]
+            obj.enabled = True
+            obj.pod_formats = ["odt", "pdf"]
+            obj.dashboard_collections = conf[tid]
+            obj.tal_condition = u""  # clears the condition set by an earlier run of this step
+            obj.reindexObject(idxs=["enabled", "Title", "sortable_title", "SearchableText"])
+
+    def activate_request_printing(self):
+        """Activate the print flag on the signing request appendix category group.
+
+        That group was created without it, so the flag was forced to False on every file
+        of a signing request and the print template found nothing to print (PARAF-220).
+        Existing files keep their stored value: only new files get the flag.
+        """
+        ccc = self.portal.get("annexes_types")
+        group = ccc is not None and ccc.get("sign_request_appendix_files") or None
+        if group is not None and not group.to_be_printed_activated:
+            group.to_be_printed_activated = True
+            logger.info("Activated the print flag on the signing request appendix category group")
 
 
 def migrate(context):  # noqa
