@@ -46,6 +46,7 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
+from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
@@ -1143,13 +1144,10 @@ class SendableAnnexesToPMAdapter(object):
                 }
 
 
-class ItemSignersAdapter(object):
+class ItemSignersAdapter(SignableAdapter):
     """Adapter to get signers of a given item.
 
-    Not used for the moment because we use approval mechanism."""
-
-    def __init__(self, context):
-        self.context = context
+    Signers are set by the approval mechanism: only the session recreation uses this adapter."""
 
     def get_signers(self):
         """Return the list of signers for the item."""

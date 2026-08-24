@@ -673,7 +673,7 @@ class TestImioRecreateSessionView(unittest.TestCase):
 
     def _make_omail_with_session(self):
         """Create an outgoing mail, directly build an esign session for one of its files, and
-        put the session in a non-draft state.  Also registers the session_id in the approval
+        put the session in the refused state.  Also registers the session_id in the approval
         annotation, mirroring what add_mail_files_to_session does during a real workflow."""
         intids = getUtility(IIntIds)
         params = {
@@ -716,9 +716,9 @@ class TestImioRecreateSessionView(unittest.TestCase):
         old_id, _session = add_files_to_session(
             signers, [file_obj.UID()], title=_("[iA.Docs] Session {sign_id}")
         )[-1]
-        # Flip to a non-draft state
+        # Flip to refused
         annot = get_session_annotation()
-        annot["sessions"][old_id]["state"] = "to_sign"
+        annot["sessions"][old_id]["state"] = "refused"
         # Mirror what the approval adapter does: register session_id
         approval = OMApprovalAdapter(omail)
         if "session_ids" not in approval.annot:
