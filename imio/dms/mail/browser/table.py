@@ -9,6 +9,7 @@ from collective.task import _ as _task
 from html import escape  # noqa F401
 from imio.dms.mail import _
 from imio.esign.config import get_esign_registry_enabled
+from imio.esign.interfaces import IItemOrderProvider
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import uuidToObject
 from plone import api
@@ -16,6 +17,7 @@ from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
 from z3c.table.table import Table
 from zope.cachedescriptors.property import CachedProperty
+from zope.component import getAdapter
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.schema.interfaces import IVocabularyFactory
@@ -116,22 +118,27 @@ def _disable_icon_clickable(col):
 class BaseVersionsTable(VersionsTable):
     portal_types = []
 
+    def _get_ordered_values(self):
+        sort_on = 'getObjPositionInParent'
+        items = []
+        for portal_type in self.portal_types:
+            items.extend([
+                CategorizedContent(self.context, content) for content in
+                ic_utils.get_categorized_elements(
+                    self.context,
+                    result_type='dict',
+                    portal_type=portal_type,
+                    sort_on=sort_on,
+                )
+            ])
+        order = getAdapter(self.context, IItemOrderProvider).get_item_order()
+        items.sort(key=lambda c: order.get(c.UID, len(order)))
+        return items
+
     @property
     def values(self):
         if not getattr(self, '_v_stored_values', []):
-            sort_on = 'getObjPositionInParent'
-            data = []
-            for portal_type in self.portal_types:
-                data.extend([
-                    CategorizedContent(self.context, content) for content in
-                    ic_utils.get_categorized_elements(
-                        self.context,
-                        result_type='dict',
-                        portal_type=portal_type,
-                        sort_on=sort_on,
-                    )
-                ][::-1])
-            self._v_stored_values = data
+            self._v_stored_values = self._get_ordered_values()
         return self._v_stored_values
 
     def is_edit_mode(self):
