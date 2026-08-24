@@ -80,7 +80,7 @@ setup(
         "imio.dashboard",
         "imio.dms.soap2pm",
         "imio.pm.wsclient>=2",
-        "imio.esign",
+        "imio.esign>=1.0.2",
         "imio.fpaudit",
         "imio.helpers[pdf]",
         "imio.migrator",
