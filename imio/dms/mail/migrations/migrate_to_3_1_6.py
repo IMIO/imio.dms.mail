@@ -15,7 +15,7 @@ class Migrate_To_3_1_6(Migrate_To_3_1):  # noqa
 
         if self.is_in_part("c"):
             # Update d-print model
-            self.update_print_template()
+            self.update_print_template_1()
             # Correct localroles config
             self.fix_localroles_json_quoting()
             # reload type

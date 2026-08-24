@@ -20,6 +20,7 @@ from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.Extensions.demo import activate_group_encoder
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import get_allowed_content_types
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.app.testing import logout
@@ -306,6 +307,22 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
             if cat.queryMessage(fld) is None:
                 missing.append(fld)
         self.assertFalse(missing)
+
+    def test_print_settings_records(self):
+        """The three print configuration records exist with their defaults."""
+        rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}"
+        self.assertEqual(self.registry[rec.format("omail_print_formats")], ["odt", "pdf", "doc"])
+        self.assertFalse(self.registry[rec.format("omail_print_manual_annex_header")])
+        self.assertFalse(self.registry[rec.format("omail_print_esign_annex_header")])
+        self.assertFalse(self.registry[rec.format("request_print_esign_annex_header")])
+        # the format list drives the printable content types
+        self.assertEqual(sorted(get_allowed_content_types("omail_print_formats")),
+                         ["application/msword", "application/pdf",
+                          "application/vnd.oasis.opendocument.text",
+                          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"])
+        self.registry[rec.format("omail_print_formats")] = ["odt"]
+        self.assertEqual(get_allowed_content_types("omail_print_formats"),
+                         ["application/vnd.oasis.opendocument.text"])
 
     def test_imiodmsmail_settings_changed(self):
         """Test some settings change"""

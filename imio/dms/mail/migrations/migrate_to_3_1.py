@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.documentgenerator.utils import update_oo_config
+from collective.documentgenerator.utils import update_templates
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
 from collective.iconifiedcategory.utils import calculate_category_id
@@ -23,13 +24,17 @@ from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.setuphandlers import add_db_col_folder
+from imio.dms.mail.setuphandlers import add_templates
 from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
 from imio.dms.mail.setuphandlers import create_personnel_dashboard
 from imio.dms.mail.setuphandlers import createReqCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import get_dashboard_collections
+from imio.dms.mail.setuphandlers import list_templates
+from imio.dms.mail.setuphandlers import OM_PRINT_TO_SIGN_COLS
 from imio.dms.mail.setuphandlers import order_1st_level
+from imio.dms.mail.setuphandlers import print_template_collections
 from imio.dms.mail.setuphandlers import setup_iconified_categories
 from imio.dms.mail.utils import message_status
 from imio.dms.mail.utils import update_solr_config
@@ -84,7 +89,8 @@ class Migrate_To_3_1(Migrator):  # noqa
         if self.is_in_part("c"):  # various, update workflow, localroles and security
             # Update d-print model
             if "d-print" in self.portal["templates"]["om"]:
-                self.update_print_template()
+                self.update_print_template_1()
+                self.update_print_template_2()
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
@@ -535,6 +541,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             do_transitions(req_folder, ["show_internally"])
             logger.info("requests folder created")
             order_1st_level(self.portal)
+            self.update_print_template_2()
 
         # signrequest settings
         if not api.portal.get_registry_record(
@@ -668,9 +675,8 @@ class Migrate_To_3_1(Migrator):  # noqa
                 emptied.append(brain.getPath())
         logger.info("Emptied predefined_title on categories: %s", emptied)
 
-    def update_print_template(self):
+    def update_print_template_1(self):
         """Rename d-print template and display the print template only on the concerned collections."""
-        om_print_to_sign_cols = ("to_treat", "searchfor_created", "searchfor_validated", "searchfor_to_print")
         om_tmplts = self.portal["templates"]["om"]
         if "d-print" in om_tmplts:
             api.content.rename(obj=om_tmplts["d-print"], new_id="d-print-to-sign", safe_id=False)
@@ -681,7 +687,37 @@ class Migrate_To_3_1(Migrator):  # noqa
         obj.tal_condition = ""
         cols = get_dashboard_collections(self.omf["mail-searches"])
         obj.dashboard_collections = [b.UID for b in cols if b.UID in obj.dashboard_collections
-                                     and b.id in om_print_to_sign_cols]
+                                     and b.id in OM_PRINT_TO_SIGN_COLS]
+
+    def update_print_template_2(self):
+        """Add the signing request print template, reload the print model and enable them all.
+
+        Also activates the print flag on the signing request appendix category group.
+        """
+        # creates the signing request print template, existing templates are left untouched
+        add_templates(self.portal)
+        # template id -> allowed dashboard collections
+        conf = print_template_collections(self.portal)
+        # the print model itself changed completely: force the replacement
+        templates = [(tup[1], tup[2]) for tup in list_templates() if tup[1].split("/")[-1] in conf]
+        for ppath, ospath, status in update_templates(templates, force=True):
+            logger.info("Print template '%s': %s", ppath, status)
+        # existing templates are not touched by add_templates, so the dashboard tabs are
+        # set here for sites that already have them
+        om_tmplts = self.portal["templates"]["om"]
+        for tid, cols in conf.items():
+            if tid not in om_tmplts:  # 203 is missing while the requests folder does not exist
+                continue
+            obj = om_tmplts[tid]
+            obj.enabled = True
+            obj.pod_formats = ["odt", "pdf"]
+            obj.dashboard_collections = cols
+            obj.reindexObject(idxs=["enabled", "Title", "sortable_title", "SearchableText"])
+        ccc = self.portal.get("annexes_types")
+        group = ccc is not None and ccc.get("sign_request_appendix_files") or None
+        if group is not None and not group.to_be_printed_activated:
+            group.to_be_printed_activated = True
+            logger.info("Activated the print flag on the signing request appendix category group")
 
 
 def migrate(context):  # noqa

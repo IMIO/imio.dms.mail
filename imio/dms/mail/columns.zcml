@@ -221,6 +221,24 @@
     />
 
   <adapter
+    name="print-column"
+    for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    provides="z3c.table.interfaces.IColumn"
+    factory=".browser.iconified_category.PrintColumn"
+    />
+
+  <adapter
+    name="print-column"
+    for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+         zope.interface.Interface
+         collective.dms.basecontent.browser.listing.VersionsTable"
+    provides="z3c.table.interfaces.IColumn"
+    factory=".browser.iconified_category.PrintColumn"
+    />
+
+  <adapter
     name="session-id-column"
     for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
          zope.interface.Interface

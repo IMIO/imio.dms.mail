@@ -713,6 +713,13 @@
         />
 
     <browser:page
+        for="imio.dms.mail.interfaces.IReqDashboard"
+        name="document_generation_helper_view"
+        class="imio.dms.mail.browser.documentgenerator.DocumentGenerationOMDashboardHelper"
+        permission="zope2.View"
+        />
+
+    <browser:page
         for="imio.dms.mail.interfaces.IDocsDashboard"
         name="document-generation"
         class="imio.dms.mail.browser.documentgenerator.DbDocumentGenerationView"

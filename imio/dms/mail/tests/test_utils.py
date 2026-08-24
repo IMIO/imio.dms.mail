@@ -19,6 +19,7 @@ from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import dv_clean
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
+from imio.dms.mail.utils import esign_formats_key
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
@@ -43,6 +44,7 @@ from mock import patch
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
+from plone.api.exc import InvalidParameterError
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry import field as reg_field
@@ -127,14 +129,20 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         states = [state for state, title in list_wf_states(self.portal, "sign_request")]
         self.assertEqual(states, ["created", "to_approve", "to_be_signed", "signed", "closed"])
 
-    def test_get_allowed_content_types_sign_request(self):
+    def test_esign_formats_key(self):
+        self.assertEqual(esign_formats_key("sign_request"), "request_esign_formats")
+        self.assertEqual(esign_formats_key("dmsoutgoingmail"), "omail_esign_formats")
+        self.assertEqual(esign_formats_key(None), "omail_esign_formats")
+
+    def test_get_allowed_content_types(self):
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_esign_formats", ["odt", "pdf"]
         )
         self.assertEqual(
-            get_allowed_content_types(portal_type="sign_request"),
+            get_allowed_content_types("request_esign_formats"),
             ["application/vnd.oasis.opendocument.text", "application/pdf"],
         )
+        self.assertRaises(InvalidParameterError, get_allowed_content_types, "unknown_formats")
 
     def test_ensure_set_field(self):
         now1 = datetime.now()

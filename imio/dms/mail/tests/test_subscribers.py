@@ -202,7 +202,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.imail.assigned_user, "agent")
 
     def test_correct_to_print(self):
-        """to_print is auto-derived: main files follow (not esign), appendix always False."""
+        """to_print is auto-derived from the file type and its container."""
         omail = sub_create(
             self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(),
             "omail-tp-test",
@@ -222,18 +222,29 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 content_category=calculate_category_id(ct),
             )
 
-        # GED main, esign off -> to_print True
-        main_off = _add("dmsommainfile", "main-off", False)
-        self.assertTrue(main_off.to_print)
-        # GED main, esign on -> to_print False
-        main_on = _add("dmsommainfile", "main-on", True)
-        self.assertFalse(main_on.to_print)
-        # appendix, esign off -> always False
-        app_off = _add("dmsappendixfile", "app-off", False)
-        self.assertFalse(app_off.to_print)
-        # appendix, esign on -> always False
-        app_on = _add("dmsappendixfile", "app-on", True)
-        self.assertFalse(app_on.to_print)
+        # GED main -> True, whatever the signature mode
+        self.assertTrue(_add("dmsommainfile", "main-off", False).to_print)
+        self.assertTrue(_add("dmsommainfile", "main-on", True).to_print)
+        # appendix of an outgoing mail -> always False
+        self.assertFalse(_add("dmsappendixfile", "app-off", False).to_print)
+        self.assertFalse(_add("dmsappendixfile", "app-on", True).to_print)
+        # appendix of a signing request -> True
+        _request, req_files = create_sign_request(self.portal, oid="sr-to-print", nb_files=1)
+        self.assertTrue(req_files[0].to_print)
+        # a file refused by the printable adapter keeps its deactivated value, so the
+        # icon stays blocked instead of falling back to a clickable False
+        rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_print_formats"
+        api.portal.set_registry_record(rec, ["odt"])
+        try:
+            for ptype, oid in (("dmsommainfile", "main-pdf"), ("dmsappendixfile", "app-pdf")):
+                refused = createContentInContainer(
+                    omail, ptype, id=oid,
+                    file=NamedBlobFile(b"x", filename=u"a.pdf", contentType="application/pdf"),
+                    content_category=calculate_category_id(ct),
+                )
+                self.assertIsNone(refused.to_print, ptype)
+        finally:
+            api.portal.set_registry_record(rec, ["odt", "pdf"])
         # 'to_be_printed_activated' gate: a main that would be to_print (esign off)
         # stays False when its category group has printing deactivated
         group = self.portal["annexes_types"]["outgoing_dms_files"]

@@ -7,6 +7,7 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.browser.iconified_category import ApprovedChangeView
 from imio.dms.mail.browser.iconified_category import ApprovedColumn
+from imio.dms.mail.browser.iconified_category import PrintColumn
 from imio.dms.mail.browser.iconified_category import SignedChangeView
 from imio.dms.mail.browser.iconified_category import SignedColumn
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
@@ -16,11 +17,13 @@ from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
 from imio.helpers.content import uuidToCatalogBrain
 from imio.helpers.test_helpers import ImioTestHelpers
+from mock import Mock
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
+from zope.i18n import translate
 from zope.intid.interfaces import IIntIds
 
 import unittest
@@ -243,6 +246,32 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         old_values = {"to_approve": True, "approved": True}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": True, "approved": True}))
         self.assertEqual(view.msg, u"Waiting for your approval (click to approve)")
+
+    def _msg(self, msgid):
+        """Translate an iconified category message, as the columns do."""
+        return translate(msgid, domain="collective.iconifiedcategory", context=self.portal.REQUEST)
+
+    def test_print_column(self):
+        """A file refused for printing shows the reason, not the generic upstream message."""
+        rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_print_formats"
+        api.portal.set_registry_record(rec, ["odt"])
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        refused = createContentInContainer(
+            self.omail1, "dmsommainfile", id="file-pdf",
+            file=NamedBlobFile(b"x", filename=u"a.pdf", contentType="application/pdf"),
+            content_category=calculate_category_id(ct),
+        )
+        # the format is not configured for printing: to_print is deactivated, not unticked
+        self.assertIsNone(refused.to_print)
+        col = PrintColumn(self.omail1, self.portal.REQUEST, Mock(request=self.portal.REQUEST))
+        refused_cc = CategorizedContent(self.omail1, uuidToCatalogBrain(refused.UID()))
+        # a deactivated icon is grey and not clickable, whatever the user may edit
+        self.assertEqual(col.css_class(refused_cc), " deactivated")
+        self.assertEqual(col.get_url(refused_cc), "#")
+        self.assertEqual(col.alt(refused_cc), self._msg(u"File format can not be printed"))
+        # a file in a configured format keeps the standard message
+        file1_cc = CategorizedContent(self.omail1, uuidToCatalogBrain(self.file1.UID()))
+        self.assertEqual(col.alt(file1_cc), self._msg(u"Must be printed"))
 
     def test_signed_column(self):
         """Test signed column rendering"""

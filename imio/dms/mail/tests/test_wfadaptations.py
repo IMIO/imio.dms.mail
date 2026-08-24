@@ -279,6 +279,8 @@ class TestOMToPrintAdaptation(BaseTestWFAdaptations):
         self.assertIn("to_print", [dic["v"] for dic in folder["om_treating"].query if dic["i"] == "review_state"][0])
         self.assertEqual(folder.getObjectPosition("searchfor_to_be_signed"), 11)
         self.assertEqual(folder.getObjectPosition("searchfor_to_print"), 10)
+        tmpl = self.portal["templates"]["om"]["d-print-to-sign"]
+        self.assertIn(folder["searchfor_to_print"].UID(), tmpl.dashboard_collections)
         factory = getUtility(IVocabularyFactory, u"imio.dms.mail.OMReviewStatesVocabulary")
         self.assertEqual(len(factory(self.portal)), 6)
 

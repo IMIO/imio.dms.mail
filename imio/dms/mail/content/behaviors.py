@@ -12,6 +12,7 @@ from imio.dms.mail.browser.settings import validate_signer_approvings
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.utils import esign_formats_key
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import vocabularyname_to_terms
@@ -301,6 +302,7 @@ class ISigningBehavior(model.Schema):
         # Validate file formats if eSignature is enabled (only on outgoing mail or sign request, not on templates)
         if context and data.esign and (IImioDmsOutgoingMail.providedBy(context)
                                        or IImioDmsSignRequest.providedBy(context)):
+            formats_key = esign_formats_key(context.portal_type)
             for afile in context.values():
                 # Skip files already converted for esign
                 if base_hasattr(afile, "conv_from_uid"):
@@ -309,7 +311,7 @@ class ISigningBehavior(model.Schema):
                 if not afile.to_sign:
                     continue
                 mimetype = get_contenttype(afile.file)
-                if mimetype not in get_allowed_content_types(esign=True, portal_type=context.portal_type):
+                if mimetype not in get_allowed_content_types(formats_key):
                     raise Invalid(
                         _(
                             "You cannot enable electronic signature because the file '${filename}' "
@@ -323,7 +325,8 @@ class ISigningBehavior(model.Schema):
                                         for v in OMFileFormatsVocabulary()(None)
                                         if v.token
                                         in api.portal.get_registry_record(
-                                            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"
+                                            "imio.dms.mail.browser.settings."
+                                            "IImioDmsMailConfig.{}".format(formats_key)
                                         )
                                     ]
                                 ),

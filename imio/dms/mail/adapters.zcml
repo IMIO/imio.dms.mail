@@ -293,4 +293,10 @@
         factory="imio.dms.mail.adapters.DmsCategorizedObjectInfoAdapter"
         />
 
+    <adapter
+        for="imio.annex.content.annex.IAnnex"
+        provides="collective.iconifiedcategory.interfaces.IIconifiedPrintable"
+        factory="imio.dms.mail.adapters.DmsCategorizedObjectPrintableAdapter"
+        />
+
 </configure>
