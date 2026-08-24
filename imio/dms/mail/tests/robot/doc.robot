@@ -345,6 +345,10 @@ CS en réponse
     Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-1-edition-reponse.png  id=content
     Select checkbox  id=form-widgets-send_modes-0
+    Click element  id=fieldsetlegend-signing
+    Wait until element is visible  css=.template-reply #form-widgets-ISigningBehavior-esign-0  10
+    Sleep  1
+    Capture and crop page screenshot  doc/utilisation/2-3-1-cs-1-edition-reponse-signing.png  id=content
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-1-edition-reponse-finie.png  id=content
@@ -376,7 +380,7 @@ CS en réponse
     Remove element  id=${note52}
     Delete content  /plone/${om_path}/012999900000001
 
-    # Mailing
+    # Mailing on recipients
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/${om_path}
     ${REC1} =  Path to uid  /${PLONE_SITE_ID}/contacts/marc-leduc
     ${REC2} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Dexter  lastname=Morgan  zip_code=5000  city=Namur  street=Place du Théâtre  number=5  email=dexter.morgan@mpd.am
@@ -411,8 +415,18 @@ CS en réponse
     Delete content  /plone/${om_path}/012999900000001-1
     Delete content  /plone/${om_path}/012999900000001
 
-    ### Add mainfile
+    # mailing on send modes
     Set field value  ${UID}  recipients  ['${REC1}']  references
+    Set field value  ${UID}  send_modes  ['post','post_registered']  list
+    Go to  ${PLONE_URL}/${om_path}/edit
+    Sleep  0.5
+    Wait until element is visible  css=.template-dmsdocument-edit #formfield-form-widgets-IClassificationFolder-classification_folders  10
+    Capture and crop page screenshot  doc/utilisation/2-3-1-cs-4-multiple-send-modes.png  css=#content h1  id=formfield-form-widgets-mail_type
+    Click button  id=form-buttons-cancel
+    Set field value  ${UID}  send_modes  ['post']  list
+
+    ### Add mainfile
+    #Set field value  ${UID}  recipients  ['${REC1}']  references
     Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
     #Update element style  css=#viewlet-above-content-title select[name="Add element"]  padding-right  1em
