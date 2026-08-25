@@ -951,21 +951,25 @@ class VariousUtilsMethods(UtilsMethods):
             "portal_type": "dmsmainfile",
             "sort_on": "scan_id",
             "sort_order": "descending",
-            "sort_limit": limit,
         }
-        if typ == "im":
-            criterias["id"] = {"not": "email.pdf"}
-        elif typ == "iem":
-            criterias["id"] = "email.pdf"
-        elif typ == "om":
+        # incoming email files are named as incoming mail ones: only the parent type discriminates them,
+        # hence no sort_limit (an index would be needed if this gets slow)
+        parent_type = {"im": "dmsincomingmail", "iem": "dmsincoming_email"}.get(typ)
+        if typ == "om":
             criterias["portal_type"] = "dmsommainfile"
-        brains = pc.unrestrictedSearchResults(**criterias)[:limit]
-        for brain in brains:
+            criterias["sort_limit"] = limit
+        found = 0
+        for brain in pc.unrestrictedSearchResults(**criterias):
             obj = brain._unrestrictedGetObject()
             mail = obj.getParentNode()
+            if parent_type and mail.portal_type != parent_type:
+                continue
             out.append(
                 u"{} ({}) in {} ({})".format(obj.scan_id, obj.version, mail.internal_reference_no, object_link(mail))
             )
+            found += 1
+            if found == limit:
+                break
         sep = u"\n<br />"
         return sep.join(out)
 
