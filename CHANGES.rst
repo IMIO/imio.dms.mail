@@ -4,7 +4,8 @@ Changelog
 3.1.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Adapted list_last_scan to discriminate incoming mails and emails on the parent type (DMS-1235).
+  [chris-adam]
 
 
 3.1.6 (2026-08-14)
