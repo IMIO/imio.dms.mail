@@ -6,7 +6,10 @@ from collective.documentgenerator.utils import need_mailing_value
 from collective.iconifiedcategory.browser.actionview import ApprovedChangeView as BaseApprovedChangeView
 from collective.iconifiedcategory.browser.actionview import SignedChangeView as BaseSignedChangeView
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
+from collective.iconifiedcategory.browser.tabview import PrintColumn as BasePrintColumn
 from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSignedColumn
+from collective.iconifiedcategory.utils import print_message
+from imio.dms.mail.utils import esign_formats_key
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import logger  # noqa F401
 # from imio.esign.audit import audit as esign_audit
@@ -253,7 +256,7 @@ class SignedColumn(BaseSignedColumn):
         # allowed file type for signing
         allowed_type = (not getattr(self.context, "esign", False)
                         or content.contentType in get_allowed_content_types(
-                            esign=True, portal_type=self.context.portal_type))
+                            esign_formats_key(self.context.portal_type)))
         editable = allowed_type and self.is_editable(content) and " editable" or ""
         # when deactivated, anyone will see a grey icon
         # before to_approve
@@ -349,3 +352,10 @@ class SignedChangeView(BaseSignedChangeView):
         if self.reload and json_resp.rstrip().endswith("}"):
             json_resp = json_resp.rstrip()[:-1] + ',"reload": true}'
         return json_resp
+
+
+class PrintColumn(BasePrintColumn):
+
+    def alt(self, content):
+        msg = getattr(content, "to_print_message", None) or print_message(content)
+        return translate(msg, domain="collective.iconifiedcategory", context=self.table.request)

@@ -6,6 +6,8 @@ Changelog
 
 - Improved file ordering in eSign session: ged files most recent first, appendices sorted alphabetically.
   [chris-adam]
+- Refactored before/after signature print templates (PARAF-220).
+  [chris-adam]
 
 
 3.1.6 (2026-08-14)

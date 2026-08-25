@@ -9,8 +9,12 @@ from imio.dms.mail.browser.documentgenerator import OutgoingMailLinksViewlet
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.interfaces import IImioDmsMailLayer
 from imio.dms.mail.testing import change_user
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import PREVIEW_CLEANED_DATE
+from imio.dms.mail.utils import PREVIEW_EML_DATE
 from imio.helpers.content import get_object
+from mock import Mock
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
@@ -18,6 +22,7 @@ from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
+from zope.i18n import translate
 from zope.interface import alsoProvides
 from zope.interface import noLongerProvides
 from zope.intid.interfaces import IIntIds
@@ -27,6 +32,16 @@ from zope.lifecycleevent import ObjectModifiedEvent
 import mocker  # must be replaced in Plone 5 with python 3 unittest.mock
 import unittest
 import zope.event
+
+
+def set_infos(fobj, **infos):
+    """Set print related attributes on a file and refresh its stored categorized infos."""
+    container = fobj.aq_parent
+    for name, value in infos.items():
+        setattr(fobj, name, value)
+    update_categorized_elements(container, fobj, get_category_object(fobj, fobj.content_category))
+    container.categorized_elements[fobj.UID()].update(infos)
+    container._p_changed = True
 
 
 class TestDocumentGenerator(unittest.TestCase):
@@ -280,23 +295,23 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertListEqual(view.flatten_group_by_tg(view.group_by_tg(brains2)), res)
 
         # Test get_dms_files
-        def set_to_print(fobj, value):
-            fobj.to_print = value
-            parent = fobj.aq_parent
-            elements = getattr(parent, "categorized_elements", None)
-            if elements is None or fobj.UID() not in elements:
-                category = get_category_object(fobj, fobj.content_category)
-                update_categorized_elements(parent, fobj, category)
-                elements = parent.categorized_elements
-            elements[fobj.UID()]["to_print"] = value
-            parent._p_changed = True
+        def printed(entries):
+            """Return [(container, [mainfile titles], [annex titles]), ...] of get_dms_files."""
+            return [
+                (e["container"],
+                 [d["title"] for d in e["mainfiles"]],
+                 [d["title"] for d in e["annexes"]])
+                for e in entries
+            ]
 
         view.context_var = lambda x: brains
         m0, m1, m2 = view.objs[0], view.objs[1], view.objs[2]
         # by default nothing is marked to_print -> nothing is returned
         for mail in (m0, m1, m2):
-            set_to_print(mail["1"], False)
+            set_infos(mail["1"], to_print=False)
         self.assertListEqual(view.get_dms_files(), [])
+        # a converted documentviewer annotation, borrowed from a main file of the fixture
+        dv_annot = IAnnotations(m0["1"])["collective.documentviewer"]
         # add a (non-odt) appendix to the first mail, reusing the main file category
         filespath = u"%s/batchimport/toprocess/incoming-mail" % PRODUCT_DIR
         with open(u"%s/in-courrier2.pdf" % filespath, "rb") as fo:
@@ -305,124 +320,205 @@ class TestDocumentGenerator(unittest.TestCase):
                 file=NamedBlobFile(fo.read(), filename=u"in-courrier2.pdf"),
                 content_category=m0["1"].content_category,
             )
+        IAnnotations(appendix)["collective.documentviewer"] = dv_annot
         # mark to_print on m0 main + its appendix and m1 main; m2 main stays False
-        set_to_print(m0["1"], True)
-        set_to_print(appendix, True)
-        set_to_print(m1["1"], True)
-        # main file before appendix within m0, then m1 main; m2 (not to_print) excluded
-        self.assertListEqual(view.get_dms_files(), [(m0["1"], 1), (appendix, 1), (m1["1"], 2)])
-        # limit caps the number of returned files by mail, not the total
-        self.assertListEqual(view.get_dms_files(limit=1), [(m0["1"], 1), (m1["1"], 2)])
-        self.assertListEqual(view.get_dms_files(limit=2), [(m0["1"], 1), (appendix, 1), (m1["1"], 2)])
-        # signed=True: e-signed files + appendix files to_print, whatever the main files to_print
-        self.assertListEqual(view.get_dms_files(signed=True), [(appendix, 1)])
-        m1["1"].esigned = True
-        m2["1"].esigned = True
-        self.assertListEqual(view.get_dms_files(signed=True), [(appendix, 1), (m1["1"], 2), (m2["1"], 1)])
-        # m0 main file converted to pdf when added to a sign session: only the pdf is considered
+        set_infos(m0["1"], to_print=True)
+        set_infos(appendix, to_print=True)
+        set_infos(m1["1"], to_print=True)
+        # files are grouped by mail, ged files and annexes kept apart, m2 (not to_print) excluded
+        self.assertListEqual(
+            printed(view.get_dms_files()),
+            [(m0, [m0["1"].Title()], [u"appendix"]), (m1, [m1["1"].Title()], [])],
+        )
+        # each file carries its preview pages, numbered from 1 inside its own group
+        entry = view.get_dms_files()[0]
+        self.assertEqual(entry["mainfiles"][0]["number"], 1)
+        self.assertEqual(entry["annexes"][0]["number"], 1)
+        self.assertEqual(entry["annexes"][0]["number_of_images"], dv_annot["num_pages"])
+        self.assertEqual(len(entry["annexes"][0]["images"]), dv_annot["num_pages"])
+        self.assertEqual(sorted(entry["annexes"][0]["images"][0].keys()), ["number", "path"])
+        # after electronic signature: e-signed ged files and appendix files, both marked to_print
+        view.pod_template = self.portal["templates"]["om"]["d-print-signed"]
+        self.assertListEqual(printed(view.get_dms_files()), [(m0, [], [u"appendix"])])
+        for mail in (m1, m2):
+            set_infos(mail["1"], esigned=True)
+        # m2 ged file is signed but not marked to_print, so it is left out
+        self.assertListEqual(
+            printed(view.get_dms_files()),
+            [(m0, [], [u"appendix"]),
+             (m1, [m1["1"].Title()], [])],
+        )
+        view.pod_template = None
+        # m0 ged file converted to pdf when added to a sign session: only the pdf is considered
         with open(u"%s/in-courrier2.pdf" % filespath, "rb") as fo:
             pdf = createContentInContainer(
                 m0, "dmsommainfile", id="pdf1", title=u"converted",
                 file=NamedBlobFile(fo.read(), filename=u"converted.pdf"),
                 content_category=m0["1"].content_category, conv_from_uid=m0["1"].UID(),
             )
-        set_to_print(pdf, True)
-        pdf.esigned = True
-        self.assertListEqual(view.get_dms_files(), [(pdf, 1), (appendix, 1), (m1["1"], 2)])
-        self.assertListEqual(view.get_dms_files(signed=True), [(pdf, 1), (appendix, 1), (m1["1"], 2), (m2["1"], 1)])
-        # m1 main file mailed: only the mailed version is considered, even if it's not e-signed
+        IAnnotations(pdf)["collective.documentviewer"] = dv_annot
+        set_infos(pdf, to_print=True)
+        self.assertEqual(
+            printed(view.get_dms_files())[0], (m0, [u"converted"], [u"appendix"]))
+        # m1 ged file mailed: only the mailed version is considered
         with open(u"%s/in-courrier2.pdf" % filespath, "rb") as fo:
             mailed = createContentInContainer(
                 m1, "dmsommainfile", id="mailed1", title=u"mailed",
                 file=NamedBlobFile(fo.read(), filename=u"mailed.pdf"),
                 content_category=m1["1"].content_category,
             )
-        set_to_print(mailed, True)
+        IAnnotations(mailed)["collective.documentviewer"] = dv_annot
+        set_infos(mailed, to_print=True)
         IAnnotations(mailed)["documentgenerator"] = {"mailed": True, "from_doc_uid": m1["1"].UID()}
-        self.assertListEqual(view.get_dms_files(), [(pdf, 1), (appendix, 1), (mailed, 1)])
-        self.assertListEqual(view.get_dms_files(signed=True), [(pdf, 1), (appendix, 1), (m2["1"], 1)])
-        # not rendered from a dashboard -> empty
-        del view.request.form["facetedQuery"]
-        self.assertListEqual(view.get_dms_files(), [])
+        self.assertEqual(
+            printed(view.get_dms_files())[1], (m1, [u"mailed"], []))
 
-        # Test get_num_pages
-        self.assertEquals(view.get_num_pages(view.objs[0]["1"]), 1)
-        self.assertEquals(view.get_num_pages(view.objs[1]["1"]), 2)
-        self.assertEquals(view.get_num_pages(view.objs[2]["1"]), 1)
-        self.assertEquals(view.get_num_pages(self.portal["incoming-mail"]), 0)
+        # Test the mailing rule: after signature, a mailing left one main file per
+        # recipient, so the annexes are printed again below each of them
+        self.assertTrue(view._container_files(m1)[2], "m1 holds a mailed file")
+        self.assertFalse(view._container_files(m0)[2], "m0 holds no mailed file")
+        # not a signed print here, so nothing is repeated
+        self.assertFalse(view.get_dms_files()[1]["repeat_annexes"])
+        entry = {"mainfiles": [{"id": u"a"}, {"id": u"b"}], "annexes": [{"id": u"x"}],
+                 "repeat_annexes": True}
+        self.assertEqual([(kind, dic["id"]) for kind, dic in view._print_order(entry)],
+                         [("mainfiles", u"a"), ("annexes", u"x"),
+                          ("mainfiles", u"b"), ("annexes", u"x")])
+        entry["repeat_annexes"] = False
+        self.assertEqual([(kind, dic["id"]) for kind, dic in view._print_order(entry)],
+                         [("mainfiles", u"a"), ("mainfiles", u"b"), ("annexes", u"x")])
 
-        # Test get_dv_images
-        images = view.get_dv_images(view.objs[0]["1"])
-        self.assertEqual(len(images), 1)
-        self.assertTrue(hasattr(images[0], "read"))
-        images[0].close()
-
-        # Test is_odt
-        self.assertTrue(view.is_odt(m0["1"]))
-        self.assertFalse(view.is_odt(appendix))
-
-        # add an image appendix (a logo)
-        png = (b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
-               b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00"
-               b"\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82")
-        img_appendix = createContentInContainer(
-            m0, "dmsappendixfile", id="logo", title=u"logo",
-            file=NamedBlobFile(png, filename=u"logo.png", contentType="image/png"),
-            content_category=m0["1"].content_category,
-        )
-        # Test is_image
-        self.assertTrue(view.is_image(img_appendix))
-        self.assertFalse(view.is_image(m0["1"]))
-        self.assertFalse(view.is_image(appendix))
-        # Test img_format
-        self.assertEqual(view.img_format(img_appendix), "png")
-        img_appendix.file.contentType = "image/jpeg"
-        self.assertEqual(view.img_format(img_appendix), "jpg")
-        img_appendix.file.contentType = "image/png"
-
-        # Test get_print_pages
-        self.assertListEqual(view.get_print_pages(m0["1"]), [])
-        self.assertListEqual(view.get_print_pages(img_appendix), [])
-        # borrow a real (converted) documentviewer annotation for the pdf appendix
-        dv_annot = IAnnotations(m0["1"])["collective.documentviewer"]
-        IAnnotations(appendix)["collective.documentviewer"] = dv_annot
-        pages = view.get_print_pages(appendix)
-        self.assertEqual(len(pages), dv_annot["num_pages"])
-        self.assertEqual(sorted(pages[0].keys()), ["data", "format"])
-        self.assertTrue(isinstance(pages[0]["data"], (bytes, str)))
-
-        # get_print_pages regenerates an expired (dv_clean) preview before printing.
+        # Test _usable_preview: an expired (dv_clean) preview is regenerated before printing
         del IAnnotations(appendix)["collective.documentviewer"]
         Converter(appendix)()
         appendix_annot = IAnnotations(appendix)["collective.documentviewer"]
         real_num_pages = appendix_annot["num_pages"]
         self.assertGreaterEqual(real_num_pages, 1)
-        # simulate the dv_clean placeholder (single page, old sentinel date)
         appendix_annot["num_pages"] = 1
-        appendix_annot["last_updated"] = "2010-01-01T00:00:00"
-        pages = view.get_print_pages(appendix)
-        # the real preview was regenerated: full page count restored and sentinel cleared
-        self.assertEqual(len(pages), real_num_pages)
+        appendix_annot["last_updated"] = PREVIEW_CLEANED_DATE
+        self.assertTrue(view._usable_preview(appendix))
+        self.assertEqual(IAnnotations(appendix)["collective.documentviewer"]["num_pages"], real_num_pages)
         self.assertNotEqual(
-            IAnnotations(appendix)["collective.documentviewer"]["last_updated"], "2010-01-01T00:00:00"
-        )
-        # no usable preview -> warning message and the file is left out of the printing
+            IAnnotations(appendix)["collective.documentviewer"]["last_updated"], PREVIEW_CLEANED_DATE)
+        # an email that could never be converted is never regenerated, only skipped
+        IAnnotations(appendix)["collective.documentviewer"]["last_updated"] = PREVIEW_EML_DATE
+        self.assertFalse(view._usable_preview(appendix))
+        # no usable preview -> the file is left out of the printing and a warning is shown
         IAnnotations(appendix)["collective.documentviewer"] = {"successfully_converted": False}
-        self.assertListEqual(view.get_print_pages(appendix), [])
-        msgs = IStatusMessage(view.request).show()
-        self.assertEqual(len(msgs), 1)
-        self.assertIn(u"no preview image found", msgs[0].message)
-        # restore the borrowed annotation for the following assertions
+        IStatusMessage(view.request).show()  # empty the queue
+        self.assertEqual(printed(view.get_dms_files())[0], (m0, [u"converted"], []))
+        msgs = [m.message for m in IStatusMessage(view.request).show()]
+        self.assertTrue([m for m in msgs if u"no preview image found" in m], msgs)
         IAnnotations(appendix)["collective.documentviewer"] = dv_annot
 
-        # Test print_page_count / needs_blank_after
-        self.assertEqual(view.print_page_count(img_appendix), 1)
-        self.assertTrue(view.needs_blank_after(img_appendix))
-        # a non-odt file occupies its documentviewer preview pages -> blank if odd
-        self.assertEqual(view.print_page_count(appendix), dv_annot["num_pages"])
-        self.assertEqual(view.needs_blank_after(appendix), dv_annot["num_pages"] % 2 == 1)
-        # odt files manage their own duplex page break, so they never need one here
-        self.assertFalse(view.needs_blank_after(m0["1"]))
+        # Test print_annex_header: each template reads its own configuration option
+        rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}"
+        om_tmplts = self.portal["templates"]["om"]
+        # without a print template in context there is no option to read
+        view.pod_template = None
+        self.assertRaises(KeyError, view.print_annex_header)
+        # the hand signature template
+        view.pod_template = om_tmplts["d-print-to-sign"]
+        self.assertFalse(view.print_annex_header())
+        api.portal.set_registry_record(rec.format("omail_print_manual_annex_header"), True)
+        self.assertTrue(view.print_annex_header())
+        # the electronic signature template reads its own option
+        view.pod_template = om_tmplts["d-print-signed"]
+        self.assertFalse(view.print_annex_header())
+        api.portal.set_registry_record(rec.format("omail_print_esign_annex_header"), True)
+        self.assertTrue(view.print_annex_header())
+        # a signing request reads its own option, not the outgoing mail ones
+        view.pod_template = om_tmplts["d-print-request"]
+        self.assertFalse(view.print_annex_header())
+        api.portal.set_registry_record(rec.format("request_print_esign_annex_header"), True)
+        self.assertTrue(view.print_annex_header())
+        view.pod_template = None
+
+        # Test image_orientation: only a landscape image is rotated to fill the page
+        self.assertEqual(view.image_orientation(Mock(width=200, height=100)), "-rotate 270")
+        self.assertIsNone(view.image_orientation(Mock(width=100, height=200)))
+        self.assertIsNone(view.image_orientation(Mock(width=100, height=100)))
+
+        # Test is_signed_print: the rendered template tells which of the two cases applies
+        self.assertFalse(view.is_signed_print())  # no pod_template at all
+        view.pod_template = self.portal["templates"]["om"]["d-print-to-sign"]
+        self.assertFalse(view.is_signed_print())
+        view.pod_template = self.portal["templates"]["om"]["d-print-signed"]
+        self.assertTrue(view.is_signed_print())
+        view.pod_template = self.portal["templates"]["om"]["d-print-to-sign"]
+
+        # Test annex_header
+        entry = view.get_dms_files()[0]
+        annex = entry["annexes"][0]
+        header = translate(view.annex_header(entry, annex, {"number": 2}), context=view.request)
+        self.assertIn(u"1/1", header)
+        self.assertIn(annex["title"], header)
+        self.assertIn(u"2/{}".format(annex["number_of_images"]), header)
+
+        # Test get_print_pages: one entry per page, ged pages first, header only on annexes
+        api.portal.set_registry_record(rec.format("omail_print_manual_annex_header"), False)
+        pages = view.get_print_pages()
+        self.assertTrue(pages)
+        self.assertEqual(sorted(pages[0].keys()), ["header", "path"])
+        # header option off -> no page carries a header
+        self.assertEqual([p["header"] for p in pages], [u""] * len(pages))
+        # header option on -> only the annex pages carry one
+        api.portal.set_registry_record(rec.format("omail_print_manual_annex_header"), True)
+        headers = [p["header"] for p in view.get_print_pages()]
+        self.assertTrue([h for h in headers if h], headers)
+        self.assertTrue([h for h in headers if not h], headers)
+        # a document with an odd number of pages is followed by a blank page, so the next
+        # document starts on the front of a sheet; the last document is never followed by one
+        def entries(*counts):
+            annexes = [{"title": u"d%d" % i, "number": i + 1, "number_of_images": nb,
+                        "images": [{"number": j + 1, "path": "/preview.jpg"} for j in range(nb)]}
+                       for i, nb in enumerate(counts)]
+            return [{"container": m0, "mainfiles": [], "annexes": annexes}]
+
+        view.get_dms_files = lambda: entries(1, 2, 3)
+        self.assertEqual([bool(page["path"]) for page in view.get_print_pages()],
+                         [True, False, True, True, True, True, True])
+        # a single document with an odd number of pages gets nothing either
+        view.get_dms_files = lambda: entries(1)
+        self.assertEqual([bool(page["path"]) for page in view.get_print_pages()], [True])
+
+    def test_get_dms_files_on_sign_request(self):
+        """A signing request holds appendix files only, so every file it prints is an annex."""
+        view = self.omf["mail-searches"].unrestrictedTraverse("@@document_generation_helper_view")
+        request, req_files = create_sign_request(self.portal, oid="sr-files", nb_files=2)
+        signed_file, annex_file = req_files
+        # borrow a converted documentviewer annotation so both files have preview images
+        dv_annot = IAnnotations(
+            get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"])["collective.documentviewer"]
+        for fobj, esigned, to_print in ((signed_file, True, True), (annex_file, False, True)):
+            IAnnotations(fobj)["collective.documentviewer"] = dv_annot
+            set_infos(fobj, esigned=esigned, to_print=to_print)
+        view.print_containers = lambda: [request]
+        view.pod_template = self.portal["templates"]["om"]["d-print-request"]
+        entries = view.get_dms_files()
+        self.assertEqual(len(entries), 1)
+        entry = entries[0]
+        # the signed file and the file marked to print are one single annex group,
+        # numbered across the whole request
+        self.assertEqual(entry["mainfiles"], [])
+        self.assertEqual([d["UID"] for d in entry["annexes"]],
+                         [signed_file.UID(), annex_file.UID()])
+        self.assertEqual([d["number"] for d in entry["annexes"]], [1, 2])
+        # with the signing request option on, every printed page carries a header
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_print_esign_annex_header", True)
+        pages = [page for page in view.get_print_pages() if page["path"]]  # blank pages have none
+        self.assertTrue(pages)
+        self.assertTrue(all(page["header"] for page in pages))
+        # a file selected because it is signed is not printed a second time as an annex
+        set_infos(annex_file, esigned=True)
+        entry = view.get_dms_files()[0]
+        self.assertEqual(entry["mainfiles"], [])
+        self.assertEqual(len(entry["annexes"]), 2)
+        # a signed file not marked to_print is left out
+        set_infos(signed_file, to_print=False)
+        entry = view.get_dms_files()[0]
+        self.assertEqual([d["UID"] for d in entry["annexes"]], [annex_file.UID()])
 
     def test_DocumentGenerationDirectoryHelper(self):
         """

@@ -31,7 +31,7 @@ class TestSetuphandlers(unittest.TestCase):
             folder = self.portal.unrestrictedTraverse("/".join(parts[:-1]))
             self.assertEqual(folder.getObjectPosition(parts[-1]), tup[3], parts[-1])
         # subfolders are not moved: om stays first in templates, common first in om
-        self.assertEqual(self.portal["templates"]["om"].getObjectPosition("common"), 10)
+        self.assertEqual(self.portal["templates"]["om"].getObjectPosition("common"), 11)
 
     def test_requests_dashboard(self):
         self.assertTrue(hasattr(self.portal, "requests"))

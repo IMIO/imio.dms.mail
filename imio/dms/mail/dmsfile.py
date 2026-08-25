@@ -31,7 +31,7 @@ class RestrictedNamedBlobFile(NamedBlobFile):
             ):
                 return
             mimetype = get_contenttype(value)
-            if mimetype not in get_allowed_content_types():
+            if mimetype not in get_allowed_content_types("omail_formats_mainfile"):
                 allowed_formats = api.portal.get_registry_record(
                     "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile")
                 raise Invalid(_("Invalid file format. Allowed formats are: ${formats}.",

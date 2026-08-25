@@ -24,6 +24,8 @@ from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
+from collective.iconifiedcategory.adapter import CategorizedObjectPrintableAdapter
+from collective.iconifiedcategory.interfaces import IIconifiedPrintable
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.task.interfaces import ITaskContent
@@ -39,6 +41,7 @@ from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import esign_formats_key
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_post_approval_transition
@@ -72,7 +75,9 @@ from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubM
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
 from plone.indexer import indexer
+from plone.memoize.instance import memoize
 from plone.namedfile.file import NamedBlobFile
+from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRegistry
 from plone.rfc822.interfaces import IPrimaryFieldInfo
 from Products.ATContentTypes.interfaces.folder import IATFolder
@@ -92,6 +97,7 @@ from z3c.form.validator import SimpleFieldValidator
 from zope.annotation import IAnnotations
 from zope.component import adapter
 from zope.component import adapts
+from zope.component import getAdapter
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.i18n import translate
@@ -725,13 +731,13 @@ def markers_im_index(obj):
 def om_markers(obj):
     """Calculates IImioDmsOutgoingMail markers:
 
-    * lastDmsFileIsOdt
+    * lastDmsFileToPrint
     """
     markers = []
-    # Set lastDmsFileIsOdt
+    # Set lastDmsFileToPrint
     dfiles = object_values(obj, ["ImioDmsFile"])
-    if dfiles and dfiles[-1].is_odt():
-        markers.append("lastDmsFileIsOdt")
+    if dfiles and getattr(dfiles[-1], "to_print", False):
+        markers.append("lastDmsFileToPrint")
     # Set emailSent:
     if obj.email_status:
         markers.append("emailSent")
@@ -1907,7 +1913,7 @@ class ApprovalAdapter(object):
             pdf_file.to_sign = True
             pdf_file.to_approve = False
             pdf_file.approved = orig_fobj.approved
-            if base_hasattr(orig_fobj, "to_print"):
+            if getattr(orig_fobj, "to_print", None) is not None:
                 pdf_file.to_print = orig_fobj.to_print
             update_categorized_elements(
                 self.context,
@@ -1919,7 +1925,7 @@ class ApprovalAdapter(object):
             )
 
         new_filename = u"{}.pdf".format(f_title)
-        if nbf.contentType not in get_allowed_content_types(esign=True, portal_type=self.context.portal_type):
+        if nbf.contentType not in get_allowed_content_types(esign_formats_key(self.context.portal_type)):
             raise NotImplementedError("Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType))
         gen_context = {}
         orig_template = get_original_template(orig_fobj)
@@ -1985,6 +1991,14 @@ class ApprovalAdapter(object):
                 merged = merge_pdf(pdf_file_content, download_page)
                 pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
                 Converter(pdf_file)()  # Refresh pdf preview
+                if pdf_file.to_print is None:
+                    # this very object was refused for printing in its original format,
+                    # it holds a pdf now, so the question must be asked again
+                    from imio.dms.mail.subscribers import _correct_to_print  # avoid a cycle
+
+                    del pdf_file.to_print
+                    getAdapter(pdf_file, IIconifiedPrintable).update_object()
+                    _correct_to_print(pdf_file)
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
@@ -2098,6 +2112,29 @@ class SignRequestApprovalAdapter(ApprovalAdapter):
     after_approval_states = ("to_be_signed", "signed", "closed")
 
 
+class DmsCategorizedObjectPrintableAdapter(CategorizedObjectPrintableAdapter):
+    """Refuses printing a file with no preview or in a format that is not configured."""
+
+    @property
+    @memoize
+    def _convertible(self):
+        """Return the upstream check: can the file be converted to a preview at all."""
+        return super(DmsCategorizedObjectPrintableAdapter, self).is_printable
+
+    @property
+    def is_printable(self):
+        if not self._convertible:
+            return False
+        content_type = get_contenttype(getattr(self.context, "file", None))
+        return content_type in get_allowed_content_types("omail_print_formats")
+
+    @property
+    def error_message(self):
+        if not self._convertible:
+            return super(DmsCategorizedObjectPrintableAdapter, self).error_message
+        return u"File format can not be printed"
+
+
 class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
     """Adds more information on categorized elements"""
 
@@ -2106,4 +2143,5 @@ class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
         base_infos["scan_id"] = getattr(self.obj, "scan_id", None)
         base_infos["conv_from_uid"] = getattr(self.obj, "conv_from_uid", None)
         base_infos["esigned"] = getattr(self.obj, "esigned", False)
+        base_infos["to_print_message"] = getattr(self.obj, "to_print_message", None)
         return base_infos
