@@ -484,7 +484,7 @@ CS nouveau
     Set field value  ${UID}  sender  ${SENDER}  str
     Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
-    Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation-finie.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=formfield-form-widgets-internal_reference_no
+    Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation-finie.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=form-groups-signing
     Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Refection+trottoir.odt&title=Réfection+trottoir&mainfile_type=dmsommainfile
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
@@ -519,7 +519,7 @@ CS depuis le scanner
     Enable autologin as  scanner
     Go to  ${PLONE_URL}/import_scanned2
     Wait until element is visible  css=.faceted-table-results  10
-    Capture and crop page screenshot  doc/utilisation/2-3-3-cs-onglet-courrier-sortant.png  css=.site-plone  id=portal-footer-wrapper
+    # Capture and crop page screenshot  doc/utilisation/2-3-3-cs-onglet-courrier-sortant.png  css=.site-plone  id=portal-footer-wrapper
     Enable autologin as  encodeur
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=dmsoutgoingmail
     Go to  ${PLONE_URL}/${om_path}
@@ -942,7 +942,7 @@ Workflow cs
     Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-chef.png  css=div.viewlet_workflowstate  id=content-history  id=content-core
+    Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-chef.png  id=viewlet-above-content  id=formfield-form-widgets-recipients
     Enable autologin as  chef
     Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
