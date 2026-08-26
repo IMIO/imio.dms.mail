@@ -4,6 +4,8 @@ Changelog
 3.1.7 (unreleased)
 ------------------
 
+- Added items count on the ``requests`` tab, like on other tabs (``ICountableTab``).
+  [sgeulette]
 - Updated robotframework tests to include electronic signature (PARAF-166).
   [chris-adam]
 - Fixed ``ConnectionStateError`` crash when rendering datagrid fields
