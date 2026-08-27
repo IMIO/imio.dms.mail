@@ -5,6 +5,9 @@
    <!-- Load z3c.unconfigure meta directives before anything else -->
    <include package="z3c.unconfigure" file="meta.zcml" />
 
+   <!-- Load theme locales first: the first registered locales catalog wins.-->
+   <include package="plonetheme.imioapps"/>
+
    <!-- Load packages that will be unconfigured in zcml BEFORE configure.zcml -->
    <include package="collective.contact.core"/>
    <include package="collective.dms.basecontent"/>

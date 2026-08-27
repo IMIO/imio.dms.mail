@@ -669,7 +669,7 @@ Tableaux de bord
     Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-precedent-suivant.png  id=portal-breadcrumbs  css=#parent-fieldname-title span.pretty_link_content
 
 Recherche générale
-# partie 2.4.3 Recherche dans les fichiers scannés
+# partie 2.4.3 Recherche dans les fichiers importés
     [TAGS]  RUN2043
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
@@ -678,7 +678,7 @@ Recherche générale
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
     Set field value  ${UID1}  title  Organisation de la braderie annuelle  str
     Capture and crop page screenshot  doc/utilisation/2-4-3-barre-recherche-generale.png  id=portal-globalnav
-    Input text  searchGadget  kermes* boudin
+    Input text  searchGadget  kermes
     Wait until element is visible  LSResult  10
     Capture and crop page screenshot  doc/utilisation/2-4-3-recherche-livesearch.png  id=portal-searchbox  id=LSResult
     Click button  css=#portal-searchbox .searchButton
