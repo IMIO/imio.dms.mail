@@ -11,6 +11,8 @@ Changelog
 - Fixed ``ConnectionStateError`` crash when rendering datagrid fields
   in settings through robotframework tests (DMS-434).
   [chris-adam]
+- Added signer rules icon on sub-templates usage view. (PARAF-512)
+  [chris-adam]
 
 
 3.1.6 (2026-08-14)

@@ -4,8 +4,10 @@ from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.browser.documentgenerator import DmsSubTemplateColumn
 from imio.dms.mail.browser.documentgenerator import DmsTemplatesListing
 from imio.dms.mail.browser.documentgenerator import OutgoingMailLinksViewlet
+from imio.dms.mail.browser.documentgenerator import TemplateSignersColumn
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.interfaces import IImioDmsMailLayer
 from imio.dms.mail.testing import change_user
@@ -14,15 +16,20 @@ from imio.helpers.content import get_object
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from Products.CMFPlone.utils import safe_unicode
+from Products.Five.browser import BrowserView
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.interface import alsoProvides
 from zope.interface import noLongerProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.viewlet.interfaces import IViewlet
+from zope.viewlet.interfaces import IViewletManager
 
 import mocker  # must be replaced in Plone 5 with python 3 unittest.mock
 import unittest
@@ -642,6 +649,22 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(rep1.signers, empty_value)
         template.signers = template_signers
 
+        # "template_first", seal-only template: no signers to copy, but its flags still are
+        api.portal.set_registry_record(rk_so, u"template_first")
+        api.portal.set_registry_record(rk_rules, [])
+        template.signers = None
+        template.seal = True
+        template.esign = True
+        rep1.signers = None
+        rep1.seal = False
+        rep1.esign = False
+        view._copy_template_signers(template)
+        self.assertEqual(rep1.signers, empty_value)
+        self.assertTrue(rep1.seal)
+        self.assertTrue(rep1.esign)
+        api.portal.set_registry_record(rk_rules, original_rules)
+        template.signers = template_signers
+
         # MailingLoopTemplate: uses orig_template
         api.portal.set_registry_record(rk_so, u"template_first")
         mailing_view = rep1.restrictedTraverse("mailing-loop-persistent-document-generation")
@@ -660,7 +683,8 @@ class TestDocumentGenerator(unittest.TestCase):
         rep1.signers = original_mail_signers
 
     def test_get_template_signers_source(self):
-        from imio.dms.mail.browser.documentgenerator import get_template_signers_source
+        # the mixin methods are reachable from any of its users
+        mixin = TemplateSignersColumn(self.portal, self.portal.REQUEST, None)
 
         templates = self.portal["templates"]["om"]
         template = templates["main"]
@@ -676,49 +700,41 @@ class TestDocumentGenerator(unittest.TestCase):
         sub = templates["ending"]
         sub.signers = sub_signers
 
-        # get_template_signers_source returns a tuple (source_template_or_None, defined_on_template_itself)
-
-        # template defines its own signers: returned directly, itself=True
+        # template defines its own signers: returned directly
         template.signers = tpl_signers
         template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
-        source, itself = get_template_signers_source(template)
-        self.assertEqual(source.UID(), template.UID())
-        self.assertTrue(itself)
+        self.assertEqual(mixin.get_template_signers_source(template).UID(), template.UID())
+        # without first_match, every source is returned, in precedence order
+        self.assertEqual([t.UID() for t in mixin.get_template_signers_source(template, first_match=False)],
+                         [template.UID(), sub.UID()])
         template.signers = None
         template.seal = True
         template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
-        source, itself = get_template_signers_source(template)
-        self.assertEqual(source.UID(), template.UID())
-        self.assertTrue(itself)
+        self.assertEqual(mixin.get_template_signers_source(template).UID(), template.UID())
 
-        # template has no signers but a merge sub-template defines them: sub-template returned, itself=False
+        # template has no signers but a merge sub-template defines them: sub-template returned
         template.signers = None
         template.seal = False
-        source, itself = get_template_signers_source(template)
-        self.assertEqual(source.UID(), sub.UID())
-        self.assertFalse(itself)
+        self.assertEqual(mixin.get_template_signers_source(template).UID(), sub.UID())
         sub.signers = None
         sub.seal = True
-        source, itself = get_template_signers_source(template)
-        self.assertEqual(source.UID(), sub.UID())
-        self.assertFalse(itself)
+        self.assertEqual(mixin.get_template_signers_source(template).UID(), sub.UID())
         sub.signers = sub_signers
         sub.seal = False
 
-        # an _empty_ placeholder on the template counts as a defined value: template returned, itself=True
+        # an _empty_ placeholder on the template counts as a defined value: template returned
         template.signers = empty_value
-        source, itself = get_template_signers_source(template)
-        self.assertEqual(source.UID(), template.UID())
-        self.assertTrue(itself)
+        self.assertEqual(mixin.get_template_signers_source(template).UID(), template.UID())
 
-        # neither template nor sub-template define signers: (None, True)
+        # neither template nor sub-template define signers
         template.signers = None
         sub.signers = None
-        self.assertEqual(get_template_signers_source(template), (None, True))
+        self.assertIsNone(mixin.get_template_signers_source(template))
+        self.assertEqual(mixin.get_template_signers_source(template, first_match=False), [])
 
-        # no merge_templates at all: (None, True)
+        # no merge_templates at all
         template.merge_templates = []
-        self.assertEqual(get_template_signers_source(template), (None, True))
+        self.assertIsNone(mixin.get_template_signers_source(template))
 
         # end-to-end: template_first, template empty, sub-template provides signers/seal/esign
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
@@ -742,6 +758,62 @@ class TestDocumentGenerator(unittest.TestCase):
         template.signers = original_signers
         template.merge_templates = original_merge
         rep1.signers = original_rep1_signers
+
+    def test_render_signers_icon(self):
+        mixin = TemplateSignersColumn(self.portal, self.portal.REQUEST, None)
+
+        folder = self.portal["templates"]["om"]
+        template = folder["main"]
+        sub, other_sub = folder["ending"], folder["header"]
+        pf = self.portal["contacts"]["personnel-folder"]
+        signers = [{"number": 1, "signer": pf["dirg"]["directeur-general"].UID(), "editor": True,
+                    "approvings": [u"_empty_"]}]
+        originals = (template.signers, template.merge_templates, sub.signers, other_sub.signers)
+        template.signers, sub.signers, other_sub.signers = None, None, None
+        template.merge_templates = [
+            {"template": sub.UID(), "pod_context_name": u"a", "do_rendering": False},
+            {"template": other_sub.UID(), "pod_context_name": u"b", "do_rendering": False}]
+
+        # nothing defines signers: no icon at all
+        self.assertEqual(mixin.get_template_signers_source(template, first_match=False), [])
+        self.assertEqual(mixin.render_signers_icon(template), u"")
+
+        # signers on the template itself: green
+        template.signers = signers
+        self.assertEqual([t.UID() for t in mixin.get_template_signers_source(template, first_match=False)],
+                         [template.UID()])
+        self.assertIn(u"pt_self_signers", mixin.render_signers_icon(template))
+
+        # signers on a merge sub-template: orange
+        template.signers = None
+        sub.signers = signers
+        icon = mixin.render_signers_icon(template)
+        self.assertIn(u"pt_sub_signers", icon)
+        # the tooltip names the sub-template the signers come from
+        self.assertIn(safe_unicode(sub.Title()), icon)
+
+        # several sources: red, with a tooltip naming the one that applies
+        template.signers = signers
+        self.assertEqual([t.UID() for t in mixin.get_template_signers_source(template, first_match=False)],
+                         [template.UID(), sub.UID()])
+        icon = mixin.render_signers_icon(template)
+        self.assertIn(u"pt_conflict_signers", icon)
+        # the tooltip names the source that applies, then every source found
+        self.assertIn(u"{0} is being used out of {0}, {1}".format(
+            safe_unicode(template.Title()), safe_unicode(sub.Title())), icon)
+        # two sub-templates conflicting: the first merge_templates row wins
+        template.signers = None
+        other_sub.signers = signers
+        icon = mixin.render_signers_icon(template)
+        self.assertIn(u"pt_conflict_signers", icon)
+        self.assertIn(u"{0} is being used out of {0}, {1}".format(
+            safe_unicode(sub.Title()), safe_unicode(other_sub.Title())), icon)
+
+        # a type without the signing behavior never gets an icon
+        self.assertEqual(mixin.render_signers_icon(self.portal), u"")
+
+        # Cleanup
+        template.signers, template.merge_templates, sub.signers, other_sub.signers = originals
 
     def test_dg_templates_listing_signers_column(self):
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
@@ -806,6 +878,65 @@ class TestDocumentGenerator(unittest.TestCase):
         api.portal.set_registry_record(rk_so, u"rules")
         template.signers = original_signers
         template.merge_templates = original_merge
+        sub.signers = original_sub_signers
+
+    def test_sub_templates_usage_signers_icon(self):
+        rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
+        templates = self.portal["templates"]["om"]
+        sub = templates["ending"]
+        pf = self.portal["contacts"]["personnel-folder"]
+        dirg_hp = pf["dirg"]["directeur-general"]
+        request = self.portal.REQUEST
+        original_sub_signers = sub.signers
+
+        view = self.portal.restrictedTraverse("sub-templates-usage")
+        view.update()
+        # docgen's column is overridden, so the view flags the sub-template itself
+        column = view.table.columnByName["SubTemplateColumn"]
+        self.assertIsInstance(column, DmsSubTemplateColumn)
+
+        rows = [r for r in view.table.results if r["sub_template"].UID == sub.UID()]
+        first, continuations = rows[0], rows[1:]
+        signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
+        sub.signers = signers
+
+        # no icon when signers only come from the rules
+        api.portal.set_registry_record(rk_so, u"rules")
+        self.assertNotIn(u"_signers", column.renderCell(first))
+
+        for mode in (u"template_first", u"rules_first"):
+            api.portal.set_registry_record(rk_so, mode)
+            # the icon is appended to the sub-template link, once
+            cell = column.renderCell(first)
+            self.assertIn(u"pt_self_signers", cell)
+            self.assertIn(sub.absolute_url(), cell)
+            # a group continuation row does not repeat the sub-template, so no icon either
+            for row in continuations:
+                self.assertEqual(column.renderCell(row), u"")
+            # and no icon when the sub-template defines no signers
+            sub.signers = None
+            self.assertNotIn(u"_signers", column.renderCell(first))
+            sub.signers = signers
+
+        # the view renders the icon end to end, and drops it back in "rules" mode
+        for mode, expected in ((u"rules_first", True), (u"rules", False)):
+            api.portal.set_registry_record(rk_so, mode)
+            html = self.portal.restrictedTraverse("sub-templates-usage")()
+            self.assertIn(u"sub-template-column", html)
+            self.assertEqual(u"pt_self_signers" in html, expected)
+
+        # the viewlet hides the sub-template column, the only one carrying the icon
+        sub_view = BrowserView(sub, request)
+        manager = getMultiAdapter((sub, request, sub_view), IViewletManager, name="plone.belowcontentbody")
+        sub_viewlet = getMultiAdapter((sub, request, sub_view, manager), IViewlet, name="sub-template-usage")
+        api.portal.set_registry_record(rk_so, u"rules_first")
+        sub_viewlet.update()
+        rendered = sub_viewlet.render()
+        self.assertNotIn(u"sub-template-column", rendered)
+        self.assertNotIn(u"_signers", rendered)
+
+        # Cleanup
+        api.portal.set_registry_record(rk_so, u"rules")
         sub.signers = original_sub_signers
 
     def test_copy_template_signers_substitutes(self):
