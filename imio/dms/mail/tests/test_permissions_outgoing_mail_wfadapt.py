@@ -352,7 +352,10 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
         )
         self.assertHasNoPerms("chef", self.task)
 
+        change_user(self.portal, "scanner")
+        self.pw.doActionFor(self.omail, "mark_as_signed")
         self.pw.doActionFor(self.omail, "mark_as_sent")
+        change_user(self.portal, "chef")
         clean_borg_cache(self.portal.REQUEST)
 
         self.assertEqual(
