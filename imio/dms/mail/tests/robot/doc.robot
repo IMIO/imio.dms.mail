@@ -1163,10 +1163,10 @@ Gestion modèles
     Capture and crop page screenshot  doc/utilisation/2-10-2-copie-par-lot.png  css=.pb-ajax
     Click element  css=#form-buttons-cancel
     Wait until element is visible  css=#content-core  10
-    Go to  ${PLONE_URL}/templates/om/header/edit
-    ${note42}  Add pointy note  css=#form-widgets-style_template  Modifier le style utilisé  position=right  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-10-2-editer-sous-document.png  css=#content
-    Remove element  id=${note42}
+#    Go to  ${PLONE_URL}/templates/om/header/edit
+#    ${note42}  Add pointy note  css=#form-widgets-style_template  Modifier le style utilisé  position=right  color=blue
+#    Capture and crop page screenshot  doc/utilisation/2-10-2-editer-sous-document.png  css=#content
+#    Remove element  id=${note42}
     Go to  ${PLONE_URL}/templates/om/main/edit
     # ScrollDown  # doesn't change the fact the capture is outside !
     Wait until element is visible  form-widgets-merge_templates  10
