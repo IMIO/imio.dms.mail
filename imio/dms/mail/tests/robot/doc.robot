@@ -14,6 +14,8 @@ Suite Teardown  Close all browsers
 
 #${BROWSER} =  GoogleChrome
 ${SELENIUM_RUN_ON_FAILURE} =  Debug
+# Delay (seconds) added after each Selenium action. Override to watch a run, e.g. -v SELENIUM_SPEED:1.0
+${SELENIUM_SPEED} =  0.2
 
 *** Test Cases ***
 
@@ -23,7 +25,7 @@ Premiers pas
     #Log to console  LOG
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1-acces-a-lapplication.png  css=.site-plone  id=portal-footer-wrapper
-    Enable autologin as  encodeur
+    Enable autologin as  dirg
     #Log in  encodeur  Dmsmail69!
     Go to  ${PLONE_URL}
     Capture and crop page screenshot  doc/utilisation/2-1-page-daccueil.png  css=.site-plone  id=portal-footer-wrapper
@@ -194,6 +196,7 @@ CE numerisation
     Select from list by value  id=form-widgets-original_mail_date-day  6
     Select from list by value  id=form-widgets-original_mail_date-month  6
     Select from list by value  id=form-widgets-original_mail_date-year  2012
+    Select checkbox  id=form-widgets-send_modes-0
     Capture and crop page screenshot  doc/utilisation/2-2-1-edition-courrier-fini.png  id=content
     Click button  id=form-buttons-save
     Sleep  2
@@ -324,6 +327,7 @@ CS en réponse
     Set field value  ${UID}  recipient_groups  ['${DF}']  list
     Set field value  ${UID}  assigned_user  agent  str
     Set field value  ${UID}  external_reference_no  2017/ESB/00123  str
+    Set field value  ${UID}  send_modes  ['post']  list
     Go to  ${PLONE_URL}/${im_path}/edit
     Click button  id=form-buttons-save
     Fire transition  ${UID}  propose_to_n_plus_1
@@ -341,6 +345,10 @@ CS en réponse
     Sleep  1
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-1-edition-reponse.png  id=content
     Select checkbox  id=form-widgets-send_modes-0
+    Click element  id=fieldsetlegend-signing
+    Wait until element is visible  css=.template-reply #form-widgets-ISigningBehavior-esign-0  10
+    Sleep  1
+    Capture and crop page screenshot  doc/utilisation/2-3-1-cs-1-edition-reponse-signing.png  id=content
     Click button  id=form-buttons-save
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-1-edition-reponse-finie.png  id=content
@@ -367,12 +375,12 @@ CS en réponse
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-3-ged-genere.png  id=content
-    ${note52}  Add pointy note  css=#fieldset-versions tr.selected td:nth-child(3)  Édition externe  position=top  color=blue
+    ${note52}  Add pointy note  css=#fieldset-versions tr.selected a.apButtonAction_form_external_edit  Édition externe  position=top  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-3-ged-edition-externe.png  css=#fieldset-versions table  ${note52}
     Remove element  id=${note52}
     Delete content  /plone/${om_path}/012999900000001
 
-    # Mailing
+    # Mailing on recipients
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/${om_path}
     ${REC1} =  Path to uid  /${PLONE_SITE_ID}/contacts/marc-leduc
     ${REC2} =  Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Dexter  lastname=Morgan  zip_code=5000  city=Namur  street=Place du Théâtre  number=5  email=dexter.morgan@mpd.am
@@ -392,10 +400,10 @@ CS en réponse
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-4-ged-genere-non-pub.png  id=content
-    ${note55}  Add pointy note  css=#fieldset-versions tr.selected td:nth-child(6)  Publipostage  position=top  color=blue
+    ${note55}  Add pointy note  css=#fieldset-versions tr.selected a.apButtonAction_form_mailing  Publipostage  position=left  color=blue
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-4-ged-publipostage.png  css=#fieldset-versions table  ${note55}
     Remove element  id=${note55}
-    Click element  css=#fieldset-versions tr.selected td:nth-child(6)
+    Click element  css=#fieldset-versions tr.selected a.apButtonAction_form_mailing
     Sleep  5
     Go to  ${PLONE_URL}/${om_path}
     Sleep  1
@@ -407,8 +415,18 @@ CS en réponse
     Delete content  /plone/${om_path}/012999900000001-1
     Delete content  /plone/${om_path}/012999900000001
 
-    ### Add mainfile
+    # mailing on send modes
     Set field value  ${UID}  recipients  ['${REC1}']  references
+    Set field value  ${UID}  send_modes  ['post','post_registered']  list
+    Go to  ${PLONE_URL}/${om_path}/edit
+    Sleep  0.5
+    Wait until element is visible  css=.template-dmsdocument-edit #formfield-form-widgets-IClassificationFolder-classification_folders  10
+    Capture and crop page screenshot  doc/utilisation/2-3-1-cs-4-multiple-send-modes.png  css=#content h1  id=formfield-form-widgets-mail_type
+    Click button  id=form-buttons-cancel
+    Set field value  ${UID}  send_modes  ['post']  list
+
+    ### Add mainfile
+    #Set field value  ${UID}  recipients  ['${REC1}']  references
     Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
     #Update element style  css=#viewlet-above-content-title select[name="Add element"]  padding-right  1em
@@ -466,7 +484,7 @@ CS nouveau
     Set field value  ${UID}  sender  ${SENDER}  str
     Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
-    Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation-finie.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=formfield-form-widgets-internal_reference_no
+    Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation-finie.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=form-groups-signing
     Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Refection+trottoir.odt&title=Réfection+trottoir&mainfile_type=dmsommainfile
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
@@ -488,8 +506,11 @@ CS nouveau
     Click button  id=form-buttons-save
     # Set field value  ${UID}  email_body  <meta charset="UTF-8"><p>Bonjour Monsieur,</p><p>Vous trouverez en pièce jointe un document concernant la réfection des trottoirs dans votre rue.</p><p>Cordialement</p><p>&nbsp;</p><p><span style="font-size:large;font-family:Quicksand,Arial">Fred Agent</span></p><p>&nbsp;</p><div style="float:left;"><div style="font-size:small; float:left;clear:both;width:350px"><span>Agent Voiries</span><br /><span>Direction technique</span><br /><span>Voiries</span><br /><a href="mailto:fred.agent@macommune.be" style="display: inline-block; padding-top: 1em;" target="_blank">fred.agent@macommune.be</a><br /><span>012/34.56.70</span><br /><span style="display: inline-block; padding-top: 0.5em;">Rue de la commune, 1</span><br /><span>0010 Ma ville</span><br /></div><div style="float:left;display: inline-grid;"><a href="" target="_blank"><img alt="" src="/++resource++imio.dms.mail/belleville.png" /></a><br /><span style="font-size:small;text-align: center;">Administration communale de Belleville</span></div><p>&nbsp;</p><div style="font-size: x-small;color:#424242;clear:both"><br />Limite de responsabilité: les informations contenues dans ce courrier électronique (annexes incluses) sont confidentielles et réservées à l'usage exclusif des destinataires repris ci-dessus. Si vous n'êtes pas le destinataire, soyez informé par la présente que vous ne pouvez ni divulguer, ni reproduire, ni faire usage de ces informations pour vous-même ou toute tierce personne. Si vous avez reçu ce courrier électronique par erreur, vous êtes prié d'en avertir immédiatement l'expéditeur et d'effacer le message e-mail de votre ordinateur.</div>  text/html
     # Go to  ${PLONE_URL}/${om_path}
+    Set Window Size  1300  2200
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-4-cs-email-visualisation.png  css=table.actionspanel-no-style-table  id=fieldset-versions  id=form-groups-email
+    # Restore window size
+    Set Window Size  1200  1920
     # Click element  css=input.apButtonAction_sendemail # not working on test env
 
 CS depuis le scanner
@@ -498,7 +519,7 @@ CS depuis le scanner
     Enable autologin as  scanner
     Go to  ${PLONE_URL}/import_scanned2
     Wait until element is visible  css=.faceted-table-results  10
-    Capture and crop page screenshot  doc/utilisation/2-3-3-cs-onglet-courrier-sortant.png  css=.site-plone  id=portal-footer-wrapper
+    # Capture and crop page screenshot  doc/utilisation/2-3-3-cs-onglet-courrier-sortant.png  css=.site-plone  id=portal-footer-wrapper
     Enable autologin as  encodeur
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=dmsoutgoingmail
     Go to  ${PLONE_URL}/${om_path}
@@ -648,7 +669,7 @@ Tableaux de bord
     Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-precedent-suivant.png  id=portal-breadcrumbs  css=#parent-fieldname-title span.pretty_link_content
 
 Recherche générale
-# partie 2.4.3 Recherche dans les fichiers scannés
+# partie 2.4.3 Recherche dans les fichiers importés
     [TAGS]  RUN2043
     Enable autologin as  encodeur
     Go to  ${PLONE_URL}/import_scanned
@@ -657,7 +678,7 @@ Recherche générale
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
     Set field value  ${UID1}  title  Organisation de la braderie annuelle  str
     Capture and crop page screenshot  doc/utilisation/2-4-3-barre-recherche-generale.png  id=portal-globalnav
-    Input text  searchGadget  kermes* boudin
+    Input text  searchGadget  kermes
     Wait until element is visible  LSResult  10
     Capture and crop page screenshot  doc/utilisation/2-4-3-recherche-livesearch.png  id=portal-searchbox  id=LSResult
     Click button  css=#portal-searchbox .searchButton
@@ -921,7 +942,7 @@ Workflow cs
     Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
-    Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-chef.png  css=div.viewlet_workflowstate  id=content-history  id=content-core
+    Capture and crop page screenshot  doc/utilisation/2-8-3-transition-vers-chef.png  id=viewlet-above-content  id=formfield-form-widgets-recipients
     Enable autologin as  chef
     Go to  ${PLONE_URL}/${om_path}
     Sleep  0.5
@@ -1142,16 +1163,16 @@ Gestion modèles
     Capture and crop page screenshot  doc/utilisation/2-10-2-copie-par-lot.png  css=.pb-ajax
     Click element  css=#form-buttons-cancel
     Wait until element is visible  css=#content-core  10
-    Go to  ${PLONE_URL}/templates/om/header/edit
-    ${note42}  Add pointy note  css=#form-widgets-style_template  Modifier le style utilisé  position=right  color=blue
-    Capture and crop page screenshot  doc/utilisation/2-10-2-editer-sous-document.png  css=#content
-    Remove element  id=${note42}
+#    Go to  ${PLONE_URL}/templates/om/header/edit
+#    ${note42}  Add pointy note  css=#form-widgets-style_template  Modifier le style utilisé  position=right  color=blue
+#    Capture and crop page screenshot  doc/utilisation/2-10-2-editer-sous-document.png  css=#content
+#    Remove element  id=${note42}
     Go to  ${PLONE_URL}/templates/om/main/edit
     # ScrollDown  # doesn't change the fact the capture is outside !
     Wait until element is visible  form-widgets-merge_templates  10
     Update element style  css=#formfield-form-widgets-pod_portal_types  display  None
     ${note43}  Add pointy note  css=#form-widgets-merge_templates tbody tr:first-child td:nth-last-child(2)  Ajouter ou supprimer des sous-modèles  position=left  color=blue
-    ${note44}  Add pointy note  css=#form-widgets-merge_templates-4-widgets-template  Choisir le sous-modèle à fusionner  position=bottom  color=blue
+    ${note44}  Add pointy note  css=#form-widgets-merge_templates tr.auto-append [id$=-widgets-template]  Choisir le sous-modèle à fusionner  position=bottom  color=blue
 	Capture and crop page screenshot  doc/utilisation/2-10-2-fusion-sous-modeles.png  css=#form-widgets-merge_templates  id=${note44}
 	Remove element  id=${note43}
 	Remove element  id=${note44}
@@ -1200,16 +1221,14 @@ Configuration
     Click element  id=fieldsetlegend-outgoingmail
     Wait until element is visible  id=formfield-form-widgets-outgoingmail_number  10
     Capture and crop page screenshot  doc/configuration/5-3-config-courrier-cs.png  id=content
-    # Erreur chargement page, voir https://support.imio.be/browse/DMS-434
-    #Go to  ${PLONE_URL}/@@imiodmsmail-settings
-    #Wait until element is visible  id=formfield-form-widgets-mail_types  10
-    # TO DO MANUALLY
-    #Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-ce.png  id=content
-    #Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-cs.png  id=content
-    #Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-contacts.png  id=content
-    #Go to  ${PLONE_URL}/@@contact-plonegroup-settings
-    #Wait until element is visible  id=pg-orga-link  10
-    #Capture and crop page screenshot  doc/configuration/5-4-config-services.png  id=content
+    Go to  ${PLONE_URL}/@@imiodmsmail-settings
+    Wait until element is visible  id=formfield-form-widgets-mail_types  10
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-ce.png  id=content
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-cs.png  id=content
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-contacts.png  id=content
+    Go to  ${PLONE_URL}/@@contact-plonegroup-settings
+    Wait until element is visible  id=pg-orga-link  10
+    Capture and crop page screenshot  doc/configuration/5-4-config-services.png  id=content
     # services
     Go to  ${PLONE_URL}/contacts/plonegroup-organization
     Wait until element is visible  css=table.suborganizations-listing  10
@@ -1291,9 +1310,9 @@ Configuration
     Select from list by value  id=form-widgets-column_5  subfolder_archived
     Capture and crop page screenshot  doc/configuration/5-10-import-part2-correspondance.png  id=content
     # validation errors when checking classification_categories
-    # Click element  form-buttons-import
-    # Wait until element is visible  css=.table-faceted-results  20
-    # Capture and crop page screenshot  doc/configuration/5-10-import-reussi.png  content
+    Click element  form-buttons-import
+    Wait until element is visible  css=.faceted-table-results  60
+    Capture and crop page screenshot  doc/configuration/5-10-import-reussi.png  content
 
 Annexes dossiers
     [TAGS]  RUN212
@@ -1379,6 +1398,166 @@ Annexes dossiers
     Go to  ${PLONE_URL}/folders/
     Click Element  css:.pretty_link_content.state-active
 
+Signature écrite
+# partie 2.13.1 Mise à la signature manuscrite
+    [TAGS]  RUN2131
+    Enable autologin as  encodeur
+    Show connected user  Jean Encodeur (service encodeur)  2-13-1-user-encodeur.png
+    ${om_path} =  Add outgoing mail for signing  Décision de voirie à signer manuellement
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${om_path}
+    # Signataires : préremplis par les règles de signature (configuration administrateur) :
+    # Directeur Général (utilisateur "dirg") et Bourgmestre, tous deux SANS approbation et SANS
+    # signature électronique.
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    Wait until element is visible  id=form-groups-signing  10
+    ${note1}  Add pointy note  id=formfield-form-widgets-ISigningBehavior-signers  Signataires (sans approbation)  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-1-signataires.png  id=form-groups-signing  ${note1}
+    Remove element  id=${note1}
+    ${note2}  Add pointy note  id=formfield-form-widgets-ISigningBehavior-esign  Signature électronique désactivée  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-1-signature-electronique-off.png  id=form-groups-signing  ${note2}
+    Remove element  id=${note2}
+    # Génération d'un fichier ged depuis un modèle
+    Capture and crop page screenshot  doc/utilisation/2-13-1-generation-modele.png  css=#parent-fieldname-title span.pretty_link_content
+    ${TPL} =  Path to uid  /${PLONE_SITE_ID}/templates/om/main
+    Go to  ${PLONE_URL}/${om_path}/persistent-document-generation?template_uid=${TPL}&output_format=odt
+    Sleep  2
+    Go to  ${PLONE_URL}/${om_path}
+    Sleep  1
+    Wait until element is visible  css=.DV-pageImage  10
+    Capture and crop page screenshot  doc/utilisation/2-13-1-courrier-genere.png  id=content
+    # Mise à la signature manuscrite (état "to_be_signed").
+    # created -> to_be_validated (encodeur) -> to_be_signed (chef)
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Enable autologin as  chef
+    Fire transition  ${UID}  propose_to_be_signed
+    Go to  ${PLONE_URL}/${om_path}
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Show connected user  Michel Chef (responsable de service, n+1)  2-13-1-user-chef.png
+    Capture and crop page screenshot  doc/utilisation/2-13-1-a-la-signature.png  css=div.viewlet_workflowstate  css=table.actionspanel-no-style-table
+    # Scan step not automatable in RF: auto-transition to sent requires physical scan.
+    ${note4}  Add pointy note  css=div.viewlet_workflowstate  Numérisation du document signé (scan papier) puis envoi  position=bottom  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-1-etape-numerisation.png  css=div.viewlet_workflowstate  ${note4}
+    Remove element  id=${note4}
+
+Signature électronique
+# partie 2.13.2 Mise à l'approbation et signature électronique
+    [TAGS]  RUN2132
+    Enable autologin as  encodeur
+    Show connected user  Jean Encodeur (service encodeur)  2-13-2-user-encodeur.png
+    ${om_path} =  Add outgoing mail for signing  Décision de voirie à signer electroniquement
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${om_path}
+    # Édition du panneau de signature. Les signataires (Directeur Général + Bourgmestre) ont été
+    # préremplis par la configuration administrateur (règles de signature).
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    # Clic sur l'icône d'édition présente dans la légende du fieldset "Signature"
+    Wait until element is visible  css=#form-groups-signing legend a[href*='/edit#fieldsetlegend-signing']  10
+    ${note_edit}  Add pointy note  css=#form-groups-signing legend a[href*='/edit#fieldsetlegend-signing']  Icône d'édition du panneau de signature  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-2-icone-edition-signature.png  id=form-groups-signing  ${note_edit}
+    Remove element  id=${note_edit}
+    Click element  css=#form-groups-signing legend a[href*='/edit#fieldsetlegend-signing']
+    Sleep  0.5
+    Wait until element is visible  id=fieldsetlegend-signing  10
+    Click element  id=fieldsetlegend-signing
+    Sleep  0.5
+    ${note0}  Add pointy note  id=formfield-form-widgets-ISigningBehavior-signers  Signataires préremplis par la configuration  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-2-signataires-preremplis.png  id=fieldset-signing  ${note0}
+    Remove element  id=${note0}
+    # Approbation par lui-même pour chaque signataire (on décoche "Aucune approbation", on coche "Lui-même")
+    Unselect checkbox  id=form-widgets-ISigningBehavior-signers-0-widgets-approvings-0
+    Select checkbox  id=form-widgets-ISigningBehavior-signers-0-widgets-approvings-1
+    Unselect checkbox  id=form-widgets-ISigningBehavior-signers-1-widgets-approvings-0
+    Select checkbox  id=form-widgets-ISigningBehavior-signers-1-widgets-approvings-1
+    ${note1}  Add pointy note  id=formfield-form-widgets-ISigningBehavior-signers  Approbation activée pour chaque signataire  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-2-approbation.png  id=fieldset-signing  ${note1}
+    Remove element  id=${note1}
+    Select checkbox  id=form-widgets-ISigningBehavior-esign-0
+    ${note2}  Add pointy note  id=formfield-form-widgets-ISigningBehavior-esign  Signature électronique activée  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-2-signature-electronique-on.png  id=fieldset-signing  ${note2}
+    Remove element  id=${note2}
+    Click button  id=form-buttons-save
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    ${TPL} =  Path to uid  /${PLONE_SITE_ID}/templates/om/main
+    Go to  ${PLONE_URL}/${om_path}/persistent-document-generation?template_uid=${TPL}&output_format=odt
+    Sleep  2
+    # Mise à l'approbation : proposition au n+1 (par l'encodeur) puis passage à l'approbation (par le chef, n+1).
+    Fire transition  ${UID}  propose_to_n_plus_1
+    Enable autologin as  chef
+    Fire transition  ${UID}  propose_to_approve
+    Go to  ${PLONE_URL}/${om_path}
+    Sleep  0.5
+    Wait until element is visible  css=.DV-pageImage  10
+    Show connected user  Michel Chef (responsable de service, n+1)  2-13-2-user-chef.png
+    Capture and crop page screenshot  doc/utilisation/2-13-2-a-approuver.png  css=div.viewlet_workflowstate  id=fieldset-versions
+    # Approbation par le premier approbateur (Directeur Général / dirg)
+    Enable autologin as  dirg
+    Go to  ${PLONE_URL}/${om_path}
+    Sleep  0.5
+    Wait until element is visible  css=#fieldset-versions td.iconified-approved a.iconified-action.editable  10
+    Show connected user  Maxime DG (Directeur Général, 1er approbateur)  2-13-2-user-dirg.png
+    # Mode lecture
+    Wait until element is visible  css=.DV-pageImage  10
+    Wait until element is visible  id=read_mode_icon  10
+    ${note_rm}  Add pointy note  id=read_mode_icon  Bouton "mode lecture" pour afficher le document en plein écran  position=bottom  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-2-icone-mode-lecture.png  id=portal-globalnav  ${note_rm}
+    Remove element  id=${note_rm}
+    Click element  id=read_mode_icon
+    Wait until element is visible  css=body.read-mode  10
+    Sleep  1
+    Capture and crop page screenshot  doc/utilisation/2-13-2-mode-lecture.png  id=content
+    # Sortie du mode lecture
+    Click element  id=read_mode_icon
+    Sleep  0.5
+    Delete Cookie  dms_document_view
+    Add Cookie  dv_zoom_size  500  path=/
+    Go to  ${PLONE_URL}/${om_path}
+    Sleep  0.5
+    Wait until element is visible  css=#fieldset-versions td.iconified-approved a.iconified-action.editable  10
+    ${note3}  Add pointy note  css=#fieldset-versions td.iconified-approved a.iconified-action.editable  Icône d'approbation  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-2-icone-approbation.png  id=fieldset-versions  ${note3}
+    Remove element  id=${note3}
+    Click element  css=#fieldset-versions td.iconified-approved a.iconified-action.editable
+    Sleep  1
+    # Approbation par le second approbateur (Bourgmestre)
+    Enable autologin as  bourgmestre
+    Go to  ${PLONE_URL}/${om_path}
+    Sleep  0.5
+    Wait until element is visible  css=#fieldset-versions td.iconified-approved a.iconified-action.editable  10
+    Show connected user  Paul BM (Bourgmestre, 2e approbateur)  2-13-2-user-bourgmestre.png
+    Click element  css=#fieldset-versions td.iconified-approved a.iconified-action.editable
+    Sleep  1
+    # Une session eSign a été créée à l'état "En création" ; le courrier passe automatiquement à la signature
+    Enable autologin as  Manager
+    Set autologin username  dirg
+    Go to  ${PLONE_URL}/${om_path}
+    Sleep  0.5
+    Wait until element is visible  css=span.state-title-draft  10
+    Show connected user  Gestionnaire de signatures  2-13-2-user-gestionnaire.png
+    ${note4}  Add pointy note  css=span.state-title-draft  Session eSign en cours de création  position=bottom  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-2-session-en-creation.png  id=session-info  ${note4}
+    Remove element  id=${note4}
+    Wait until page contains element  css=#fieldset-versions a.version-link[title*=".pdf"]  10
+    ${note_pdf}  Add pointy note  css=#fieldset-versions a.version-link[title*=".pdf"]  Un document PDF a été généré pour la signature  position=top  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-2-pdf-genere-signature.png  id=fieldset-versions  ${note_pdf}
+    Remove element  id=${note_pdf}
+    # Onglet Paraphéo
+    Wait until element is visible  id=portaltab-parapheo  10
+    ${note5}  Add pointy note  id=portaltab-parapheo  Onglet Paraphéo  position=bottom  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-2-onglet-parapheo.png  id=portal-globalnav  ${note5}
+    Remove element  id=${note5}
+    Click element  id=portaltab-parapheo
+    Wait until element is visible  css=img[onclick*="external-esign-session-create"]  10
+    # Resize the window to show the actions column
+    Set Window Size  2200  1920
+    Sleep  0.5
+    Wait until element is visible  css=img[onclick*="external-esign-session-create"]  10
+    ${note6}  Add pointy note  css=img[onclick*="external-esign-session-create"]  Bouton de création de session externe  position=left  color=blue
+    Capture and crop page screenshot  doc/utilisation/2-13-2-creation-session-externe.png  id=content  ${note6}
+    Sleep  0.5
+    Remove element  id=${note6}
+    # Restore window size
+    Set Window Size  1200  1920
+
 Debug
     [TAGS]  DBG
     Pass execution  Only for debug purpose
@@ -1389,7 +1568,7 @@ Debug
 
 *** Keywords ***
 Suite Setup
-    ${FF_PROFILE_DIR} =  Get Environment Variable  ROBOT_FF_PROFILE_DIR  None
+    ${FF_PROFILE_DIR} =  Get Environment Variable  ROBOT_FF_PROFILE_DIR  ${EMPTY}
     Set global variable  ${FF_PROFILE_DIR}
     Open test browser
     # Set Window Size  1080  1920
@@ -1398,9 +1577,11 @@ Suite Setup
     Set Window Size  1200  1920
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
-    Set Selenium Speed  0.2
+    Set Selenium Speed  ${SELENIUM_SPEED}
     Enable autologin as  Manager
     Set autologin username  dirg
     Go to  ${PLONE_URL}/robot_init
+    Add Cookie  dv_zoom_size  500  path=/
     Disable autologin
+    # Activate esigning  (done in testing.py)
     # Pause

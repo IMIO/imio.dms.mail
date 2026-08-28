@@ -304,7 +304,7 @@ def postInstall(context):
         req_folder.setExcludeFromNav(True)
         alsoProvides(req_folder, INextPrevNotNavigable)
         alsoProvides(req_folder, ILabelRoot)
-        # alsoProvides(req_folder, ICountableTab)
+        alsoProvides(req_folder, ICountableTab)
         alsoProvides(req_folder, IProtectedItem)
         # add searches
         col_folder = add_db_col_folder(req_folder, "requests-searches", _("Requests searches"), _("Requests"))

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.documentgenerator.utils import update_oo_config
+from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
 from collective.iconifiedcategory.utils import calculate_category_id
@@ -514,7 +515,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             req_folder.setExcludeFromNav(True)
             alsoProvides(req_folder, INextPrevNotNavigable)
             alsoProvides(req_folder, ILabelRoot)
-            # alsoProvides(req_folder, ICountableTab)
+            alsoProvides(req_folder, ICountableTab)
             alsoProvides(req_folder, IProtectedItem)
             # add searches
             col_folder = add_db_col_folder(req_folder, "requests-searches", _("Requests searches"), _("Requests"))

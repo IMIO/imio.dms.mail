@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from imio.dms.mail.interfaces import IPersonnelDashboard
 from imio.dms.mail.setuphandlers import list_templates
@@ -36,6 +37,7 @@ class TestSetuphandlers(unittest.TestCase):
     def test_requests_dashboard(self):
         self.assertTrue(hasattr(self.portal, "requests"))
         req_folder = self.portal["requests"]
+        self.assertTrue(ICountableTab.providedBy(req_folder))
         self.assertIn("requests-searches", req_folder)
         col_folder = req_folder["requests-searches"]
         self.assertEqual(

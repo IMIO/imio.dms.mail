@@ -341,7 +341,9 @@ body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-I
 }
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label,
-body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-4 label {
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-4 label,
+body.template-reply.portaltype-dmsincomingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label,
+body.template-reply.portaltype-dmsincoming_email #formfield-form-widgets-ISigningBehavior-signers .cell-4 label{
     display: none;
 }
 

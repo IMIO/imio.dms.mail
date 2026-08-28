@@ -961,6 +961,9 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
             if self.context.email_status:  # has been sent
                 return True
             return False  # consumer will not can "close": ok
+        state = api.content.get_state(self.context)
+        if state in ("to_be_signed",):
+            return False
         return True
 
     security.declarePublic("can_be_validated")
