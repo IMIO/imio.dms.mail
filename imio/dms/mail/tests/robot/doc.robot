@@ -17,6 +17,13 @@ ${SELENIUM_RUN_ON_FAILURE} =  Debug
 # Delay (seconds) added after each Selenium action. Override to watch a run, e.g. -v SELENIUM_SPEED:1.0
 ${SELENIUM_SPEED} =  0.2
 
+*** Comments ***
+
+TODO
+après finalisation/restructuration de la doc, tout renuméroter ?
+créer screenshots pour "Gérer vos groupes" (@@manage-own-groups-users)
+créer screenshots pour lien délib avec du mock pour simulation
+
 *** Test Cases ***
 
 Premiers pas
@@ -1221,11 +1228,30 @@ Configuration
     Click element  id=fieldsetlegend-outgoingmail
     Wait until element is visible  id=formfield-form-widgets-outgoingmail_number  10
     Capture and crop page screenshot  doc/configuration/5-3-config-courrier-cs.png  id=content
+    Click element  id=fieldsetlegend-signrequest
+    Wait until element is visible  id=formfield-form-widgets-signrequest_number  10
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-ds.png  id=content
     Go to  ${PLONE_URL}/@@imiodmsmail-settings
     Wait until element is visible  id=formfield-form-widgets-mail_types  10
     Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-ce.png  id=content
+    Click element  id=fieldsetlegend-incoming_email
+    Wait until element is visible  id=formfield-form-widgets-iemail_state_set  10
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-ee.png  id=content
+    Click element  id=fieldsetlegend-outgoingmail
+    Wait until element is visible  id=formfield-form-widgets-omail_group_encoder  10
     Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-cs.png  id=content
+    Click element  id=fieldsetlegend-outgoing_email
+    Wait until element is visible  id=formfield-form-widgets-omail_email_signature  10
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-es.png  id=content
+    Click element  id=fieldsetlegend-signrequest
+    Wait until element is visible  id=formfield-form-widgets-request_fields  10
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-ds.png  id=content
+    Click element  id=fieldsetlegend-contact
+    Wait until element is visible  id=formfield-form-widgets-contact_group_encoder  10
     Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-contacts.png  id=content
+    Click element  id=fieldsetlegend-general
+    Wait until element is visible  id=formfield-form-widgets-groups_hidden_in_dashboard_filter  10
+    Capture and crop page screenshot  doc/configuration/5-3-config-courrier-2-gen.png  id=content
     Go to  ${PLONE_URL}/@@contact-plonegroup-settings
     Wait until element is visible  id=pg-orga-link  10
     Capture and crop page screenshot  doc/configuration/5-4-config-services.png  id=content
@@ -1574,7 +1600,8 @@ Suite Setup
     # Set Window Size  1080  1920
     # Set Window Size  1260  2880
     # Set Window Size  1260  2240
-    Set Window Size  1200  1920
+    # Set Window Size  1200  1920
+    Set Window Size  1200  2800
     Set Suite Variable  ${CROP_MARGIN}  5
     Set Selenium Implicit Wait  2
     Set Selenium Speed  ${SELENIUM_SPEED}
