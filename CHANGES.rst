@@ -10,8 +10,7 @@ Changelog
   [chris-adam]
 - Fixed ``ConnectionStateError`` crash when rendering datagrid fields
   in settings through robotframework tests (DMS-434).
-  [chris-adam]
-
+  [chris-adam,sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

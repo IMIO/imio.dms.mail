@@ -246,4 +246,11 @@
         />
     </unconfigure>
 
+    <!-- DMS-434 (temporary): heal stale datagrid value_type (ConnectionStateError in robot tests only) -->
+    <browser:page
+        name="contact-plonegroup-settings"
+        for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+        permission="plone.app.controlpanel.Site"
+        class=".browser.settings.PGSettingsView" />
+
 </configure>
