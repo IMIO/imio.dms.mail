@@ -23,6 +23,7 @@ TODO
 après finalisation/restructuration de la doc, tout renuméroter ?
 créer screenshots pour "Gérer vos groupes" (@@manage-own-groups-users)
 créer screenshots pour lien délib avec du mock pour simulation
+créer demande sign
 
 *** Test Cases ***
 
@@ -1269,6 +1270,10 @@ Configuration
     Go to  ${PLONE_URL}/contacts/personnel-folder/chef
     Wait until element is visible  css=.subsection-personnel-folder-chef #person #held_positions  10
     Capture and crop page screenshot  doc/configuration/5-4-config-personnel-chef.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  css=#held_positions div:nth-child(2)
+    Go to  ${PLONE_URL}/contacts/personnel-folder/chef/responsable-direction-generale/edit
+    Click element  id=fieldsetlegend-app_parameters
+    Wait until element is visible  id=formfield-form-widgets-IUsagesBehavior-usages  10
+    Capture and crop page screenshot  doc/configuration/5-4-config-personnel-chef-hp-edit.png  id=content
     # users
     Go to  ${PLONE_URL}/@@usergroup-userprefs
     Wait until element is visible  css=table.listing  10
