@@ -942,6 +942,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         )
         category._setObject("scanner_om", action)
 
+    api.user.grant_roles(username="encodeur", roles=["Batch importer"])
+
     # Add N+1 validation
     applied_adaptations = [dic["adaptation"] for dic in get_applied_adaptations()
                            if dic["workflow"] == "outgoingmail_workflow"]
