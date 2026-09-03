@@ -21,6 +21,7 @@ ${SELENIUM_SPEED} =  0.2
 
 TODO
 après finalisation/restructuration de la doc, tout renuméroter ?
+signataires sur les modèles
 créer screenshots pour "Gérer vos groupes" (@@manage-own-groups-users)
 créer screenshots pour lien délib avec du mock pour simulation
 créer demande sign
@@ -1184,6 +1185,7 @@ Gestion modèles
 	Capture and crop page screenshot  doc/utilisation/2-10-2-fusion-sous-modeles.png  css=#form-widgets-merge_templates  id=${note44}
 	Remove element  id=${note43}
 	Remove element  id=${note44}
+	# TODO add signing fields screenshot
     Go to  ${PLONE_URL}/templates/om
     Capture and crop page screenshot  doc/utilisation/2-10-2-barre-dactions.png  css=.actionspanel-no-style-table.nosort
 
@@ -1429,7 +1431,7 @@ Annexes dossiers
     Go to  ${PLONE_URL}/folders/
     Click Element  css:.pretty_link_content.state-active
 
-Signature écrite
+Signature manuscrite
 # partie 2.13.1 Mise à la signature manuscrite
     [TAGS]  RUN2131
     Enable autologin as  encodeur
