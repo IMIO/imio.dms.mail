@@ -91,6 +91,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                 api.group.create("esign_watchers", "2 Observateurs module signature")
 
                 self.remove_category_predefined_titles()
+                self.runProfileSteps("imio.dms.mail", steps=["catalog"])
                 self.setup_personnel_dashboard()
                 self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
 
@@ -232,7 +233,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             if "incoming_dms_files" not in a_t_f:
                 self.runProfileSteps("collective.dms.basecontent", steps=["actions"])  # for actions columns
                 odt_only = self.registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile")
-                self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry", "actions"])
+                self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry", "actions"])
                 if odt_only is not None:
                     del self.registry.records["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile"]
                     if odt_only:
