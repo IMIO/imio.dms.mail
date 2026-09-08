@@ -208,6 +208,8 @@ def collabora_server_url():
     One origin for both the browser and Plone's /hosting/discovery call.
     No PUBLIC_URL means dev: reach the container directly.
     """
+    if os.getenv("COLLABORA_DEV_MODE"):
+        return u"http://localhost:9980"
     public_url = os.getenv("PUBLIC_URL", "")
     if public_url:
         return u"{0}/collabora".format(public_url.rstrip("/"))
