@@ -459,9 +459,9 @@ def encodeur_active_orgs(context):
     # this is the case when calling ++widget++...
     if current_user.getId() is None:
         return voc
-    # the expedition group must have all values
+    # the expedition and dir_general groups must have all values
     groups = get_plone_groups_for_user(user=current_user)
-    if "expedition" in groups:
+    if "expedition" in groups or "dir_general" in groups:
         return voc
     # we filter orgs if
     #   * current user is not admin
