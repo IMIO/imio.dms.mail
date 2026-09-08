@@ -990,7 +990,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     api.portal.set_registry_record(rsr_rk, req_signer_rules)
 
     # Change user passwords to 'courrier'
-    for userid in ("agent", "agent1", "chef", "dirg", "encodeur", "lecteur"):
+    for userid in ("agent", "agent1", "chef", "dirg", "encodeur", "lecteur", "bourgmestre"):
         site.acl_users.source_users.userSetPassword(userid, "courrier")
 
     # remove dirg from watchers group
