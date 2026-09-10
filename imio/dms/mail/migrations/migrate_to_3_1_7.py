@@ -14,6 +14,7 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
     def run_parts(self):
 
         if self.is_in_part("c"):
+            self.normalize_compound_criterion_values()
             # mark requests tab to add count on
             req_folder = self.portal.get("requests")
             if req_folder is not None and not ICountableTab.providedBy(req_folder):
