@@ -682,7 +682,8 @@ class IImioDmsMailConfig(model.Schema):
 
     iemail_routing = schema.List(
         title=_(u"${type} routing", mapping={"type": _("Incoming email")}),
-        description=_(u"Configure rules carefully. You can order with arrows. Only first matched rule is used."),
+        description=_(u"Configure routing rules carefully. You can order with arrows. Only first matched rule is "
+                      u"used."),
         required=False,
         value_type=DictRow(title=_(u"Routing"), schema=IRoutingSchema, required=False),
     )
@@ -695,7 +696,8 @@ class IImioDmsMailConfig(model.Schema):
 
     iemail_state_set = schema.List(
         title=_(u"${type} state set", mapping={"type": _("Incoming email")}),
-        description=_(u"Configure rules carefully. You can order with arrows. Only first matched rule is used."),
+        description=_(u"Configure state rules carefully. You can order with arrows. Only first matched rule is "
+                      u"used."),
         required=False,
         value_type=DictRow(title=_(u"State"), schema=IStateSetSchema, required=False),
     )
