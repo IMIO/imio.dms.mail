@@ -1134,7 +1134,7 @@ def createIMailCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "dmsincomingmail-in-copy-group-unread",
+                    "v": ["dmsincomingmail-in-copy-group-unread"],
                 },
             ],
             "cond": u"",

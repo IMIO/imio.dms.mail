@@ -47,6 +47,8 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                 if tmpl is not None and tmpl.enabled:
                     tmpl.enabled = False
                     tmpl.reindexObject(idxs=["enabled"])
+            # corrected collections
+            self.normalize_compound_criterion_values()
             # batch actions on requests dashboard
             if req_folder is not None:
                 col_folder = req_folder["requests-searches"]
