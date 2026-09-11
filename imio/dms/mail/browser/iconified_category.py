@@ -2,11 +2,15 @@
 """
     collective.iconifiedcategory overrided views
 """
+from Acquisition import aq_base
 from collective.documentgenerator.utils import need_mailing_value
 from collective.iconifiedcategory.browser.actionview import ApprovedChangeView as BaseApprovedChangeView
 from collective.iconifiedcategory.browser.actionview import SignedChangeView as BaseSignedChangeView
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
 from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSignedColumn
+from collective.iconifiedcategory.utils import _modified
+from collective.iconifiedcategory.utils import get_category_object
+from collective.iconifiedcategory.utils import update_all_categorized_elements
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import logger  # noqa F401
 # from imio.esign.audit import audit as esign_audit
@@ -349,3 +353,35 @@ class SignedChangeView(BaseSignedChangeView):
         if self.reload and json_resp.rstrip().endswith("}"):
             json_resp = json_resp.rstrip()[:-1] + ',"reload": true}'
         return json_resp
+
+
+def _has_stale_elements(container):
+    """Is one of the container categorized elements out of date?"""
+    elements = getattr(aq_base(container), "categorized_elements", None)
+    if elements is None:
+        return True
+    count = 0
+    for obj in container.objectValues():
+        # same inclusion tests as update_all_categorized_elements
+        if not hasattr(obj, "content_category"):
+            continue
+        try:
+            get_category_object(obj, obj.content_category)
+        except KeyError:
+            continue
+        count += 1
+        infos = elements.get(obj.UID())
+        if infos is None or infos.get("last_updated") != _modified(obj):
+            return True
+    return count != len(elements)
+
+
+def repair_stale_categorized_elements(container):
+    """Rebuild container.categorized_elements when an element is out of date."""
+    if not _has_stale_elements(container):
+        return
+    try:
+        update_all_categorized_elements(container)
+    except Exception:
+        # rendering the old values is always better than breaking the page
+        logger.exception("Could not update categorized elements of %s", container.absolute_url_path())
