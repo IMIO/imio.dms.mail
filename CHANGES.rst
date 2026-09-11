@@ -4,8 +4,8 @@ Changelog
 3.1.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Rebuilt outdated categorized elements when rendering a mail, fixing wrong annex icons (PARAF-547).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
