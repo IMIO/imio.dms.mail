@@ -753,7 +753,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
             {
                 "scan_id": scan_id,
                 "barcode": generate_barcode(scan_id).read(),
-                # for a non esign outgoingmail, the paragraph with the download url barcode will not be rendered
+                # for a non esign outgoingmail, the paragraph with the download url barcode is rendered but empty
                 "render_download_barcode": not (helper_view.real_context.esign or helper_view.real_context.seal),
             },
             _dg("Error when merging 'scan_id' in generation context"),
