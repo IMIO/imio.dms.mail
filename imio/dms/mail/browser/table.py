@@ -118,27 +118,17 @@ def _disable_icon_clickable(col):
 class BaseVersionsTable(VersionsTable):
     portal_types = []
 
-    def _get_ordered_values(self):
-        sort_on = 'getObjPositionInParent'
-        items = []
-        for portal_type in self.portal_types:
-            items.extend([
-                CategorizedContent(self.context, content) for content in
-                ic_utils.get_categorized_elements(
-                    self.context,
-                    result_type='dict',
-                    portal_type=portal_type,
-                    sort_on=sort_on,
-                )
-            ])
-        order = getAdapter(self.context, IItemOrderProvider).get_item_order()
-        items.sort(key=lambda c: order.get(c.UID, len(order)))
-        return items
-
     @property
     def values(self):
+        """Files of the handled portal_types, in the order given by IItemOrderProvider."""
         if not getattr(self, '_v_stored_values', []):
-            self._v_stored_values = self._get_ordered_values()
+            order = getAdapter(self.context, IItemOrderProvider).get_item_order()
+            self._v_stored_values = sorted(
+                (CategorizedContent(self.context, content) for content in
+                 ic_utils.get_categorized_elements(self.context, result_type='dict')
+                 if content['portal_type'] in self.portal_types),
+                key=lambda c: order.get(c.UID, len(order)),
+            )
         return self._v_stored_values
 
     def is_edit_mode(self):
@@ -360,8 +350,7 @@ class ApprovalTable(Table):
 
     @property
     def values(self):
-        results = list()
-        for file_uid in self.approval.files_uids:
-            file = uuidToObject(file_uid)
-            results.append(file)
-        return results
+        """Files to approve, in the same order as the versions table of the content."""
+        order = getAdapter(self.context, IItemOrderProvider).get_item_order()
+        files = [obj for obj in (uuidToObject(uid) for uid in self.approval.files_uids) if obj is not None]
+        return sorted(files, key=lambda obj: order.get(obj.UID(), len(order)))

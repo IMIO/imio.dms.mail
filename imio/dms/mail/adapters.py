@@ -24,6 +24,7 @@ from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
+from collective.iconifiedcategory.utils import get_categorized_elements
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.task.interfaces import ITaskContent
@@ -46,6 +47,7 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
+from imio.esign.adapters import DefaultItemOrderProvider
 from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
@@ -1175,41 +1177,52 @@ class ItemSignersAdapter(SignableAdapter):
         #         yield sub_content.UID()
 
 
-class BaseItemOrderProvider(object):
-    """Group children by portal_type: ged files most recent first, appendices by title."""
+class BaseItemOrderProvider(DefaultItemOrderProvider):
+    """Orders items by their position in the context container.
+
+    Canonical file order: types are grouped in `portal_types` order.
+
+    Types in `newest_first` are ordered by container position, reversed. The others keep
+    the `categorized_elements` order.
+    """
 
     portal_types = ()
-    alphabetical_types = ("dmsappendixfile",)
-
-    def __init__(self, context):
-        self.context = context
+    newest_first = ()
 
     def get_item_order(self):
         order = {}
-        idx = 0
         for portal_type in self.portal_types:
-            children = [
-                obj for obj in self.context.objectValues()
-                if getattr(obj, "portal_type", None) == portal_type
+            reverse = portal_type in self.newest_first
+            uids = [
+                elt["UID"] for elt in get_categorized_elements(
+                    self.context,
+                    result_type="dict",
+                    portal_type=portal_type,
+                    sort_on=reverse and "getObjPositionInParent" or None,
+                )
             ]
-            if portal_type in self.alphabetical_types:
-                children = sorted(children, key=lambda obj: safe_unicode(obj.Title()).lower())
-            else:
-                children = reversed(children)
-            for obj in children:
-                order[obj.UID()] = idx
-                idx += 1
+            if reverse:
+                uids.reverse()
+            base = len(order)
+            order.update({uid: base + idx for idx, uid in enumerate(uids)})
         return order
 
 
 class IMItemOrderProvider(BaseItemOrderProvider):
 
     portal_types = ("dmsmainfile", "dmsappendixfile")
+    newest_first = ("dmsmainfile",)
 
 
 class OMItemOrderProvider(BaseItemOrderProvider):
 
     portal_types = ("dmsommainfile", "dmsappendixfile")
+    newest_first = ("dmsommainfile",)
+
+
+class SignRequestItemOrderProvider(BaseItemOrderProvider):
+
+    portal_types = ("dmsappendixfile",)
 
 
 @implementer(ILocalRoleProvider)
