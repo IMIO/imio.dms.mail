@@ -15,6 +15,8 @@ Changelog
   [chris-adam]
 - Improved file ordering in eSign session: ged files most recent first, appendices sorted alphabetically.
   [chris-adam]
+- Fixed the ``@@approvals`` view listing files in another order than the content versions table (PARAF-510).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------

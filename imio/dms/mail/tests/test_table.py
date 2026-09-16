@@ -123,7 +123,10 @@ class TestTable(unittest.TestCase):
         table = view.table
         # filename column + one column per signer
         self.assertEqual(len(table.columns), 3)
+        # same order as the versions table of the request (PARAF-510)
         self.assertEqual(table.values, files)
+        self.assertEqual([c.UID for c in SignRequestVersionsTable(request, request.REQUEST).values],
+                         [f.UID() for f in files])
         self.assertEqual(table.columns[1].userid, "dirg")
         self.assertEqual(table.columns[2].userid, "bourgmestre")
         # unchecked then checked after approval
@@ -200,7 +203,10 @@ class TestTable(unittest.TestCase):
 
         # Test table
         self.assertEqual(len(table.columns), 3)
-        self.assertEqual(table.values, files)
+        # main files are listed most recent first, like in the versions table (PARAF-510)
+        self.assertEqual(table.values, [files[1], files[0]])
+        self.assertEqual([c.UID for c in OMVersionsTable(omail, omail.REQUEST, None).values],
+                         [files[1].UID(), files[0].UID()])
 
         # Test column FileName
         filename_col = table.columns[0]

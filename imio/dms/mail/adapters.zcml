@@ -288,6 +288,11 @@
         provides="imio.esign.interfaces.IItemOrderProvider"/>
 
     <adapter
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+        factory="imio.dms.mail.adapters.SignRequestItemOrderProvider"
+        provides="imio.esign.interfaces.IItemOrderProvider"/>
+
+    <adapter
         for="collective.dms.basecontent.dmsfile.IDmsFile"
         provides="collective.iconifiedcategory.interfaces.IIconifiedInfos"
         factory="imio.dms.mail.adapters.DmsCategorizedObjectInfoAdapter"

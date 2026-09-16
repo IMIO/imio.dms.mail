@@ -1741,9 +1741,12 @@ class TestOMItemOrderProvider(unittest.TestCase, ImioTestHelpers):
 
         filename = u"Réponse salle.odt"
         # titles chosen so creation order and alphabetical order differ, with mixed case
-        titles = [u"Main first", u"zeta annex", u"Main second", u"Alpha annex"]
+        # and with numbers, to check the natural sort ("annexe2" before "annexe10")
+        titles = [u"Main first", u"zeta annex", u"Main second", u"Alpha annex", u"annexe10", u"annexe2"]
+        ptypes = ["dmsommainfile", "dmsappendixfile", "dmsommainfile", "dmsappendixfile",
+                  "dmsappendixfile", "dmsappendixfile"]
         created = []
-        for i, ptype in enumerate(["dmsommainfile", "dmsappendixfile", "dmsommainfile", "dmsappendixfile"]):
+        for i, ptype in enumerate(ptypes):
             with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
                 obj = createContentInContainer(
                     omail,
@@ -1756,15 +1759,20 @@ class TestOMItemOrderProvider(unittest.TestCase, ImioTestHelpers):
                 )
                 created.append(obj)
 
-        # created: [main0, zeta_annex, main2, alpha_annex]
-        main0, zeta_annex, main2, alpha_annex = created
-        provider = getAdapter(omail, IItemOrderProvider)
-        order = provider.get_item_order()
+        main0, zeta_annex, main2, alpha_annex, annexe10, annexe2 = created
+        order = getAdapter(omail, IItemOrderProvider).get_item_order()
 
         # mainfiles: reversed, so main2 comes before main0
         self.assertLess(order[main2.UID()], order[main0.UID()])
         # appendixfiles: alphabetical on title, case insensitive, so "Alpha" comes before
         # "zeta", the opposite of their creation order
         self.assertLess(order[alpha_annex.UID()], order[zeta_annex.UID()])
+        # appendixfiles are naturally sorted: "annexe2" before "annexe10"
+        self.assertLess(order[annexe2.UID()], order[annexe10.UID()])
         # all mainfiles before all appendixfiles
         self.assertLess(order[main0.UID()], order[alpha_annex.UID()])
+
+        # a sign request only holds appendix files, ordered the same way
+        request, files = create_sign_request(self.portal, oid="sr-order", nb_files=2)
+        order = getAdapter(request, IItemOrderProvider).get_item_order()
+        self.assertEqual([order[f.UID()] for f in files], [0, 1])
