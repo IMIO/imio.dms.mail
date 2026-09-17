@@ -8,6 +8,7 @@ from collective.iconifiedcategory.browser.tabview import IconClickableColumn
 from collective.task import _ as _task
 from html import escape  # noqa F401
 from imio.dms.mail import _
+from imio.dms.mail.browser.iconified_category import repair_stale_categorized_elements
 from imio.esign.config import get_esign_registry_enabled
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import uuidToObject
@@ -119,6 +120,7 @@ class BaseVersionsTable(VersionsTable):
     @property
     def values(self):
         if not getattr(self, '_v_stored_values', []):
+            repair_stale_categorized_elements(self.context)
             sort_on = 'getObjPositionInParent'
             data = []
             for portal_type in self.portal_types:
