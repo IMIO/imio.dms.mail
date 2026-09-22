@@ -1967,7 +1967,7 @@ class ApprovalAdapter(object):
             return False, _("Not all files approved")
         session_file_uids = []
         for i, f_uid in enumerate(self.files_uids):
-            fobj = uuidToObject(f_uid)
+            fobj = uuidToObject(f_uid, unrestricted=True)
             if not fobj:
                 continue
             if len(self.pdf_files_uids[i]) > 0:  # already done ??
