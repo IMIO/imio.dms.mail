@@ -9,6 +9,7 @@ from collective.task import _ as _task
 from html import escape  # noqa F401
 from imio.dms.mail import _
 from imio.esign.config import get_esign_registry_enabled
+from imio.esign.interfaces import IItemOrderProvider
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import uuidToObject
 from plone import api
@@ -16,6 +17,7 @@ from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
 from z3c.table.table import Table
 from zope.cachedescriptors.property import CachedProperty
+from zope.component import getAdapter
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.schema.interfaces import IVocabularyFactory
@@ -118,20 +120,15 @@ class BaseVersionsTable(VersionsTable):
 
     @property
     def values(self):
+        """Files of the handled portal_types, in the order given by IItemOrderProvider."""
         if not getattr(self, '_v_stored_values', []):
-            sort_on = 'getObjPositionInParent'
-            data = []
-            for portal_type in self.portal_types:
-                data.extend([
-                    CategorizedContent(self.context, content) for content in
-                    ic_utils.get_categorized_elements(
-                        self.context,
-                        result_type='dict',
-                        portal_type=portal_type,
-                        sort_on=sort_on,
-                    )
-                ][::-1])
-            self._v_stored_values = data
+            order = getAdapter(self.context, IItemOrderProvider).get_item_order()
+            self._v_stored_values = sorted(
+                (CategorizedContent(self.context, content) for content in
+                 ic_utils.get_categorized_elements(self.context, result_type='dict')
+                 if content['portal_type'] in self.portal_types),
+                key=lambda c: order.get(c.UID, len(order)),
+            )
         return self._v_stored_values
 
     def is_edit_mode(self):
@@ -353,8 +350,7 @@ class ApprovalTable(Table):
 
     @property
     def values(self):
-        results = list()
-        for file_uid in self.approval.files_uids:
-            file = uuidToObject(file_uid)
-            results.append(file)
-        return results
+        """Files to approve, in the same order as the versions table of the content."""
+        order = getAdapter(self.context, IItemOrderProvider).get_item_order()
+        files = [obj for obj in (uuidToObject(uid) for uid in self.approval.files_uids) if obj is not None]
+        return sorted(files, key=lambda obj: order.get(obj.UID(), len(order)))
