@@ -276,6 +276,7 @@ def dmsdocument_added(mail, event):
         reindex_replied(_get_replied_ids(mail, from_obj=True))
         if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_group_encoder"):
             ensure_set_field(mail, "creating_group", default_creating_group())
+    fill_categories_from_folders(mail)
 
 
 def dmsdocument_modified(mail, event):
@@ -326,6 +327,8 @@ def dmsdocument_modified(mail, event):
     # sign_request
     if mail.portal_type == "sign_request":
         return
+
+    fill_categories_from_folders(mail)
 
     if not event.descriptions:
         return
@@ -1810,3 +1813,25 @@ def i_annex_created(obj, event):
     if not filename or obj.title not in (None, u"", filename):
         return
     obj.title = safe_unicode(filename).rsplit(u".", 1)[0] or safe_unicode(filename)
+
+
+def fill_categories_from_folders(mail):
+    """Set empty classification categories from classification folders, if activated."""
+    if (
+        getattr(mail, "classification_categories", None)
+        or not getattr(mail, "classification_folders", None)
+        or not api.portal.get_registry_record("classification_categories_from_folders", IImioDmsMailConfig, False)
+    ):
+        return
+    categories = []
+    for uid in mail.classification_folders:
+        folder = uuidToObject(uid, unrestricted=True)
+        if folder is None:
+            continue
+        parent = folder.cf_parent()
+        for cat in folder.classification_categories or parent and parent.classification_categories or []:
+            if cat not in categories:
+                categories.append(cat)
+    if categories:
+        mail.classification_categories = categories
+        mail.reindexObject(idxs=["classification_categories"])
