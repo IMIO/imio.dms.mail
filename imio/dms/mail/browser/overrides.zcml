@@ -35,6 +35,15 @@
         provides="z3c.table.interfaces.IColumn"
         factory=".browser.table.OrgaPrettyLinkWithAdditionalInfosColumn" />
 
+    <!-- flag the sub-templates defining signer rules on the sub-templates usage view -->
+    <adapter
+        name="SubTemplateColumn"
+        for="zope.interface.Interface
+             zope.interface.Interface
+             collective.documentgenerator.browser.table.SubTemplatesUsageTable"
+        provides="z3c.table.interfaces.IColumn"
+        factory=".browser.documentgenerator.DmsSubTemplateColumn" />
+
     <configure package="collective.eeafaceted.collectionwidget">
         <browser:page
             for="*"
