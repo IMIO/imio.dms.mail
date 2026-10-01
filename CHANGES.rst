@@ -15,6 +15,8 @@ Changelog
   [chris-adam]
 - Fixed duplicated approvers validation in signing rules (PARAF-559).
   [chris-adam]
+- Fixed signing fields invariant raising a false modification error when stored values are ``None`` (PARAF-563).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
