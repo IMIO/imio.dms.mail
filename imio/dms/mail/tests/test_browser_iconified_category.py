@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from collective.dms.basecontent.browser.listing import CategorizedContent
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.iconifiedcategory.utils import _modified
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
+from datetime import timedelta
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.browser.iconified_category import _has_stale_elements
 from imio.dms.mail.browser.iconified_category import ApprovedChangeView
 from imio.dms.mail.browser.iconified_category import ApprovedColumn
+from imio.dms.mail.browser.iconified_category import repair_stale_categorized_elements
 from imio.dms.mail.browser.iconified_category import SignedChangeView
 from imio.dms.mail.browser.iconified_category import SignedColumn
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
@@ -16,6 +20,7 @@ from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
 from imio.helpers.content import uuidToCatalogBrain
 from imio.helpers.test_helpers import ImioTestHelpers
+from mock import patch
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
@@ -370,3 +375,53 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(view._get_next_values(old_values), (0, {"to_sign": True, "signed": False}))
         old_values = {"to_sign": True, "signed": False}
         self.assertEqual(view._get_next_values(old_values), (1, {"to_sign": True, "signed": True}))
+
+    def test__has_stale_elements(self):
+        uid = self.file1.UID()
+        elements = self.omail1.categorized_elements
+        # a just created file is up to date
+        self.assertFalse(_has_stale_elements(self.omail1))
+        # the stored infos were computed from an older state of the file
+        elements[uid]["last_updated"] = _modified(self.file1) - timedelta(days=1)
+        self.assertTrue(_has_stale_elements(self.omail1))
+        elements[uid]["last_updated"] = _modified(self.file1)
+        self.assertFalse(_has_stale_elements(self.omail1))
+        # the file has no stored infos at all
+        infos = elements.pop(uid)
+        self.assertTrue(_has_stale_elements(self.omail1))
+        elements[uid] = infos
+        self.assertFalse(_has_stale_elements(self.omail1))
+        # infos are stored for a file that isn't there anymore
+        elements["unknown-uid"] = {}
+        self.assertTrue(_has_stale_elements(self.omail1))
+        del elements["unknown-uid"]
+        # the container was never categorized
+        delattr(self.omail1, "categorized_elements")
+        self.assertTrue(_has_stale_elements(self.omail1))
+        self.omail1.categorized_elements = elements
+        # a file whose category cannot be resolved is skipped, like in the rebuild:
+        # counting it would make the container stale forever
+        category = self.file1.content_category
+        self.file1.content_category = u"plone-annexes_types_-_outgoing_dms_files_-_unknown"
+        elements.pop(uid)
+        self.assertFalse(_has_stale_elements(self.omail1))
+        self.file1.content_category = category
+        elements[uid] = infos
+
+    def test_repair_stale_categorized_elements(self):
+        uid = self.file1.UID()
+        # nothing to do, the stored dict is left untouched
+        elements = self.omail1.categorized_elements
+        repair_stale_categorized_elements(self.omail1)
+        self.assertIs(self.omail1.categorized_elements, elements)
+        # a stale element is recomputed
+        self.omail1.categorized_elements[uid]["last_updated"] = _modified(self.file1) - timedelta(days=1)
+        repair_stale_categorized_elements(self.omail1)
+        self.assertEqual(self.omail1.categorized_elements[uid]["last_updated"], _modified(self.file1))
+        self.assertFalse(_has_stale_elements(self.omail1))
+        # a failing update must not break the page: old values are kept
+        self.omail1.categorized_elements[uid]["last_updated"] = _modified(self.file1) - timedelta(days=1)
+        with patch("imio.dms.mail.browser.iconified_category.update_all_categorized_elements",
+                   side_effect=ValueError("boom")):
+            repair_stale_categorized_elements(self.omail1)
+        self.assertTrue(_has_stale_elements(self.omail1))
