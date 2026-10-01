@@ -684,7 +684,7 @@ def sign_request_modified(request, event):
         try:
             approval.update_signers()
         except ValueError as e:
-            raise Invalid(e.message)
+            raise Invalid(translate(e.message, context=request.REQUEST))
 
 
 def sign_request_added(request, event):
