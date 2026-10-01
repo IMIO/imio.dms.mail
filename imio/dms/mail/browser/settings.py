@@ -973,7 +973,11 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         "general",
         label=_(u"General config tab"),
-        fields=["groups_hidden_in_dashboard_filter", "users_hidden_in_dashboard_filter"],
+        fields=[
+            "groups_hidden_in_dashboard_filter",
+            "users_hidden_in_dashboard_filter",
+            "classification_categories_from_folders",
+        ],
     )
 
     groups_hidden_in_dashboard_filter = schema.List(
@@ -991,6 +995,15 @@ class IImioDmsMailConfig(model.Schema):
         default=[],
     )
     widget("users_hidden_in_dashboard_filter", OrderedSelectFieldWidget, size=10)
+
+    classification_categories_from_folders = schema.Bool(
+        title=_(u"Fill empty classification categories from folders"),
+        description=_(
+            u"When saving a mail without classification categories, take those of its classification folders "
+            u"(or those of the parent folder for a subfolder without categories)."
+        ),
+        default=False,
+    )
 
     @invariant
     def validate_settings(data):  # noqa
