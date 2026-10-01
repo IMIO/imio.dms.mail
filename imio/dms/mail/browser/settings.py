@@ -994,6 +994,106 @@ class IImioDmsMailConfig(model.Schema):
 
     @invariant
     def validate_settings(data):  # noqa
+
+        def validate_signer_rules(rules, tab, esign_required=False):
+            """Validate a signer rules configuration (outgoing mail or signing request)."""
+            field = _(u"Signer rules")
+            conditions = {}
+            approvers = []  # (userid, number, treating groups, rule index)
+            for i, rule in enumerate(rules or [], start=1):
+                mapping = {"tab": tab, "field": field, "rule": i}
+                if esign_required and not rule["esign"]:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} must have electronic signature enabled.",
+                            mapping=mapping,
+                        )
+                    )
+                # check number
+                if rule["number"] == 0 and rule["signer"] not in (u"_seal_", u"_empty_"):
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} has a number 0 but a signer is set. With 0, it "
+                            u"can only be a seal or no signature.",
+                            mapping=mapping,
+                        )
+                    )
+                if rule["signer"] == u"_seal_" and rule["number"] != 0:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} has a seal signature but number is not 0. "
+                            u"With a seal, it can only be 0.",
+                            mapping=mapping,
+                        )
+                    )
+                # check signer
+                signer_person = None
+                if rule["signer"] not in (u"_empty_", u"_seal_"):
+                    signer_person = uuidToObject(rule["signer"], unrestricted=True).get_person()
+                    if not signer_person:
+                        raise Invalid(
+                            _(u"${tab} tab: « ${field} », rule ${rule} has an invalid signer.", mapping=mapping)
+                        )
+                    if not signer_person.userid:
+                        raise Invalid(
+                            _(u"${tab} tab: « ${field} », rule ${rule} has a signer without userid.", mapping=mapping)
+                        )
+                # check approvings
+                if rule["esign"] and (not rule["approvings"] or u"_empty_" in rule["approvings"]):
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} must have at least one approving if "
+                            u"electronic signature is enabled.",
+                            mapping=mapping,
+                        )
+                    )
+                validate_signer_approvings(rule, _(
+                    u"${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself.",
+                    mapping=mapping,
+                ))
+                # check duplicate signers
+                condition = (
+                    signer_person or rule["signer"],
+                    rule["esign"],
+                    tuple(rule["treating_groups"] or []),
+                    tuple(rule.get("mail_types") or []),
+                    tuple(rule.get("send_modes") or []),
+                    rule["tal_condition"],
+                )
+                if condition in conditions:
+                    raise Invalid(
+                        _(
+                            u"${tab} tab: « ${field} », rule ${rule} applies same signer than rule ${number}.",
+                            mapping=dict(mapping, number=conditions[condition]),
+                        )
+                    )
+                conditions[condition] = i
+                # check that an approver is not used on two signer numbers applying together
+                if signer_person is None:  # seal or no signature: no approver
+                    continue
+                groups = set(rule["treating_groups"] or [])
+                for approving in rule["approvings"] or []:
+                    if approving == u"_empty_":
+                        continue
+                    if approving == u"_themself_":
+                        person = signer_person
+                    else:
+                        person = uuidToObject(approving, unrestricted=True)
+                    if person is None:
+                        continue
+                    for o_userid, o_number, o_groups, o_i in approvers:
+                        if o_userid != person.userid or o_number == rule["number"]:
+                            continue
+                        if not groups or not o_groups or (groups & o_groups):
+                            raise Invalid(
+                                _(
+                                    u"${tab} tab: « ${field} », rules ${number} and ${rule} give the same "
+                                    u"approver (${userid}) to two different signers.",
+                                    mapping=dict(mapping, number=o_i, userid=person.userid),
+                                )
+                            )
+                    approvers.append((person.userid, rule["number"], groups, i))
+
         # called for each fieldset !
         # when changing directly in registry, data contains not the same thing: we pass validation
         if not isinstance(data.__context__, RecordsProxy):
@@ -1139,157 +1239,11 @@ class IImioDmsMailConfig(model.Schema):
                 pass
         # check omail_signer_rules
         if fieldset == "outgoingmail" or not fieldset:
-            omail_signer_conditions = {}
-            for i, rule in enumerate(data.omail_signer_rules or [], start=1):
-                # check number
-                if rule["number"] == 0 and rule["signer"] not in (u"_seal_", u"_empty_"):
-                    raise Invalid(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule} has a number 0 but a signer is set. With 0, it "
-                            u"can only be a seal or no signature.",
-                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
-                        )
-                    )
-                if rule["signer"] == u"_seal_" and rule["number"] != 0:
-                    raise Invalid(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule} has a seal signature but number is not 0. "
-                            u"With a seal, it can only be 0.",
-                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
-                        )
-                    )
-                # check signer
-                if rule["signer"] not in (u"_empty_", u"_seal_"):
-                    signer_person = uuidToObject(rule["signer"], unrestricted=True).get_person()
-                    if not signer_person:
-                        raise Invalid(
-                            _(
-                                u"${tab} tab: « ${field} », rule ${rule} has an invalid signer.",
-                                mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
-                            )
-                        )
-                    if not signer_person.userid:
-                        raise Invalid(
-                            _(
-                                u"${tab} tab: « ${field} », rule ${rule} has a signer without userid.",
-                                mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
-                            )
-                        )
-                # check approvings
-                if rule["esign"] and (not rule["approvings"] or "_empty_" in rule["approvings"]):
-                    raise Invalid(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule} must have at least one approving if "
-                            u"electronic signature is enabled.",
-                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
-                        )
-                    )
-                validate_signer_approvings(rule, _(
-                    u"${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself.",
-                    mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i},
-                ))
-                # Check duplicate signers
-                signer_value = rule["signer"]
-                if signer_value not in (u"_empty_", u"_seal_"):
-                    signer_value = uuidToObject(rule["signer"], unrestricted=True).get_person()
-                condition = (
-                    signer_value,
-                    rule["esign"],
-                    tuple(rule["treating_groups"]),
-                    tuple(rule["mail_types"]),
-                    tuple(rule["send_modes"]),
-                    rule["tal_condition"],
-                )
-                if condition in omail_signer_conditions:
-                    number = omail_signer_conditions[condition]
-                    raise Invalid(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule} applies same signer than rule ${number}.",
-                            mapping={"tab": _(u"Outgoing mail"), "field": _(u"Signer rules"), "rule": i,
-                                     "number": number},
-                        )
-                    )
-                omail_signer_conditions[condition] = i
+            validate_signer_rules(data.omail_signer_rules, _(u"Outgoing mail"))
 
-        # check request_signer_rules (same validation as omail_signer_rules, without mail_types / send_modes)
+        # check request_signer_rules (same validation, esign is mandatory, no mail_types / send_modes)
         if fieldset == "signrequest" or not fieldset:
-            request_signer_conditions = {}
-            for i, rule in enumerate(data.request_signer_rules or [], start=1):
-                # a signing request is always an electronic signature request
-                if not rule["esign"]:
-                    raise Invalid(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule} must have electronic signature enabled.",
-                            mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
-                        )
-                    )
-                # check number
-                if rule["number"] == 0 and rule["signer"] != u"_seal_":
-                    raise Invalid(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule} has a number 0 but a signer is set. With 0, it "
-                            u"can only be a seal or no signature.",
-                            mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
-                        )
-                    )
-                if rule["signer"] == u"_seal_" and rule["number"] != 0:
-                    raise Invalid(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule} has a seal signature but number is not 0. "
-                            u"With a seal, it can only be 0.",
-                            mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
-                        )
-                    )
-                # check signer
-                if rule["signer"] != u"_seal_":
-                    signer_person = uuidToObject(rule["signer"], unrestricted=True).get_person()
-                    if not signer_person:
-                        raise Invalid(
-                            _(
-                                u"${tab} tab: « ${field} », rule ${rule} has an invalid signer.",
-                                mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
-                            )
-                        )
-                    if not signer_person.userid:
-                        raise Invalid(
-                            _(
-                                u"${tab} tab: « ${field} », rule ${rule} has a signer without userid.",
-                                mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
-                            )
-                        )
-                # check approvings
-                if rule["esign"] and not rule["approvings"]:
-                    raise Invalid(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule} must have at least one approving if "
-                            u"electronic signature is enabled.",
-                            mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
-                        )
-                    )
-                validate_signer_approvings(rule, _(
-                    u"${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself.",
-                    mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i},
-                ))
-                # Check duplicate signers
-                signer_value = rule["signer"]
-                if signer_value != u"_seal_":
-                    signer_value = uuidToObject(rule["signer"], unrestricted=True).get_person()
-                condition = (
-                    signer_value,
-                    rule["esign"],
-                    tuple(rule["treating_groups"]),
-                    rule["tal_condition"],
-                )
-                if condition in request_signer_conditions:
-                    number = request_signer_conditions[condition]
-                    raise Invalid(
-                        _(
-                            u"${tab} tab: « ${field} », rule ${rule} applies same signer than rule ${number}.",
-                            mapping={"tab": _(u"Signing request"), "field": _(u"Signer rules"), "rule": i,
-                                     "number": number},
-                        )
-                    )
-                request_signer_conditions[condition] = i
+            validate_signer_rules(data.request_signer_rules, _(u"Signing request"), esign_required=True)
 
         # check omail_signer_substitutes
         if fieldset == "outgoingmail" or not fieldset:

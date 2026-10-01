@@ -224,6 +224,32 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
             self._request_rule(signer=signer, approvings=[approving]),
             self._request_rule(signer=signer, approvings=[approving])]})
         self.assertTrue(isinstance(errors[0], Invalid))
+        # h) the same approver handles two signer numbers
+        bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
+        dirg_uid = pf["dirg"]["directeur-general"].get_person().UID()
+        rules = [
+            self._request_rule(number=1, signer=signer, approvings=[u"_themself_"]),
+            self._request_rule(number=2, signer=bourgmestre_hp.UID(), approvings=[u"_themself_", dirg_uid]),
+        ]
+        errors = invariants.validate({"request_signer_rules": rules})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        self.assertIn(u"give the same approver", errors[0].message)
+        # i) same approver but the rules cannot apply to the same document
+        orgs = get_registry_organizations()
+        rules[0]["treating_groups"] = [orgs[0]]
+        rules[1]["treating_groups"] = [orgs[1]]
+        self.assertFalse(invariants.validate({"request_signer_rules": rules}))
+        # j) same number: the rules are alternatives, only the first one is applied
+        rules[0]["treating_groups"] = []
+        rules[1]["treating_groups"] = []
+        rules[1]["number"] = 1
+        self.assertFalse(invariants.validate({"request_signer_rules": rules}))
+        # k) the seal rule (number 0) is skipped by the approver check
+        rules = [
+            self._request_rule(number=0, signer=u"_seal_", approvings=[dirg_uid]),
+            self._request_rule(number=1, signer=signer, approvings=[u"_themself_"]),
+        ]
+        self.assertFalse(invariants.validate({"request_signer_rules": rules}))
 
     def test_validate_settings2(self):
         """Check invariant"""
