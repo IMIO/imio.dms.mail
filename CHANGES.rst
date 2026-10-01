@@ -13,6 +13,8 @@ Changelog
   [chris-adam,sgeulette]
 - Updated the incoming email routing and state set descriptions (DMS-1215).
   [chris-adam]
+- Resynced the approval annotation when the signers field is emptied (PARAF-497).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
