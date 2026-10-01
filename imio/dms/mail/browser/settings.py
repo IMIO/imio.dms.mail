@@ -999,7 +999,7 @@ class IImioDmsMailConfig(model.Schema):
             """Validate a signer rules configuration (outgoing mail or signing request)."""
             field = _(u"Signer rules")
             conditions = {}
-            approvers = []  # (userid, number, treating groups, rule index)
+            approvers = []  # (userid, number, treating groups, mail types, rule index)
             for i, rule in enumerate(rules or [], start=1):
                 mapping = {"tab": tab, "field": field, "rule": i}
                 if esign_required and not rule["esign"]:
@@ -1048,7 +1048,7 @@ class IImioDmsMailConfig(model.Schema):
                         )
                     )
                 validate_signer_approvings(rule, _(
-                    u"${tab} tab: « ${field} », rule ${data} has a duplicate approver with themself.",
+                    u"${tab} tab: « ${field} », rule ${rule} has a duplicate approver with themself.",
                     mapping=mapping,
                 ))
                 # check duplicate signers
@@ -1072,6 +1072,7 @@ class IImioDmsMailConfig(model.Schema):
                 if signer_person is None:  # seal or no signature: no approver
                     continue
                 groups = set(rule["treating_groups"] or [])
+                mail_types = set(rule.get("mail_types") or [])
                 for approving in rule["approvings"] or []:
                     if approving == u"_empty_":
                         continue
@@ -1081,10 +1082,12 @@ class IImioDmsMailConfig(model.Schema):
                         person = uuidToObject(approving, unrestricted=True)
                     if person is None:
                         continue
-                    for o_userid, o_number, o_groups, o_i in approvers:
+                    for o_userid, o_number, o_groups, o_types, o_i in approvers:
                         if o_userid != person.userid or o_number == rule["number"]:
                             continue
-                        if not groups or not o_groups or (groups & o_groups):
+                        same_groups = not groups or not o_groups or bool(groups & o_groups)
+                        same_types = not mail_types or not o_types or bool(mail_types & o_types)
+                        if same_groups and same_types:
                             raise Invalid(
                                 _(
                                     u"${tab} tab: « ${field} », rules ${number} and ${rule} give the same "
@@ -1092,7 +1095,7 @@ class IImioDmsMailConfig(model.Schema):
                                     mapping=dict(mapping, number=o_i, userid=person.userid),
                                 )
                             )
-                    approvers.append((person.userid, rule["number"], groups, i))
+                    approvers.append((person.userid, rule["number"], groups, mail_types, i))
 
         # called for each fieldset !
         # when changing directly in registry, data contains not the same thing: we pass validation

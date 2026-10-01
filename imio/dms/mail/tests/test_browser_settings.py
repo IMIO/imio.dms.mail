@@ -188,6 +188,26 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate({"omail_signer_rules": [
             self._omail_rule(signer=signer), self._omail_rule(signer=signer)]})
         self.assertTrue(isinstance(errors[0], Invalid))
+        # g) the same approver handles two signer numbers
+        dirg_uid = pf["dirg"]["directeur-general"].get_person().UID()
+        rules = [
+            self._omail_rule(number=1, signer=signer, esign=True, approvings=[u"_themself_"]),
+            self._omail_rule(number=2, signer=pf["bourgmestre"]["bourgmestre"].UID(), esign=True,
+                             approvings=[u"_themself_", dirg_uid]),
+        ]
+        errors = invariants.validate({"omail_signer_rules": rules})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        self.assertIn(u"give the same approver", errors[0].message)
+        # h) disjoint mail_types: the rules cannot apply to the same mail
+        rules[0]["mail_types"] = [u"courrier"]
+        rules[1]["mail_types"] = [u"deliberation"]
+        self.assertFalse(invariants.validate({"omail_signer_rules": rules}))
+        # i) send_modes are not discriminant: a mail can carry several of them at once
+        rules[0]["mail_types"] = rules[1]["mail_types"] = []
+        rules[0]["send_modes"] = [u"post"]
+        rules[1]["send_modes"] = [u"email"]
+        errors = invariants.validate({"omail_signer_rules": rules})
+        self.assertTrue(isinstance(errors[0], Invalid))
 
     def test_request_signer_rules_validation(self):
         """Check request_signer_rules invariant validation."""
