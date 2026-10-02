@@ -1469,6 +1469,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                                 "position": u"Directeur G\xe9n\xe9ral",
                                 "fullname": u"Maxime DG",
                                 "userid": "dirg",
+                                "signer_id": self.portal["contacts"]["personnel-folder"]["dirg"]["directeur-general"].UID(),
                                 "email": "dirg@macommune.be",
                             },
                             {
@@ -1476,6 +1477,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                                 "position": u"Bourgmestre",
                                 "fullname": u"Paul BM",
                                 "userid": "bourgmestre",
+                                "signer_id": self.portal["contacts"]["personnel-folder"]["bourgmestre"]["bourgmestre"].UID(),
                                 "email": "bourgmestre@macommune.be",
                             },
                         ],
@@ -1527,6 +1529,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                                 "position": u"Directeur G\xe9n\xe9ral",
                                 "fullname": u"Maxime DG",
                                 "userid": "dirg",
+                                "signer_id": self.portal["contacts"]["personnel-folder"]["dirg"]["directeur-general"].UID(),
                                 "email": "dirg@macommune.be",
                             },
                             {
@@ -1534,6 +1537,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                                 "position": u"Bourgmestre",
                                 "fullname": u"Paul BM",
                                 "userid": "bourgmestre",
+                                "signer_id": self.portal["contacts"]["personnel-folder"]["bourgmestre"]["bourgmestre"].UID(),
                                 "email": "bourgmestre@macommune.be",
                             },
                         ],

@@ -2014,11 +2014,17 @@ class ApprovalAdapter(object):
             else:
                 self._create_pdf_file(fobj, fobj.file, f_title, f_uid, i, session_file_uids)
         # sort_categorized_elements(self.context)  # not needed
+        # the held position is the signer id, used by the esign signers order
+        hp_uids = {}
+        for row in self.context.signers or []:
+            hp = uuidToObject(row["signer"], unrestricted=True)  # None for _empty_ and _seal_
+            if hp is not None:
+                hp_uids[hp.get_person().userid] = row["signer"]
         signers = []
         for signer, (nb, name, label) in zip(self.signers, self.signers_details):
             user = api.user.get(signer)
             email = user.getProperty("email")
-            signers.append((signer, email, name, label))
+            signers.append((signer, email, name, label, hp_uids.get(signer, signer)))
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
         pdf_session_ids = set()

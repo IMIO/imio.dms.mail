@@ -542,6 +542,7 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
       "email": "dirg@macommune.be",
       "fullname": "Maxime DG",
       "position": "Directeur Général",
+      "signer_id": <a href='http://nohost/plone/contacts/personnel-folder/dirg/directeur-general/view' title='/plone/contacts/personnel-folder/dirg/directeur-general'>Directeur Général (Mon organisation / Direction générale)</a> ({dirg_hp_uid}),
       "status": "",
       "userid": "dirg",
     }},
@@ -549,6 +550,7 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
       "email": "bourgmestre@macommune.be",
       "fullname": "Paul BM",
       "position": "Bourgmestre",
+      "signer_id": <a href='http://nohost/plone/contacts/personnel-folder/bourgmestre/bourgmestre/view' title='/plone/contacts/personnel-folder/bourgmestre/bourgmestre'>Bourgmestre (Mon organisation / Collège communal)</a> ({bourgmestre_hp_uid}),
       "status": "",
       "userid": "bourgmestre",
     }},
@@ -563,6 +565,8 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
                 pdf2_uid=api.content.get(omail.absolute_url_path()
                                          + "/modele-de-base-s0010-courrier-test-esign.pdf").UID(),
                 folder_name=omail.__parent__.__name__,
+                dirg_hp_uid=self.portal["contacts"]["personnel-folder"]["dirg"]["directeur-general"].UID(),
+                bourgmestre_hp_uid=self.portal["contacts"]["personnel-folder"]["bourgmestre"]["bourgmestre"].UID(),
                 last_update=fmt_dt(get_session_annotation()["sessions"][0]["last_update"]),
                 size=api.content.get(omail.absolute_url_path() + "/file0").file.size
                 + api.content.get(omail.absolute_url_path()

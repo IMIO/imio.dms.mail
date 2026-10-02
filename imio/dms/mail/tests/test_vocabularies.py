@@ -17,6 +17,7 @@ from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.dms.mail.vocabularies import CreatingGroupVocabulary
 from imio.dms.mail.vocabularies import DmsFilesCategoryVocabulary
 from imio.dms.mail.vocabularies import encodeur_active_orgs
+from imio.dms.mail.vocabularies import EsignSignersVocabulary
 from imio.dms.mail.vocabularies import get_settings_vta_table
 from imio.dms.mail.vocabularies import IMReviewStatesVocabulary
 from imio.dms.mail.vocabularies import MyLabelsVocabulary
@@ -518,3 +519,19 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         # === Other context → get all content categories ===
         tasks_folder = api.content.get(path="/tasks")
         self.assertEqual(len(voc_inst(tasks_folder)), 12)
+
+    def test_EsignSignersVocabulary(self):
+        # overrides the empty imio.esign default with the signer held positions, titled as in the signers field
+        factory = getUtility(IVocabularyFactory, u"imio.esign.signers")
+        self.assertIsInstance(factory, EsignSignersVocabulary)
+        om_signers = getUtility(IVocabularyFactory, u"imio.dms.mail.OMSignersVocabulary")(self.portal)
+        self.assertEqual([(t.value, t.title) for t in factory(self.portal)], [(t.value, t.title) for t in om_signers])
+        pf = self.portal.contacts["personnel-folder"]
+        self.assertEqual(
+            [t.value for t in factory(self.portal)],
+            [pf["dirg"]["directeur-general"].UID(), pf["bourgmestre"]["bourgmestre"].UID()],
+        )
+        hp = pf["dirg"]["directeur-general"]
+        hp.usages = []
+        hp.reindexObject(idxs=["usages"])
+        self.assertEqual([t.value for t in factory(self.portal)], [pf["bourgmestre"]["bourgmestre"].UID()])
