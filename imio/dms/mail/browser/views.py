@@ -551,6 +551,12 @@ class ImioRecreateSessionView(RecreateSessionView):
             pc.reindexObject(obj, idxs=("approvings",), update_metadata=0)
         return result
 
+    def get_signers(self, old, old_session_id):
+        """Re-evaluate the signers order, it may have changed since the old session creation."""
+        signers = super(ImioRecreateSessionView, self).get_signers(old, old_session_id)
+        obj = uuidToObject(old["files"][0]["context_uid"])
+        return obj.approval().sort_esign_signers(signers)
+
     def get_new_session_title(self, old, old_session_id):
         obj = uuidToObject(old["files"][0]["context_uid"])
         type_label = translate(

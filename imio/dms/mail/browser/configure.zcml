@@ -992,6 +992,16 @@
         permission="zope2.View"
         />
 
+    <!-- esign signers missing from the signers order: all of them on the personnel dashboard -->
+    <browser:viewlet
+        name="imio.esign.signers-order"
+        for="imio.dms.mail.interfaces.IPersonnelDashboard"
+        manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+        layer="imio.esign.interfaces.IImioEsignLayer"
+        class="imio.dms.mail.browser.viewlets.PersonnelSignersOrderViewlet"
+        permission="cmf.ManagePortal"
+        />
+
     <configure package="collective.messagesviewlet">
         <browser:viewlet
             for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"

@@ -5,9 +5,17 @@ from imio.dms.mail.browser.viewlets import ContactContentBackrefsViewlet
 from imio.dms.mail.browser.viewlets import ContextInformationViewlet
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.esign.config import set_esign_registry_enforce_signers_order
+from imio.esign.config import set_esign_registry_signers_order
+from imio.esign.interfaces import IImioEsignLayer
 from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import login
+from Products.Five import BrowserView
+from zope.component import queryMultiAdapter
+from zope.interface import alsoProvides
+from zope.viewlet.interfaces import IViewlet
+from zope.viewlet.interfaces import IViewletManager
 
 import unittest
 
@@ -108,3 +116,43 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         self.assertEqual(len(sorg_v.getAllMessages()), 1)  # suborganization has missing street too
         self.assertEqual(len(hp_v.getAllMessages()), 1)  # held position has missing street too
         self.assertEqual(len(om_v.getAllMessages()), 1)  # outgoing mail has missing street too
+
+
+class TestSignersOrderViewlets(unittest.TestCase):
+    """imio.esign signers order viewlets, as registered on held positions, persons and the personnel dashboard."""
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.layer["request"]
+        login(self.layer["app"], "admin")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
+        )
+        alsoProvides(self.request, IImioEsignLayer)
+        self.pf = self.portal["contacts"]["personnel-folder"]
+        self.dirg_hp = self.pf["dirg"]["directeur-general"]
+        self.bm_hp = self.pf["bourgmestre"]["bourgmestre"]
+
+    def _unordered(self, context):
+        """Values listed by the registered signers order viewlet on context."""
+        view = BrowserView(context, self.request)
+        manager = queryMultiAdapter((context, self.request, view), IViewletManager, "plone.abovecontenttitle")
+        viewlet = queryMultiAdapter((context, self.request, view, manager), IViewlet, "imio.esign.signers-order")
+        viewlet.update()
+        return [term.value for term in viewlet.terms]
+
+    def test_signers_order_viewlets(self):
+        # order not enforced: nothing
+        self.assertEqual(self._unordered(self.pf), [])
+        set_esign_registry_enforce_signers_order(True)
+        # held position: itself; person: its held positions; personnel dashboard: all
+        self.assertEqual(self._unordered(self.dirg_hp), [self.dirg_hp.UID()])
+        self.assertEqual(self._unordered(self.pf["bourgmestre"]), [self.bm_hp.UID()])
+        self.assertEqual(self._unordered(self.pf), [self.dirg_hp.UID(), self.bm_hp.UID()])
+        # ordered held positions are not listed anymore
+        set_esign_registry_signers_order([self.dirg_hp.UID()])
+        self.assertEqual(self._unordered(self.dirg_hp), [])
+        self.assertEqual(self._unordered(self.pf["dirg"]), [])
+        self.assertEqual(self._unordered(self.pf), [self.bm_hp.UID()])

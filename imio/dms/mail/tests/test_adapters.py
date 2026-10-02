@@ -36,7 +36,9 @@ from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
+from imio.esign.config import set_esign_registry_enforce_signers_order
 from imio.esign.config import set_esign_registry_file_url
+from imio.esign.config import set_esign_registry_signers_order
 from imio.esign.utils import get_session_annotation
 from imio.helpers.test_helpers import ImioTestHelpers
 from imio.helpers.tests.test_pdf import _pdf_page_count
@@ -1386,6 +1388,21 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             },
         )
         self.assertEqual(self.approval.current_nb, 0)
+
+    def test_sort_esign_signers(self):
+        dirg = ("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")
+        bourg = ("bourgmestre", "bourgmestre@macommune.be", u"Paul BM", u"Bourgmestre")
+        other = ("agent", "agent@macommune.be", u"Fred Agent", u"")
+        set_esign_registry_signers_order([self.pf["bourgmestre"]["bourgmestre"].UID()])
+        # order not enforced: unchanged
+        self.assertEqual(self.approval.sort_esign_signers([other, dirg, bourg]), [other, dirg, bourg])
+        # enforced: ordered held positions first, then signer number, signers not on the mail last
+        set_esign_registry_enforce_signers_order(True)
+        self.assertEqual(self.approval.sort_esign_signers([other, dirg, bourg]), [bourg, dirg, other])
+        self.assertEqual(self.approval.sort_esign_signers([bourg, other, dirg]), [bourg, dirg, other])
+        # nothing ordered: signer number
+        set_esign_registry_signers_order([])
+        self.assertEqual(self.approval.sort_esign_signers([bourg, dirg]), [dirg, bourg])
 
     def test_add_mail_files_to_session(self):
         # No files

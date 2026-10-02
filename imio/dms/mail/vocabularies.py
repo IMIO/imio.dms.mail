@@ -868,3 +868,11 @@ class PODTemplateContentCategoriesVocabulary(object):
         brains = catalog.unrestrictedSearchResults(**query)
         content_categories = [(calculate_category_id(b.getObject()), b.Title) for b in brains]
         return SimpleVocabulary([SimpleTerm(value=cc, token=cc, title=tit) for cc, tit in content_categories])
+
+
+@implementer(IVocabularyFactory)
+class EsignSignersVocabulary(object):
+    """Signer held positions, ordered in the imio.esign settings (uncached OMSignersVocabulary)"""
+
+    def __call__(self, context):
+        return get_internal_held_positions_vocabulary(usages="signer")

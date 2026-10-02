@@ -16,6 +16,7 @@ from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.table import SignRequestVersionsTable
 from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
+from imio.esign.browser.views import BaseSignersOrderViewlet
 from imio.esign.browser.views import FacetedSessionInfoViewlet
 from imio.esign.browser.views import ItemSessionInfoViewlet
 from imio.helpers.content import richtextval
@@ -230,3 +231,10 @@ class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):
 
     def collapsible_content_css_default(self):
         return "collapsible-content discreet"
+
+
+class PersonnelSignersOrderViewlet(BaseSignersOrderViewlet):
+    """On the personnel dashboard: all the signers."""
+
+    def get_signer_ids(self):
+        return None
