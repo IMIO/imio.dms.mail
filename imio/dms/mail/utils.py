@@ -26,6 +26,7 @@ from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.esign.config import update_esign_registry_signers_order
 from imio.helpers.batching import batch_delete_files
 from imio.helpers.batching import batch_get_keys
 from imio.helpers.batching import batch_handle_key
@@ -1665,7 +1666,7 @@ def clean_borg_cache(req):
 
 
 def update_approvers_settings():
-    """Update approvers settings"""
+    """Update approvers settings and the esign signers order"""
     # get all held_positions with usages
     portal = api.portal.get()
     pc = portal.portal_catalog
@@ -1683,6 +1684,7 @@ def update_approvers_settings():
     old_approvings = set(get_dms_config(["approvings"], missing_key_handling=True, missing_key_value=[]))
     if old_approvings != set(approvings):
         set_dms_config(["approvings"], approvings)
+    update_esign_registry_signers_order()
 
 
 def get_allowed_content_types(esign=False, portal_type=None):
