@@ -140,9 +140,13 @@ class TestExportToPDFElementsVocabulary(ExportToPdfTestCase):
         after = ExportToPDFAfterSignatureVocabulary()
         ged = {"portal_type": "dmsommainfile", "to_print": True, "esigned": False}
         self.assertTrue(before._to_print(ged))
-        # after signature, a ged file counts only when e-signed
+        self.assertTrue(after._to_print(ged))
+        # to_print is off on main files once esigned: after signature, an e-signed file still counts
+        ged["to_print"] = False
+        self.assertFalse(before._to_print(ged))
         self.assertFalse(after._to_print(ged))
         ged["esigned"] = True
+        self.assertFalse(before._to_print(ged))
         self.assertTrue(after._to_print(ged))
         app = {"portal_type": "dmsappendixfile", "to_print": True, "esigned": False}
         self.assertTrue(before._to_print(app))
@@ -167,12 +171,19 @@ class TestExportToPDFElementsVocabulary(ExportToPdfTestCase):
         # before signature: everything is to_print, the ged odt stays selectable
         vocab = ExportToPDFBeforeSignatureVocabulary()(self.omail)
         self.assertEqual([term.disabled for term in vocab._terms], [False, False, False])
-        # after signature: no file is e-signed, only the appendix (to_print) remains
+        # after signature: the ged odt is not concatenable anymore
+        self._clean_cache()
+        vocab = ExportToPDFAfterSignatureVocabulary()(self.omail)
+        self.assertEqual([term.disabled for term in vocab._terms], [True, False, False])
+        self.assertIn(u"[pdf required]", vocab._terms[0].title)
+        # ged files not to print and not e-signed are disabled
+        self._set_infos(self.a_odt, to_print=False)
+        self._set_infos(self.b_pdf, to_print=False)
         self._clean_cache()
         vocab = ExportToPDFAfterSignatureVocabulary()(self.omail)
         self.assertEqual([term.disabled for term in vocab._terms], [True, True, False])
         self.assertIn(u"[not to print]", vocab._terms[0].title)
-        # an e-signed odt ged file is still not concatenable
+        # e-signed ged files are to print, but an odt is still not concatenable
         self._set_infos(self.a_odt, esigned=True)
         self._set_infos(self.b_pdf, esigned=True)
         self._clean_cache()
@@ -197,7 +208,13 @@ class TestExportToPDFForm(ExportToPdfTestCase):
         self.assertEqual(form.widgets["elements"].value,
                          [self.a_odt.getId(), self.b_pdf.getId(), self.appendix.getId()])
         self.assertTrue(form.widgets["elements"].sortable)
-        # after signature, nothing is e-signed: only the appendix is preselected
+        # after signature, the ged odt cannot be concatenated anymore
+        self._clean_cache()
+        form = self.omail.restrictedTraverse("@@export-to-pdf-after-signature")
+        form.update()
+        self.assertEqual(form.widgets["elements"].value, [self.b_pdf.getId(), self.appendix.getId()])
+        # ged files not to print and not e-signed are not preselected
+        self._set_infos(self.b_pdf, to_print=False)
         self._clean_cache()
         form = self.omail.restrictedTraverse("@@export-to-pdf-after-signature")
         form.update()

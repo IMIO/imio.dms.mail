@@ -24,6 +24,7 @@ from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
+from collective.iconifiedcategory.adapter import CategorizedObjectPrintableAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.task.interfaces import ITaskContent
@@ -2070,3 +2071,13 @@ class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
         base_infos["conv_from_uid"] = getattr(self.obj, "conv_from_uid", None)
         base_infos["esigned"] = getattr(self.obj, "esigned", False)
         return base_infos
+
+
+class DmsAppendixFilePrintableAdapter(CategorizedObjectPrintableAdapter):
+    """Only a pdf appendix file can be printed: it is concatenated as is when exporting to pdf."""
+
+    @property
+    def is_printable(self):
+        if getattr(self.context.file, "contentType", None) != "application/pdf":
+            return False
+        return super(DmsAppendixFilePrintableAdapter, self).is_printable

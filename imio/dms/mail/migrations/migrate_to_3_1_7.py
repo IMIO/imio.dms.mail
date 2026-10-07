@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
 from imio.helpers.setup import load_type_from_package
@@ -22,6 +23,11 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                 formats = api.portal.get_registry_record(rec, default=None)
                 if formats and "doc" in formats:
                     api.portal.set_registry_record(rec, [fmt == "doc" and "docx" or fmt for fmt in formats])
+            # odt, ods and odp are split from word, excel and ppt in imio.helpers: still convert them
+            gsettings = GlobalSettings(self.portal)
+            gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + [
+                ftype for ftype in ("odt", "ods", "odp") if ftype not in gsettings.auto_layout_file_types
+            ]
             # mark requests tab to add count on
             req_folder = self.portal.get("requests")
             if req_folder is not None and not ICountableTab.providedBy(req_folder):

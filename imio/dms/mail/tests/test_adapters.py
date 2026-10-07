@@ -6,6 +6,7 @@ from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import default_criterias
+from imio.dms.mail.adapters import DmsAppendixFilePrintableAdapter
 from imio.dms.mail.adapters import IdmSearchableExtender
 from imio.dms.mail.adapters import im_sender_email_index
 from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
@@ -38,6 +39,7 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import get_session_annotation
+from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from imio.helpers.tests.test_pdf import _pdf_page_count
 from plone import api
@@ -1684,6 +1686,43 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(pdf_file.to_print)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
+
+
+class TestDmsAppendixFilePrintableAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+        self.omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.category = calculate_category_id(
+            self.portal["annexes_types"]["outgoing_appendix_files"]["outgoing-appendix-file"])
+
+    def _add_appendix(self, filename):
+        """Add an appendix file from the batchimport files"""
+        with open("%s/batchimport/toprocess/incoming-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            return createContentInContainer(self.omail, "dmsappendixfile", content_category=self.category,
+                                            file=NamedBlobFile(fo.read(), filename=filename))
+
+    def test_is_printable(self):
+        pdf = self._add_appendix(u"in-courrier2.pdf")
+        self.assertTrue(DmsAppendixFilePrintableAdapter(pdf).is_printable)
+        self.assertIsNotNone(pdf.to_print)
+        # a non pdf appendix cannot be set to print
+        odt = self._add_appendix(u"in-courrier3.odt")
+        self.assertFalse(DmsAppendixFilePrintableAdapter(odt).is_printable)
+        self.assertIsNone(odt.to_print)
+        self.assertIsNone(self.omail.categorized_elements[odt.UID()]["to_print"])
+        # even when clicking on the icon
+        self.portal.REQUEST.form["iconified-value"] = "true"
+        odt.restrictedTraverse("@@iconified-print")()
+        self.assertIsNone(odt.to_print)
+        # the file is replaced by a pdf: to_print can be set again
+        odt.file = NamedBlobFile(pdf.file.data, filename=u"in-courrier2.pdf")
+        zope.event.notify(ObjectModifiedEvent(odt))
+        self.assertTrue(DmsAppendixFilePrintableAdapter(odt).is_printable)
+        self.assertIsNotNone(odt.to_print)
 
 
 class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):

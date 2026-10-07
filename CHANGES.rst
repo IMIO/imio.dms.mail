@@ -10,6 +10,8 @@ Changelog
   [sgeulette]
 - Replaced "doc" file format by "docx" in settings and considered it in "Export to PDF".
   [sgeulette]
+- Added "odt", "ods" and "odp" documentviewer auto layout file types.
+  [sgeulette]
 - Added items count on the "requests" tab.
   [sgeulette]
 - Updated robotframework tests to include electronic signature (PARAF-166).
