@@ -82,7 +82,7 @@
     />
 
     <utility
-      factory=".vocabularies.EsignSignersVocabulary"
+      factory=".vocabularies.OMSignersVocabulary"
       name="imio.esign.signers"
     />
 

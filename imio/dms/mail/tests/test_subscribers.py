@@ -31,6 +31,8 @@ from imio.esign.utils import get_session_annotation
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
+from imio.helpers.content import get_vocab
+from imio.helpers.content import get_vocab_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.test_helpers import ImioTestHelpers
 from mock import Mock
@@ -1712,6 +1714,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         # a fresh person without held positions is not present in the 'usages' index
         person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
         self.assertListEqual(self._person_usages(person), [])
+        self.assertEqual(len(get_vocab_values(self.portal, "imio.esign.signers")), 2)
         # adding a held position with a usage reindexes the person (held_position_added subscriber)
         person.invokeFactory(
             "held_position",
@@ -1720,6 +1723,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             usages=["signer"],
         )
         self.assertListEqual(self._person_usages(person), ["signer"])
+        # and refreshes the cached signers vocabulary
+        self.assertIn(person["hp1"].UID(), get_vocab_values(self.portal, "imio.esign.signers", attr_name="value"))
 
     def test_held_position_modified(self):
         self._install_esign_registry()
@@ -1763,6 +1768,14 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(self._person_usages(person), [])
         # and removes it from the esign signers order
         self.assertListEqual(get_esign_registry_signers_order(), [dirg_hp_uid])
+
+    def test_contact_modified(self):
+        hp = self.pf["bourgmestre"]["bourgmestre"]
+        self.assertNotIn(u"Renamed", get_vocab(self.portal, "imio.esign.signers").getTerm(hp.UID()).title)
+        # renaming a person refreshes the cached signers vocabulary
+        hp.get_person().lastname = u"Renamed"
+        modified(hp.get_person())
+        self.assertIn(u"Renamed", get_vocab(self.portal, "imio.esign.signers").getTerm(hp.UID()).title)
 
 
 class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
