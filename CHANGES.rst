@@ -10,6 +10,8 @@ Changelog
   [sgeulette]
 - Replaced "doc" file format by "docx" in settings and considered it in "Export to PDF".
   [sgeulette]
+- Only a pdf appendix file can be set "to print" (IIconifiedPrintable adapter).
+  [sgeulette]
 - Added "odt", "ods" and "odp" documentviewer auto layout file types.
   [sgeulette]
 - Added items count on the "requests" tab.

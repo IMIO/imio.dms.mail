@@ -2734,8 +2734,10 @@ def configure_documentviewer(site):
     gsettings.storage_type = "Blob"
     gsettings.pdf_image_format = "jpg"
     gsettings.auto_select_layout = False
-    if "excel" not in gsettings.auto_layout_file_types:
-        gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + ["excel", "image"]
+    # odt, ods and odp are split from word, excel and ppt in imio.helpers
+    gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + [
+        ftype for ftype in ("excel", "image", "odt", "ods", "odp") if ftype not in gsettings.auto_layout_file_types
+    ]
     # gsettings.auto_convert = False
     gsettings.show_search = True
     # set preservation days
