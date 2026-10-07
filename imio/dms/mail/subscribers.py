@@ -58,6 +58,7 @@ from imio.esign.audit import audit as esign_audit
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.config import get_esign_registry_seal_code
 from imio.esign.config import get_esign_registry_seal_email
+from imio.esign.config import update_esign_registry_signers_order
 from imio.esign.utils import get_session_annotation
 from imio.esign.utils import remove_files_from_session
 from imio.helpers.cache import invalidate_cachekey_volatile_for
@@ -1537,6 +1538,7 @@ def reindex_person_usages(hp):
 
 def held_position_added(obj, event):
     if IPersonnelContact.providedBy(obj):
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
         reindex_person_usages(obj)
 
 
@@ -1564,6 +1566,8 @@ def held_position_removed(obj, event):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
         reindex_person_usages(obj)
+        if "signer" in (obj.usages or []):
+            update_esign_registry_signers_order()
 
 
 def mark_contact(contact, event):
@@ -1616,6 +1620,7 @@ def contact_modified(obj, event):
     if IPersonnelContact.providedBy(obj):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
+        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSignersVocabulary")
 
 
 def personnel_contact_removed(del_obj, event):

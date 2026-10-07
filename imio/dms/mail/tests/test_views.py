@@ -20,7 +20,9 @@ from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
+from imio.esign.config import set_esign_registry_enforce_signers_order
 from imio.esign.config import set_esign_registry_file_url
+from imio.esign.config import set_esign_registry_signers_order
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import get_object
@@ -725,6 +727,28 @@ class TestImioRecreateSessionView(unittest.TestCase):
             approval.annot["session_ids"] = PersistentList()
         approval.annot["session_ids"].append(old_id)
         return omail, old_id
+
+    def test_get_signers(self):
+        """The signers order is re-evaluated on the mail, the old session order is not kept."""
+        omail, old_id = self._make_omail_with_session()
+        omail.signers = list(omail.signers) + [
+            {"number": 2, "signer": self.pf["bourgmestre"]["bourgmestre"].UID(), "approvings": [u"_themself_"],
+             "editor": False},
+        ]
+        old = dict(get_session_annotation()["sessions"][old_id])
+        old["signers"] = [
+            {"userid": "bourgmestre", "email": "bourgmestre@macommune.be", "fullname": u"Paul BM",
+             "position": u"Bourgmestre", "status": ""},
+        ] + list(old["signers"])
+        view = ImioRecreateSessionView(self.portal, self.portal.REQUEST)
+        # not enforced: old session order
+        self.assertEqual([sig[0] for sig in view.get_signers(old, old_id)], ["bourgmestre", "dirg"])
+        # enforced, nothing ordered: signer number
+        set_esign_registry_enforce_signers_order(True)
+        self.assertEqual([sig[0] for sig in view.get_signers(old, old_id)], ["dirg", "bourgmestre"])
+        # current order
+        set_esign_registry_signers_order([self.pf["bourgmestre"]["bourgmestre"].UID()])
+        self.assertEqual([sig[0] for sig in view.get_signers(old, old_id)], ["bourgmestre", "dirg"])
 
     def test_call(self):
         """Recreation appends new session id to approval.session_ids and reindexes the mail;

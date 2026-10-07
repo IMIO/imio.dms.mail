@@ -48,6 +48,8 @@ from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
 from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
+from imio.esign.config import get_esign_registry_enforce_signers_order
+from imio.esign.config import get_esign_registry_signers_order
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
 from imio.esign.utils import get_max_download_date
@@ -2019,6 +2021,7 @@ class ApprovalAdapter(object):
             user = api.user.get(signer)
             email = user.getProperty("email")
             signers.append((signer, email, name, label))
+        signers = self.sort_esign_signers(signers)
         watcher_users = api.user.get_users(groupname="esign_watchers")
         watcher_emails = [user.getProperty("email") for user in watcher_users]
         pdf_session_ids = set()
@@ -2038,6 +2041,20 @@ class ApprovalAdapter(object):
         return True, _("${count} file(s) added to session(s) ${session_ids}",
                        mapping={"count": str(len(session_file_uids)),
                                 "session_ids": u", ".join([str(sid) for sid in sorted(pdf_session_ids)])})
+
+    def sort_esign_signers(self, signers):
+        """Sort esign signers quartets on the esign signers order of their held position, then their number."""
+        if not get_esign_registry_enforce_signers_order():
+            return signers
+        order = list(get_esign_registry_signers_order())
+        keys = {}
+        for row in self.context.signers or []:
+            hp = uuidToObject(row["signer"], unrestricted=True)  # None for _empty_ and _seal_
+            if hp is not None:
+                rank = order.index(row["signer"]) if row["signer"] in order else len(order)
+                keys[hp.get_person().userid] = (rank, row["number"])
+        # signers not found on the mail last
+        return sorted(signers, key=lambda sig: keys.get(sig[0], (len(order) + 1, 0)))
 
 
 @implementer(IOMApproval)

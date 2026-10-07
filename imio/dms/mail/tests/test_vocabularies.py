@@ -24,6 +24,7 @@ from imio.dms.mail.vocabularies import OMActiveMailTypesVocabulary
 from imio.dms.mail.vocabularies import OMActiveSenderVocabulary
 from imio.dms.mail.vocabularies import OMMailTypesVocabulary
 from imio.dms.mail.vocabularies import OMSenderVocabulary
+from imio.dms.mail.vocabularies import OMSignersVocabulary
 from imio.dms.mail.vocabularies import PloneGroupInterfacesVocabulary
 from imio.dms.mail.vocabularies import signrequest_active_orgs
 from imio.dms.mail.vocabularies import SRReviewStatesVocabulary
@@ -35,6 +36,7 @@ from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.registry.interfaces import IRegistry
 from zope.component import getUtility
+from zope.lifecycleevent import modified
 from zope.schema.interfaces import IVocabularyFactory
 
 import unittest
@@ -518,3 +520,20 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         # === Other context → get all content categories ===
         tasks_folder = api.content.get(path="/tasks")
         self.assertEqual(len(voc_inst(tasks_folder)), 12)
+
+    def test_OMSignersVocabulary(self):
+        # also overrides the empty imio.esign default
+        factory = getUtility(IVocabularyFactory, u"imio.esign.signers")
+        self.assertIsInstance(factory, OMSignersVocabulary)
+        pf = self.portal.contacts["personnel-folder"]
+        self.assertEqual(
+            [t.value for t in factory(self.portal)],
+            [pf["dirg"]["directeur-general"].UID(), pf["bourgmestre"]["bourgmestre"].UID()],
+        )
+        # cached until a held position modification
+        hp = pf["dirg"]["directeur-general"]
+        hp.usages = []
+        hp.reindexObject(idxs=["usages"])
+        self.assertEqual(len(factory(self.portal)), 2)
+        modified(hp)
+        self.assertEqual([t.value for t in factory(self.portal)], [pf["bourgmestre"]["bourgmestre"].UID()])
