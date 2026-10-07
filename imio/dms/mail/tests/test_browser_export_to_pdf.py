@@ -26,6 +26,7 @@ import unittest
 
 ODT_PATH = u"%s/batchimport/toprocess/incoming-mail/in-courrier3.odt" % PRODUCT_DIR
 PDF_PATH = u"%s/batchimport/toprocess/incoming-mail/in-courrier2.pdf" % PRODUCT_DIR
+DOCX_PATH = u"%s/batchimport/toprocess/incoming-mail/in-courrier4.docx" % PRODUCT_DIR
 
 
 class ExportToPdfTestCase(unittest.TestCase, ImioTestHelpers):
@@ -155,7 +156,8 @@ class TestExportToPDFElementsVocabulary(ExportToPdfTestCase):
         after = ExportToPDFAfterSignatureVocabulary()
         ged = {"portal_type": "dmsommainfile"}
         app = {"portal_type": "dmsappendixfile"}
-        self.assertEqual(before._selectable_content_types(ged), (export_to_pdf.PDF, export_to_pdf.ODT))
+        self.assertEqual(before._selectable_content_types(ged),
+                         (export_to_pdf.PDF, export_to_pdf.ODT, export_to_pdf.DOCX))
         self.assertEqual(before._selectable_content_types(app), (export_to_pdf.PDF,))
         self.assertEqual(after._selectable_content_types(ged), (export_to_pdf.PDF,))
         self.assertEqual(after._selectable_content_types(app), (export_to_pdf.PDF,))
@@ -202,13 +204,15 @@ class TestExportToPDFForm(ExportToPdfTestCase):
         self.assertEqual(form.widgets["elements"].value, [self.appendix.getId()])
 
     def test__elements_content(self):
-        """Odt files are converted to pdf, the others are taken as is."""
+        """Odt and docx files are converted to pdf, the others are taken as is."""
+        docx = self._add_file(u"c docx", DOCX_PATH)
         original = export_to_pdf.convert_file
         export_to_pdf.convert_file = lambda afile, **kwargs: "%PDF-converted"
         try:
             form = self.omail.restrictedTraverse("@@export-to-pdf-before-signature")
-            content = form._elements_content({"elements": [self.a_odt.getId(), self.b_pdf.getId()]})
+            content = form._elements_content({"elements": [self.a_odt.getId(), docx.getId(), self.b_pdf.getId()]})
         finally:
             export_to_pdf.convert_file = original
         self.assertEqual(content[self.a_odt.getId()], "%PDF-converted")
+        self.assertEqual(content[docx.getId()], "%PDF-converted")
         self.assertEqual(content[self.b_pdf.getId()], self.b_pdf.file.data)

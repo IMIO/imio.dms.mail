@@ -163,7 +163,7 @@ class OMFileFormatsVocabulary(object):
         return SimpleVocabulary([
             SimpleTerm(value="odt", title=_(u"OpenDocument Text (.odt)")),
             SimpleTerm(value="pdf", title=_(u"PDF Document (.pdf)")),
-            SimpleTerm(value="doc", title=_(u"Microsoft Word Document (.doc, .docx)")),
+            SimpleTerm(value="docx", title=_(u"Microsoft Word Document (.docx)")),
         ])
 
 

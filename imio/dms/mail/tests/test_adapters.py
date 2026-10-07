@@ -1627,28 +1627,32 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
 
-    def test_create_pdf_file_from_doc(self):
-        """Through the esignature process, a DOC file is converted to PDF
+    def test_create_pdf_file_from_docx(self):
+        """Through the esignature process, a DOCX file is converted to PDF
         with a QR barcode page appended."""
 
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
-            ["odt", "pdf", "doc"],
+            ["odt", "pdf", "docx"],
         )
 
         try:
-            # Remove existing ODT files from approval, then add a DOC file
+            # Remove existing ODT files from approval, then add a DOCX file
             self.approval.remove_file_from_approval(self.files[0].UID())
             self.approval.remove_file_from_approval(self.files[1].UID())
             ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-            with open("%s/batchimport/toprocess/incoming-mail/in-courrier4.doc" % PRODUCT_DIR, "rb") as fo:
+            with open("%s/batchimport/toprocess/incoming-mail/in-courrier4.docx" % PRODUCT_DIR, "rb") as fo:
                 doc_data = fo.read()
             doc_fobj = createContentInContainer(
                 self.omail,
                 "dmsommainfile",
                 id="docfile",
                 scan_id="012999900000601",
-                file=NamedBlobFile(doc_data, contentType="application/msword", filename=u"in-courrier4.doc"),
+                file=NamedBlobFile(
+                    doc_data,
+                    contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    filename=u"in-courrier4.docx",
+                ),
                 content_category=calculate_category_id(ct),
             )
 
@@ -1663,7 +1667,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ["odt", "pdf"],
             )
 
-        # 2 ODT originals + 1 converted PDF tahts replaces doc
+        # 2 ODT originals + 1 converted PDF that replaces docx
         self.assertEqual(len(list(self.omail.objectIds())), 3)
 
         # At least 1 converted content page + 1 barcode page

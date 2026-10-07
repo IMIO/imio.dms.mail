@@ -239,7 +239,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                     if odt_only:
                         formats = ["odt"]
                     else:
-                        formats = ["odt", "pdf", "doc"]
+                        formats = ["odt", "pdf", "docx"]
                     api.portal.set_registry_record(
                         "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile",
                         formats

@@ -413,7 +413,7 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
 
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
     files = [safe_unicode(name) for name in os.listdir(filespath)
-             if Path(name).suffix[1:] in ("pdf", "doc", "jpg")]
+             if Path(name).suffix[1:] in ("pdf", "docx", "jpg")]
     files_cycle = cycle(files)
 
     # intids = getUtility(IIntIds)
