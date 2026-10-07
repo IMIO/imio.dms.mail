@@ -201,6 +201,20 @@ $(document).ready(function(){
         closeselector: '[name="form.buttons.cancel"]'
     });
 
+    function SimpleExportPDF() {
+      $('.apButtonAction_form_export-to-pdf-before-signature, .apButtonAction_form_export-to-pdf-after-signature').prepOverlay({
+         subtype: 'ajax',
+         closeselector: '[name="form.buttons.cancel"]',
+         config: { onBeforeLoad: function(e) {
+              // clic sur Apply → clic auto sur Cancel pour fermer l'overlay
+              $("input#form-buttons-apply_export_pdf").click(function(e){ $('input#form-buttons-cancel').click(); });
+              // le form est soumis dans un nouvel onglet (téléchargement)
+              $("form#form").attr('target', 'blank');
+              return true; } },
+      });
+    }
+    SimpleExportPDF();
+
     $(document).bind('loadInsideOverlay', function(e, el, responseText, errorText, api) {
         dmsmail.initialize_fancytree();
     });

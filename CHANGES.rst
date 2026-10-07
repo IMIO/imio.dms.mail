@@ -4,6 +4,11 @@ Changelog
 3.1.7 (unreleased)
 ------------------
 
+- Added "Export to PDF" actions on ``dmsoutgoingmail`` and ``sign_request``, using the
+  ``imio.annex`` export form: before signature when neither ``esign`` nor ``seal`` is set,
+  after signature otherwise. New module ``imio.dms.mail.browser.export_to_pdf``.
+  The forms are opened in an overlay and the generated PDF is downloaded from it.
+  [sgeulette]
 - Added items count on the ``requests`` tab, like on other tabs (``ICountableTab``).
   [sgeulette]
 - Updated robotframework tests to include electronic signature (PARAF-166).

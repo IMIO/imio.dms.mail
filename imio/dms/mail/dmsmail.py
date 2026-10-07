@@ -898,6 +898,14 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     def has_mailing(self, document):
         return need_mailing_value(document=document)
 
+    def can_do_export_to_pdf_before_signature(self):
+        """Condition of the "export-to-pdf-before-signature" action"""
+        return not (self.esign or self.seal)
+
+    def can_do_export_to_pdf_after_signature(self):
+        """Condition of the "export-to-pdf-after-signature" action"""
+        return bool(self.esign or self.seal)
+
 
 @implementer(IImioDmsOutgoingMailWfConditions)
 class ImioDmsOutgoingMailWfConditionsAdapter(object):

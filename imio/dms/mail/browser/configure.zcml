@@ -90,6 +90,28 @@
         allowed_attributes="available"
         />
 
+    <!-- Export the files to print as a single PDF -->
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        name="export-to-pdf-before-signature"
+        class=".export_to_pdf.ExportToPDFBeforeSignatureForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        name="export-to-pdf-after-signature"
+        class=".export_to_pdf.ExportToPDFAfterSignatureForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+        name="export-to-pdf-after-signature"
+        class=".export_to_pdf.ExportToPDFAfterSignatureForm"
+        permission="zope2.View"
+        />
+
     <browser:page
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         name="render_email_signature"

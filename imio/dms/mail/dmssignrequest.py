@@ -149,6 +149,10 @@ class ImioDmsSignRequest(DmsDocument):
         """Returns the adapter providing workflow conditions"""
         return ISignRequestWfConditions(self)
 
+    def can_do_export_to_pdf_after_signature(self):
+        """Condition of the "export-to-pdf-after-signature" action"""
+        return True
+
 
 @implementer(ISignRequestWfConditions)
 class SignRequestWfConditionsAdapter(object):
