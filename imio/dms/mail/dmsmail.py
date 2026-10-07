@@ -900,11 +900,11 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
 
     def can_do_export_to_pdf_before_signature(self):
         """Condition of the "export-to-pdf-before-signature" action"""
-        return not (self.esign or self.seal)
+        return not (self.esign or self.seal) and api.content.get_state(obj=self) not in ("signed", "sent")
 
     def can_do_export_to_pdf_after_signature(self):
         """Condition of the "export-to-pdf-after-signature" action"""
-        return bool(self.esign or self.seal)
+        return bool(self.esign or self.seal) and api.content.get_state(obj=self) in ("signed", "sent")
 
 
 @implementer(IImioDmsOutgoingMailWfConditions)

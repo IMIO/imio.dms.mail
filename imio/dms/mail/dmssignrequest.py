@@ -151,7 +151,7 @@ class ImioDmsSignRequest(DmsDocument):
 
     def can_do_export_to_pdf_after_signature(self):
         """Condition of the "export-to-pdf-after-signature" action"""
-        return True
+        return api.content.get_state(obj=self) in ("signed", "closed")
 
 
 @implementer(ISignRequestWfConditions)
