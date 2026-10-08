@@ -8,6 +8,8 @@ Changelog
   imio.annex export form: before signature when neither "esign" nor "seal" is set,
   after signature otherwise.
   [sgeulette]
+- Added "Export to PDF" batch actions on outgoing mail and requests dashboards.
+  [sgeulette]
 - Replaced "doc" file format by "docx" in settings and considered it in "Export to PDF".
   [sgeulette]
 - Only a pdf appendix file can be set "to print" (IIconifiedPrintable adapter).

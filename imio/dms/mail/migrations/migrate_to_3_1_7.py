@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
+from imio.dms.mail.interfaces import IReqDashboard
+from imio.dms.mail.interfaces import IReqDashboardBatchActions
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
 from imio.helpers.setup import load_type_from_package
 from plone import api
 from zope.interface import alsoProvides
+from zope.interface import noLongerProvides
 
 import logging
 
@@ -37,6 +40,15 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
             # new "export to pdf" actions on dmsoutgoingmail and sign_request
             load_type_from_package("dmsoutgoingmail", "imio.dms.mail:default")
             load_type_from_package("sign_request", "imio.dms.mail:default")
+            # batch actions on requests dashboard
+            if req_folder is not None:
+                col_folder = req_folder["requests-searches"]
+                noLongerProvides(col_folder, IReqDashboard)
+                alsoProvides(col_folder, IReqDashboardBatchActions)
+                for brain in api.content.find(context=col_folder, portal_type="DashboardCollection"):
+                    obj = brain.getObject()
+                    if u"select_row" not in obj.customViewFields:
+                        obj.customViewFields = (u"select_row",) + tuple(obj.customViewFields)
 
         if self.is_in_part("t"):  # final steps
             if self.old_version != self.new_version:

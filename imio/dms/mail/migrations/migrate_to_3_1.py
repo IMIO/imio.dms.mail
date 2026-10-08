@@ -22,7 +22,7 @@ from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
-from imio.dms.mail.interfaces import IReqDashboard
+from imio.dms.mail.interfaces import IReqDashboardBatchActions
 from imio.dms.mail.setuphandlers import add_db_col_folder
 from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
@@ -521,7 +521,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             # add searches
             col_folder = add_db_col_folder(req_folder, "requests-searches", _("Requests searches"), _("Requests"))
             alsoProvides(col_folder, INextPrevNotNavigable)
-            alsoProvides(col_folder, IReqDashboard)
+            alsoProvides(col_folder, IReqDashboardBatchActions)
             createReqCollections(col_folder)
             createStateCollections(col_folder, "sign_request")
             configure_faceted_folder(col_folder, xml="requests-searches.xml",

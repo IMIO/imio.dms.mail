@@ -113,6 +113,27 @@
         />
 
     <browser:page
+        for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
+        name="export-to-pdf-before-signature-batch-action"
+        class=".export_to_pdf.ExportToPDFBeforeSignatureBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
+        name="export-to-pdf-after-signature-batch-action"
+        class=".export_to_pdf.ExportToPDFAfterSignatureBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IReqDashboardBatchActions"
+        name="export-to-pdf-after-signature-batch-action"
+        class=".export_to_pdf.ExportToPDFReqAfterSignatureBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         name="render_email_signature"
         class=".views.RenderEmailSignature"

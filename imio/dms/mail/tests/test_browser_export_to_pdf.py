@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ browser/export_to_pdf.py tests for this package."""
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.eeafaceted.batchactions.browser.viewlets import BatchActionsViewlet
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
@@ -10,6 +11,7 @@ from imio.dms.mail.browser import export_to_pdf
 from imio.dms.mail.browser.export_to_pdf import ExportToPDFAfterSignatureVocabulary
 from imio.dms.mail.browser.export_to_pdf import ExportToPDFBeforeSignatureVocabulary
 from imio.dms.mail.browser.export_to_pdf import superseded_uids
+from imio.dms.mail.interfaces import IReqDashboardBatchActions
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
@@ -251,3 +253,54 @@ class TestExportToPDFForm(ExportToPdfTestCase):
         self.assertEqual(content[self.a_odt.getId()], "%PDF-converted")
         self.assertEqual(content[docx.getId()], "%PDF-converted")
         self.assertEqual(content[self.b_pdf.getId()], self.b_pdf.file.data)
+
+
+class TestExportToPDFBatchActionForm(ExportToPdfTestCase):
+    """Test imio.dms.mail.browser.export_to_pdf.ExportToPDFBatchActionForm."""
+
+    def _form(self, name):
+        return self.portal["outgoing-mail"]["mail-searches"].restrictedTraverse("@@%s" % name)
+
+    def test_available(self):
+        """The buttons depend on the dashboard collection, the form itself is available."""
+        searches = self.portal["outgoing-mail"]["mail-searches"]
+        original = export_to_pdf.getCurrentCollection
+        try:
+            export_to_pdf.getCurrentCollection = lambda context: searches["to_treat"]
+            self.assertTrue(self._form("export-to-pdf-before-signature-batch-action").available())
+            self.assertFalse(self._form("export-to-pdf-after-signature-batch-action").available())
+            export_to_pdf.getCurrentCollection = lambda context: searches["searchfor_signed"]
+            self.assertFalse(self._form("export-to-pdf-before-signature-batch-action").available())
+            self.assertTrue(self._form("export-to-pdf-after-signature-batch-action").available())
+            export_to_pdf.getCurrentCollection = lambda context: searches["all_mails"]
+            self.assertFalse(self._form("export-to-pdf-before-signature-batch-action").available())
+            self.assertFalse(self._form("export-to-pdf-after-signature-batch-action").available())
+            self.request["uids"] = self.omail.UID()
+            self.assertTrue(self._form("export-to-pdf-after-signature-batch-action").available())
+        finally:
+            export_to_pdf.getCurrentCollection = original
+
+    def test__get_annexes(self):
+        """The files preselected by the element export are taken, ged files first."""
+        self.request["uids"] = self.omail.UID()
+        form = self._form("export-to-pdf-before-signature-batch-action")
+        form.update()
+        self.assertNotIn("annex_types", form.fields)
+        self.assertEqual(form.widgets["two_sided"].value, ["true"])
+        self.assertEqual(form._get_annexes({}), [self.a_odt, self.b_pdf, self.appendix])
+        self._clean_cache()
+        form = self._form("export-to-pdf-after-signature-batch-action")
+        form.update()
+        self.assertEqual(form._get_annexes({}), [self.b_pdf, self.appendix])
+
+    def test_req_dashboard(self):
+        """Only the after signature export is on the requests dashboard, whatever the collection."""
+        searches = self.portal["requests"]["requests-searches"]
+        self.assertTrue(IReqDashboardBatchActions.providedBy(searches))
+        self.assertIn(u"select_row", searches["all_requests"].customViewFields)
+        form = searches.restrictedTraverse("@@export-to-pdf-after-signature-batch-action")
+        self.assertTrue(form.available())
+        actions = [action["name"] for action in BatchActionsViewlet(searches, self.request, None, None)
+                   .get_batch_actions()]
+        self.assertIn("export-to-pdf-after-signature-batch-action", actions)
+        self.assertNotIn("export-to-pdf-before-signature-batch-action", actions)

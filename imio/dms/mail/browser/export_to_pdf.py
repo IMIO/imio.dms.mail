@@ -4,10 +4,15 @@
 from collective.documentgenerator.config import get_oo_port_list
 from collective.documentgenerator.config import get_oo_server
 from collective.documentgenerator.utils import convert_file
+from collective.eeafaceted.collectionwidget.interfaces import NotDashboardContextException
+from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from collective.iconifiedcategory.utils import get_categorized_elements
+from imio.annex.browser.views import ConcatenateAnnexesBatchActionForm
 from imio.annex.browser.views import ExportPDFForm
 from imio.annex.vocabularies import ContainedAnnexesVocabulary
 from imio.dms.mail import _
+from imio.dms.mail.setuphandlers import OM_PRINT_SIGNED_COLS
+from imio.dms.mail.setuphandlers import OM_PRINT_TO_SIGN_COLS
 from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from zope.annotation import IAnnotations
@@ -45,6 +50,11 @@ def oo_answers(server, port, timeout=1):
     except (socket.error, socket.timeout):
         return False
     return True
+
+
+def pdf_content(afile):
+    """Odt and docx files are converted to PDF before being concatenated."""
+    return convert_file(afile) if afile.contentType in (ODT, DOCX) else afile.data
 
 
 class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
@@ -133,11 +143,7 @@ class ExportToPDFForm(ExportPDFForm):
 
     def _elements_content(self, data):
         """Odt and docx files are converted to PDF before being concatenated."""
-        content = {}
-        for element_id in data["elements"]:
-            afile = self.context[element_id].file
-            content[element_id] = convert_file(afile) if afile.contentType in (ODT, DOCX) else afile.data
-        return content
+        return {element_id: pdf_content(self.context[element_id].file) for element_id in data["elements"]}
 
 
 class ExportToPDFBeforeSignatureForm(ExportToPDFForm):
@@ -163,3 +169,57 @@ class ExportToPDFAfterSignatureForm(ExportToPDFForm):
 
     label = _(u"Export to PDF after signature")
     vocabulary = u"imio.dms.mail.ExportToPDFAfterSignatureVocabulary"
+
+
+class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
+    """Concatenate the files to print of the selected outgoing mails, as the element export preselects them."""
+
+    collections = ()  # ids of the dashboard collections showing the button, None for every collection
+    vocabulary = None  # vocabulary class listing the files of a mail
+    button_with_icon = False
+
+    def available(self):
+        if self.request.get("uids") or "form.widgets.uids" in self.request.form:
+            # ponytail: the form itself is not checked against the collection, the button is only shown where needed
+            return True
+        if self.collections is None:
+            return True
+        try:
+            collection = getCurrentCollection(self.context)
+        except NotDashboardContextException:
+            return False
+        return collection is not None and collection.getId() in self.collections
+
+    def _update(self):
+        super(ExportToPDFBatchActionForm, self)._update()
+        self.fields = self.fields.omit("annex_types")
+        self.fields["two_sided"].field.default = True
+
+    def _get_annexes(self, data):
+        annexes = []
+        for brain in self.brains:
+            obj = brain.getObject()
+            annexes += [obj[term.token] for term in self.vocabulary()(obj) if not getattr(term, "disabled", False)]
+        return annexes
+
+    def _annex_content(self, annex):
+        return pdf_content(annex.file)
+
+
+class ExportToPDFBeforeSignatureBatchActionForm(ExportToPDFBatchActionForm):
+
+    label = _(u"Export to PDF before signature")
+    collections = OM_PRINT_TO_SIGN_COLS
+    vocabulary = ExportToPDFBeforeSignatureVocabulary
+
+
+class ExportToPDFAfterSignatureBatchActionForm(ExportToPDFBatchActionForm):
+
+    label = _(u"Export to PDF after signature")
+    collections = OM_PRINT_SIGNED_COLS
+    vocabulary = ExportToPDFAfterSignatureVocabulary
+
+
+class ExportToPDFReqAfterSignatureBatchActionForm(ExportToPDFAfterSignatureBatchActionForm):
+
+    collections = None
