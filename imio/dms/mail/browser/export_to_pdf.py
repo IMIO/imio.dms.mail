@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Export the files to print of an outgoing mail or a signing request as a single PDF."""
 
+from collective.documentgenerator.config import get_oo_port_list
+from collective.documentgenerator.config import get_oo_server
 from collective.documentgenerator.utils import convert_file
 from collective.iconifiedcategory.utils import get_categorized_elements
 from imio.annex.browser.views import ExportPDFForm
@@ -10,6 +12,8 @@ from plone import api
 from Products.CMFPlone.utils import safe_unicode
 from zope.annotation import IAnnotations
 from zope.i18n import translate
+
+import socket
 
 
 GED = "dmsommainfile"
@@ -32,6 +36,15 @@ def superseded_uids(context):
         if from_doc_uid:
             mailed.add(from_doc_uid)
     return mailed, converted
+
+
+def oo_answers(server, port, timeout=1):
+    """Is something listening on p_server:p_port?"""
+    try:
+        socket.create_connection((server, port), timeout).close()
+    except (socket.error, socket.timeout):
+        return False
+    return True
 
 
 class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
@@ -131,6 +144,19 @@ class ExportToPDFBeforeSignatureForm(ExportToPDFForm):
 
     label = _(u"Export to PDF before signature")
     vocabulary = u"imio.dms.mail.ExportToPDFBeforeSignatureVocabulary"
+
+    def update_not_used(self):
+        super(ExportToPDFBeforeSignatureForm, self).update()
+        if self.status:
+            return
+        # odt and docx are converted by LibreOffice: warn when it does not answer
+        server, ports = get_oo_server(), get_oo_port_list()
+        if ports != [2002]:
+            return
+        down = [str(port) for port in ports if not oo_answers(server, port)]
+        if down:
+            self.status = _(u"LibreOffice server ${server} does not answer on port(s) ${ports}: odt and docx files "
+                            u"cannot be converted.", mapping={"server": server, "ports": ", ".join(down)})
 
 
 class ExportToPDFAfterSignatureForm(ExportToPDFForm):

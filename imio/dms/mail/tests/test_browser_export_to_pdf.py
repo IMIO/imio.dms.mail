@@ -220,6 +220,24 @@ class TestExportToPDFForm(ExportToPdfTestCase):
         form.update()
         self.assertEqual(form.widgets["elements"].value, [self.appendix.getId()])
 
+    @unittest.skip("Skipping test_update_oo_warning")
+    def test_update_oo_warning(self):
+        """A warning is shown when LibreOffice does not answer."""
+        original = export_to_pdf.oo_answers
+        try:
+            export_to_pdf.oo_answers = lambda server, port: False
+            form = self.omail.restrictedTraverse("@@export-to-pdf-before-signature")
+            form.update()
+            self.assertIn(u"does not answer", form.status)
+            export_to_pdf.oo_answers = lambda server, port: True
+            form = self.omail.restrictedTraverse("@@export-to-pdf-before-signature")
+            form.update()
+            self.assertFalse(form.status)
+        finally:
+            export_to_pdf.oo_answers = original
+        # nothing listens on port 1
+        self.assertFalse(export_to_pdf.oo_answers("localhost", 1))
+
     def test__elements_content(self):
         """Odt and docx files are converted to pdf, the others are taken as is."""
         docx = self._add_file(u"c docx", DOCX_PATH)
