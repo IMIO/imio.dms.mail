@@ -468,7 +468,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         settings.mail_types = settings.mail_types[1:]
         view.updateWidgets()
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
-        self.assertIn("Missing", view.widgets["mail_type"].render())
+        self.assertIn("Valeur manquante", view.widgets["mail_type"].render())
 
     def test_OMMCTV(self):
         omail = sub_create(
@@ -496,7 +496,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         settings.omail_types = settings.omail_types[1:]
         view.updateWidgets()
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
-        self.assertIn("Missing", view.widgets["mail_type"].render())
+        self.assertIn("Valeur manquante", view.widgets["mail_type"].render())
 
 
 class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):

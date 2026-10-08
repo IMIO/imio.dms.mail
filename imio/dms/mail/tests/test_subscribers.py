@@ -960,7 +960,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message, u"The chef already exists in the approvings with another order 1 <=> 2"
+            cm.exception.message, u"L'utilisateur chef existe déjà dans les approbateurs lignes 1 <=> 2"
         )
 
         # Test signers have same email
@@ -996,8 +996,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.message, u"You cannot have the same email (duplicate@belleville.eb) "
-                                               u"for multiple signers !")
+        self.assertEqual(cm.exception.message, u"Vous ne pouvez pas avoir le même email (duplicate@belleville.eb) "
+                                               u"pour plusieurs signataires !")
         api.user.get("dirg").setMemberProperties({"email": "deduplicate@belleville.eb"})
 
         # Test mail in sent or to_be_signed states
@@ -1594,15 +1594,15 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.user.delete, username="scanner")
         smi = IStatusMessage(request)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'scanner'.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'scanner'.")
         # having group
         self.assertRaises(Redirect, api.user.delete, "lecteur")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'lecteur', used in following groups.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'lecteur', utilisé dans les groupes.")
         # is used in content
         self.assertRaises(Redirect, api.user.delete, username=TEST_USER_ID)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'test_user_1_', used in 'Creator' index.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'test_user_1_', utilisé dans l'index 'Auteur'.")
         # is used as person user_id
         api.user.create("test@test.be", "testuser", "Password#1")
         agent = self.portal.contacts["personnel-folder"]["agent"]
@@ -1610,7 +1610,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         agent.reindexObject()
         self.assertRaises(Redirect, api.user.delete, username="testuser")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'testuser', used in 'userid' index.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'testuser', utilisé dans l'index 'userid'.")
 
     def test_group_deleted(self):
         request = self.portal.REQUEST
@@ -1618,14 +1618,14 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.group.delete, groupname="expedition")
         smi = IStatusMessage(request)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group 'expedition'.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer le groupe 'expedition'.")
         # is used in content
         group = "%s_editeur" % get_registry_organizations()[0]
         # we remove this organization to escape plonegroup subscriber
         set_registry_organizations(get_registry_organizations()[1:])
         self.assertRaises(Redirect, api.group.delete, groupname=group)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index." % group)
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer le groupe '%s', utilisé dans l'index 'Groupe assigné'." % group)
 
     def test_group_assignment(self):
         self.portal.ok = True

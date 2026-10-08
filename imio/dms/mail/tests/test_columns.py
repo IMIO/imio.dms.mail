@@ -49,9 +49,9 @@ class TestColumns(unittest.TestCase):
         self.assertEqual(
             column.renderCell(brain),
             u"<a href='http://nohost/plone/contacts/jeancourant/agent-electrabel' target='_blank' "
-            "class='pretty_link link-tooltip'><span class='pretty_link_icons'><img title='Held position' "
-            "src='http://nohost/plone/held_position_icon.png' /></span><span class='pretty_link_content'"
-            ">Monsieur Jean Courant, Agent (Electrabel)</span></a>",
+            u"class='pretty_link link-tooltip'><span class='pretty_link_icons'><img title='Fonction occupée' "
+            u"src='http://nohost/plone/held_position_icon.png' /></span><span class='pretty_link_content'"
+            u">Monsieur Jean Courant, Agent (Electrabel)</span></a>",
         )
         # multiple senders
         self.im5.sender.append(RelationValue(self.intids.getId(self.portal["contacts"]["sergerobinet"])))
@@ -84,7 +84,7 @@ class TestColumns(unittest.TestCase):
         self.assertEqual(
             column.renderCell(brain),
             u"<a class='pretty_link' title='E0001 - Courrier 1' "
-            u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Incoming Mail' "
+            u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Courrier entrant' "
             u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' style="
             u"\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content state-created'>"
             u"E0001 - Courrier 1</span></a>".format(mail.absolute_url()),
@@ -93,7 +93,7 @@ class TestColumns(unittest.TestCase):
         self.assertEqual(
             column.renderCell(brain),
             u"<a class='pretty_link' title='E0001 - Courrier 1' "
-            u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Incoming Mail' "
+            u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Courrier entrant' "
             u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' style="
             u"\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content state-created'>"
             u"E0001 - Courrier 1</span></a>".format(mail.absolute_url()),
@@ -104,8 +104,8 @@ class TestColumns(unittest.TestCase):
         self.portal.REQUEST["AUTHENTICATED_USER"] = api.user.get(username=TEST_USER_ID)
         rendered = column.renderCell(self.ta1)
         self.assertIn("do_to_assign", rendered)
-        self.assertIn('title="Edit"', rendered)
-        self.assertIn('title="Delete"', rendered)
+        self.assertIn('title="Modifier"', rendered)
+        self.assertIn('title="Supprimer"', rendered)
         self.assertIn('"overlay-history"', rendered)
         column.view_name = ""
         self.assertRaises(KeyError, column.renderCell, self.ta1)

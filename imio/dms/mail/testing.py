@@ -281,7 +281,16 @@ DMSMAIL_NP1_FIXTURE = DmsmailLayerNP1(
     name="DMSMAIL_NP1_FIXTURE",
 )
 
-DMSMAIL_INTEGRATION_TESTING = IntegrationTesting(bases=(DMSMAIL_FIXTURE,), name="DmsMailFixture:Integration")
+class DmsmailIntegrationTesting(IntegrationTesting):
+
+    def testSetUp(self):
+        super(DmsmailIntegrationTesting, self).testSetUp()
+        # bind the request language (fr) as done when traversing the portal
+        self["portal"].portal_languages.setLanguageBindings()
+
+
+DMSMAIL_INTEGRATION_TESTING = DmsmailIntegrationTesting(
+    bases=(DMSMAIL_FIXTURE,), name="DmsMailFixture:Integration")
 
 DMSMAIL_FUNCTIONAL_TESTING = FunctionalTesting(bases=(DMSMAIL_FIXTURE,), name="DmsMailFixture:Functional")
 
