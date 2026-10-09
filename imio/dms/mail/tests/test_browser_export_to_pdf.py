@@ -289,9 +289,33 @@ class TestExportToPDFBatchActionForm(ExportToPdfTestCase):
         self.assertEqual(form.widgets["two_sided"].value, ["true"])
         self.assertEqual(form._get_annexes({}), [self.a_odt, self.b_pdf, self.appendix])
         self._clean_cache()
+        self.omail.can_do_export_to_pdf_after_signature = lambda: True  # signed
         form = self._form("export-to-pdf-after-signature-batch-action")
         form.update()
         self.assertEqual(form._get_annexes({}), [self.b_pdf, self.appendix])
+
+    def test__excluded_elements(self):
+        """Elements not concerned by the export are listed in the description and not exported."""
+        self.request["uids"] = self.omail.UID()
+        form = self._form("export-to-pdf-after-signature-batch-action")
+        form.update()
+        self.assertEqual(form._excluded_elements(), [(self.omail, u"Not signed")])
+        self.assertEqual(form._get_annexes({}), [])
+        self.assertIn(self.omail.absolute_url(), form.description)
+        self.omail.can_do_export_to_pdf_after_signature = lambda: True
+        for obj in (self.b_pdf, self.appendix):
+            self._set_infos(obj, to_print=False)
+        self._clean_cache()
+        form = self._form("export-to-pdf-after-signature-batch-action")
+        form.update()
+        self.assertEqual(form._excluded_elements(), [(self.omail, u"No file to print")])
+        # nothing excluded: no warning
+        self._clean_cache()
+        form = self._form("export-to-pdf-before-signature-batch-action")
+        form.update()
+        self.assertEqual(form._excluded_elements(), [])
+        self.assertEqual(form._get_annexes({}), [self.a_odt])
+        self.assertNotIn("portalMessage", form.description)
 
     def test_req_dashboard(self):
         """Only the after signature export is on the requests dashboard, whatever the collection."""

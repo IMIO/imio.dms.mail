@@ -176,7 +176,10 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
 
     collections = ()  # ids of the dashboard collections showing the button, None for every collection
     vocabulary = None  # vocabulary class listing the files of a mail
+    condition = None  # name of the element method telling if the element export is possible
+    condition_msg = None  # exclusion reason when the condition is not met
     button_with_icon = False
+    CHECK_ELEMENTS = True
 
     def available(self):
         if self.request.get("uids") or "form.widgets.uids" in self.request.form:
@@ -195,12 +198,16 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
         self.fields = self.fields.omit("annex_types")
         self.fields["two_sided"].field.default = True
 
-    def _get_annexes(self, data):
-        annexes = []
-        for brain in self.brains:
-            obj = brain.getObject()
-            annexes += [obj[term.token] for term in self.vocabulary()(obj) if not getattr(term, "disabled", False)]
-        return annexes
+    def _element_annexes(self, obj, data=None):
+        """The files the vocabulary allows to export, data is not used."""
+        return [obj[term.token] for term in self.vocabulary()(obj) if not getattr(term, "disabled", False)]
+
+    def _check_element(self, obj):
+        if not getattr(obj, self.condition)():
+            return self.condition_msg
+        # ponytail: vocabulary computed twice per element (check and export), cache it if slow
+        if not self._element_annexes(obj):
+            return _(u"No file to print")
 
     def _annex_content(self, annex):
         return pdf_content(annex.file)
@@ -211,6 +218,8 @@ class ExportToPDFBeforeSignatureBatchActionForm(ExportToPDFBatchActionForm):
     label = _(u"Export to PDF before signature")
     collections = OM_PRINT_TO_SIGN_COLS
     vocabulary = ExportToPDFBeforeSignatureVocabulary
+    condition = "can_do_export_to_pdf_before_signature"
+    condition_msg = _(u"E-signature or seal set, or already signed")
 
 
 class ExportToPDFAfterSignatureBatchActionForm(ExportToPDFBatchActionForm):
@@ -218,6 +227,8 @@ class ExportToPDFAfterSignatureBatchActionForm(ExportToPDFBatchActionForm):
     label = _(u"Export to PDF after signature")
     collections = OM_PRINT_SIGNED_COLS
     vocabulary = ExportToPDFAfterSignatureVocabulary
+    condition = "can_do_export_to_pdf_after_signature"
+    condition_msg = _(u"Not signed")
 
 
 class ExportToPDFReqAfterSignatureBatchActionForm(ExportToPDFAfterSignatureBatchActionForm):
