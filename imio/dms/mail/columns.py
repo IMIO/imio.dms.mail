@@ -41,7 +41,7 @@ class OMColorColumn(ColorColumn):
     attrName = "printable"
     i18n_domain = "imio.dms.mail"
     sort_index = -1  # not sortable
-    header = u"&nbsp;&nbsp;"
+    header = "&nbsp;&nbsp;"
     header_js = (
         '<script type="text/javascript">jQuery(function($) {'
         '$(".tooltip-title").tooltipster({position: "right", theme: "tooltipster-shadow"});});</script>'
@@ -52,9 +52,9 @@ class OMColorColumn(ColorColumn):
 
     def renderCell(self, item):
         """Display a message."""
-        msg = u"batch_printable_{}".format(self.is_printable(item))
+        msg = "batch_printable_{}".format(self.is_printable(item))
         translated_msg = translate(msg, domain=self.i18n_domain, context=self.request)
-        return u'<div class="tooltip-title" title="{0}">&nbsp;</div>'.format(translated_msg)
+        return '<div class="tooltip-title" title="{0}">&nbsp;</div>'.format(translated_msg)
 
     def getCSSClasses(self, item):
         """Generate a CSS class to apply on the TD depending on the value."""
@@ -73,25 +73,25 @@ class OMTitleColumn(PrettyLinkColumn):
 class TreatingGroupsColumn(VocabularyColumn):
     """IM, OM dashboard. xss ok"""
 
-    vocabulary = u"collective.dms.basecontent.treating_groups"
+    vocabulary = "collective.dms.basecontent.treating_groups"
 
 
 class AssignedGroupColumn(VocabularyColumn):
     """Task dashboard. xss ok"""
 
-    vocabulary = u"collective.dms.basecontent.treating_groups"
+    vocabulary = "collective.dms.basecontent.treating_groups"
 
 
 class AssignedUserColumn(MemberIdColumn):
     """IM dashboard. xss ok"""
 
-    attrName = u"assigned_user"
+    attrName = "assigned_user"
 
 
 class DueDateColumn(DateColumn):
     """Dashboards. xss ok"""
 
-    attrName = u"due_date"
+    attrName = "due_date"
 
 
 class IMActionsColumn(ActionsColumn):
@@ -103,7 +103,7 @@ class IMActionsColumn(ActionsColumn):
 class MailTypeColumn(VocabularyColumn):
     """IM dashboard. xss ok"""
 
-    vocabulary = u"imio.dms.mail.IMMailTypesVocabulary"
+    vocabulary = "imio.dms.mail.IMMailTypesVocabulary"
 
 
 class Sender2Column(DxWidgetRenderColumn):  # pragma: no cover
@@ -147,7 +147,7 @@ class ContactsColumn(PrettyLinkColumn):
                     iconresolver = getMultiAdapter((self.context, self.request), name="iconresolver")
                     contentIcon = iconresolver.lookup(icon_expr.split(":", 1)[-1])
                 title = translate(typeInfo.title, domain=typeInfo.i18n_domain, context=self.request)
-                icon_link = u"<img title='%s' src='%s/%s' />" % (safe_unicode(escape(title)), purl, contentIcon)
+                icon_link = "<img title='%s' src='%s/%s' />" % (safe_unicode(escape(title)), purl, contentIcon)
             self.i_cache[c_brain.portal_type] = icon_link
         return self.i_cache[c_brain.portal_type]
 
@@ -167,9 +167,9 @@ class ContactsColumn(PrettyLinkColumn):
                 ret.append("-")
             else:
                 ret.append(
-                    u"<a href='%s' target='_blank' class='pretty_link link-tooltip'>"
-                    u"<span class='pretty_link_icons'>%s</span>"
-                    u"<span class='pretty_link_content'>%s</span></a>"
+                    "<a href='%s' target='_blank' class='pretty_link link-tooltip'>"
+                    "<span class='pretty_link_icons'>%s</span>"
+                    "<span class='pretty_link_content'>%s</span></a>"
                     % (c_brain.getURL(), self._icons(c_brain), safe_unicode(escape(c_brain.get_full_title)))
                 )
         l_ret = len(ret)
@@ -213,7 +213,7 @@ class RecipientsColumn(ContactsColumn):
 class OutgoingDateColumn(DateColumn):
     """OM dashboard. xss ok"""
 
-    attrName = u"in_out_date"
+    attrName = "in_out_date"
     # long_format = True
 
 
@@ -221,14 +221,14 @@ class IMSendModesColumn(VocabularyColumn):
     """OM dashboard. xss ok"""
 
     attrName = "Subject"
-    vocabulary = u"imio.dms.mail.IMSendModesVocabulary"
+    vocabulary = "imio.dms.mail.IMSendModesVocabulary"
 
 
 class OMSendModesColumn(VocabularyColumn):
     """OM dashboard. xss ok"""
 
     attrName = "Subject"
-    vocabulary = u"imio.dms.mail.OMSendModesVocabulary"
+    vocabulary = "imio.dms.mail.OMSendModesVocabulary"
 
 
 class ReviewStateColumn(I18nColumn):
@@ -240,7 +240,7 @@ class ReviewStateColumn(I18nColumn):
     def renderCell(self, item):
         value = self.getValue(item)
         if not value:
-            return u"-"
+            return "-"
         wtool = api.portal.get_tool("portal_workflow")
         state_title = wtool.getTitleForStateOnType(value, item.portal_type)
         return translate(safe_unicode(state_title), domain=self.i18n_domain, context=self.request)
@@ -248,49 +248,51 @@ class ReviewStateColumn(I18nColumn):
 
 class SessionIdColumn(BaseColumn):
     """Versions table column to display session id when there are multiple sessions"""
+
     weight = 10
     escape = False
 
     def renderHeadCell(self):
-        return (
-            u'<img src="{}/++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID'.format(
-                api.portal.get().absolute_url()
-            )
+        return '<img src="{}/++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID'.format(
+            api.portal.get().absolute_url()
         )
 
     def renderCell(self, content):
         if len(self.table.approval.session_ids) <= 1:
-            return u""
+            return ""
         file_uid = content.UID
         sessions_annot = self.table._session_annotation.get("sessions", {})
         session_ids = sorted(
-            sid for sid, session in sessions_annot.items()
+            sid
+            for sid, session in sessions_annot.items()
             if any(f["uid"] == file_uid for f in session.get("files", []))
         )
         if not session_ids:
-            return u""
+            return ""
         portal = api.portal.get()
         parapheo = getMultiAdapter((portal, portal.REQUEST), name="parapheo")
         badges = []
         for sid in session_ids:
             dashboard_link = parapheo.get_dashboard_link({"id": sid})
-            badges.append(u'<a href={dashboard_link} title="{title}" class="pdf-session-badge">{sid}</a>'.format(
-                dashboard_link=dashboard_link,
-                title=translate(
-                    u"Paraphéo session ID: ${session_id}",
-                    domain="imio.dms.mail",
-                    context=content.REQUEST,
-                    mapping={"session_id": sid},
-                ),
-                sid=sid,
-            ))
-        return u", ".join(badges)
+            badges.append(
+                '<a href={dashboard_link} title="{title}" class="pdf-session-badge">{sid}</a>'.format(
+                    dashboard_link=dashboard_link,
+                    title=translate(
+                        "Paraphéo session ID: ${session_id}",
+                        domain="imio.dms.mail",
+                        context=content.REQUEST,
+                        mapping={"session_id": sid},
+                    ),
+                    sid=sid,
+                )
+            )
+        return ", ".join(badges)
 
 
 class FileActionsColumn(AnnexActionsColumn):
     """IM dashboard. xss ok"""
 
-    params = {'showHistory': False, 'showActions': True, 'showArrows': True}
+    params = {"showHistory": False, "showActions": True, "showArrows": True}
 
 
 class PortalTypeColorColumn(ColorColumn):
@@ -300,7 +302,7 @@ class PortalTypeColorColumn(ColorColumn):
     i18n_domain = "imio.dms.mail"
     sort_index = -1  # not sortable
     # msgid_prefix = "portal_type_"
-    header = u" "
+    header = " "
     weight = 10
 
 
@@ -308,13 +310,13 @@ class FilesizeColumn(AnnexFilesizeColumn):
 
     def renderHeadCell(self):
         """ """
-        total = sum([v.filesize for v in self.table.values
-                     if v.filesize is not None])
+        total = sum([v.filesize for v in self.table.values if v.filesize is not None])
         header = escape(_tr(self.header, domain="collective.iconifiedcategory"))
         total = ic_utils.render_filesize(total)
-        if total.startswith(u"<span "):
-            header += u"<p>(Tot: {0})</p>".format(total)
+        if total.startswith("<span "):
+            header += "<p>(Tot: {0})</p>".format(total)
         return header
+
 
 # Columns for collective.task.browser.table.TasksTable
 
@@ -401,13 +403,13 @@ class PathColumn(LinkColumn, BaseColumn):
             current_path = "/".join(parts[: i + 1])
             parent_path = "/".join(parts[:i])
             if part == "..":
-                current_title = u".."
+                current_title = ".."
                 context = context.__parent__
             else:
                 context = context[part]
                 current_title = context.title
             self.paths[current_path] = (
-                parent_path and u"%s/%s" % (self.paths[parent_path], current_title) or current_title
+                parent_path and "%s/%s" % (self.paths[parent_path], current_title) or current_title
             )
 
     def getLinkContent(self, item):
@@ -426,7 +428,7 @@ class PersonnelPrimaryOrganisationFacetedColumn(VocabularyColumn):
     header = _cez("header_primary_org")
     weight = 20
     attrName = "primary_organization"
-    vocabulary = u"collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary"
+    vocabulary = "collective.contact.plonegroup.browser.settings.SelectedOrganizationsElephantVocabulary"
     the_object = True
 
 
@@ -442,10 +444,10 @@ class PersonnelUseridFacetedColumn(BaseColumn):
     def renderCell(self, item):
         obj = self._getObject(item)
         if obj.userid:
-            return u'<a href="{}/@@usergroup-usermembership?userid={}" target="_blank">{}</a>'.format(
+            return '<a href="{}/@@usergroup-usermembership?userid={}" target="_blank">{}</a>'.format(
                 self.table.portal_url, safe_unicode(escape(obj.userid)), safe_unicode(escape(obj.userid))
             )
-        return u"-"
+        return "-"
 
 
 class PersonnelHPFacetedColumn(BaseColumn):
@@ -464,9 +466,7 @@ class PersonnelHPFacetedColumn(BaseColumn):
         if not hps:
             return "-"
         ret = []
-        signer_usage = "<span class='signer-icon' title='{}'> </span>".format(
-            safe_unicode(escape(_tr("Signer")))
-        )
+        signer_usage = "<span class='signer-icon' title='{}'> </span>".format(safe_unicode(escape(_tr("Signer"))))
         approving_usage = "<span class='approving-icon' title='{}'> </span>".format(
             safe_unicode(escape(_tr("Approving")))
         )
@@ -475,14 +475,14 @@ class PersonnelHPFacetedColumn(BaseColumn):
             is_plonegroup = IPloneGroupContact.providedBy(org) and 1 or 0
             if org is None:
                 ret.append(
-                    u"<li class='plonegroup_0'>{}</li>".format(
+                    "<li class='plonegroup_0'>{}</li>".format(
                         _tr("personnel_hp_bad_organization", domain="collective.eeafaceted.z3ctable")
                     )
                 )
             else:
                 ret.append(
-                    u"<li class='plonegroup_{}'><a href='{}' target='_blank' class='pretty_link link-tooltip'>"
-                    u"<span class='pretty_link_content state-{}'>{}</span></a>{}{}</li>".format(
+                    "<li class='plonegroup_{}'><a href='{}' target='_blank' class='pretty_link link-tooltip'>"
+                    "<span class='pretty_link_content state-{}'>{}</span></a>{}{}</li>".format(
                         is_plonegroup,
                         hp.absolute_url(),
                         api.content.get_state(obj=hp),

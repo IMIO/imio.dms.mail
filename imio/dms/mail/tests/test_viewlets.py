@@ -185,15 +185,15 @@ class TestVersionsViewlets(unittest.TestCase):
         viewlet = get_viewlet(im1, "dms.files", "dms.abovecontent")
         self.assertIsInstance(viewlet, IMVersionsViewlet)
         rendered = viewlet.render()
-        self.assertIn(u"<legend>Fichiers ged</legend>", rendered)
-        self.assertIn(u'<a class="version-link" href="{}"'.format(im1.objectValues()[0].absolute_url()), rendered)
-        self.assertIn(u'<th class="th_header_filesize-column">', rendered)
+        self.assertIn("<legend>Fichiers ged</legend>", rendered)
+        self.assertIn('<a class="version-link" href="{}"'.format(im1.objectValues()[0].absolute_url()), rendered)
+        self.assertIn('<th class="th_header_filesize-column">', rendered)
         om1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         viewlet = get_viewlet(om1, "dms.files", "dms.abovecontent")
         self.assertIsInstance(viewlet, OMVersionsViewlet)
         rendered = viewlet.render()
-        self.assertIn(u"<th>À imp.?</th>", rendered)
-        self.assertIn(u'<a class="version-link" href="{}"'.format(om1["1"].absolute_url()), rendered)
+        self.assertIn("<th>À imp.?</th>", rendered)
+        self.assertIn('<a class="version-link" href="{}"'.format(om1["1"].absolute_url()), rendered)
 
     def test__prepare_table_render(self):
         sreq, files = create_sign_request(self.portal, oid="sr-viewlet", nb_files=1)
@@ -202,7 +202,7 @@ class TestVersionsViewlets(unittest.TestCase):
         rendered = viewlet.render()
         self.assertTrue(ICategorizedSigned.providedBy(viewlet.table))
         self.assertTrue(ICategorizedApproved.providedBy(viewlet.table))
-        self.assertIn(u'<a class="version-link" href="{}"'.format(files[0].absolute_url()), rendered)
+        self.assertIn('<a class="version-link" href="{}"'.format(files[0].absolute_url()), rendered)
 
 
 class TestPrettyLinkTitleViewlet(unittest.TestCase):
@@ -222,21 +222,21 @@ class TestPrettyLinkTitleViewlet(unittest.TestCase):
         self.assertFalse(plo.isViewable)
         self.assertEqual(
             plo.getLink(),
-            u"<div class='pretty_link'><span class='pretty_link_icons'><img title='Courrier entrant' "
-            u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' "
-            u"style=\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content'>E0001 - Courrier 1 "
-            u"</span></div>",
+            "<div class='pretty_link'><span class='pretty_link_icons'><img title='Courrier entrant' "
+            "src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' "
+            "style=\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content'>E0001 - Courrier 1 "
+            "</span></div>",
         )
 
     def test_render(self):
         viewlet = get_viewlet(self.im1, "pretty-link-title", "plone.belowcontenttitle")
         self.assertIsInstance(viewlet, PrettyLinkTitleViewlet)
         rendered = viewlet.render()
-        self.assertIn(u'<h1 id="parent-fieldname-title" class="documentFirstHeading keep-it">', rendered)
-        self.assertIn(u"<span class='pretty_link_content'>E0001 - Courrier 1 </span>", rendered)
+        self.assertIn('<h1 id="parent-fieldname-title" class="documentFirstHeading keep-it">', rendered)
+        self.assertIn("<span class='pretty_link_content'>E0001 - Courrier 1 </span>", rendered)
         task = self.im1["tache1"]
         rendered = get_viewlet(task, "pretty-link-title", "plone.belowcontenttitle").render()
-        self.assertIn(u"Tâche 1", rendered)
+        self.assertIn("Tâche 1", rendered)
 
 
 class TestImioFooterViewlet(unittest.TestCase):
@@ -245,16 +245,16 @@ class TestImioFooterViewlet(unittest.TestCase):
 
     def test_update(self):
         portal = self.layer["portal"]
-        api.portal.set_registry_record("imio.dms.mail.product_version", u"4.0.1")
+        api.portal.set_registry_record("imio.dms.mail.product_version", "4.0.1")
         viewlet = get_viewlet(portal, "plone.footer", "plone.portalfooter")
         self.assertIsInstance(viewlet, ImioFooterViewlet)
-        self.assertEqual(viewlet.version, u"4.0.1")
-        self.assertEqual(viewlet.dashversion, u"4-0-1")
+        self.assertEqual(viewlet.version, "4.0.1")
+        self.assertEqual(viewlet.dashversion, "4-0-1")
         rendered = viewlet.render()
-        self.assertIn(u'<div id="portal-footer">', rendered)
-        self.assertIn(u">4.0.1</a>", rendered)
-        self.assertIn(u"version-4-0-1", rendered)
-        api.portal.set_registry_record("imio.dms.mail.product_version", u"")
+        self.assertIn('<div id="portal-footer">', rendered)
+        self.assertIn(">4.0.1</a>", rendered)
+        self.assertIn("version-4-0-1", rendered)
+        api.portal.set_registry_record("imio.dms.mail.product_version", "")
         viewlet = get_viewlet(portal, "plone.footer", "plone.portalfooter")
         self.assertEqual(viewlet.version, "unknown")
 
@@ -271,21 +271,21 @@ class TestGlobalSectionsViewlet(unittest.TestCase):
         imf.REQUEST["URL"] = imf.absolute_url()
         rendered = get_viewlet(imf, "plone.global_sections", "plone.mainnavigation").render()
         # the current tab is marked client side (pat-navigationmarker of the theme)
-        self.assertIn(u'<li id="portaltab-incoming-mail" class="incoming-mail nav-item">', rendered)
-        self.assertIn(u'<a href="http://nohost/plone/incoming-mail" class="nav-link" title="">Entrant</a>', rendered)
-        self.assertIn(u'<li id="portaltab-plus" class="plus nav-item">', rendered)
+        self.assertIn('<li id="portaltab-incoming-mail" class="incoming-mail nav-item">', rendered)
+        self.assertIn('<a href="http://nohost/plone/incoming-mail" class="nav-link" title="">Entrant</a>', rendered)
+        self.assertIn('<li id="portaltab-plus" class="plus nav-item">', rendered)
         # refresh icon (Bootstrap icon) and read mode toggle
-        self.assertIn(u'<span id="collections-count-refresh"', rendered)
-        self.assertIn(u'bi-arrow-repeat', rendered)
-        self.assertIn(u'<li id="read_mode_icon"', rendered)
-        self.assertIn(u'onclick="toggle_dms_document_view(this);"', rendered)
+        self.assertIn('<span id="collections-count-refresh"', rendered)
+        self.assertIn("bi-arrow-repeat", rendered)
+        self.assertIn('<li id="read_mode_icon"', rendered)
+        self.assertIn('onclick="toggle_dms_document_view(this);"', rendered)
         # the plus tab is the last one
-        self.assertGreater(rendered.index(u"portaltab-plus"), rendered.index(u"portaltab-tasks"))
+        self.assertGreater(rendered.index("portaltab-plus"), rendered.index("portaltab-tasks"))
         # no read mode toggle outside documents sections
         ctf = portal["contacts"]
         ctf.REQUEST["URL"] = ctf.absolute_url()
         rendered = get_viewlet(ctf, "plone.global_sections", "plone.mainnavigation").render()
-        self.assertNotIn(u'id="read_mode_icon"', rendered)
+        self.assertNotIn('id="read_mode_icon"', rendered)
 
 
 class TestImioFacetedSessionInfoViewlet(unittest.TestCase):
@@ -296,10 +296,11 @@ class TestImioFacetedSessionInfoViewlet(unittest.TestCase):
         self.portal = self.layer["portal"]
         change_user(self.portal)
         activate_signing(self.portal)
-        self.signers = [("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")]
+        self.signers = [("dirg", "dirg@macommune.be", "Maxime DG", "Directeur Général")]
         self.om_sid, _session = create_session(self.signers)
-        add_files_to_session(self.signers, [get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"].UID()],
-                             session_id=self.om_sid)
+        add_files_to_session(
+            self.signers, [get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"].UID()], session_id=self.om_sid
+        )
         self.omsf = self.portal["outgoing-mail"]["mail-searches"]
 
     def test_sessions_collection_uid(self):
@@ -333,13 +334,13 @@ class TestImioFacetedSessionInfoViewlet(unittest.TestCase):
         # sessions listing table
         rendered = viewlet.render()
         self.assertEqual(viewlet.request.get("esign_portal_type"), "dmsoutgoingmail")
-        self.assertIn(u"<table", rendered)
-        self.assertIn(u"esign_session_id={}".format(self.om_sid), rendered)
+        self.assertIn("<table", rendered)
+        self.assertIn("esign_session_id={}".format(self.om_sid), rendered)
         # selected session
         self.omsf.REQUEST.form["esign_session_id[]"] = str(self.om_sid)
         viewlet = get_viewlet(self.omsf, "esign-faceted-session-info", "collective.eeafaceted.z3ctable.topabovenav")
         rendered = viewlet.render()
-        self.assertIn(u"http://nohost/plone/@@parapheo", rendered)
+        self.assertIn("http://nohost/plone/@@parapheo", rendered)
 
 
 class TestImioItemSessionInfoViewlet(unittest.TestCase):
@@ -371,10 +372,10 @@ class TestImioItemSessionInfoViewlet(unittest.TestCase):
         self.assertIsInstance(viewlet, ImioItemSessionInfoViewlet)
         self.assertEqual(viewlet.render(), "")
         activate_signing(self.portal)
-        signers = [("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")]
+        signers = [("dirg", "dirg@macommune.be", "Maxime DG", "Directeur Général")]
         sid, _session = create_session(signers)
         add_files_to_session(signers, [self.om1["1"].UID()], session_id=sid)
         viewlet = get_viewlet(self.om1, "esign-item-session-info", "plone.belowcontenttitle")
         rendered = viewlet.render()
-        self.assertIn(u"collapsible discreet active", rendered)
-        self.assertIn(u"http://nohost/plone/@@parapheo", rendered)
+        self.assertIn("collapsible discreet active", rendered)
+        self.assertIn("http://nohost/plone/@@parapheo", rendered)

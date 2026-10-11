@@ -95,13 +95,15 @@ class TestExamples(unittest.TestCase):
         self.assertTrue(fs_root_directory.endswith("batchimport/toprocess"))
         code_to_type_mapping = registry["collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping"]
         self.assertEqual(len(code_to_type_mapping), 1)
-        self.assertEqual(code_to_type_mapping[0]["code"], u"in")
-        self.assertEqual(code_to_type_mapping[0]["portal_type"], u"dmsincomingmail")
+        self.assertEqual(code_to_type_mapping[0]["code"], "in")
+        self.assertEqual(code_to_type_mapping[0]["portal_type"], "dmsincomingmail")
 
     def test_add_test_sign_requests(self):
         pc = self.portal.portal_catalog
         own_org = self.portal["contacts"]["plonegroup-organization"]
-        directions = [own_org[oid].UID() for oid in ("direction-financiere", "direction-generale", "direction-technique")]
+        directions = [
+            own_org[oid].UID() for oid in ("direction-financiere", "direction-generale", "direction-technique")
+        ]
         for org_uid in directions:
             ensure_demand_sign(self.portal, org_uid, userids=())
         add_test_sign_requests(self.portal)

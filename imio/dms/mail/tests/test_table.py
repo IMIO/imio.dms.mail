@@ -46,9 +46,9 @@ class TestTable(unittest.TestCase):
 
     def test_VersionsTitleColumn(self):
         category = self.portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
-        icon_name = category.unrestrictedTraverse('@@images').scale(scale='listing').__name__
+        icon_name = category.unrestrictedTraverse("@@images").scale(scale="listing").__name__
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file1 = createContentInContainer(
                 imail,
@@ -69,17 +69,19 @@ class TestTable(unittest.TestCase):
         col = IMVersionsTitleColumn(self.portal, self.portal.REQUEST, table)
         cc = CategorizedContent(imail, brains[0])
         formatted_date = cc.toLocalizedTime(cc.creation_date, long_format=1)
-        self.assertEqual(col.getLinkTitle(cc),
-                         u"⏺ Nom du fichier = Réponse salle.odt\n⏺ Identifiant de scan = 123456789\n"
-                         u"⏺ Date de création = {}".format(formatted_date))
+        self.assertEqual(
+            col.getLinkTitle(cc),
+            "⏺ Nom du fichier = Réponse salle.odt\n⏺ Identifiant de scan = 123456789\n"
+            "⏺ Date de création = {}".format(formatted_date),
+        )
         self.assertEqual(
             col.renderCell(cc),
-            u'<a class="version-link" href="{0}" alt="⏺ Nom du fichier = Réponse salle.odt\n⏺ Identifiant de scan = '
-            u'123456789\n⏺ Date de création = {1}" title="⏺ Nom du fichier = Réponse salle.odt\n⏺ Identifiant de scan ='
-            u' 123456789\n⏺ Date de création = {1}">'
-            u'<img src="annexes_types/incoming_dms_files/incoming-dms-file/@@images/{2}" '
-            u'alt="Fichier ged CE" title="Fichier ged CE" /> '
-            u'title</a><p class="discreet"></p>'.format(file1.absolute_url(), formatted_date, icon_name)
+            '<a class="version-link" href="{0}" alt="⏺ Nom du fichier = Réponse salle.odt\n⏺ Identifiant de scan = '
+            '123456789\n⏺ Date de création = {1}" title="⏺ Nom du fichier = Réponse salle.odt\n⏺ Identifiant de scan ='
+            ' 123456789\n⏺ Date de création = {1}">'
+            '<img src="annexes_types/incoming_dms_files/incoming-dms-file/@@images/{2}" '
+            'alt="Fichier ged CE" title="Fichier ged CE" /> '
+            'title</a><p class="discreet"></p>'.format(file1.absolute_url(), formatted_date, icon_name),
         )
 
     def test_AssignedGroupColumn(self):
@@ -87,20 +89,22 @@ class TestTable(unittest.TestCase):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
         task = createContentInContainer(imail, "task", id="testid1", assigned_group=group0)
         col = AssignedGroupColumn(self.portal, self.portal.REQUEST, None)
-        self.assertEqual(col.renderCell(task), u"Direction générale")
+        self.assertEqual(col.renderCell(task), "Direction générale")
 
     def test_EnquirerColumn(self):
         task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]
         col = EnquirerColumn(self.portal, self.portal.REQUEST, None)
-        self.assertEqual(col.renderCell(task), u"Direction générale")
+        self.assertEqual(col.renderCell(task), "Direction générale")
         task.enquirer = None
         self.assertEqual(col.renderCell(task), "")
 
     def test_BaseVersionsTable(self):
         imail = get_object(oid="courrier1", ptype="dmsincomingmail")
         table = IMVersionsTable(imail, self.portal.REQUEST, None)
-        self.assertListEqual([cc.UID for cc in table.values], [obj.UID() for obj in imail.objectValues()
-                                                                if obj.portal_type == "dmsmainfile"])
+        self.assertListEqual(
+            [cc.UID for cc in table.values],
+            [obj.UID() for obj in imail.objectValues() if obj.portal_type == "dmsmainfile"],
+        )
         self.assertFalse(table.is_edit_mode())
         names = [col.__name__ for col in table.setUpColumns()]
         self.assertIn("filesize-column", names)
@@ -122,7 +126,7 @@ class TestTable(unittest.TestCase):
         self.assertIn("sessions", table._session_annotation)
         # SessionIdColumn is removed when the request doesn't belong to multiple sessions
         self.assertNotIn("session-id-column", [col.__name__ for col in table.setUpColumns()])
-        signers = [("agent", "agent@macommune.be", u"Test Agent", u"Agent")]
+        signers = [("agent", "agent@macommune.be", "Test Agent", "Agent")]
         sid0, _session = create_session(signers, discriminators=("sign_request",))
         sid1, _session = create_session(signers, discriminators=("sign_request",))
         table.approval.annot["session_ids"] = PersistentList([sid0, sid1])
@@ -155,13 +159,13 @@ class TestTable(unittest.TestCase):
         # unchecked then checked after approval
         self.assertEqual(
             table.columns[1].renderCell(files[0]),
-            u'<input type="checkbox" name="approvals.%s.dirg"  />' % files[0].UID(),
+            '<input type="checkbox" name="approvals.%s.dirg"  />' % files[0].UID(),
         )
         api.content.transition(obj=request, transition="propose_to_approve")
         table.approval.approve_file(files[0], "dirg")
         self.assertEqual(
             table.columns[1].renderCell(files[0]),
-            u'<input type="checkbox" name="approvals.%s.dirg" checked="checked" />' % files[0].UID(),
+            '<input type="checkbox" name="approvals.%s.dirg" checked="checked" />' % files[0].UID(),
         )
 
     def test_ApprovalTable(self):
@@ -172,7 +176,7 @@ class TestTable(unittest.TestCase):
         pgof = self.portal["contacts"]["plonegroup-organization"]
         pf = self.portal["contacts"]["personnel-folder"]
         params = {
-            "title": u"Courrier sortant test",
+            "title": "Courrier sortant test",
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
@@ -181,18 +185,18 @@ class TestTable(unittest.TestCase):
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",
             "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
-            "send_modes": u"post",
+            "send_modes": "post",
             "signers": [
                 {
                     "number": 1,
                     "signer": pf["dirg"]["directeur-general"].UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "editor": True,
                 },
                 {
                     "number": 2,
                     "signer": pf["bourgmestre"]["bourgmestre"].UID(),
-                    "approvings": [u"_themself_", pf["chef"].UID()],
+                    "approvings": ["_themself_", pf["chef"].UID()],
                     "editor": False,
                 },
             ],
@@ -200,7 +204,7 @@ class TestTable(unittest.TestCase):
         }
         omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om", **params)
 
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         files = []
         for i in range(2):
@@ -230,38 +234,38 @@ class TestTable(unittest.TestCase):
 
         # Test column FileName
         filename_col = table.columns[0]
-        self.assertEqual(filename_col.header, u"File name")
-        self.assertEqual(filename_col.renderCell(files[0]), u"R\xe9ponse salle.odt")
-        self.assertEqual(filename_col.renderCell(files[1]), u"R\xe9ponse salle.odt")
+        self.assertEqual(filename_col.header, "File name")
+        self.assertEqual(filename_col.renderCell(files[0]), "R\xe9ponse salle.odt")
+        self.assertEqual(filename_col.renderCell(files[1]), "R\xe9ponse salle.odt")
 
         # Test column Signer
         signer_col1 = table.columns[1]
-        self.assertEqual(signer_col1.header, u"Maxime DG")
+        self.assertEqual(signer_col1.header, "Maxime DG")
         self.assertEqual(signer_col1.userid, "dirg")
         self.assertEqual(
-            signer_col1.renderCell(files[0]), u'<input type="checkbox" name="approvals.%s.dirg"  />' % files[0].UID()
+            signer_col1.renderCell(files[0]), '<input type="checkbox" name="approvals.%s.dirg"  />' % files[0].UID()
         )
         self.assertEqual(
-            signer_col1.renderCell(files[1]), u'<input type="checkbox" name="approvals.%s.dirg"  />' % files[1].UID()
+            signer_col1.renderCell(files[1]), '<input type="checkbox" name="approvals.%s.dirg"  />' % files[1].UID()
         )
 
         signer_col2 = table.columns[2]
-        self.assertEqual(signer_col2.header, u"Paul BM")
+        self.assertEqual(signer_col2.header, "Paul BM")
         self.assertEqual(signer_col2.userid, "bourgmestre")
         self.assertEqual(
             signer_col2.renderCell(files[0]),
-            u'<input type="checkbox" name="approvals.%s.bourgmestre"  />' % files[0].UID(),
+            '<input type="checkbox" name="approvals.%s.bourgmestre"  />' % files[0].UID(),
         )
         self.assertEqual(
             signer_col2.renderCell(files[1]),
-            u'<input type="checkbox" name="approvals.%s.bourgmestre"  />' % files[1].UID(),
+            '<input type="checkbox" name="approvals.%s.bourgmestre"  />' % files[1].UID(),
         )
 
         api.content.transition(obj=omail, transition="propose_to_approve")
         table.approval.approve_file(files[0], "dirg")
         self.assertEqual(
             signer_col1.renderCell(files[0]),
-            u'<input type="checkbox" name="approvals.%s.dirg" checked="checked" />' % files[0].UID(),
+            '<input type="checkbox" name="approvals.%s.dirg" checked="checked" />' % files[0].UID(),
         )
 
         # Test form

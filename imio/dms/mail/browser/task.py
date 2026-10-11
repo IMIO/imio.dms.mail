@@ -53,7 +53,7 @@ class TaskEdit(DefaultEditForm):
         if not self.context.assigned_user and api.content.get_state(obj=self.context) == "to_assign":
             self.widgets["ITask.assigned_user"].field = copy.copy(self.widgets["ITask.assigned_user"].field)
             self.widgets["ITask.assigned_user"].field.description = _t(
-                u"You must select an assigned user before continuing !"
+                "You must select an assigned user before continuing !"
             )
 
 

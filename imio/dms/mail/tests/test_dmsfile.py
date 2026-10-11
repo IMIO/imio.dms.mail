@@ -37,11 +37,11 @@ class TestDmsfile(unittest.TestCase):
     def test_RestrictedNamedBlobFile(self):
         path = "%s/batchimport/toprocess/outgoing-mail/Accusé de réception.odt" % imiodmsmail.__path__[0]
         odtfile = open(path, "rb")
-        odtblob = NamedBlobFile(data=odtfile.read(), filename=u"file.odt")
+        odtblob = NamedBlobFile(data=odtfile.read(), filename="file.odt")
         odtfile.close()
         path = os.path.join(os.path.dirname(__file__), "files", "example.pdf")
         otherfile = open(path, "rb")
-        otherblob = NamedBlobFile(data=otherfile.read(), filename=u"file.pdf")
+        otherblob = NamedBlobFile(data=otherfile.read(), filename="file.pdf")
         otherfile.close()
         registry = getUtility(IRegistry)
         # check content type
@@ -77,18 +77,18 @@ class TestDmsfile(unittest.TestCase):
     def _om_file(self, filename):
         """Add an outgoing mail main file from the batchimport examples."""
         omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
-        with open(u"{}/batchimport/toprocess/{}".format(PRODUCT_DIR, filename), "rb") as fo:
+        with open("{}/batchimport/toprocess/{}".format(PRODUCT_DIR, filename), "rb") as fo:
             return createContentInContainer(
-                omail, "dmsommainfile", title=u"Réponse", file=NamedBlobFile(fo.read(), filename=filename.split(u"/")[-1])
+                omail, "dmsommainfile", title="Réponse", file=NamedBlobFile(fo.read(), filename=filename.split("/")[-1])
             )
 
     def test_ImioDmsFile_Title(self):
-        self.assertEqual(self._om_file(u"outgoing-mail/Réponse salle.odt").Title(), u"Réponse")
+        self.assertEqual(self._om_file("outgoing-mail/Réponse salle.odt").Title(), "Réponse")
 
     def test_ImioDmsFile_getFile(self):
-        afile = self._om_file(u"outgoing-mail/Réponse salle.odt")
+        afile = self._om_file("outgoing-mail/Réponse salle.odt")
         self.assertIs(afile.getFile(), afile.file)
 
     def test_ImioDmsFile_is_odt(self):
-        self.assertTrue(self._om_file(u"outgoing-mail/Réponse salle.odt").is_odt())
-        self.assertFalse(self._om_file(u"requests/1-contestation-facture.pdf").is_odt())
+        self.assertTrue(self._om_file("outgoing-mail/Réponse salle.odt").is_odt())
+        self.assertFalse(self._om_file("requests/1-contestation-facture.pdf").is_odt())

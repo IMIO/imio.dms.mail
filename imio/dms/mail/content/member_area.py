@@ -9,4 +9,3 @@ class MemberArea(Container):
     """
     MemberArea class
     """
-

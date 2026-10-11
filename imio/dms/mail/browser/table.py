@@ -42,18 +42,18 @@ class IMVersionsTitleColumn(VersionsTitleColumn):
             scan_infos.append(("Version", obj.version))
 
         scan_infos = [
-            u"⏺ %s = %s" % (translate(name, domain="collective.dms.scanbehavior", context=item.REQUEST), value)
+            "⏺ %s = %s" % (translate(name, domain="collective.dms.scanbehavior", context=item.REQUEST), value)
             for (name, value) in scan_infos
         ]
 
-        return u"\n".join(scan_infos)
+        return "\n".join(scan_infos)
 
     def renderCell(self, content):
         pattern = (
-            u'<a class="version-link" href="{link}" alt="{title}" title="{title}">'
-            u'<img src="{icon}" alt="{category}" title="{category}" />'
+            '<a class="version-link" href="{link}" alt="{title}" title="{title}">'
+            '<img src="{icon}" alt="{category}" title="{category}" />'
             # u'{signed}'
-            u' {text}</a><p class="discreet">{description}</p>'
+            ' {text}</a><p class="discreet">{description}</p>'
         )
         url = content.getURL()
         # signed = u''
@@ -106,10 +106,9 @@ def _disable_icon_clickable(col):
     """Render IconClickableColumn icon as a non-clickable <span>"""
 
     def renderCell(content):
-        css = col.css_class(content).replace(' editable', '')
-        return u'<span class="iconified-action{0}" alt="{1}" title="{1}"></span>'.format(
-            css, col.alt(content)
-        )
+        css = col.css_class(content).replace(" editable", "")
+        return '<span class="iconified-action{0}" alt="{1}" title="{1}"></span>'.format(css, col.alt(content))
+
     col.renderCell = renderCell
 
 
@@ -118,27 +117,29 @@ class BaseVersionsTable(VersionsTable):
 
     @property
     def values(self):
-        if not getattr(self, '_v_stored_values', []):
-            sort_on = 'getObjPositionInParent'
+        if not getattr(self, "_v_stored_values", []):
+            sort_on = "getObjPositionInParent"
             data = []
             for portal_type in self.portal_types:
-                data.extend([
-                    CategorizedContent(self.context, content) for content in
-                    ic_utils.get_categorized_elements(
-                        self.context,
-                        result_type='dict',
-                        portal_type=portal_type,
-                        sort_on=sort_on,
-                    )
-                ][::-1])
+                data.extend(
+                    [
+                        CategorizedContent(self.context, content)
+                        for content in ic_utils.get_categorized_elements(
+                            self.context,
+                            result_type="dict",
+                            portal_type=portal_type,
+                            sort_on=sort_on,
+                        )
+                    ][::-1]
+                )
             self._v_stored_values = data
         return self._v_stored_values
 
     def is_edit_mode(self):
         """Is the table rendered when we are editing content ?"""
-        actual_url = self.request.get('ACTUAL_URL', '')
-        view_name = actual_url.split('?', 1)[0].rstrip('/').split('/')[-1]
-        return view_name in ('edit', '@@edit')
+        actual_url = self.request.get("ACTUAL_URL", "")
+        view_name = actual_url.split("?", 1)[0].rstrip("/").split("/")[-1]
+        return view_name in ("edit", "@@edit")
 
     def setUpColumns(self):
         """When in edit view, removes useless columns and disables IconClickableColumn links"""
@@ -214,8 +215,7 @@ class OMVersionsTable(SignRequestVersionsTable):
         super(OMVersionsTable, self).__init__(context, request, portal_type=portal_type)
         # Set of PDF-generated child file UIDs that are distinct from their source
         self.pdf_child_uids = set(
-            uid for lst in self.approval.pdf_files_uids for uid in lst
-            if uid not in self.approval.files_uids
+            uid for lst in self.approval.pdf_files_uids for uid in lst if uid not in self.approval.files_uids
         )
 
     @property
@@ -231,8 +231,7 @@ class OMVersionsTable(SignRequestVersionsTable):
         parent_to_children_uids = {}
         for i, source_uid in enumerate(self.approval.files_uids):
             parent_to_children_uids[source_uid] = [
-                uid for uid in self.approval.pdf_files_uids[i]
-                if uid in self.pdf_child_uids
+                uid for uid in self.approval.pdf_files_uids[i] if uid in self.pdf_child_uids
             ]
 
         # Build list of values in parent order, but with children below their parent
@@ -261,7 +260,7 @@ class OMVersionsTable(SignRequestVersionsTable):
         """Render row with custom css class for children"""
         item = row[0][0]
         if item.UID in self.pdf_child_uids:
-            cssClass = (cssClass + ' pdf-child-row') if cssClass else 'pdf-child-row'
+            cssClass = (cssClass + " pdf-child-row") if cssClass else "pdf-child-row"
         return super(OMVersionsTable, self).renderRow(row, cssClass)
 
 
@@ -275,7 +274,7 @@ class OrgaPrettyLinkWithAdditionalInfosColumn(opl_base):
 class FileNameColumn(Column):
     """Column displaying file name."""
 
-    header = _(u"File name")
+    header = _("File name")
 
     def renderCell(self, item):
         return item.title
@@ -294,14 +293,14 @@ class SignerColumn(Column):
         checked = self.table.approval.is_file_approved(item.UID(), nb=signer_index)
         name = "approvals.%s.%s" % (item.UID(), self.userid)
         checked_attr = 'checked="checked"' if checked else ""
-        return u'<input type="checkbox" name="%s" %s />' % (name, checked_attr)
+        return '<input type="checkbox" name="%s" %s />' % (name, checked_attr)
 
 
 class ApprovalTable(Table):
     """Table displaying approval state for admins."""
 
-    cssClassEven = u"even"
-    cssClassOdd = u"odd"
+    cssClassEven = "even"
+    cssClassOdd = "odd"
     cssClasses = {"table": "listing"}
     sortOn = None
     startBatchingAt = 100000

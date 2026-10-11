@@ -33,9 +33,18 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertTrue(hasattr(self.portal, "outgoing-mail"))
 
     def test_add_templates_order(self):
-        self.assertEqual([o.getId() for o in self.portal["templates"].objectValues()],
-                         ['om', 'd-im-listing', 'd-im-listing-tab', 'd-im-listing-tab-details',
-                          'all-contacts-export', 'export-users-groups', 'audit-contacts'])
+        self.assertEqual(
+            [o.getId() for o in self.portal["templates"].objectValues()],
+            [
+                "om",
+                "d-im-listing",
+                "d-im-listing-tab",
+                "d-im-listing-tab-details",
+                "all-contacts-export",
+                "export-users-groups",
+                "audit-contacts",
+            ],
+        )
         for tup in list_templates():
             parts = tup[1].split("/")
             folder = self.portal.unrestrictedTraverse("/".join(parts[:-1]))
@@ -51,9 +60,19 @@ class TestSetuphandlers(unittest.TestCase):
         col_folder = req_folder["requests-searches"]
         self.assertEqual(
             [c.getId() for c in col_folder.listFolderContents()],
-            ["all_requests", "to_approve", "to_treat", "in_my_group", "in_copy", "in_esign_sessions",
-             "searchfor_created", "searchfor_to_approve", "searchfor_to_be_signed", "searchfor_signed",
-             "searchfor_closed"],
+            [
+                "all_requests",
+                "to_approve",
+                "to_treat",
+                "in_my_group",
+                "in_copy",
+                "in_esign_sessions",
+                "searchfor_created",
+                "searchfor_to_approve",
+                "searchfor_to_be_signed",
+                "searchfor_signed",
+                "searchfor_closed",
+            ],
         )
 
     def test_personnel_folder_is_faceted_dashboard(self):
@@ -73,7 +92,8 @@ class TestSetuphandlers(unittest.TestCase):
 
     def test_setup_iconified_categories(self):
         brains = self.portal.portal_catalog.unrestrictedSearchResults(
-            portal_type=["ContentCategory", "ContentSubcategory"])
+            portal_type=["ContentCategory", "ContentSubcategory"]
+        )
         self.assertTrue(brains)
         for brain in brains:
             self.assertFalse(brain._unrestrictedGetObject().predefined_title)
@@ -88,9 +108,7 @@ class TestSetuphandlers(unittest.TestCase):
         # an odt document is converted to text (header, footer and images excluded)
         with open("{}/batchimport/toprocess/requests/3-degradation-voirie.odt".format(PRODUCT_DIR), "rb") as fo:
             data = ptr.convertTo("text/plain", fo.read(), mimetype="application/vnd.oasis.opendocument.text")
-        self.assertTrue(
-            safe_unicode(data.getData()).startswith(u"IMIO012999800000012\nAgent traitant : Michel Chef\n")
-        )
+        self.assertTrue(safe_unicode(data.getData()).startswith("IMIO012999800000012\nAgent traitant : Michel Chef\n"))
 
     def test_clean_examples_step(self):
         pc = self.portal.portal_catalog

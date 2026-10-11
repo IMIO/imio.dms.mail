@@ -31,8 +31,8 @@ class TestSettingsEditForm(unittest.TestCase):
         widgets = {}
         for group in form.groups:
             widgets.update(dict(group.widgets.items()))
-        self.assertEqual(widgets["signrequest_number"].value, u"7")
-        self.assertEqual(widgets["signrequest_talexpression"].value, u"python:'D%04d'%int(number)")
+        self.assertEqual(widgets["signrequest_number"].value, "7")
+        self.assertEqual(widgets["signrequest_talexpression"].value, "python:'D%04d'%int(number)")
         self.assertIn("incomingmail_number", widgets)
 
 
@@ -51,10 +51,10 @@ class TestSettingsView(unittest.TestCase):
         view = self.portal.unrestrictedTraverse("@@dmsmailcontent-settings")
         self.assertIsInstance(view, SettingsView)
         rendered = view()
-        self.assertIn(u'id="form-widgets-signrequest_number"', rendered)
-        self.assertIn(u'id="form-widgets-incomingmail_number"', rendered)
+        self.assertIn('id="form-widgets-signrequest_number"', rendered)
+        self.assertIn('id="form-widgets-incomingmail_number"', rendered)
         # inherited method used to compute internal references
         self.assertEqual(
-            view.evaluateTalExpression(u"python:'D%04d'%int(number)", self.portal, self.request, self.portal, 3),
+            view.evaluateTalExpression("python:'D%04d'%int(number)", self.portal, self.request, self.portal, 3),
             "D0003",
         )

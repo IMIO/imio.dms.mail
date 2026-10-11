@@ -24,8 +24,6 @@ from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.app.testing import logout
-# from plone.app.testing import setRoles
-# from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from plone.namedfile.file import NamedBlobFile
@@ -64,13 +62,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         api.group.add_user(groupname="{}_{}".format(selected_orgs[0], CREATING_GROUP_SUFFIX), username="chef")
         api.group.add_user(groupname="{}_{}".format(selected_orgs[1], CREATING_GROUP_SUFFIX), username="chef")
         self.assertEqual(
-            creating_group_filter(self.portal)._terms[1].value, u'{{"assigned_group": "{}"}}'.format(selected_orgs[0])
+            creating_group_filter(self.portal)._terms[1].value, '{{"assigned_group": "{}"}}'.format(selected_orgs[0])
         )
         self.assertIsNone(creating_group_filter_default(self.portal))
         # we add the connected user in group
         self.add_principal_to_groups("encodeur", ["{}_{}".format(selected_orgs[1], CREATING_GROUP_SUFFIX)])
         self.assertEqual(
-            creating_group_filter_default(self.portal), u'{{"assigned_group": "{}"}}'.format(selected_orgs[1])
+            creating_group_filter_default(self.portal), '{{"assigned_group": "{}"}}'.format(selected_orgs[1])
         )
         # user logout
         logout()
@@ -82,7 +80,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         voc = filter_dmsincomingmail_assigned_users(selected_orgs[0])
         self.assertListEqual([t.title for t in voc._terms], [])  # direction generale => no user
         voc = filter_dmsincomingmail_assigned_users(selected_orgs[1])
-        self.assertListEqual([t.title for t in voc._terms], [u"Fred Agent", u"Jean Encodeur"])
+        self.assertListEqual([t.title for t in voc._terms], ["Fred Agent", "Jean Encodeur"])
         # treating group chosen in the add form (masterselect call): its only editor is the default assigned user
         api.group.add_user(groupname="{}_editeur".format(selected_orgs[0]), username="agent")
         request = self.portal.REQUEST
@@ -114,7 +112,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         imail1 = get_object(oid="courrier1", ptype="dmsincomingmail")
         self.assertEqual(imail1.Title(), "E0001 - Courrier 1")
         imail = sub_create(
-            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id", **{"title": u"Test with auto ref"}
+            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id", **{"title": "Test with auto ref"}
         )
         self.assertEqual(imail.Title(), "E0010 - Test with auto ref")
 
@@ -125,7 +123,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         # no treating_group nor title: NOK
         self.assertFalse(adapted.can_do_transition("propose_to_agent"))
         # tg ok, state ok, assigner_user nok but auc ok: OK
-        imail.title = u"test"
+        imail.title = "test"
         imail.treating_groups = get_registry_organizations()[0]
         self.assertTrue(adapted.can_do_transition("propose_to_agent"))
         # tg ok, state ok, assigner_user nok, auc nok: NOK
@@ -150,7 +148,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
 
     def test_ImioDmsIncomingMailWfConditionsAdapter_can_close(self):
         imail = sub_create(
-            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id", **{"title": u"test"}
+            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id", **{"title": "test"}
         )
         self.assertEqual(api.content.get_state(imail), "created")
         adapted = imail.wf_conditions()
@@ -163,7 +161,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(adapted.can_close())
         intids = getUtility(IIntIds)
         imail.sender = [RelationValue(intids.getId(self.portal.contacts["electrabel"]))]
-        imail.mail_type = u"courrier"
+        imail.mail_type = "courrier"
         self.assertFalse(adapted.can_close())  # not part of treating group editors
         self.add_principal_to_groups("agent", ["{}_editeur".format(imail.treating_groups)])
         self.assertTrue(adapted.can_close())
@@ -194,7 +192,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
 
     def om_params(self, view):
         return {
-            "IDublinCore.title": u"test",
+            "IDublinCore.title": "test",
             "internal_reference_no": view.widgets["internal_reference_no"].value,
             # 'sender': self.c1, 'recipients': [self.c1]
         }
@@ -213,13 +211,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression"
             ),
-            u"python:'S%04d'%int(number)",
+            "python:'S%04d'%int(number)",
         )
         self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn"
             ),
-            u"hide",
+            "hide",
         )
         self.assertTrue(
             api.portal.get_registry_record(
@@ -251,7 +249,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
 
         # testing OM views: default parameters
         api.portal.set_registry_record(
-            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", u"show"
+            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", "show"
         )
         self.request = self.portal["outgoing-mail"].REQUEST
         add = OMCustomAddForm(self.portal["outgoing-mail"], self.request)
@@ -260,7 +258,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertNotIn("_hide_irn", self.request.keys())
         self.assertNotIn("_auto_ref", self.request.keys())
         self.assertEqual(add.widgets["internal_reference_no"].mode, "input")  # not hidden
-        self.assertEqual(add.widgets["internal_reference_no"].value, u"S0010")
+        self.assertEqual(add.widgets["internal_reference_no"].value, "S0010")
         obj = add.createAndAdd(self.om_params(add))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
         self.assertFalse(hasattr(om, "_auto_ref"))
@@ -287,7 +285,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertNotIn("_hide_irn", self.request.keys())
         self.assertEqual(self.request["_auto_ref"], False)
         self.assertEqual(add.widgets["internal_reference_no"].mode, "input")  # not hidden
-        self.assertEqual(add.widgets["internal_reference_no"].value, u"S0011")
+        self.assertEqual(add.widgets["internal_reference_no"].value, "S0011")
         obj = add.createAndAdd(self.om_params(add))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
         self.assertEqual(om._auto_ref, False)
@@ -308,16 +306,16 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         # set outgoingmail_increment_number to False and outgoingmail_edit_irn to hide
         # => number incrementation because irn field is not editable
         api.portal.set_registry_record(
-            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", u"hide"
+            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", "hide"
         )
         add.update()
         self.assertEqual(self.request["_hide_irn"], True)
         self.assertNotIn("_auto_ref", self.request.keys())
         self.assertEqual(add.widgets["internal_reference_no"].mode, "hidden")
-        self.assertEqual(add.widgets["internal_reference_no"].value, u"")
+        self.assertEqual(add.widgets["internal_reference_no"].value, "")
         obj = add.createAndAdd(self.om_params(add))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
-        self.assertEqual(om.internal_reference_no, u"S0011")
+        self.assertEqual(om.internal_reference_no, "S0011")
         self.assertFalse(hasattr(om, "_auto_ref"))
         self.assertEqual(
             api.portal.get_registry_record(
@@ -336,16 +334,16 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         # set outgoingmail_increment_number to False and outgoingmail_edit_irn to reply
         # => number incrementation because irn field is not editable
         api.portal.set_registry_record(
-            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", u"reply"
+            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", "reply"
         )
         add.update()
         self.assertEqual(self.request["_hide_irn"], True)
         self.assertNotIn("_auto_ref", self.request.keys())
         self.assertEqual(add.widgets["internal_reference_no"].mode, "hidden")
-        self.assertEqual(add.widgets["internal_reference_no"].value, u"")
+        self.assertEqual(add.widgets["internal_reference_no"].value, "")
         obj = add.createAndAdd(self.om_params(add))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
-        self.assertEqual(om.internal_reference_no, u"S0012")
+        self.assertEqual(om.internal_reference_no, "S0012")
         self.assertFalse(hasattr(om, "_auto_ref"))
         self.assertEqual(
             api.portal.get_registry_record(
@@ -372,7 +370,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.clean_request()
         # is a response, workflow and not initial state
         # add a file so it's possible to do transition
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             createContentInContainer(om, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
         api.content.transition(om, "propose_to_be_signed")
@@ -391,13 +389,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             container=self.portal["incoming-mail"],
             type="dmsincomingmail",
             id="im",
-            title=u"I mail",
+            title="I mail",
             sender=[RelationValue(self.intids.getId(swde))],
-            external_reference_no=u"xx/1",
+            external_reference_no="xx/1",
             treating_groups=tg,
         )
         api.portal.set_registry_record(
-            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", u"show"
+            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", "show"
         )
         api.portal.set_registry_record(
             "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number", True
@@ -408,7 +406,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.request["_hide_irn"], False)
         self.assertNotIn("_auto_ref", self.request.keys())
         self.assertEqual(reply.widgets["internal_reference_no"].mode, "input")  # not hidden
-        self.assertEqual(reply.widgets["internal_reference_no"].value, u"S0013")
+        self.assertEqual(reply.widgets["internal_reference_no"].value, "S0013")
         obj = reply.createAndAdd(self.om_params(reply))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
         self.assertFalse(hasattr(om, "_auto_ref"))
@@ -430,7 +428,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.request["_hide_irn"], False)
         self.assertEqual(self.request["_auto_ref"], False)
         self.assertEqual(reply.widgets["internal_reference_no"].mode, "input")  # not hidden
-        self.assertEqual(reply.widgets["internal_reference_no"].value, u"S0014")
+        self.assertEqual(reply.widgets["internal_reference_no"].value, "S0014")
         obj = reply.createAndAdd(self.om_params(reply))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
         self.assertEqual(om._auto_ref, False)
@@ -445,16 +443,16 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         # set outgoingmail_increment_number to False and outgoingmail_edit_irn to hide
         # => number incrementation because irn field is not editable
         api.portal.set_registry_record(
-            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", u"hide"
+            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", "hide"
         )
         reply.update()
         self.assertEqual(self.request["_hide_irn"], True)
         self.assertNotIn("_auto_ref", self.request.keys())
         self.assertEqual(reply.widgets["internal_reference_no"].mode, "hidden")
-        self.assertEqual(reply.widgets["internal_reference_no"].value, u"")
+        self.assertEqual(reply.widgets["internal_reference_no"].value, "")
         obj = reply.createAndAdd(self.om_params(reply))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
-        self.assertEqual(om.internal_reference_no, u"S0014")
+        self.assertEqual(om.internal_reference_no, "S0014")
         self.assertFalse(hasattr(om, "_auto_ref"))
         self.assertEqual(
             api.portal.get_registry_record(
@@ -467,13 +465,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         # set outgoingmail_increment_number to False and outgoingmail_edit_irn to reply
         # => number incrementation because irn field is not editable
         api.portal.set_registry_record(
-            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", u"reply"
+            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", "reply"
         )
         reply.update()
         self.assertEqual(self.request["_hide_irn"], False)
         self.assertEqual(self.request["_auto_ref"], False)
         self.assertEqual(reply.widgets["internal_reference_no"].mode, "input")  # not hidden
-        self.assertEqual(reply.widgets["internal_reference_no"].value, u"S0015")
+        self.assertEqual(reply.widgets["internal_reference_no"].value, "S0015")
         obj = reply.createAndAdd(self.om_params(reply))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
         self.assertEqual(om._auto_ref, False)
@@ -493,30 +491,30 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         api.portal.set_registry_record(AUC_RECORD, "mandatory")
         view.update()  # BEWARE can be called only once (plone.autoform.view.py) !
         # no treating_groups: cannot do anything
-        self.assertEqual(view.widgets["ITask.assigned_user"].field.description, u"")
+        self.assertEqual(view.widgets["ITask.assigned_user"].field.description, "")
         # no assigned_user but mandatory
         imail.treating_groups = get_registry_organizations()[0]
         view.updateWidgets()  # because update() can be called only once
         self.assertEqual(
             view.widgets["ITask.assigned_user"].field.description,
-            u"You must select an assigned user before you can propose to an agent !",
+            "You must select an assigned user before you can propose to an agent !",
         )
         # no assigned user but mandatory only for n_plus_1 level
         api.portal.set_registry_record(AUC_RECORD, "n_plus_1")
         view.updateWidgets()
-        self.assertEqual(view.widgets["ITask.assigned_user"].field.description, u"")
+        self.assertEqual(view.widgets["ITask.assigned_user"].field.description, "")
 
     def test_filter_dmsoutgoingmail_assigned_users(self):
         self.assertEqual(len(filter_dmsoutgoingmail_assigned_users(None)), 0)
         selected_orgs = get_registry_organizations()
         self.change_user("agent")
         voc = filter_dmsoutgoingmail_assigned_users(selected_orgs[0])
-        self.assertListEqual([t.title for t in voc._terms], [u"Michel Chef"])  # direction generale
+        self.assertListEqual([t.title for t in voc._terms], ["Michel Chef"])  # direction generale
         voc = filter_dmsoutgoingmail_assigned_users(selected_orgs[1])
-        self.assertListEqual([t.title for t in voc._terms], [u"Fred Agent", u"Jean Encodeur", u"Michel Chef"])
+        self.assertListEqual([t.title for t in voc._terms], ["Fred Agent", "Jean Encodeur", "Michel Chef"])
         self.change_user("chef")
         voc = filter_dmsoutgoingmail_assigned_users(selected_orgs[1])
-        self.assertListEqual([t.title for t in voc._terms], [u"Michel Chef", u"Fred Agent", u"Jean Encodeur"])
+        self.assertListEqual([t.title for t in voc._terms], ["Michel Chef", "Fred Agent", "Jean Encodeur"])
 
     def test_recipients_filter_default(self):
         self.assertIsNone(recipients_filter_default(self.portal))
@@ -532,49 +530,49 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertIsNone(recipients_filter_default(self.portal))
         # we add the connected user in group
         self.add_principal_to_groups("encodeur", ["{}_{}".format(selected_orgs[1], CREATING_GROUP_SUFFIX)])
-        self.assertEqual(recipients_filter_default(self.portal), u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
+        self.assertEqual(recipients_filter_default(self.portal), '{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
         self.change_user("agent")
         self.assertIsNone(recipients_filter_default(self.portal))
         # we add the connected user in group
         self.add_principal_to_groups("agent", ["{}_{}".format(selected_orgs[1], CONTACTS_PART_SUFFIX)])
-        self.assertEqual(recipients_filter_default(self.portal), u'{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
+        self.assertEqual(recipients_filter_default(self.portal), '{{"assigned_group": "{}"}}'.format(selected_orgs[1]))
 
     def test_OM_get_sender_email(self):
         om = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         # default option is getting agent email
-        self.assertEqual(om.get_sender_email(), u'"Michel Chef" <chef@macommune.be>')
+        self.assertEqual(om.get_sender_email(), '"Michel Chef" <chef@macommune.be>')
         pers = om.get_sender_info()["person"]
-        pers.firstname = u"Michèle"
-        self.assertEqual(om.get_sender_email(), u'"Michele Chef" <chef@macommune.be>')
+        pers.firstname = "Michèle"
+        self.assertEqual(om.get_sender_email(), '"Michele Chef" <chef@macommune.be>')
         # get service email
         replyto_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_email_default"
-        api.portal.set_registry_record(replyto_key, u"service_email")
-        self.assertEqual(om.get_sender_email(), u"contact@macommune.be")  # get higher email
+        api.portal.set_registry_record(replyto_key, "service_email")
+        self.assertEqual(om.get_sender_email(), "contact@macommune.be")  # get higher email
         org = om.get_sender_info()["org"]
-        org.email = u"grh@macommune.be"
-        self.assertEqual(om.get_sender_email(), u"grh@macommune.be")  # get nearest email
+        org.email = "grh@macommune.be"
+        self.assertEqual(om.get_sender_email(), "grh@macommune.be")  # get nearest email
 
     def test_OM_get_recipient_emails(self):
         om = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         self.assertIsNone(om.orig_sender_email)
         recip1 = self.portal.unrestrictedTraverse(om.recipients[0].to_path)
         # recip1 is electrabel org
-        self.assertEqual(recip1.email, u"contak@electrabel.eb")
-        self.assertEqual(om.get_recipient_emails(), u"contak@electrabel.eb")
+        self.assertEqual(recip1.email, "contak@electrabel.eb")
+        self.assertEqual(om.get_recipient_emails(), "contak@electrabel.eb")
         # we add an orig_email_sender
-        om.orig_sender_email = u'"Dexter Morgan" <dexter.morgan@mpd.am>'
-        self.assertEqual(om.get_recipient_emails(), u'"Dexter Morgan" <dexter.morgan@mpd.am>, contak@electrabel.eb')
-        om.orig_sender_email = u'"Dextèr Morgan" <dexter.morgan@mpd.am>'
-        self.assertEqual(om.get_recipient_emails(), u"contak@electrabel.eb")
+        om.orig_sender_email = '"Dexter Morgan" <dexter.morgan@mpd.am>'
+        self.assertEqual(om.get_recipient_emails(), '"Dexter Morgan" <dexter.morgan@mpd.am>, contak@electrabel.eb')
+        om.orig_sender_email = '"Dextèr Morgan" <dexter.morgan@mpd.am>'
+        self.assertEqual(om.get_recipient_emails(), "contak@electrabel.eb")
         # we use the same email
-        om.orig_sender_email = u'"Dexter Morgan" <contak@electrabel.eb>'
-        self.assertEqual(om.get_recipient_emails(), u'"Dexter Morgan" <contak@electrabel.eb>')
+        om.orig_sender_email = '"Dexter Morgan" <contak@electrabel.eb>'
+        self.assertEqual(om.get_recipient_emails(), '"Dexter Morgan" <contak@electrabel.eb>')
         # we add a recipient
         hp = self.portal["contacts"]["jeancourant"]["agent-electrabel"]
         om.recipients.append(RelationValue(self.intids.getId(hp)))
         self.assertEqual(
             om.get_recipient_emails(),
-            u'"Dexter Morgan" <contak@electrabel.eb>, "Jean Courant" <jean.courant@electrabel.eb>',
+            '"Dexter Morgan" <contak@electrabel.eb>, "Jean Courant" <jean.courant@electrabel.eb>',
         )
 
     def test_ImioDmsOutgoingMailWfConditionsAdapter_can_set_to_print(self):
@@ -604,13 +602,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(adapted.can_be_signed())
         createContentInContainer(omail, "dmsappendixfile")
         self.assertTrue(adapted.can_be_signed())
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             createContentInContainer(omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
         self.assertTrue(adapted.can_be_signed())
 
     def test_ImioDmsOutgoingMailWfConditionsAdapter_can_be_sent(self):
-        omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title=u"test")
+        omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title="test")
         self.assertEqual(api.content.get_state(omail), "created")
         adapted = omail.wf_conditions()
         # no treating_groups
@@ -620,13 +618,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(adapted.can_be_sent())
         self.change_user("chef")
         # define as email
-        omail.send_modes = [u"email"]
+        omail.send_modes = ["email"]
         self.assertTrue(omail.is_email())
         self.assertFalse(adapted.can_be_sent())
-        omail.email_status = u"sent at ..."
+        omail.email_status = "sent at ..."
         self.assertTrue(adapted.can_be_sent())
         # define as normal mail
-        omail.send_modes = [u"post"]
+        omail.send_modes = ["post"]
         self.assertFalse(omail.is_email())
         self.assertTrue(adapted.can_be_sent())
         # createContentInContainer(omail, 'dmsommainfile')  # no more depend on a dmsommainfile

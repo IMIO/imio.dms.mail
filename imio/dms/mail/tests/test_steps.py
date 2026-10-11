@@ -78,23 +78,32 @@ class TestSteps(unittest.TestCase):
         )
         self.assertListEqual(
             pf.objectIds(),
-            ["personnel-searches", "chef", "agent", "lecteur", "agent1", "encodeur", "dirg", "bourgmestre",
-             "newuser_renamed"],
+            [
+                "personnel-searches",
+                "chef",
+                "agent",
+                "lecteur",
+                "agent1",
+                "encodeur",
+                "dirg",
+                "bourgmestre",
+                "newuser_renamed",
+            ],
         )
         self.assertListEqual(nu_p.objectIds(), ["%s_renamed" % orgs[0], orgs[1]])
 
     def test_activate_sign_request(self):
         tabs_record = "imio.dms.mail.displayed_tabs"
         self.assertNotIn("requests", api.portal.get_registry_record(tabs_record))
-        self.assertNotIn(u"demand_sign", [fct["fct_id"] for fct in get_registry_functions()])
+        self.assertNotIn("demand_sign", [fct["fct_id"] for fct in get_registry_functions()])
         self.assertFalse(get_esign_registry_enabled())
         self._run_step("imiodmsmail-activate-sign-request")
         # the requests tab is shown and the signature requester function is added
         self.assertIn("requests", api.portal.get_registry_record(tabs_record))
-        self.assertIn(u"demand_sign", [fct["fct_id"] for fct in get_registry_functions()])
+        self.assertIn("demand_sign", [fct["fct_id"] for fct in get_registry_functions()])
         # electronic signing is installed and configured
         self.assertTrue(get_esign_registry_enabled())
-        self.assertTrue(get_esign_registry_file_url().startswith(u"https://documents."))
+        self.assertTrue(get_esign_registry_file_url().startswith("https://documents."))
         # demo sign requests are added
         brains = self.portal.portal_catalog(portal_type="sign_request", sort_on="id")
         self.assertListEqual([brain.id for brain in brains], ["demande1", "demande2", "demande3"])
@@ -116,11 +125,12 @@ class TestSteps(unittest.TestCase):
         pc = self.portal.portal_catalog
         grh_uid = self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID()
         imf = self.portal["incoming-mail"]
-        old = sub_create(imf, "dmsincomingmail", datetime.now(), "old-copy", title=u"Old", recipient_groups=[grh_uid])
+        old = sub_create(imf, "dmsincomingmail", datetime.now(), "old-copy", title="Old", recipient_groups=[grh_uid])
         old.creation_date = DateTime() - 10
         old.reindexObject(idxs=["created"])
-        recent = sub_create(imf, "dmsincomingmail", datetime.now(), "recent-copy", title=u"Recent",
-                            recipient_groups=[grh_uid])
+        recent = sub_create(
+            imf, "dmsincomingmail", datetime.now(), "recent-copy", title="Recent", recipient_groups=[grh_uid]
+        )
         self._run_step("imiodmsmail-mark-copy-im-as-read")
         # an incoming mail in copy for more than 5 days is marked as read for the readers of the copy service
         for userid in ("agent", "lecteur"):
@@ -142,7 +152,7 @@ class TestSteps(unittest.TestCase):
         self.assertIn("back_in_created2", pw["task_workflow"].transitions)
 
     def test_remove_om_nplus1_wfadaptation(self):
-        adaptation = u"imio.dms.mail.wfadaptations.OMServiceValidation"
+        adaptation = "imio.dms.mail.wfadaptations.OMServiceValidation"
         context = self._step_context()
         pw = self.portal.portal_workflow
         folder = self.portal["outgoing-mail"]["mail-searches"]
@@ -170,28 +180,28 @@ class TestSteps(unittest.TestCase):
             self.assertNotIn("searchfor_{}".format(state), folder)
         self.assertFalse(folder["to_validate"].enabled)
         # the n+1 function and groups are removed (not used by another adaptation)
-        self.assertNotIn(u"n_plus_1", [fct["fct_id"] for fct in get_registry_functions()])
+        self.assertNotIn("n_plus_1", [fct["fct_id"] for fct in get_registry_functions()])
         self.assertIsNone(api.group.get("{}_n_plus_1".format(get_registry_organizations()[0])))
 
     def test_configure_wsclient(self):
         prefix = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings"
-        api.portal.set_registry_record("{}.viewlet_display_condition".format(prefix), u"")
+        api.portal.set_registry_record("{}.viewlet_display_condition".format(prefix), "")
         api.portal.set_registry_record("{}.generated_actions".format(prefix), [])
         self._run_step("imiodmsmail-configure-wsclient")
-        self.assertEqual(api.portal.get_registry_record("{}.pm_username".format(prefix)), u"admin")
+        self.assertEqual(api.portal.get_registry_record("{}.pm_username".format(prefix)), "admin")
         self.assertTrue(api.portal.get_registry_record("{}.only_one_sending".format(prefix)))
-        self.assertEqual(api.portal.get_registry_record("{}.viewlet_display_condition".format(prefix)), u"isLinked")
+        self.assertEqual(api.portal.get_registry_record("{}.viewlet_display_condition".format(prefix)), "isLinked")
         mappings = api.portal.get_registry_record("{}.field_mappings".format(prefix))
-        self.assertListEqual([dic["field_name"] for dic in mappings], [u"title", u"description"])
+        self.assertListEqual([dic["field_name"] for dic in mappings], ["title", "description"])
         actions = api.portal.get_registry_record("{}.generated_actions".format(prefix))
-        self.assertListEqual([dic["pm_meeting_config_id"] for dic in actions], [u"meeting-config-college"])
+        self.assertListEqual([dic["pm_meeting_config_id"] for dic in actions], ["meeting-config-college"])
         self.assertEqual(actions[0]["permissions"], "Modify view template")
 
     def test_contact_import_pipeline(self):
         record = "collective.contact.importexport.interfaces.IPipelineConfiguration.pipeline"
-        api.portal.set_registry_record(record, u"")
+        api.portal.set_registry_record(record, "")
         self._run_step("imiodmsmail-contact-import-pipeline")
         pipeline = api.portal.get_registry_record(record)
-        self.assertTrue(pipeline.startswith(u"[transmogrifier]\npipeline =\n    initialization\n"))
-        self.assertIn(u"\n    iadocs_userid\n", pipeline)
-        self.assertIn(u"\n[config]\n", pipeline)
+        self.assertTrue(pipeline.startswith("[transmogrifier]\npipeline =\n    initialization\n"))
+        self.assertIn("\n    iadocs_userid\n", pipeline)
+        self.assertIn("\n[config]\n", pipeline)

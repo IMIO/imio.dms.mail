@@ -57,7 +57,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.portal = self.layer["portal"]
         self.change_user("siteadmin")
         self.imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
-        self.omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "my-id", title=u"OM1")
+        self.omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "my-id", title="OM1")
         self.maxDiff = None
 
     def test_IMReviewStatesVocabulary(self):
@@ -66,11 +66,11 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                ("created", u"En création"),
-                ("proposed_to_manager", u"À valider par le DG"),
-                ("proposed_to_agent", u"À traiter"),
-                ("in_treatment", u"En cours de traitement"),
-                ("closed", u"Clôturé"),
+                ("created", "En création"),
+                ("proposed_to_manager", "À valider par le DG"),
+                ("proposed_to_agent", "À traiter"),
+                ("in_treatment", "En cours de traitement"),
+                ("closed", "Clôturé"),
             ],
         )
 
@@ -85,12 +85,12 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                ("created", u"En création"),
-                ("to_assign", u"À assigner"),
-                ("to_do", u"À faire"),
-                ("in_progress", u"En cours"),
-                ("realized", u"Réalisé"),
-                ("closed", u"Clôturé"),
+                ("created", "En création"),
+                ("to_assign", "À assigner"),
+                ("to_do", "À faire"),
+                ("in_progress", "En cours"),
+                ("realized", "Réalisé"),
+                ("closed", "Clôturé"),
             ],
         )
 
@@ -101,16 +101,16 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
-                ("agent", u"Fred Agent"),
-                ("encodeur", u"Jean Encodeur"),
-                ("lecteur", u"Jef Lecteur"),
-                ("dirg", u"Maxime DG"),
-                ("chef", u"Michel Chef"),
-                ("bourgmestre", u"Paul BM"),
-                ("siteadmin", u"siteadmin"),
-                ("scanner", u"Scanner"),
-                ("agent1", u"Stef Agent"),
-                (TEST_USER_ID, u"test_user_1_ (Désactivé)"),
+                ("agent", "Fred Agent"),
+                ("encodeur", "Jean Encodeur"),
+                ("lecteur", "Jef Lecteur"),
+                ("dirg", "Maxime DG"),
+                ("chef", "Michel Chef"),
+                ("bourgmestre", "Paul BM"),
+                ("siteadmin", "siteadmin"),
+                ("scanner", "Scanner"),
+                ("agent1", "Stef Agent"),
+                (TEST_USER_ID, "test_user_1_ (Désactivé)"),
             ],
         )
         # add inactive group and user in it
@@ -123,20 +123,20 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
-                ("agent", u"Fred Agent"),
-                ("encodeur", u"Jean Encodeur"),
-                ("lecteur", u"Jef Lecteur"),
-                ("dirg", u"Maxime DG"),
-                ("chef", u"Michel Chef"),
-                ("bourgmestre", u"Paul BM"),
-                ("siteadmin", u"siteadmin"),
-                ("scanner", u"Scanner"),
-                ("agent1", u"Stef Agent"),
-                (TEST_USER_ID, u"test_user_1_ (Désactivé)"),
+                ("agent", "Fred Agent"),
+                ("encodeur", "Jean Encodeur"),
+                ("lecteur", "Jef Lecteur"),
+                ("dirg", "Maxime DG"),
+                ("chef", "Michel Chef"),
+                ("bourgmestre", "Paul BM"),
+                ("siteadmin", "siteadmin"),
+                ("scanner", "Scanner"),
+                ("agent1", "Stef Agent"),
+                (TEST_USER_ID, "test_user_1_ (Désactivé)"),
             ],
         )
         # add same user in active group
-        guid = self.portal.contacts["plonegroup-organization"][u"direction-generale"].UID()
+        guid = self.portal.contacts["plonegroup-organization"]["direction-generale"].UID()
         api.group.add_user(groupname="{}_lecteur".format(guid), username=TEST_USER_ID)
         self.change_user("siteadmin")  # refresh getGroups
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
@@ -144,16 +144,16 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
-                ("agent", u"Fred Agent"),
-                ("encodeur", u"Jean Encodeur"),
-                ("lecteur", u"Jef Lecteur"),
-                ("dirg", u"Maxime DG"),
-                ("chef", u"Michel Chef"),
-                ("bourgmestre", u"Paul BM"),
-                ("siteadmin", u"siteadmin"),
-                ("scanner", u"Scanner"),
-                ("agent1", u"Stef Agent"),
-                (TEST_USER_ID, u"test_user_1_"),
+                ("agent", "Fred Agent"),
+                ("encodeur", "Jean Encodeur"),
+                ("lecteur", "Jef Lecteur"),
+                ("dirg", "Maxime DG"),
+                ("chef", "Michel Chef"),
+                ("bourgmestre", "Paul BM"),
+                ("siteadmin", "siteadmin"),
+                ("scanner", "Scanner"),
+                ("agent1", "Stef Agent"),
+                (TEST_USER_ID, "test_user_1_"),
             ],
         )
 
@@ -164,15 +164,15 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
-                ("agent", u"Fred Agent"),
-                ("encodeur", u"Jean Encodeur"),
-                ("lecteur", u"Jef Lecteur"),
-                ("dirg", u"Maxime DG"),
-                ("chef", u"Michel Chef"),
-                ("bourgmestre", u"Paul BM"),
-                ("siteadmin", u"siteadmin"),
-                ("agent1", u"Stef Agent"),
-                (TEST_USER_ID, u"test_user_1_ (Désactivé)"),
+                ("agent", "Fred Agent"),
+                ("encodeur", "Jean Encodeur"),
+                ("lecteur", "Jef Lecteur"),
+                ("dirg", "Maxime DG"),
+                ("chef", "Michel Chef"),
+                ("bourgmestre", "Paul BM"),
+                ("siteadmin", "siteadmin"),
+                ("agent1", "Stef Agent"),
+                (TEST_USER_ID, "test_user_1_ (Désactivé)"),
             ],
         )
 
@@ -181,11 +181,11 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                (u"courrier", u"Courrier"),
-                (u"certificat", u"Certificat médical"),
-                (u"facture", u"Facture"),
-                (u"retour-recommande", u"Retour recommandé"),
-                (u"retour-ar", u"Retour AR"),
+                ("courrier", "Courrier"),
+                ("certificat", "Certificat médical"),
+                ("facture", "Facture"),
+                ("retour-recommande", "Retour recommandé"),
+                ("retour-ar", "Retour AR"),
             ],
         )
         voc_list = [(t.value, t.title) for t in get_settings_vta_table("omail_send_modes", choose=True)]
@@ -195,14 +195,14 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes",
             [
-                {"value": u"none", "dtitle": u"Travaille fieu", "active": True},
-                {"value": u"post", "dtitle": u"Lettre", "active": False},
-                {"value": u"post_registered", "dtitle": u"Lettre recommandée", "active": True},
-                {"value": u"email", "dtitle": u"Email", "active": True},
+                {"value": "none", "dtitle": "Travaille fieu", "active": True},
+                {"value": "post", "dtitle": "Lettre", "active": False},
+                {"value": "post_registered", "dtitle": "Lettre recommandée", "active": True},
+                {"value": "email", "dtitle": "Email", "active": True},
             ],
         )
         voc_list = [(t.value, t.title) for t in get_settings_vta_table("omail_send_modes", choose=True)]
-        self.assertEqual(voc_list[0], (None, u"Travaille fieu"))
+        self.assertEqual(voc_list[0], (None, "Travaille fieu"))
         voc_list = [(t.value, t.title) for t in get_settings_vta_table("omail_send_modes", active=(False,))]
         self.assertTrue(len(voc_list) == 1)
 
@@ -212,31 +212,25 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(
             voc_list,
             [
-                (u"courrier", u"Courrier"),
-                (u"certificat", u"Certificat médical"),
-                (u"facture", u"Facture"),
-                (u"retour-recommande", u"Retour recommandé"),
-                (u"retour-ar", u"Retour AR"),
+                ("courrier", "Courrier"),
+                ("certificat", "Certificat médical"),
+                ("facture", "Facture"),
+                ("retour-recommande", "Retour recommandé"),
+                ("retour-ar", "Retour AR"),
             ],
         )
 
     def test_IMActiveMailTypesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMActiveMailTypesVocabulary")
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(
-            voc_list,
-            [None, u"courrier", u"certificat", u"facture", u"retour-recommande", u"retour-ar"]
-        )
+        self.assertListEqual(voc_list, [None, "courrier", "certificat", "facture", "retour-recommande", "retour-ar"])
         settings = getUtility(IRegistry).forInterface(IImioDmsMailConfig, False)
         mail_types = settings.mail_types
         mail_types[0]["active"] = False
         settings.mail_types = mail_types
         # After a registry change, the vocabulary cache has been cleared
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(
-            voc_list,
-            [None, u"certificat", u"facture", u"retour-recommande", u"retour-ar"]
-        )
+        self.assertListEqual(voc_list, [None, "certificat", "facture", "retour-recommande", "retour-ar"])
 
     def test_PloneGroupInterfacesVocabulary(self):
         voc_inst = PloneGroupInterfacesVocabulary()
@@ -257,7 +251,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         res = list(OrderedDict.fromkeys([" ".join(s.title.split()[:3]).strip(",") for s in voc_inst(self.omail)]))
         # res is sorted by firstname
         self.assertEqual(
-            res, [u"Monsieur Fred Agent", u"Monsieur Jean Encodeur", u"Monsieur Michel Chef", u"Monsieur Stef Agent"]
+            res, ["Monsieur Fred Agent", "Monsieur Jean Encodeur", "Monsieur Michel Chef", "Monsieur Stef Agent"]
         )
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_firstname_sorting", False
@@ -266,7 +260,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         res = list(OrderedDict.fromkeys([" ".join(s.title.split()[:3]).strip(",") for s in voc_inst(self.omail)]))
         # res is sorted by lastname
         self.assertEqual(
-            res, [u"Monsieur Fred Agent", u"Monsieur Stef Agent", u"Monsieur Michel Chef", u"Monsieur Jean Encodeur"]
+            res, ["Monsieur Fred Agent", "Monsieur Stef Agent", "Monsieur Michel Chef", "Monsieur Jean Encodeur"]
         )
         # deactivation
         pf = self.portal.contacts["personnel-folder"]
@@ -280,15 +274,15 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
     def test_OMMailTypesVocabulary(self):
         voc_inst = OMMailTypesVocabulary()
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [u"courrier"])
+        self.assertListEqual(voc_list, ["courrier"])
 
     def test_OMActiveMailTypesVocabulary(self):
         voc_inst = OMActiveMailTypesVocabulary()
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertListEqual(voc_list, [u"courrier"])
+        self.assertListEqual(voc_list, ["courrier"])
 
     def test_encodeur_active_orgs0(self):
-        factory = getUtility(IVocabularyFactory, u"collective.dms.basecontent.treating_groups")
+        factory = getUtility(IVocabularyFactory, "collective.dms.basecontent.treating_groups")
         all_titles = [t.title for t in factory(self.omail)]
         # expedition group or Manager
         self.change_user("encodeur")
@@ -320,7 +314,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         )
 
     def test_SignRequestActiveOrgsVocabulary(self):
-        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.SignRequestActiveOrgsVocabulary")
+        factory = getUtility(IVocabularyFactory, "imio.dms.mail.SignRequestActiveOrgsVocabulary")
         # no organization has a demand_sign member yet (invalidate the ram cache first)
         invalidate_cachekey_volatile_for("_users_groups_value")
         self.assertEqual(len(factory(self.portal)), 0)
@@ -332,12 +326,12 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
 
     def test_SigningRequestApprovingsVocabulary(self):
         # a sign_request signer cannot skip validation: '_empty_' is not offered (unlike outgoing mail)
-        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.SigningRequestApprovingsVocabulary")
+        factory = getUtility(IVocabularyFactory, "imio.dms.mail.SigningRequestApprovingsVocabulary")
         values = [t.value for t in factory(self.portal)]
-        self.assertIn(u"_themself_", values)
-        self.assertNotIn(u"_empty_", values)
-        om_factory = getUtility(IVocabularyFactory, u"imio.dms.mail.SigningApprovingsVocabulary")
-        self.assertIn(u"_empty_", [t.value for t in om_factory(self.portal)])
+        self.assertIn("_themself_", values)
+        self.assertNotIn("_empty_", values)
+        om_factory = getUtility(IVocabularyFactory, "imio.dms.mail.SigningApprovingsVocabulary")
+        self.assertIn("_empty_", [t.value for t in om_factory(self.portal)])
 
     def test_signrequest_active_orgs(self):
         org0 = get_registry_organizations()[0]
@@ -361,8 +355,10 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         ensure_demand_sign(self.portal, org0, userids=("agent",))
         invalidate_cachekey_volatile_for("_users_groups_value")
         self.change_user("agent")
-        base = [t.value for t
-                in getUtility(IVocabularyFactory, u"imio.dms.mail.SignRequestActiveOrgsVocabulary")(self.portal)]
+        base = [
+            t.value
+            for t in getUtility(IVocabularyFactory, "imio.dms.mail.SignRequestActiveOrgsVocabulary")(self.portal)
+        ]
         self.assertEqual([t.value for t in signrequest_active_orgs(self.portal)], base)
 
     def test_MyLabelsVocabulary(self):
@@ -532,18 +528,18 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                ("scanned", u"Scanné"),
-                ("created", u"En création"),
-                ("to_be_signed", u"À la signature"),
-                ("signed", u"Signé"),
-                ("sent", u"Envoyé"),
+                ("scanned", "Scanné"),
+                ("created", "En création"),
+                ("to_be_signed", "À la signature"),
+                ("signed", "Signé"),
+                ("sent", "Envoyé"),
             ],
         )
 
     def test_ContactsReviewStatesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.ContactsReviewStatesVocabulary")
         voc_list = [(t.value, t.title) for t in voc_inst(self.portal["contacts"])]
-        self.assertEqual(voc_list, [("active", u"Activé"), ("deactivated", u"Désactivé")])
+        self.assertEqual(voc_list, [("active", "Activé"), ("deactivated", "Désactivé")])
 
     def test_FirstLevelTabsVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.FirstLevelTabsVocabulary")
@@ -552,23 +548,23 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                ("incoming-mail", u"Entrant"),
-                ("outgoing-mail", u"Sortant"),
-                ("requests", u"Demandes sign."),
-                ("folders", u"Dossiers"),
-                ("tasks", u"Tâches"),
-                ("plus", u"\u25cf \u25cf \u25cf"),
-                ("contacts", u"Contacts"),
-                ("templates", u"Modèles"),
-                ("tree", u"Classement"),
-                ("annexes_types", u"Types d'annexes"),
+                ("incoming-mail", "Entrant"),
+                ("outgoing-mail", "Sortant"),
+                ("requests", "Demandes sign."),
+                ("folders", "Dossiers"),
+                ("tasks", "Tâches"),
+                ("plus", "\u25cf \u25cf \u25cf"),
+                ("contacts", "Contacts"),
+                ("templates", "Modèles"),
+                ("tree", "Classement"),
+                ("annexes_types", "Types d'annexes"),
             ],
         )
 
     def test_HeldPositionUsagesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.HeldPositionUsagesVocabulary")
         voc_list = [(t.value, t.title) for t in voc_inst(self.portal)]
-        self.assertEqual(voc_list, [("signer", u"Signer"), ("approving", u"Approving")])
+        self.assertEqual(voc_list, [("signer", "Signer"), ("approving", "Approving")])
 
     def test_OMSendModesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.OMSendModesVocabulary")
@@ -576,22 +572,22 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                (u"post", u"Courrier postal"),
-                (u"post_registered", u"Courrier recommandé"),
-                (u"post_registered_dr", u"Courrier recommandé avec AR"),
-                (u"email", u"Email"),
+                ("post", "Courrier postal"),
+                ("post_registered", "Courrier recommandé"),
+                ("post_registered_dr", "Courrier recommandé avec AR"),
+                ("email", "Email"),
             ],
         )
         # a deactivated send mode is kept
-        self.deactivate_send_mode("omail_send_modes", u"post")
+        self.deactivate_send_mode("omail_send_modes", "post")
         self.assertEqual([(t.value, t.title) for t in voc_inst(self.omail)], voc_list)
 
     def test_OMActiveSendModesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.OMActiveSendModesVocabulary")
         voc_list = [t.value for t in voc_inst(self.omail)]
-        self.assertEqual(voc_list, [u"post", u"post_registered", u"post_registered_dr", u"email"])
-        self.deactivate_send_mode("omail_send_modes", u"post")
-        self.assertEqual([t.value for t in voc_inst(self.omail)], [u"post_registered", u"post_registered_dr", u"email"])
+        self.assertEqual(voc_list, ["post", "post_registered", "post_registered_dr", "email"])
+        self.deactivate_send_mode("omail_send_modes", "post")
+        self.assertEqual([t.value for t in voc_inst(self.omail)], ["post_registered", "post_registered_dr", "email"])
 
     def test_IMSendModesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMSendModesVocabulary")
@@ -599,22 +595,22 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                (u"post", u"Courrier postal"),
-                (u"post_registered", u"Courrier recommandé"),
-                (u"post_registered_dr", u"Courrier recommandé avec AR"),
-                (u"email", u"Email"),
+                ("post", "Courrier postal"),
+                ("post_registered", "Courrier recommandé"),
+                ("post_registered_dr", "Courrier recommandé avec AR"),
+                ("email", "Email"),
             ],
         )
         # a deactivated send mode is kept
-        self.deactivate_send_mode("imail_send_modes", u"email")
+        self.deactivate_send_mode("imail_send_modes", "email")
         self.assertEqual([(t.value, t.title) for t in voc_inst(self.imail)], voc_list)
 
     def test_IMActiveSendModesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMActiveSendModesVocabulary")
         voc_list = [t.value for t in voc_inst(self.imail)]
-        self.assertEqual(voc_list, [u"post", u"post_registered", u"post_registered_dr", u"email"])
-        self.deactivate_send_mode("imail_send_modes", u"email")
-        self.assertEqual([t.value for t in voc_inst(self.imail)], [u"post", u"post_registered", u"post_registered_dr"])
+        self.assertEqual(voc_list, ["post", "post_registered", "post_registered_dr", "email"])
+        self.deactivate_send_mode("imail_send_modes", "email")
+        self.assertEqual([t.value for t in voc_inst(self.imail)], ["post", "post_registered", "post_registered_dr"])
 
     def test_OMSignersVocabulary(self):
         pf = self.portal.contacts["personnel-folder"]
@@ -623,8 +619,8 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                (pf["dirg"]["directeur-general"].UID(), u"Monsieur Maxime DG, Directeur Général (Direction générale)"),
-                (pf["bourgmestre"]["bourgmestre"].UID(), u"Monsieur Paul BM, Bourgmestre (Collège communal)"),
+                (pf["dirg"]["directeur-general"].UID(), "Monsieur Maxime DG, Directeur Général (Direction générale)"),
+                (pf["bourgmestre"]["bourgmestre"].UID(), "Monsieur Paul BM, Bourgmestre (Collège communal)"),
             ],
         )
 
@@ -634,7 +630,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         voc_list = [(t.value, t.title) for t in voc_inst(self.omail)]
         self.assertEqual(
             voc_list,
-            [(u"_empty_", u"* No validation"), (u"_themself_", u"* Themself"), (pf["chef"].UID(), u"Michel Chef")],
+            [("_empty_", "* No validation"), ("_themself_", "* Themself"), (pf["chef"].UID(), "Michel Chef")],
         )
 
     def test_TreatingGroupsWithDeactivatedVocabulary(self):
@@ -644,29 +640,29 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             [t.title for t in voc_inst(self.imail)],
             [
-                u"Collège communal",
-                u"Direction financière",
-                u"Direction financière / Budgets",
-                u"Direction financière / Comptabilité",
-                u"Direction générale",
-                u"Direction générale / Communication",
-                u"Direction générale / GRH",
-                u"Direction générale / Secrétariat",
-                u"Direction technique",
-                u"Direction technique / Bâtiments",
-                u"Direction technique / Voiries",
-                u"Événements",
-                u"Conseil communal (Désactivé)",
-                u"Direction financière / Marchés publics (Désactivé)",
-                u"Direction financière / Taxes (Désactivé)",
-                u"Direction générale / Informatique (Désactivé)",
-                u"Direction technique / Urbanisme (Désactivé)",
-                u"Département culturel (Désactivé)",
-                u"Département culturel / Culture-loisirs (Désactivé)",
-                u"Département culturel / Enseignement (Désactivé)",
-                u"Département population (Désactivé)",
-                u"Département population / Population (Désactivé)",
-                u"Département population / État-civil (Désactivé)",
+                "Collège communal",
+                "Direction financière",
+                "Direction financière / Budgets",
+                "Direction financière / Comptabilité",
+                "Direction générale",
+                "Direction générale / Communication",
+                "Direction générale / GRH",
+                "Direction générale / Secrétariat",
+                "Direction technique",
+                "Direction technique / Bâtiments",
+                "Direction technique / Voiries",
+                "Événements",
+                "Conseil communal (Désactivé)",
+                "Direction financière / Marchés publics (Désactivé)",
+                "Direction financière / Taxes (Désactivé)",
+                "Direction générale / Informatique (Désactivé)",
+                "Direction technique / Urbanisme (Désactivé)",
+                "Département culturel (Désactivé)",
+                "Département culturel / Culture-loisirs (Désactivé)",
+                "Département culturel / Enseignement (Désactivé)",
+                "Département population (Désactivé)",
+                "Département population / Population (Désactivé)",
+                "Département population / État-civil (Désactivé)",
             ],
         )
         self.assertEqual(
@@ -688,12 +684,12 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
     def test_ActiveInactiveStatesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.ActiveInactiveStatesVocabulary")
         voc_list = [(t.value, t.title) for t in voc_inst(self.portal)]
-        self.assertEqual(voc_list, [("active", u"Active"), ("deactivated", u"Deactivated")])
+        self.assertEqual(voc_list, [("active", "Active"), ("deactivated", "Deactivated")])
 
     def test_IMPortalTypesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMPortalTypesVocabulary")
         voc_list = [(t.value, t.title) for t in voc_inst(self.portal)]
-        self.assertEqual(voc_list, [("dmsincomingmail", u"Incoming Mail"), ("dmsincoming_email", u"Incoming Email")])
+        self.assertEqual(voc_list, [("dmsincomingmail", "Incoming Mail"), ("dmsincoming_email", "Incoming Email")])
 
     def test_PODTemplateContentCategoriesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.PODTemplateContentCategoriesVocabulary")
@@ -702,8 +698,8 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                ("plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file", u"Fichier ged CS"),
-                ("plone-annexes_types_-_outgoing_dms_files_-_outgoing-scanned-dms-file", u"Fichier ged CS scanné"),
+                ("plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file", "Fichier ged CS"),
+                ("plone-annexes_types_-_outgoing_dms_files_-_outgoing-scanned-dms-file", "Fichier ged CS scanné"),
             ],
         )
 
@@ -714,15 +710,15 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             [t.title for t in voc_inst(None, userid="agent")],
             [
-                u"Direction générale - Secrétariat",
-                u"Direction générale - GRH",
-                u"Direction générale - Communication",
-                u"Direction financière - Budgets",
-                u"Direction financière - Comptabilité",
-                u"Direction technique - Bâtiments",
-                u"Direction technique - Voiries",
-                u"Événements",
-                u"Collège communal",
+                "Direction générale - Secrétariat",
+                "Direction générale - GRH",
+                "Direction générale - Communication",
+                "Direction financière - Budgets",
+                "Direction financière - Comptabilité",
+                "Direction technique - Bâtiments",
+                "Direction technique - Voiries",
+                "Événements",
+                "Collège communal",
             ],
         )
         self.assertEqual([t.title for t in voc_inst(None, userid="scanner")], [])
@@ -749,7 +745,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         # only personal labels in the incoming mail folder
         self.assertEqual(len(voc_inst(self.imail)), 0)
         ILabelJar(self.portal["incoming-mail"]).add("Urgent", "red", False)
-        self.assertEqual([(t.value, t.title) for t in voc_inst(self.imail)], [("urgent", u"Urgent")])
+        self.assertEqual([(t.value, t.title) for t in voc_inst(self.imail)], [("urgent", "Urgent")])
         # personal labels are only in MyLabelsVocabulary
         self.change_user("agent")
         self.assertEqual([t.value for t in MyLabelsVocabulary()(self.imail)], ["agent:lu", "agent:suivi"])

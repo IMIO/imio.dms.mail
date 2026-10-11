@@ -75,7 +75,7 @@ class TestColumns(unittest.TestCase):
         brain = self.portal.portal_catalog(UID=self.im5.UID())[0]
         self.assertEqual(
             column.renderCell(brain),
-            u"<a href='http://nohost/plone/contacts/jeancourant/agent-electrabel' target='_blank' "
+            "<a href='http://nohost/plone/contacts/jeancourant/agent-electrabel' target='_blank' "
             "class='pretty_link link-tooltip'><span class='pretty_link_icons'><img title='Fonction occupée' "
             "src='http://nohost/plone/++plone++bootstrap-icons/person-badge.svg' /></span><span class='pretty_link_content'"
             ">Monsieur Jean Courant, Agent (Electrabel)</span></a>",
@@ -93,7 +93,7 @@ class TestColumns(unittest.TestCase):
             "dmsincomingmail",
             datetime.now(),
             "my-id",
-            **{"title": u"My title", "description": u"Description"}
+            **{"title": "My title", "description": "Description"}
         )
         brain = self.portal.portal_catalog(UID=imail.UID())[0]
         self.assertEqual(column.renderCell(brain), "-")
@@ -108,15 +108,15 @@ class TestColumns(unittest.TestCase):
         column = IMTitleColumn(self.portal, self.portal.REQUEST, self.mail_table)
         self.assertDictEqual(column.params, {"showContentIcon": True, "display_tag_title": False})
         rendered = column.renderCell(self.brain(self.im1))
-        self.assertIn(u"href='{}'".format(self.im1.absolute_url()), rendered)
-        self.assertIn(u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png'", rendered)
-        self.assertIn(u"E0001 - Courrier 1", rendered)
+        self.assertIn("href='{}'".format(self.im1.absolute_url()), rendered)
+        self.assertIn("src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png'", rendered)
+        self.assertIn("E0001 - Courrier 1", rendered)
 
     def test_OMTitleColumn(self):
         column = OMTitleColumn(self.portal, self.portal.REQUEST, self.om_table)
         rendered = column.renderCell(self.brain(self.om1))
-        self.assertIn(u"href='{}'".format(self.om1.absolute_url()), rendered)
-        self.assertIn(u"src='http://nohost/plone/++resource++imio.dms.mail/dmsoutgoingmail_icon.png'", rendered)
+        self.assertIn("href='{}'".format(self.om1.absolute_url()), rendered)
+        self.assertIn("src='http://nohost/plone/++resource++imio.dms.mail/dmsoutgoingmail_icon.png'", rendered)
 
     def test_OMColorColumn(self):
         column = OMColorColumn(self.portal, self.portal.REQUEST, self.om_table)
@@ -133,8 +133,8 @@ class TestColumns(unittest.TestCase):
             column.getCSSClasses(brain),
             {"tr": "min-height", "td": "{}_printable_{}".format(column.cssClassPrefix, printable)},
         )
-        self.assertTrue(column.renderCell(brain).startswith(u'<div class="tooltip-title" title="'))
-        self.assertTrue(column.renderCell(brain).endswith(u'">&nbsp;</div>'))
+        self.assertTrue(column.renderCell(brain).startswith('<div class="tooltip-title" title="'))
+        self.assertTrue(column.renderCell(brain).endswith('">&nbsp;</div>'))
         # brain without markers
         self.assertFalse(column.is_printable(self.brain(self.im1)))
 
@@ -143,28 +143,29 @@ class TestColumns(unittest.TestCase):
         column = self.mail_table.nameColumn(
             TreatingGroupsColumn(self.portal, self.portal.REQUEST, self.mail_table), "treating_groups"
         )
-        self.assertEqual(column.renderCell(self.brain(self.im1)), u"Direction générale")
+        self.assertEqual(column.renderCell(self.brain(self.im1)), "Direction générale")
 
     def test_AssignedUserColumn(self):
         column = AssignedUserColumn(self.portal, self.portal.REQUEST, self.om_table)
-        self.assertEqual(column.renderCell(self.brain(self.om1)), u"Michel Chef")
+        self.assertEqual(column.renderCell(self.brain(self.om1)), "Michel Chef")
 
     def test_MailTypeColumn(self):
-        column = self.mail_table.nameColumn(MailTypeColumn(self.portal, self.portal.REQUEST, self.mail_table),
-                                            "mail_type")
-        self.assertEqual(column.renderCell(self.brain(self.im1)), u"Courrier")
+        column = self.mail_table.nameColumn(
+            MailTypeColumn(self.portal, self.portal.REQUEST, self.mail_table), "mail_type"
+        )
+        self.assertEqual(column.renderCell(self.brain(self.im1)), "Courrier")
 
     def test_IMSendModesColumn(self):
         column = IMSendModesColumn(self.portal, self.portal.REQUEST, self.mail_table)
-        self.assertEqual(column.renderCell(self.brain(self.im1)), u"Courrier postal")
+        self.assertEqual(column.renderCell(self.brain(self.im1)), "Courrier postal")
 
     def test_OMSendModesColumn(self):
         column = OMSendModesColumn(self.portal, self.portal.REQUEST, self.om_table)
-        self.assertEqual(column.renderCell(self.brain(self.om1)), u"Courrier postal")
+        self.assertEqual(column.renderCell(self.brain(self.om1)), "Courrier postal")
 
     def test_OutgoingDateColumn(self):
         column = OutgoingDateColumn(self.portal, self.portal.REQUEST, self.om_table)
-        self.assertEqual(column.attrName, u"in_out_date")
+        self.assertEqual(column.attrName, "in_out_date")
         # plonelocales short format (fr)
         self.assertEqual(column.renderCell(self.brain(self.im1)), self.im1.reception_date.strftime("%d/%m/%Y"))
 
@@ -174,25 +175,25 @@ class TestColumns(unittest.TestCase):
         ctct = self.portal["contacts"]
         self.assertEqual(
             column._icons(self.brain(ctct["electrabel"])),
-            u"<img title='Organisation' src='http://nohost/plone/++plone++bootstrap-icons/diagram-3-fill.svg' />",
+            "<img title='Organisation' src='http://nohost/plone/++plone++bootstrap-icons/diagram-3-fill.svg' />",
         )
         self.assertEqual(
             column._icons(self.brain(ctct["jeancourant"])),
-            u"<img title='Personne' src='http://nohost/plone/++plone++bootstrap-icons/file-earmark-person-fill.svg' />",
+            "<img title='Personne' src='http://nohost/plone/++plone++bootstrap-icons/file-earmark-person-fill.svg' />",
         )
         self.assertEqual(
             column._icons(self.brain(ctct["jeancourant"]["agent-electrabel"])),
-            u"<img title='Fonction occupée' src='http://nohost/plone/++plone++bootstrap-icons/person-badge.svg' />",
+            "<img title='Fonction occupée' src='http://nohost/plone/++plone++bootstrap-icons/person-badge.svg' />",
         )
 
     def test_RecipientsColumn(self):
         column = RecipientsColumn(self.portal, self.portal.REQUEST, self.om_table)
         self.assertEqual(
             column.renderCell(self.brain(self.om1)),
-            u"<a href='http://nohost/plone/contacts/electrabel' target='_blank' class='pretty_link link-tooltip'>"
-            u"<span class='pretty_link_icons'><img title='Organisation' "
-            u"src='http://nohost/plone/++plone++bootstrap-icons/diagram-3-fill.svg' /></span><span class='pretty_link_content'>"
-            u"Electrabel</span></a>",
+            "<a href='http://nohost/plone/contacts/electrabel' target='_blank' class='pretty_link link-tooltip'>"
+            "<span class='pretty_link_icons'><img title='Organisation' "
+            "src='http://nohost/plone/++plone++bootstrap-icons/diagram-3-fill.svg' /></span><span class='pretty_link_content'>"
+            "Electrabel</span></a>",
         )
         # "all under" values (l:) are not displayed
         self.om1.recipients = []
@@ -200,16 +201,17 @@ class TestColumns(unittest.TestCase):
         self.assertEqual(column.renderCell(self.brain(self.om1)), "-")
 
     def test_ReviewStateColumn(self):
-        column = self.mail_table.nameColumn(ReviewStateColumn(self.portal, self.portal.REQUEST, self.mail_table),
-                                            "review_state")
+        column = self.mail_table.nameColumn(
+            ReviewStateColumn(self.portal, self.portal.REQUEST, self.mail_table), "review_state"
+        )
         # plone domain state titles ("created", "om_created")
-        self.assertEqual(column.renderCell(self.brain(self.im1)), u"En création")
-        self.assertEqual(column.renderCell(self.brain(self.om1)), u"En création")
+        self.assertEqual(column.renderCell(self.brain(self.im1)), "En création")
+        self.assertEqual(column.renderCell(self.brain(self.om1)), "En création")
 
     def test_ContactTitleColumn(self):
         column = ContactTitleColumn(self.portal, self.portal.REQUEST, self.mail_table)
         hp = self.portal["contacts"]["jeancourant"]["agent-electrabel"]
-        self.assertEqual(column.contentValue(hp), u"Monsieur Jean Courant, Agent (Electrabel)")
+        self.assertEqual(column.contentValue(hp), "Monsieur Jean Courant, Agent (Electrabel)")
 
     def test_PathColumn(self):
         cls = self.portal["contacts"]["cls-searches"]
@@ -222,7 +224,7 @@ class TestColumns(unittest.TestCase):
         self.assertEqual(column.root_path, "/plone/contacts/contact-lists-folder")
         self.assertEqual(
             column.renderCell(brain),
-            u'<a href="{}" target="_blank">{}</a>'.format(clf["common"].absolute_url(), clf["common"].title),
+            '<a href="{}" target="_blank">{}</a>'.format(clf["common"].absolute_url(), clf["common"].title),
         )
 
     def test_PersonnelUseridFacetedColumn(self):
@@ -231,22 +233,26 @@ class TestColumns(unittest.TestCase):
         column = PersonnelUseridFacetedColumn(self.portal, self.portal.REQUEST, table)
         self.assertEqual(
             column.renderCell(self.brain(pf["agent"])),
-            u'<a href="http://nohost/plone/@@usergroup-usermembership?userid=agent" target="_blank">agent</a>',
+            '<a href="http://nohost/plone/@@usergroup-usermembership?userid=agent" target="_blank">agent</a>',
         )
         pf["agent"].userid = None
-        self.assertEqual(column.renderCell(self.brain(pf["agent"])), u"-")
+        self.assertEqual(column.renderCell(self.brain(pf["agent"])), "-")
 
     def test_PersonnelHPFacetedColumn(self):
         pf = self.portal["contacts"]["personnel-folder"]
         table = pf["personnel-searches"].unrestrictedTraverse("@@faceted-table-view")
         column = PersonnelHPFacetedColumn(self.portal, self.portal.REQUEST, table)
         rendered = column.renderCell(self.brain(pf["dirg"]))
-        self.assertTrue(rendered.startswith(u'<ul class="hp_col"><li class=\'plonegroup_1\'>'))
-        self.assertIn(u"<a href='{}' target='_blank' class='pretty_link link-tooltip'>".format(
-            pf["dirg"]["directeur-general"].absolute_url()), rendered)
-        self.assertIn(u"<span class='signer-icon' title='", rendered)
+        self.assertTrue(rendered.startswith("<ul class=\"hp_col\"><li class='plonegroup_1'>"))
+        self.assertIn(
+            "<a href='{}' target='_blank' class='pretty_link link-tooltip'>".format(
+                pf["dirg"]["directeur-general"].absolute_url()
+            ),
+            rendered,
+        )
+        self.assertIn("<span class='signer-icon' title='", rendered)
         # person without held position
-        person = api.content.create(container=pf, type="person", id="nohp", lastname=u"Nohp")
+        person = api.content.create(container=pf, type="person", id="nohp", lastname="Nohp")
         self.assertEqual(column.renderCell(self.brain(person)), "-")
 
     def test_PersonnelPrimaryOrganisationFacetedColumn(self):
@@ -259,19 +265,22 @@ class TestColumns(unittest.TestCase):
     def test_FilesizeColumn(self):
         table = OMVersionsTable(self.om1, self.portal.REQUEST, None)
         column = FilesizeColumn(self.om1, self.portal.REQUEST, table)
-        column.header = u"Filesize"
+        column.header = "Filesize"
         # small files: no total
-        self.assertEqual(column.renderHeadCell(), u"Taille")
+        self.assertEqual(column.renderHeadCell(), "Taille")
         # big files: total displayed
         ct = self.portal["annexes_types"]["outgoing_appendix_files"]["outgoing-appendix-file"]
         createContentInContainer(
-            self.om1, "dmsappendixfile", id="big", file=NamedBlobFile(b"x" * 2 * 1024 * 1024, filename=u"big.txt"),
-            content_category=calculate_category_id(ct)
+            self.om1,
+            "dmsappendixfile",
+            id="big",
+            file=NamedBlobFile(b"x" * 2 * 1024 * 1024, filename="big.txt"),
+            content_category=calculate_category_id(ct),
         )
         table = OMVersionsTable(self.om1, self.portal.REQUEST, None)
         column = FilesizeColumn(self.om1, self.portal.REQUEST, table)
-        column.header = u"Filesize"
-        self.assertIn(u"<p>(Tot: <span class='soft_warn_filesize'>", column.renderHeadCell())
+        column.header = "Filesize"
+        self.assertIn("<p>(Tot: <span class='soft_warn_filesize'>", column.renderHeadCell())
 
     def test_TaskParentColumn(self):
         column = TaskParentColumn(self.portal, self.portal.REQUEST, self.task_table)
@@ -279,20 +288,20 @@ class TestColumns(unittest.TestCase):
         mail = get_object(oid="courrier1", ptype="dmsincomingmail")
         self.assertEqual(
             column.renderCell(brain),
-            u"<a class='pretty_link' title='E0001 - Courrier 1' "
-            u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Courrier entrant' "
-            u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' style="
-            u"\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content state-created'>"
-            u"E0001 - Courrier 1</span></a>".format(mail.absolute_url()),
+            "<a class='pretty_link' title='E0001 - Courrier 1' "
+            "href='{}' target='_blank'><span class='pretty_link_icons'><img title='Courrier entrant' "
+            "src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' style="
+            "\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content state-created'>"
+            "E0001 - Courrier 1</span></a>".format(mail.absolute_url()),
         )
         brain = self.portal.portal_catalog(UID=self.ta31.UID())[0]
         self.assertEqual(
             column.renderCell(brain),
-            u"<a class='pretty_link' title='E0001 - Courrier 1' "
-            u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Courrier entrant' "
-            u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' style="
-            u"\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content state-created'>"
-            u"E0001 - Courrier 1</span></a>".format(mail.absolute_url()),
+            "<a class='pretty_link' title='E0001 - Courrier 1' "
+            "href='{}' target='_blank'><span class='pretty_link_icons'><img title='Courrier entrant' "
+            "src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' style="
+            "\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content state-created'>"
+            "E0001 - Courrier 1</span></a>".format(mail.absolute_url()),
         )
 
     def test_TaskActionsColumn(self):
@@ -326,7 +335,7 @@ class TestSessionIdColumn(unittest.TestCase):
         file_b = get_object(oid="reponse2", ptype="dmsoutgoingmail")["1"]
         file_c = get_object(oid="reponse3", ptype="dmsoutgoingmail")["1"]
 
-        signers = [("agent", "agent@macommune.be", u"Test Agent", u"Agent")]
+        signers = [("agent", "agent@macommune.be", "Test Agent", "Agent")]
         self.sid0, _session = create_session(signers)
         add_files_to_session(signers, [file_a.UID(), file_b.UID()], session_id=self.sid0)
         self.sid1, _session = create_session(signers)
@@ -358,7 +367,7 @@ class TestSessionIdColumn(unittest.TestCase):
         # absolute image url (no <base> on Plone 6)
         self.assertEqual(
             self.column.renderHeadCell(),
-            u'<img src="http://nohost/plone/++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID',
+            '<img src="http://nohost/plone/++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID',
         )
 
     def test_renderCell(self):
@@ -367,31 +376,31 @@ class TestSessionIdColumn(unittest.TestCase):
 
         # Guard: <=1 session_ids -> empty regardless of which file
         approval.annot["session_ids"] = PersistentList([])
-        self.assertEqual(self.column.renderCell(self.brain_a), u"")
+        self.assertEqual(self.column.renderCell(self.brain_a), "")
         approval.annot["session_ids"] = PersistentList([self.sid0])
-        self.assertEqual(self.column.renderCell(self.brain_a), u"")
+        self.assertEqual(self.column.renderCell(self.brain_a), "")
         approval.annot["session_ids"] = PersistentList([self.sid0, self.sid1])  # back to setUp
 
         # File not in any session -> empty
-        self.assertEqual(self.column.renderCell(self.brain_c), u"")
+        self.assertEqual(self.column.renderCell(self.brain_c), "")
 
         # File in exactly one of the two sessions -> one badge, no comma
         rendered = self.column.renderCell(self.brain_b)
         collection_uid = self.portal["outgoing-mail"]["mail-searches"]["in_esign_sessions"].UID()
         self.assertEqual(
             rendered,
-            u"<a href=http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id=0 "
-            u'title="Paraphéo session ID: 0" class="pdf-session-badge">0</a>'.format(collection_uid),
+            "<a href=http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id=0 "
+            'title="Paraphéo session ID: 0" class="pdf-session-badge">0</a>'.format(collection_uid),
         )
 
         # File in both sessions -> two badges, comma-separated, sorted by session id
         rendered = self.column.renderCell(self.brain_a)
         self.assertEqual(
             rendered,
-            u"<a href=http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id=0 "
-            u'title="Paraphéo session ID: 0" class="pdf-session-badge">0</a>, '
-            u"<a href=http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id=1 "
-            u'title="Paraphéo session ID: 1" class="pdf-session-badge">1</a>'.format(collection_uid, collection_uid),
+            "<a href=http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id=0 "
+            'title="Paraphéo session ID: 0" class="pdf-session-badge">0</a>, '
+            "<a href=http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id=1 "
+            'title="Paraphéo session ID: 1" class="pdf-session-badge">1</a>'.format(collection_uid, collection_uid),
         )
 
         # Signing request table: approval and _session_annotation are inherited from OMVersionsTable parent
@@ -400,10 +409,10 @@ class TestSessionIdColumn(unittest.TestCase):
         sr_collection_uid = self.portal["requests"]["requests-searches"]["in_esign_sessions"].UID()
         self.assertEqual(
             self.column.renderCell(self.brain_sr),
-            u"<a href=http://nohost/plone/requests/requests-searches#c3=20&b_start=0&c1={0}&esign_session_id={1} "
-            u'title="Paraphéo session ID: {1}" class="pdf-session-badge">{1}</a>, '
-            u"<a href=http://nohost/plone/requests/requests-searches#c3=20&b_start=0&c1={0}&esign_session_id={2} "
-            u'title="Paraphéo session ID: {2}" class="pdf-session-badge">{2}</a>'.format(
+            "<a href=http://nohost/plone/requests/requests-searches#c3=20&b_start=0&c1={0}&esign_session_id={1} "
+            'title="Paraphéo session ID: {1}" class="pdf-session-badge">{1}</a>, '
+            "<a href=http://nohost/plone/requests/requests-searches#c3=20&b_start=0&c1={0}&esign_session_id={2} "
+            'title="Paraphéo session ID: {2}" class="pdf-session-badge">{2}</a>'.format(
                 sr_collection_uid, self.sid2, self.sid3
             ),
         )

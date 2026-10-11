@@ -28,9 +28,7 @@ from imio.dms.mail import _tr as _
 from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail import FIRST_LEVEL_TABS
-# from imio.dms.mail import CREATING_FIELD_ROLE
 from imio.dms.mail.Extensions.demo import clean_examples
-# from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IActionsPanelFolder
 from imio.dms.mail.interfaces import IActionsPanelFolderAll
 from imio.dms.mail.interfaces import IClassificationFoldersDashboardBatchActions
@@ -65,7 +63,6 @@ from plone.namedfile.file import NamedBlobImage
 from plone.portlets.constants import CONTEXT_CATEGORY
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.ActionInformation import Action
-# from Products.CMFPlone import PloneMessageFactory as pmf
 from Products.CMFPlone.interfaces import INonInstallable
 from Products.MimetypesRegistry import MimeTypeException
 from zope.component import getMultiAdapter
@@ -113,7 +110,7 @@ def setup_classification(site):
     alsoProvides(site.REQUEST, IImioDmsMailLayer)
 
     if not base_hasattr(site, "folders"):
-        site.invokeFactory("ClassificationFolders", id="folders", title=_(u"folders_tab"))
+        site.invokeFactory("ClassificationFolders", id="folders", title=_("folders_tab"))
         folders = site["folders"]
         alsoProvides(folders, ILabelRoot)
         alsoProvides(folders, IProtectedItem)
@@ -124,7 +121,7 @@ def setup_classification(site):
 
     if not base_hasattr(site, "tree"):
         site.invokeFactory(
-            "ClassificationContainer", id="tree", title=_(u"classification_tree_tab"), exclude_from_nav=True
+            "ClassificationContainer", id="tree", title=_("classification_tree_tab"), exclude_from_nav=True
         )
         blacklistPortletCategory(site, site["tree"])
         site["tree"].manage_addLocalRoles("AuthenticatedUsers", ["Reader"])
@@ -228,7 +225,7 @@ def postInstall(context):
     update_task_workflow(site)
 
     if not base_hasattr(site, "incoming-mail"):
-        folderid = site.invokeFactory("Folder", id="incoming-mail", title=_(u"incoming_mail_tab"))
+        folderid = site.invokeFactory("Folder", id="incoming-mail", title=_("incoming_mail_tab"))
         im_folder = getattr(site, folderid)
         alsoProvides(im_folder, INextPrevNotNavigable)
         alsoProvides(im_folder, ILabelRoot)
@@ -259,7 +256,7 @@ def postInstall(context):
         logger.info("incoming-mail folder created")
 
     if not base_hasattr(site, "outgoing-mail"):
-        folderid = site.invokeFactory("Folder", id="outgoing-mail", title=_(u"outgoing_mail_tab"))
+        folderid = site.invokeFactory("Folder", id="outgoing-mail", title=_("outgoing_mail_tab"))
         om_folder = getattr(site, folderid)
         alsoProvides(om_folder, INextPrevNotNavigable)
         alsoProvides(om_folder, ILabelRoot)
@@ -288,7 +285,7 @@ def postInstall(context):
         logger.info("outgoing-mail folder created")
 
     if not base_hasattr(site, "requests"):
-        folderid = site.invokeFactory("Folder", id="requests", title=_(u"requests_tab"))
+        folderid = site.invokeFactory("Folder", id="requests", title=_("requests_tab"))
         req_folder = getattr(site, folderid)
         req_folder.exclude_from_nav = True
         alsoProvides(req_folder, INextPrevNotNavigable)
@@ -314,7 +311,7 @@ def postInstall(context):
         logger.info("requests folder created")
 
     if not base_hasattr(site, "tasks"):
-        folderid = site.invokeFactory("Folder", id="tasks", title=_(u"tasks_tab"))
+        folderid = site.invokeFactory("Folder", id="tasks", title=_("tasks_tab"))
         tsk_folder = getattr(site, folderid)
         alsoProvides(tsk_folder, INextPrevNotNavigable)
         alsoProvides(tsk_folder, ILabelRoot)
@@ -339,35 +336,35 @@ def postInstall(context):
         logger.info("tasks folder created")
 
     if "plus" not in site:
-        obj = api.content.create(container=site, type="Document", id="plus", title=u"● ● ●")
+        obj = api.content.create(container=site, type="Document", id="plus", title="● ● ●")
         do_transitions(obj, ["show_internally"])
         alsoProvides(obj, IProtectedItem)
 
     # Directory creation
     if not base_hasattr(site, "contacts"):
         position_types = [
-            {"name": u"Président", "token": u"president"},
-            {"name": u"Directeur général", "token": u"directeur-gen"},
-            {"name": u"Directeur financier", "token": u"directeur-fin"},
-            {"name": u"Secrétaire", "token": u"secretaire"},
-            {"name": u"Employé", "token": u"employe"},
+            {"name": "Président", "token": "president"},
+            {"name": "Directeur général", "token": "directeur-gen"},
+            {"name": "Directeur financier", "token": "directeur-fin"},
+            {"name": "Secrétaire", "token": "secretaire"},
+            {"name": "Employé", "token": "employe"},
         ]
         organization_types = [
-            {"name": u"Non défini", "token": u"non-defini"},
-            {"name": u"SA", "token": u"sa"},
-            {"name": u"Commune", "token": u"commune"},
-            {"name": u"CPAS", "token": u"cpas"},
-            {"name": u"Intercommunale", "token": u"intercommunale"},
-            {"name": u"Zone de police", "token": u"zp"},
-            {"name": u"Zone de secours", "token": u"zs"},
+            {"name": "Non défini", "token": "non-defini"},
+            {"name": "SA", "token": "sa"},
+            {"name": "Commune", "token": "commune"},
+            {"name": "CPAS", "token": "cpas"},
+            {"name": "Intercommunale", "token": "intercommunale"},
+            {"name": "Zone de police", "token": "zp"},
+            {"name": "Zone de secours", "token": "zs"},
         ]
         organization_levels = [
-            {"name": u"Non défini", "token": u"non-defini"},
-            {"name": u"Département", "token": u"department"},
-            {"name": u"Service", "token": u"service"},
+            {"name": "Non défini", "token": "non-defini"},
+            {"name": "Département", "token": "department"},
+            {"name": "Service", "token": "service"},
         ]
         params = {
-            "title": _(u"contacts_tab"),
+            "title": _("contacts_tab"),
             "position_types": position_types,
             "organization_types": organization_types,
             "organization_levels": organization_levels,
@@ -414,7 +411,7 @@ def postInstall(context):
         # createStateCollections(col_folder, 'contact_list')
         configure_faceted_folder(col_folder, xml="contact-lists-searches.xml", default_UID=col_folder["all_cls"].UID())
         # add personnel folder
-        contacts.invokeFactory("Folder", "personnel-folder", title=u"Mon personnel")
+        contacts.invokeFactory("Folder", "personnel-folder", title="Mon personnel")
         # contacts.moveObjectToPosition('personnel-folder', 4)
         pf = contacts["personnel-folder"]
         alsoProvides(pf, IProtectedItem)
@@ -435,7 +432,7 @@ def postInstall(context):
         ISelectableConstrainTypes(pf).setLocallyAllowedTypes(["person"])
         ISelectableConstrainTypes(pf).setImmediatelyAddableTypes(["person"])
         # add contact list folder
-        contacts.invokeFactory("Folder", "contact-lists-folder", title=u"Listes de contact")
+        contacts.invokeFactory("Folder", "contact-lists-folder", title="Listes de contact")
         contacts.moveObjectToPosition("contact-lists-folder", 5)
         clf = contacts["contact-lists-folder"]
         clf.setLayout("tabular_view")
@@ -449,13 +446,13 @@ def postInstall(context):
         clf.__ac_local_roles_block__ = True
         # add plonegroup-organization
         params = {
-            "title": u"Mon organisation",
-            "organization_type": u"commune",
-            "zip_code": u"0010",
-            "city": u"Ma ville",
-            "street": u"Rue de la commune",
-            "number": u"1",
-            "email": u"contact@macommune.be",
+            "title": "Mon organisation",
+            "organization_type": "commune",
+            "zip_code": "0010",
+            "city": "Ma ville",
+            "street": "Rue de la commune",
+            "number": "1",
+            "email": "contact@macommune.be",
             "use_parent_address": False,
         }
         contacts.invokeFactory("organization", "plonegroup-organization", **params)
@@ -496,17 +493,16 @@ def postInstall(context):
     site.templates.reindexObject()
 
     # add audit_log action
-    category = site.portal_actions.get('user')
+    category = site.portal_actions.get("user")
     if "audit-contacts" not in category.objectIds():
         uid = site.templates["audit-contacts"].UID()
         action = Action(
             "audit-contacts",
             title="Audit contacts",
             i18n_domain="imio.dms.mail",
-            url_expr="string:${{portal_url}}/document-generation?template_uid={}&"
-                     "output_format=ods".format(uid),
+            url_expr="string:${{portal_url}}/document-generation?template_uid={}&" "output_format=ods".format(uid),
             available_expr="python:context.restrictedTraverse('@@various-utils').is_in_user_groups("
-                           "['audit_contacts'], user=member)",
+            "['audit_contacts'], user=member)",
             permissions=("View",),
             visible=False,
         )
@@ -555,7 +551,7 @@ def postInstall(context):
     create_users_and_groups(site)
 
 
-def blacklistPortletCategory(obj, category=CONTEXT_CATEGORY, utilityname=u"plone.leftcolumn", value=True):
+def blacklistPortletCategory(obj, category=CONTEXT_CATEGORY, utilityname="plone.leftcolumn", value=True):
     """
     block portlets on object for the corresponding category
     """
@@ -571,25 +567,19 @@ def blacklistPortletCategory(obj, category=CONTEXT_CATEGORY, utilityname=u"plone
 
 
 def setup_iconified_categories(portal):
-    if 'annexes_types' not in portal:
+    if "annexes_types" not in portal:
         api.content.create(
             container=portal,
-            id='annexes_types',
-            title=_(u"Annexes Types"),
+            id="annexes_types",
+            title=_("Annexes Types"),
             type="ContentCategoryConfiguration",
-            exclude_from_nav=True
+            exclude_from_nav=True,
         )
     ccc = portal["annexes_types"]
 
     def _create_category_group(oid, title, **kwargs):
         if oid not in ccc:
-            group = api.content.create(
-                type="ContentCategoryGroup",
-                title=title,
-                container=ccc,
-                id=oid,
-                **kwargs
-            )
+            group = api.content.create(type="ContentCategoryGroup", title=title, container=ccc, id=oid, **kwargs)
             do_transitions(group, ["show_internally"])
             alsoProvides(group, IProtectedItem)
         else:
@@ -609,23 +599,26 @@ def setup_iconified_categories(portal):
     # Content Category Group for classification folders
     _create_category_group("annexes", _("Folders Appendix Files"))
     # Content Category Group for dms main files in incoming mails
-    incoming_dms_files_category_group = _create_category_group(
-        "incoming_dms_files", _("Incoming DMS Files"))
+    incoming_dms_files_category_group = _create_category_group("incoming_dms_files", _("Incoming DMS Files"))
     # Content Category Group for appendix files in incoming mails
     incoming_appendix_files_category_group = _create_category_group(
-        "incoming_appendix_files", _("Incoming Appendix Files"))
+        "incoming_appendix_files", _("Incoming Appendix Files")
+    )
     # Content Category Group for dms main files in outgoing mails
     outgoing_dms_files_category_group = _create_category_group(
-        "outgoing_dms_files", _("Outgoing DMS Files"), **om_activated)
+        "outgoing_dms_files", _("Outgoing DMS Files"), **om_activated
+    )
     # Content Category Group for appendix files in outgoing mails
     outgoing_appendix_files_category_group = _create_category_group(
-        "outgoing_appendix_files", _("Outgoing Appendix Files"), **om_activated)
+        "outgoing_appendix_files", _("Outgoing Appendix Files"), **om_activated
+    )
     # Content Category Group for appendix files in sign requests
     sr_appendix_files_category_group = _create_category_group(
-        "sign_request_appendix_files", _("Sign Request Appendix Files"), **sr_activated)
+        "sign_request_appendix_files", _("Sign Request Appendix Files"), **sr_activated
+    )
 
     # Create ContentCategory objects inside each category group
-    images_dir = pkg_resources.resource_filename('imio.dms.mail', 'profiles/examples/images')
+    images_dir = pkg_resources.resource_filename("imio.dms.mail", "profiles/examples/images")
 
     def _create_category(group, oid, title, img, **kwargs):
         if oid not in group:
@@ -633,35 +626,61 @@ def setup_iconified_categories(portal):
             with open(icon_path, "rb") as fl:
                 icon = NamedBlobImage(fl.read(), filename=img)
             cat = api.content.create(
-                type="ContentCategory",
-                title=title,
-                description=u"",
-                container=group,
-                icon=icon,
-                id=oid,
-                **kwargs
+                type="ContentCategory", title=title, description="", container=group, icon=icon, id=oid, **kwargs
             )
             alsoProvides(cat, IProtectedItem)
 
     # Content Categories for incoming mails
-    _create_category(incoming_dms_files_category_group, "incoming-dms-file", _("Incoming DMS File"),
-                     u"file-alt-regular.png")
-    _create_category(incoming_appendix_files_category_group, "incoming-appendix-file", _("Incoming Appendix File"),
-                     u"attach.png")
+    _create_category(
+        incoming_dms_files_category_group, "incoming-dms-file", _("Incoming DMS File"), "file-alt-regular.png"
+    )
+    _create_category(
+        incoming_appendix_files_category_group, "incoming-appendix-file", _("Incoming Appendix File"), "attach.png"
+    )
 
     # Content Categories for outgoing mails
-    _create_category(outgoing_dms_files_category_group, "outgoing-dms-file", _("Outgoing DMS File"),
-                     u"file-alt-regular.png", to_sign=True, to_approve=True)
-    _create_category(outgoing_dms_files_category_group, "outgoing-scanned-dms-file",
-                     _("Outgoing Scanned DMS File"), u"file-alt-regular.png", to_sign=True, to_approve=False)
-    _create_category(outgoing_appendix_files_category_group, "outgoing-appendix-file",
-                     _("Outgoing Appendix File"), u"attach.png", to_sign=False, to_approve=False)
-    _create_category(outgoing_appendix_files_category_group, "outgoing-signable-appendix-file",
-                     _("Outgoing Signable Appendix File"), u"attach-esign.png", to_sign=True, to_approve=True)
+    _create_category(
+        outgoing_dms_files_category_group,
+        "outgoing-dms-file",
+        _("Outgoing DMS File"),
+        "file-alt-regular.png",
+        to_sign=True,
+        to_approve=True,
+    )
+    _create_category(
+        outgoing_dms_files_category_group,
+        "outgoing-scanned-dms-file",
+        _("Outgoing Scanned DMS File"),
+        "file-alt-regular.png",
+        to_sign=True,
+        to_approve=False,
+    )
+    _create_category(
+        outgoing_appendix_files_category_group,
+        "outgoing-appendix-file",
+        _("Outgoing Appendix File"),
+        "attach.png",
+        to_sign=False,
+        to_approve=False,
+    )
+    _create_category(
+        outgoing_appendix_files_category_group,
+        "outgoing-signable-appendix-file",
+        _("Outgoing Signable Appendix File"),
+        "attach-esign.png",
+        to_sign=True,
+        to_approve=True,
+    )
 
     # Content Categories for sign requests
-    _create_category(sr_appendix_files_category_group, "sign-request-appendix-file", _("Sign Request Appendix File"),
-                     u"attach.png", to_sign=True, to_approve=True)
+    _create_category(
+        sr_appendix_files_category_group,
+        "sign-request-appendix-file",
+        _("Sign Request Appendix File"),
+        "attach.png",
+        to_sign=True,
+        to_approve=True,
+    )
 
 
 def createStateCollections(folder, content_type):
@@ -680,79 +699,79 @@ def createStateCollections(folder, content_type):
     view_fields = {
         "dmsincomingmail": {  # i_e ok
             "*": (
-                u"select_row",
-                u"pretty_link",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
         },
         "task": {
             "*": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
         },
         "dmsoutgoingmail": {
             "*": (
-                u"select_row",
-                u"pretty_link",
-                u"treating_groups",
-                u"sender",
-                u"recipients",
-                u"send_modes",
-                u"mail_type",
-                u"assigned_user",
-                u"CreationDate",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "treating_groups",
+                "sender",
+                "recipients",
+                "send_modes",
+                "mail_type",
+                "assigned_user",
+                "CreationDate",
+                "classification_folders",
+                "actions",
             ),
             "sent": (
-                u"select_row",
-                u"pretty_link",
-                u"treating_groups",
-                u"sender",
-                u"recipients",
-                u"send_modes",
-                u"mail_type",
-                u"assigned_user",
-                u"CreationDate",
-                u"outgoing_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "treating_groups",
+                "sender",
+                "recipients",
+                "send_modes",
+                "mail_type",
+                "assigned_user",
+                "CreationDate",
+                "outgoing_date",
+                "classification_folders",
+                "actions",
             ),
         },
         "sign_request": {
             "*": (
-                u"pretty_link",
-                u"treating_groups",
-                u"assigned_user",
-                u"CreationDate",
-                u"actions",
+                "pretty_link",
+                "treating_groups",
+                "assigned_user",
+                "CreationDate",
+                "actions",
             ),
         },
         "organization": {
-            "*": (u"select_row", u"pretty_link", u"CreationDate", u"actions"),
+            "*": ("select_row", "pretty_link", "CreationDate", "actions"),
         },
         "held_position": {
-            "*": (u"select_row", u"pretty_link", u"CreationDate", u"actions"),
+            "*": ("select_row", "pretty_link", "CreationDate", "actions"),
         },
         "person": {
-            "*": (u"select_row", u"pretty_link", u"CreationDate", u"actions"),
+            "*": ("select_row", "pretty_link", "CreationDate", "actions"),
         },
         "contact_list": {
-            "*": (u"select_row", u"pretty_link", u"CreationDate", u"actions"),
+            "*": ("select_row", "pretty_link", "CreationDate", "actions"),
         },
     }
     show_nb_of_items = {
@@ -761,16 +780,11 @@ def createStateCollections(folder, content_type):
     }
     sort_on = {
         "dmsincomingmail": {  # i_e ok
-            "*": u"organization_type",
+            "*": "organization_type",
         },
-        "task": {"*": u"created"},
-        "dmsoutgoingmail": {
-            "scanned": u"organization_type",
-            "*": u"created"
-        },
-        "sign_request": {
-            "*": u"created"
-        },
+        "task": {"*": "created"},
+        "dmsoutgoingmail": {"scanned": "organization_type", "*": "created"},
+        "sign_request": {"*": "created"},
     }
 
     portal_types = {"dmsincomingmail": ["dmsincomingmail", "dmsincoming_email"]}
@@ -800,7 +814,7 @@ def createStateCollections(folder, content_type):
                 showNumberOfItems=(state in show_nb_of_items.get(content_type, [])),
                 roles_bypassing_talcondition=["Manager", "Site Administrator"],
                 sort_on=sort_on.get(content_type, {}).get(
-                    state, sort_on.get(content_type, {}).get("*", u"sortable_title")
+                    state, sort_on.get(content_type, {}).get("*", "sortable_title")
                 ),
                 sort_reversed=True,
                 b_size=30,
@@ -808,7 +822,7 @@ def createStateCollections(folder, content_type):
             )
             col = folder[col_id]
             alsoProvides(col, IProtectedItem)
-            col.setSubject((u"search",))
+            col.setSubject(("search",))
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
 
@@ -854,7 +868,7 @@ def createIMailCollections(folder):
         {
             "id": "all_mails",
             "tit": _("all_incoming_mails"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {
                     "i": "portal_type",
@@ -862,30 +876,30 @@ def createIMailCollections(folder):
                     "v": ["dmsincomingmail", "dmsincoming_email"],
                 }
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"organization_type",
+            "sort": "organization_type",
             "rev": True,
             "count": False,
         },
         {
             "id": "to_validate",
             "tit": _("im_to_validate"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {
                     "i": "portal_type",
@@ -898,30 +912,30 @@ def createIMailCollections(folder):
                     "v": "dmsincomingmail-validation",
                 },
             ],
-            "cond": u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",  # i_e ok
+            "cond": "python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",  # i_e ok
             "bypass": ["Manager", "Site Administrator"],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"organization_type",
+            "sort": "organization_type",
             "rev": True,
             "count": True,
         },
         {
             "id": "to_treat",
             "tit": _("im_to_treat"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {
                     "i": "portal_type",
@@ -931,30 +945,30 @@ def createIMailCollections(folder):
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["proposed_to_agent"]},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"organization_type",
+            "sort": "organization_type",
             "rev": True,
             "count": True,
         },
         {
             "id": "im_treating",
             "tit": _("im_im_treating"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {
                     "i": "portal_type",
@@ -964,30 +978,30 @@ def createIMailCollections(folder):
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["in_treatment"]},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"organization_type",
+            "sort": "organization_type",
             "rev": True,
             "count": True,
         },
         {
             "id": "have_treated",
             "tit": _("im_have_treated"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {
                     "i": "portal_type",
@@ -997,30 +1011,30 @@ def createIMailCollections(folder):
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["closed"]},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"organization_type",
+            "sort": "organization_type",
             "rev": True,
             "count": False,
         },
         {
             "id": "to_treat_in_my_group",
             "tit": _("im_to_treat_in_my_group"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {
                     "i": "portal_type",
@@ -1034,30 +1048,30 @@ def createIMailCollections(folder):
                     "v": "dmsincomingmail-in-treating-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"organization_type",
+            "sort": "organization_type",
             "rev": True,
             "count": True,
         },
         {
             "id": "in_my_group",
             "tit": _("im_in_my_group"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {
                     "i": "portal_type",
@@ -1070,30 +1084,30 @@ def createIMailCollections(folder):
                     "v": "dmsincomingmail-in-treating-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"organization_type",
+            "sort": "organization_type",
             "rev": True,
             "count": False,
         },
         {
             "id": "in_copy_unread",
             "tit": _("im_in_copy_unread"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {
                     "i": "portal_type",
@@ -1106,30 +1120,30 @@ def createIMailCollections(folder):
                     "v": "dmsincomingmail-in-copy-group-unread",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"organization_type",
+            "sort": "organization_type",
             "rev": True,
             "count": True,
         },
         {
             "id": "in_copy",
             "tit": _("im_in_copy"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {
                     "i": "portal_type",
@@ -1142,30 +1156,30 @@ def createIMailCollections(folder):
                     "v": "dmsincomingmail-in-copy-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"organization_type",
+            "sort": "organization_type",
             "rev": True,
             "count": False,
         },
         {
             "id": "followed",
             "tit": _("im_followed"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {
                     "i": "portal_type",
@@ -1178,23 +1192,23 @@ def createIMailCollections(folder):
                     "v": "dmsincomingmail-followed",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"reception_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "reception_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"organization_type",
+            "sort": "organization_type",
             "rev": True,
             "count": False,
         },
@@ -1210,48 +1224,48 @@ def createTaskCollections(folder):
         {
             "id": "all_tasks",
             "tit": _("all_im_tasks"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [{"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]}],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"review_state",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "review_state",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "to_assign",
             "tit": _("tasks_to_assign"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["to_assign"]},
                 {"i": "CompoundCriterion", "o": "plone.app.querystring.operation.compound.is", "v": "task-validation"},
             ],
-            "cond": u"python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
+            "cond": "python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
             "bypass": ["Manager", "Site Administrator"],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"review_state",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "review_state",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": True,
             "enabled": False,
@@ -1259,85 +1273,85 @@ def createTaskCollections(folder):
         {
             "id": "to_treat",
             "tit": _("task_to_treat"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["to_do"]},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"review_state",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "review_state",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": True,
         },
         {
             "id": "im_treating",
             "tit": _("task_im_treating"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["in_progress"]},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"review_state",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "review_state",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": True,
         },
         {
             "id": "have_treated",
             "tit": _("task_have_treated"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["closed", "realized"]},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"review_state",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "review_state",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "to_treat_in_my_group",
             "tit": _("task_to_treat_in_my_group"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["to_do"]},
@@ -1347,27 +1361,27 @@ def createTaskCollections(folder):
                     "v": "task-in-assigned-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"review_state",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "review_state",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": True,
         },
         {
             "id": "in_my_group",
             "tit": _("tasks_in_my_group"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {
@@ -1376,52 +1390,52 @@ def createTaskCollections(folder):
                     "v": "task-in-assigned-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"review_state",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "review_state",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "have_created",
             "tit": _("tasks_have_created"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {"i": "Creator", "o": "plone.app.querystring.operation.string.currentUser"},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"review_state",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "review_state",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "in_proposing_group",
             "tit": _("tasks_in_proposing_group"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {
@@ -1430,46 +1444,46 @@ def createTaskCollections(folder):
                     "v": "task-in-proposing-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"review_state",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "review_state",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "to_close",
             "tit": _("tasks_to_close"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["realized"]},
                 {"i": "CompoundCriterion", "o": "plone.app.querystring.operation.compound.is", "v": "task-validation"},
             ],
-            "cond": u"python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
+            "cond": "python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
             "bypass": ["Manager", "Site Administrator"],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"task_parent",
-                u"review_state",
-                u"assigned_group",
-                u"assigned_user",
-                u"due_date",
-                u"CreationDate",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "task_parent",
+                "review_state",
+                "assigned_group",
+                "assigned_user",
+                "due_date",
+                "CreationDate",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": True,
             "enabled": False,
@@ -1486,7 +1500,7 @@ def createOMailCollections(folder):
         {
             "id": "all_mails",
             "tit": _("all_outgoing_mails"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {
                     "i": "portal_type",
@@ -1495,31 +1509,31 @@ def createOMailCollections(folder):
                     "v": ["dmsoutgoingmail"],
                 }
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"sender",
-                u"recipients",
-                u"send_modes",
-                u"mail_type",
-                u"assigned_user",
-                u"CreationDate",
-                u"outgoing_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "sender",
+                "recipients",
+                "send_modes",
+                "mail_type",
+                "assigned_user",
+                "CreationDate",
+                "outgoing_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "to_validate",
             "tit": _("om_to_validate"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                 {
@@ -1528,23 +1542,23 @@ def createOMailCollections(folder):
                     "v": "dmsoutgoingmail-validation",
                 },
             ],
-            "cond": u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsoutgoingmail')",
+            "cond": "python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsoutgoingmail')",
             "bypass": ["Manager", "Site Administrator"],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"sender",
-                u"recipients",
-                u"send_modes",
-                u"mail_type",
-                u"assigned_user",
-                u"CreationDate",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "sender",
+                "recipients",
+                "send_modes",
+                "mail_type",
+                "assigned_user",
+                "CreationDate",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": True,
             "enabled": False,
@@ -1552,123 +1566,123 @@ def createOMailCollections(folder):
         {
             "id": "to_treat",
             "tit": _("om_to_treat"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["created"]},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"sender",
-                u"recipients",
-                u"send_modes",
-                u"mail_type",
-                u"CreationDate",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "sender",
+                "recipients",
+                "send_modes",
+                "mail_type",
+                "CreationDate",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": True,
         },
         {
             "id": "om_treating",
             "tit": _("om_im_treating"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["signed"]},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"CreationDate",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "CreationDate",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "om_to_email",
             "tit": _("om_to_email"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["signed"]},
                 {"i": "enabled", "o": "plone.app.querystring.operation.boolean.isTrue"},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"CreationDate",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "CreationDate",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": True,
         },
         {
             "id": "have_treated",
             "tit": _("om_have_treated"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["sent"]},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"assigned_user",
-                u"due_date",
-                u"send_modes",
-                u"mail_type",
-                u"sender",
-                u"CreationDate",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "assigned_user",
+                "due_date",
+                "send_modes",
+                "mail_type",
+                "sender",
+                "CreationDate",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "in_my_group",
             "tit": _("om_in_my_group"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                 {
@@ -1677,31 +1691,31 @@ def createOMailCollections(folder):
                     "v": "dmsoutgoingmail-in-treating-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"sender",
-                u"recipients",
-                u"send_modes",
-                u"mail_type",
-                u"assigned_user",
-                u"CreationDate",
-                u"outgoing_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "sender",
+                "recipients",
+                "send_modes",
+                "mail_type",
+                "assigned_user",
+                "CreationDate",
+                "outgoing_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "in_copy",
             "tit": _("om_in_copy"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["dmsoutgoingmail"]},
                 {
@@ -1710,24 +1724,24 @@ def createOMailCollections(folder):
                     "v": "dmsoutgoingmail-in-copy-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"pretty_link",
-                u"review_state",
-                u"treating_groups",
-                u"sender",
-                u"recipients",
-                u"send_modes",
-                u"mail_type",
-                u"assigned_user",
-                u"CreationDate",
-                u"outgoing_date",
-                u"classification_folders",
-                u"actions",
+                "select_row",
+                "pretty_link",
+                "review_state",
+                "treating_groups",
+                "sender",
+                "recipients",
+                "send_modes",
+                "mail_type",
+                "assigned_user",
+                "CreationDate",
+                "outgoing_date",
+                "classification_folders",
+                "actions",
             ),
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
@@ -1740,63 +1754,61 @@ def createReqCollections(folder):
     create some signing requests dashboard collections
     """
     flds = (
-        u"pretty_link",
-        u"review_state",
-        u"treating_groups",
-        u"assigned_user",
-        u"CreationDate",
-        u"actions",
+        "pretty_link",
+        "review_state",
+        "treating_groups",
+        "assigned_user",
+        "CreationDate",
+        "actions",
     )
     collections = [
         {
             "id": "all_requests",
             "tit": _("all_requests"),
-            "subj": (u"search",),
-            "query": [
-                {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]}
-            ],
-            "cond": u"",
+            "subj": ("search",),
+            "query": [{"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]}],
+            "cond": "",
             "bypass": [],
             "flds": flds,
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "to_approve",
             "tit": _("req_to_approve"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["to_approve"]},
                 {"i": "approvings", "o": "plone.app.querystring.operation.string.currentUser"},
             ],
-            "cond": u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
+            "cond": "python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
             "bypass": ["Manager", "Site Administrator"],
             "flds": flds,
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": True,
         },
         {
             "id": "to_treat",
             "tit": _("req_to_treat"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
                 {"i": "assigned_user", "o": "plone.app.querystring.operation.string.currentUser"},
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": flds,
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "in_my_group",
             "tit": _("req_in_my_group"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
                 {
@@ -1805,17 +1817,17 @@ def createReqCollections(folder):
                     "v": "sign_request-in-treating-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": flds,
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "in_copy",
             "tit": _("req_in_copy"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
                 {
@@ -1824,17 +1836,17 @@ def createReqCollections(folder):
                     "v": "sign_request-in-copy-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": flds,
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
         {
             "id": "in_esign_sessions",
             "tit": _("req_in_sessions"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["sign_request"]},
                 {
@@ -1843,10 +1855,10 @@ def createReqCollections(folder):
                     "v": "files-belonging-to-a-given-session",
                 },
             ],
-            "cond": u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
+            "cond": "python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
             "bypass": ["Manager", "Site Administrator"],
             "flds": flds,
-            "sort": u"created",
+            "sort": "created",
             "rev": True,
             "count": False,
         },
@@ -1860,12 +1872,12 @@ def createOrganizationsCollections(folder):
         {
             "id": "all_orgs",
             "tit": _("all_orgs"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [{"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["organization"]}],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
-            "flds": (u"select_row", u"pretty_link", u"review_state", u"CreationDate", u"actions"),
-            "sort": u"sortable_title",
+            "flds": ("select_row", "pretty_link", "review_state", "CreationDate", "actions"),
+            "sort": "sortable_title",
             "rev": False,
             "count": False,
         },
@@ -1879,14 +1891,14 @@ def createHeldPositionsCollections(folder):
         {
             "id": "all_hps",
             "tit": _("all_hps"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["held_position"]}
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
-            "flds": (u"select_row", u"pretty_link", u"review_state", u"CreationDate", u"actions"),
-            "sort": u"sortable_title",
+            "flds": ("select_row", "pretty_link", "review_state", "CreationDate", "actions"),
+            "sort": "sortable_title",
             "rev": False,
             "count": False,
         },
@@ -1900,12 +1912,12 @@ def createPersonsCollections(folder):
         {
             "id": "all_persons",
             "tit": _("all_persons"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [{"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["person"]}],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
-            "flds": (u"select_row", u"pretty_link", u"review_state", u"CreationDate", u"actions"),
-            "sort": u"sortable_title",
+            "flds": ("select_row", "pretty_link", "review_state", "CreationDate", "actions"),
+            "sort": "sortable_title",
             "rev": False,
             "count": False,
         },
@@ -1914,23 +1926,30 @@ def createPersonsCollections(folder):
 
 
 def create_personnel_dashboard(pf):
-    """Create the personnel dashboard.
-    """
+    """Create the personnel dashboard."""
     col_folder = add_db_col_folder(pf, "personnel-searches", _("Personnel searches"), _("Personnel"))
     alsoProvides(col_folder, INextPrevNotNavigable)
     alsoProvides(col_folder, IPersonnelDashboardBatchActions)
     blacklistPortletCategory(col_folder)
     collections = [
         {
-            "id": "all_personnel", "tit": _("all_personnel"), "subj": (u"search",),
+            "id": "all_personnel",
+            "tit": _("all_personnel"),
+            "subj": ("search",),
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["person"]},
-                {"i": "object_provides", "o": "plone.app.querystring.operation.selection.is",
-                 "v": ["imio.dms.mail.interfaces.IPersonnelContact"]},
+                {
+                    "i": "object_provides",
+                    "o": "plone.app.querystring.operation.selection.is",
+                    "v": ["imio.dms.mail.interfaces.IPersonnelContact"],
+                },
             ],
-            "cond": u"", "bypass": [],
-            "flds": (u"select_row", u"pretty_link", u"userid", u"primary_organization", u"hps"),
-            "sort": u"sortable_title", "rev": False, "count": False,
+            "cond": "",
+            "bypass": [],
+            "flds": ("select_row", "pretty_link", "userid", "primary_organization", "hps"),
+            "sort": "sortable_title",
+            "rev": False,
+            "count": False,
         },
     ]
     createDashboardCollections(col_folder, collections)
@@ -1941,9 +1960,7 @@ def create_personnel_dashboard(pf):
         default_UID=col_folder["all_personnel"].UID(),
         show_left_column=False,
     )
-    configure_faceted_folder(
-        pf, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_personnel"].UID()
-    )
+    configure_faceted_folder(pf, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_personnel"].UID())
     return col_folder
 
 
@@ -1953,12 +1970,12 @@ def createContactListsCollections(folder):
         {
             "id": "all_cls",
             "tit": _("all_cls"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [{"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["contact_list"]}],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
-            "flds": (u"select_row", u"pretty_link", u"relative_path", u"review_state", u"CreationDate", u"actions"),
-            "sort": u"sortable_title",
+            "flds": ("select_row", "pretty_link", "relative_path", "review_state", "CreationDate", "actions"),
+            "sort": "sortable_title",
             "rev": False,
             "count": False,
         },
@@ -1972,7 +1989,7 @@ def create_classification_folders_collections(folder):
         {
             "id": "all_folders",
             "tit": _("all_folders"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {
                     "i": "portal_type",
@@ -1980,27 +1997,27 @@ def create_classification_folders_collections(folder):
                     "v": ["ClassificationFolder", "ClassificationSubfolder"],
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"classification_tree_identifiers",
-                u"classification_folder_archived",
-                u"classification_folder_title",
-                u"classification_subfolder_archived",
-                u"classification_subfolder_title",
-                u"internal_reference_no",
-                u"classification_treating_group",
-                u"actions",
+                "select_row",
+                "classification_tree_identifiers",
+                "classification_folder_archived",
+                "classification_folder_title",
+                "classification_subfolder_archived",
+                "classification_subfolder_title",
+                "internal_reference_no",
+                "classification_treating_group",
+                "actions",
             ),
-            "sort": u"ClassificationFolderSort",
+            "sort": "ClassificationFolderSort",
             "rev": False,
             "count": False,
         },
         {
             "id": "in_my_group",
             "tit": _("in_my_group"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {
                     "i": "portal_type",
@@ -2013,27 +2030,27 @@ def create_classification_folders_collections(folder):
                     "v": "classificationfolder-in-treating-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"classification_tree_identifiers",
-                u"classification_folder_archived",
-                u"classification_folder_title",
-                u"classification_subfolder_archived",
-                u"classification_subfolder_title",
-                u"internal_reference_no",
-                u"classification_treating_group",
-                u"actions",
+                "select_row",
+                "classification_tree_identifiers",
+                "classification_folder_archived",
+                "classification_folder_title",
+                "classification_subfolder_archived",
+                "classification_subfolder_title",
+                "internal_reference_no",
+                "classification_treating_group",
+                "actions",
             ),
-            "sort": u"ClassificationFolderSort",
+            "sort": "ClassificationFolderSort",
             "rev": False,
             "count": False,
         },
         {
             "id": "in_copy",
             "tit": _("in_copy"),
-            "subj": (u"todo",),
+            "subj": ("todo",),
             "query": [
                 {
                     "i": "portal_type",
@@ -2046,27 +2063,27 @@ def create_classification_folders_collections(folder):
                     "v": "classificationfolder-in-copy-group",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"classification_tree_identifiers",
-                u"classification_folder_archived",
-                u"classification_folder_title",
-                u"classification_subfolder_archived",
-                u"classification_subfolder_title",
-                u"internal_reference_no",
-                u"classification_treating_group",
-                u"actions",
+                "select_row",
+                "classification_tree_identifiers",
+                "classification_folder_archived",
+                "classification_folder_title",
+                "classification_subfolder_archived",
+                "classification_subfolder_title",
+                "internal_reference_no",
+                "classification_treating_group",
+                "actions",
             ),
-            "sort": u"ClassificationFolderSort",
+            "sort": "ClassificationFolderSort",
             "rev": False,
             "count": False,
         },
         {
             "id": "followed",
             "tit": _("followed"),
-            "subj": (u"search",),
+            "subj": ("search",),
             "query": [
                 {
                     "i": "portal_type",
@@ -2079,20 +2096,20 @@ def create_classification_folders_collections(folder):
                     "v": "dmsincomingmail-followed",
                 },
             ],
-            "cond": u"",
+            "cond": "",
             "bypass": [],
             "flds": (
-                u"select_row",
-                u"classification_tree_identifiers",
-                u"classification_folder_archived",
-                u"classification_folder_title",
-                u"classification_subfolder_archived",
-                u"classification_subfolder_title",
-                u"internal_reference_no",
-                u"classification_treating_group",
-                u"actions",
+                "select_row",
+                "classification_tree_identifiers",
+                "classification_folder_archived",
+                "classification_folder_title",
+                "classification_subfolder_archived",
+                "classification_subfolder_title",
+                "internal_reference_no",
+                "classification_treating_group",
+                "actions",
             ),
-            "sort": u"ClassificationFolderSort",
+            "sort": "ClassificationFolderSort",
             "rev": False,
             "count": False,
         },
@@ -2161,7 +2178,8 @@ def adaptDefaultPortal(context):
     site.manage_permission(
         "WS Client Access",
         ("Manager", "Site Administrator", "Contributor", "Editor", "Owner", "Reader", "Reviewer"),
-        acquire=0)
+        acquire=0,
+    )
     site.manage_permission("WS Client Send", ("Manager", "Site Administrator", "Editor"), acquire=0)
 
     # History: add history after contact merging.
@@ -2228,7 +2246,7 @@ def adaptDefaultPortal(context):
     )
     api.portal.set_registry_record(
         "collective.contact.core.interfaces.IContactCoreParameters.contact_source_metadata_content",
-        u"{gft} ⏺ {number}, {street}, {zip_code}, {city} ⏺ {email}",
+        "{gft} ⏺ {number}, {street}, {zip_code}, {city} ⏺ {email}",
     )
     # chars ⏺, ↈ  , ▐ , ⬤, ● (see ubuntu character table. Use ctrl+shift+u+code)
     api.portal.set_registry_record(
@@ -2653,22 +2671,22 @@ def configure_task_config(context):
     """
     PARENTS_FIELDS_CONFIG = [
         {
-            "fieldname": u"parents_assigned_groups",
-            "attribute": u"assigned_group",
-            "attribute_prefix": u"ITask",
-            "provided_interface": u"collective.task.interfaces.ITaskContent",
+            "fieldname": "parents_assigned_groups",
+            "attribute": "assigned_group",
+            "attribute_prefix": "ITask",
+            "provided_interface": "collective.task.interfaces.ITaskContent",
         },
         {
-            "fieldname": u"parents_enquirers",
-            "attribute": u"enquirer",
-            "attribute_prefix": u"ITask",
-            "provided_interface": u"collective.task.interfaces.ITaskContent",
+            "fieldname": "parents_enquirers",
+            "attribute": "enquirer",
+            "attribute_prefix": "ITask",
+            "provided_interface": "collective.task.interfaces.ITaskContent",
         },
         {
-            "fieldname": u"parents_assigned_groups",
-            "attribute": u"treating_groups",
+            "fieldname": "parents_assigned_groups",
+            "attribute": "treating_groups",
             "attribute_prefix": None,
-            "provided_interface": u"collective.dms.basecontent.dmsdocument.IDmsDocument",
+            "provided_interface": "collective.dms.basecontent.dmsdocument.IDmsDocument",
         },
     ]
     registry = getUtility(IRegistry)
@@ -2680,8 +2698,9 @@ def configure_fpaudit(site):
     """Set fpaudit registry"""
     registry = getUtility(IRegistry)
     if not registry.get("imio.fpaudit.settings.log_entries"):
-        registry["imio.fpaudit.settings.log_entries"] = [{"log_id": u"contacts", "audit_log": u"contacts.log",
-                                                          "log_format": u"%(asctime)s - %(message)s"}]
+        registry["imio.fpaudit.settings.log_entries"] = [
+            {"log_id": "contacts", "audit_log": "contacts.log", "log_format": "%(asctime)s - %(message)s"}
+        ]
 
 
 def refreshCatalog(context):
@@ -2790,9 +2809,9 @@ def add_templates(site):
 
     template_types = list(POD_TEMPLATE_TYPES) + ["Folder", "DashboardPODTemplate"]
     for path, title, interfaces in [
-        ("templates", _(u"templates_tab"), [IActionsPanelFolderAll]),
-        ("templates/om", _(u"Outgoing mail"), [IOMTemplatesFolder, IActionsPanelFolderAll]),
-        ("templates/om/common", _(u"Common templates"), []),
+        ("templates", _("templates_tab"), [IActionsPanelFolderAll]),
+        ("templates/om", _("Outgoing mail"), [IOMTemplatesFolder, IActionsPanelFolderAll]),
+        ("templates/om/common", _("Common templates"), []),
     ]:
         parts = path.split("/")
         tid = parts[-1]
@@ -2840,7 +2859,7 @@ def add_templates(site):
 
     data = {
         10: {
-            "title": _(u"Mail listing template"),
+            "title": _("Mail listing template"),
             "type": "DashboardPODTemplate",
             "trans": ["show_internally"],
             "attrs": {
@@ -2856,7 +2875,7 @@ def add_templates(site):
             },
         },
         12: {
-            "title": _(u"Mail listing template sheet"),
+            "title": _("Mail listing template sheet"),
             "type": "DashboardPODTemplate",
             "trans": ["show_internally"],
             "attrs": {
@@ -2872,7 +2891,7 @@ def add_templates(site):
             },
         },
         13: {
-            "title": _(u"Mail listing template sheet with details"),
+            "title": _("Mail listing template sheet with details"),
             "type": "DashboardPODTemplate",
             "trans": ["show_internally"],
             "attrs": {
@@ -2888,7 +2907,7 @@ def add_templates(site):
             },
         },
         20: {
-            "title": _(u"All contacts export"),
+            "title": _("All contacts export"),
             "type": "DashboardPODTemplate",
             "trans": ["show_internally"],
             "attrs": {
@@ -2903,7 +2922,7 @@ def add_templates(site):
             },
         },
         30: {
-            "title": _(u"Export users and groups"),
+            "title": _("Export users and groups"),
             "type": "DashboardPODTemplate",
             "trans": ["show_internally"],
             "attrs": {
@@ -2918,24 +2937,24 @@ def add_templates(site):
             },
         },
         40: {
-            "title": _(u"Contacts audit"),
+            "title": _("Contacts audit"),
             "type": "ConfigurablePODTemplate",
             # "trans": ["show_internally"],
             "attrs": {
                 "pod_formats": ["ods"],
                 "rename_page_styles": False,
                 "tal_condition": "python: context.absolute_url() == context.portal_url() and "
-                                 "context.restrictedTraverse('@@various-utils').is_in_user_groups(['audit_contacts'],"
-                                 "user=member)",
+                "context.restrictedTraverse('@@various-utils').is_in_user_groups(['audit_contacts'],"
+                "user=member)",
                 "context_variables": [
-                    {"name": u"log_id", "value": u"contacts"},
-                    {"name": u"actions", "value": u""},
-                    {"name": u"extras", "value": u"UID,PATH,CTX_PATH,CASE"},
+                    {"name": "log_id", "value": "contacts"},
+                    {"name": "actions", "value": ""},
+                    {"name": "extras", "value": "UID,PATH,CTX_PATH,CASE"},
                 ],
                 "default_content_category": category_id,
             },
         },
-        90: {"title": _(u"Style template"), "type": "StyleTemplate", "trans": ["show_internally"]},
+        90: {"title": _("Style template"), "type": "StyleTemplate", "trans": ["show_internally"]},
     }
 
     templates = combine_data(data, test=lambda x: x < 100)
@@ -2943,37 +2962,37 @@ def add_templates(site):
 
     data = {
         100: {
-            "title": _(u"Header template"),
+            "title": _("Header template"),
             "type": "SubTemplate",
             "trans": ["show_internally"],
             "attrs": {"style_template": [cids[90].UID()]},
         },
         105: {
-            "title": _(u"Footer template"),
+            "title": _("Footer template"),
             "type": "SubTemplate",
             "trans": ["show_internally"],
             "attrs": {"style_template": [cids[90].UID()]},
         },
         110: {
-            "title": _(u"Intro template"),
+            "title": _("Intro template"),
             "type": "SubTemplate",
             "trans": ["show_internally"],
             "attrs": {"style_template": [cids[90].UID()]},
         },
         120: {
-            "title": _(u"Ending template"),
+            "title": _("Ending template"),
             "type": "SubTemplate",
             "trans": ["show_internally"],
             "attrs": {"style_template": [cids[90].UID()]},
         },
         125: {
-            "title": _(u"Download barcode subtemplate"),
+            "title": _("Download barcode subtemplate"),
             "type": "SubTemplate",
             "trans": ["show_internally"],
             "attrs": {"style_template": [cids[90].UID()]},
         },
         150: {
-            "title": _(u"Mailing template"),
+            "title": _("Mailing template"),
             "type": "MailingLoopTemplate",
             "trans": ["show_internally"],
             "attrs": {"style_template": [cids[90].UID()], "rename_page_styles": True},
@@ -2985,7 +3004,7 @@ def add_templates(site):
 
     data = {
         200: {
-            "title": _(u"To sign files print template"),
+            "title": _("To sign files print template"),
             "type": "DashboardPODTemplate",
             "trans": ["show_internally"],
             "attrs": {
@@ -3001,7 +3020,7 @@ def add_templates(site):
             },
         },
         201: {
-            "title": _(u"E-signed files print template"),
+            "title": _("E-signed files print template"),
             "type": "DashboardPODTemplate",
             "trans": ["show_internally"],
             "attrs": {
@@ -3017,18 +3036,18 @@ def add_templates(site):
             },
         },
         205: {
-            "title": _(u"Base template"),
+            "title": _("Base template"),
             "type": "ConfigurablePODTemplate",
             "trans": ["show_internally"],
             "attrs": {
                 "pod_formats": ["odt"],
                 "pod_portal_types": ["dmsoutgoingmail"],
                 "merge_templates": [
-                    {"pod_context_name": u"doc_entete", "do_rendering": False, "template": cids[100].UID()},
-                    {"pod_context_name": u"doc_intro", "do_rendering": False, "template": cids[110].UID()},
-                    {"pod_context_name": u"doc_fin", "do_rendering": False, "template": cids[120].UID()},
-                    {"pod_context_name": u"doc_pied_page", "do_rendering": False, "template": cids[105].UID()},
-                    {"pod_context_name": u"doc_cb_download", "do_rendering": False, "template": cids[125].UID()},
+                    {"pod_context_name": "doc_entete", "do_rendering": False, "template": cids[100].UID()},
+                    {"pod_context_name": "doc_intro", "do_rendering": False, "template": cids[110].UID()},
+                    {"pod_context_name": "doc_fin", "do_rendering": False, "template": cids[120].UID()},
+                    {"pod_context_name": "doc_pied_page", "do_rendering": False, "template": cids[105].UID()},
+                    {"pod_context_name": "doc_cb_download", "do_rendering": False, "template": cids[125].UID()},
                 ],
                 "style_template": [cids[90].UID()],
                 "mailing_loop_template": cids[150].UID(),
@@ -3038,25 +3057,25 @@ def add_templates(site):
         },
         #                       'context_variables': [{'name': u'do_mailing', 'value': u'1'}]}},
         210: {
-            "title": _(u"Receipt template"),
+            "title": _("Receipt template"),
             "type": "ConfigurablePODTemplate",
             "trans": ["show_internally"],
             "attrs": {
                 "pod_formats": ["odt"],
                 "pod_portal_types": ["dmsoutgoingmail"],
                 "merge_templates": [
-                    {"pod_context_name": u"doc_entete", "do_rendering": False, "template": cids[100].UID()},
-                    {"pod_context_name": u"doc_intro", "do_rendering": False, "template": cids[110].UID()},
-                    {"pod_context_name": u"doc_fin", "do_rendering": False, "template": cids[120].UID()},
-                    {"pod_context_name": u"doc_pied_page", "do_rendering": False, "template": cids[105].UID()},
-                    {"pod_context_name": u"doc_cb_download", "do_rendering": False, "template": cids[125].UID()},
+                    {"pod_context_name": "doc_entete", "do_rendering": False, "template": cids[100].UID()},
+                    {"pod_context_name": "doc_intro", "do_rendering": False, "template": cids[110].UID()},
+                    {"pod_context_name": "doc_fin", "do_rendering": False, "template": cids[120].UID()},
+                    {"pod_context_name": "doc_pied_page", "do_rendering": False, "template": cids[105].UID()},
+                    {"pod_context_name": "doc_cb_download", "do_rendering": False, "template": cids[125].UID()},
                 ],
                 "style_template": [cids[90].UID()],
                 "mailing_loop_template": cids[150].UID(),
                 "context_variables": [
-                    {"name": u"PD", "value": u"True"},
-                    {"name": u"PC", "value": u"True"},
-                    {"name": u"PVS", "value": u"False"},
+                    {"name": "PD", "value": "True"},
+                    {"name": "PC", "value": "True"},
+                    {"name": "PVS", "value": "False"},
                 ],
                 "rename_page_styles": False,
                 "default_content_category": category_id,
@@ -3139,10 +3158,8 @@ def create_users_and_groups(site):
     logger.info("Generated password='%s'" % password)
     uid = "scanner"
     try:
-        member = site.portal_registration.addMember(
-            id=uid, password=password, roles=["Member"] + ["Batch importer"]
-        )
-        member.setMemberProperties({"fullname": _(u"Scanner"), "email": "{}@macommune.be".format(uid)})
+        member = site.portal_registration.addMember(id=uid, password=password, roles=["Member"] + ["Batch importer"])
+        member.setMemberProperties({"fullname": _("Scanner"), "email": "{}@macommune.be".format(uid)})
     except ValueError as exc:
         if not str(exc).startswith("The login name you selected is already in use"):
             logger.error("Error creating user '%s': %s" % (uid, exc))

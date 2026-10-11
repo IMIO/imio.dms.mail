@@ -40,8 +40,9 @@ class TestIMRenderCategoryView(unittest.TestCase):
     def test_contact_infos(self):
         view = IMRenderCategoryView(self.portal["contacts"]["orgs-searches"], self.portal.REQUEST)
         infos = view.contact_infos()
-        self.assertListEqual(sorted(infos.keys()), ["cls-searches", "hps-searches", "orgs-searches",
-                                                    "persons-searches"])
+        self.assertListEqual(
+            sorted(infos.keys()), ["cls-searches", "hps-searches", "orgs-searches", "persons-searches"]
+        )
         # skin images (Plone 6: to be replaced)
         self.assertListEqual(
             [infos[key]["img"] for key in ("orgs-searches", "hps-searches", "persons-searches", "cls-searches")],
@@ -51,42 +52,42 @@ class TestIMRenderCategoryView(unittest.TestCase):
     def test__get_category_template(self):
         # incoming mail dashboard: add icons for mail and email
         rendered = self.render("incoming-mail/mail-searches")
-        self.assertIn(u'href="http://nohost/plone/incoming-mail/++add++dmsincomingmail?no_redirect=1"', rendered)
-        self.assertIn(u'href="http://nohost/plone/incoming-mail/++add++dmsincoming_email?no_redirect=1"', rendered)
-        self.assertIn(u'src="http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png"', rendered)
+        self.assertIn('href="http://nohost/plone/incoming-mail/++add++dmsincomingmail?no_redirect=1"', rendered)
+        self.assertIn('href="http://nohost/plone/incoming-mail/++add++dmsincoming_email?no_redirect=1"', rendered)
+        self.assertIn('src="http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png"', rendered)
         # outgoing mail dashboard
         rendered = self.render("outgoing-mail/mail-searches")
-        self.assertIn(u'href="http://nohost/plone/outgoing-mail/++add++dmsoutgoingmail?no_redirect=1"', rendered)
+        self.assertIn('href="http://nohost/plone/outgoing-mail/++add++dmsoutgoingmail?no_redirect=1"', rendered)
         # signing requests dashboard
         rendered = self.render("requests/requests-searches")
-        self.assertIn(u'href="http://nohost/plone/requests/++add++sign_request?no_redirect=1"', rendered)
+        self.assertIn('href="http://nohost/plone/requests/++add++sign_request?no_redirect=1"', rendered)
         # classification folders dashboard
         rendered = self.render("folders/folder-searches")
-        self.assertIn(u'href="http://nohost/plone/folders/++add++ClassificationFolder?no_redirect=1"', rendered)
-        self.assertIn(u'href="http://nohost/plone/folders/@@import?no_redirect=1"', rendered)
+        self.assertIn('href="http://nohost/plone/folders/++add++ClassificationFolder?no_redirect=1"', rendered)
+        self.assertIn('href="http://nohost/plone/folders/@@import?no_redirect=1"', rendered)
         # contacts dashboards: contact.core resource images and modals
         rendered = self.render("contacts/orgs-searches")
-        self.assertIn(u'href="http://nohost/plone/contacts/++add++organization"', rendered)
-        self.assertIn(u'class="pat-plone-modal"', rendered)
-        self.assertIn(u'src="http://nohost/plone/++resource++collective.contact.core/organization_icon.png"', rendered)
+        self.assertIn('href="http://nohost/plone/contacts/++add++organization"', rendered)
+        self.assertIn('class="pat-plone-modal"', rendered)
+        self.assertIn('src="http://nohost/plone/++resource++collective.contact.core/organization_icon.png"', rendered)
         rendered = self.render("contacts/hps-searches")
-        self.assertIn(u'href="http://nohost/plone/contacts/@@add-contact"', rendered)
-        self.assertIn(u'src="http://nohost/plone/++resource++collective.contact.core/create_contact.png"', rendered)
+        self.assertIn('href="http://nohost/plone/contacts/@@add-contact"', rendered)
+        self.assertIn('src="http://nohost/plone/++resource++collective.contact.core/create_contact.png"', rendered)
         rendered = self.render("contacts/persons-searches")
-        self.assertIn(u'src="http://nohost/plone/++resource++collective.contact.core/person_icon.png"', rendered)
+        self.assertIn('src="http://nohost/plone/++resource++collective.contact.core/person_icon.png"', rendered)
         rendered = self.render("contacts/cls-searches")
-        self.assertIn(u'href="http://nohost/plone/contacts/contact-lists-folder"', rendered)
-        self.assertIn(u'src="http://nohost/plone/++resource++collective.contact.core/directory_icon.png"', rendered)
-        self.assertNotIn(u'class="pat-plone-modal"', rendered)
+        self.assertIn('href="http://nohost/plone/contacts/contact-lists-folder"', rendered)
+        self.assertIn('src="http://nohost/plone/++resource++collective.contact.core/directory_icon.png"', rendered)
+        self.assertNotIn('class="pat-plone-modal"', rendered)
         # other dashboard: only the category title
         rendered = self.render("tasks/task-searches")
-        self.assertNotIn(u"portlet_add_icons", rendered)
-        self.assertIn(u'<div class="title">', rendered)
+        self.assertNotIn("portlet_add_icons", rendered)
+        self.assertIn('<div class="title">', rendered)
         # a reader has no add icon
         change_user(self.portal, "lecteur")
         IAnnotations(self.portal.REQUEST).pop("plone.memoize")  # plone_portal_state member is memoized
         rendered = self.render("incoming-mail/mail-searches")
-        self.assertNotIn(u"++add++dmsincomingmail", rendered)
+        self.assertNotIn("++add++dmsincomingmail", rendered)
 
 
 class TestDocumentBylineViewlet(unittest.TestCase):
@@ -102,8 +103,7 @@ class TestDocumentBylineViewlet(unittest.TestCase):
     def test_show(self):
         viewlet = DocumentBylineViewlet(self.im1, self.portal.REQUEST, None, None)
         self.assertTrue(viewlet.show())
-        viewlet = DocumentBylineViewlet(self.portal["incoming-mail"]["mail-searches"], self.portal.REQUEST, None,
-                                        None)
+        viewlet = DocumentBylineViewlet(self.portal["incoming-mail"]["mail-searches"], self.portal.REQUEST, None, None)
         self.assertFalse(viewlet.show())
 
     def test_creator(self):
@@ -186,9 +186,9 @@ class TestPhysicalNavigationBreadcrumbs(unittest.TestCase):
         self.assertListEqual(
             [(safe_unicode(dic["Title"]), dic["absolute_url"]) for dic in crumbs],
             [
-                (u"Entrant", u"http://nohost/plone/incoming-mail"),
-                (u"E0001 - Courrier 1", im1.absolute_url()),
-                (u"Tâche 1", im1["tache1"].absolute_url()),
+                ("Entrant", "http://nohost/plone/incoming-mail"),
+                ("E0001 - Courrier 1", im1.absolute_url()),
+                ("Tâche 1", im1["tache1"].absolute_url()),
             ],
         )
 
@@ -253,8 +253,7 @@ class TestFacetedCollectionPortletRenderer(unittest.TestCase):
         im1 = get_object(oid="courrier1", ptype="dmsincomingmail")
         renderer = FacetedCollectionPortletRenderer(im1, self.portal.REQUEST, None, None, None)
         self.assertEqual(renderer._criteriaHolder, self.portal["incoming-mail"])
-        renderer = FacetedCollectionPortletRenderer(self.portal["front-page"], self.portal.REQUEST, None, None,
-                                                    None)
+        renderer = FacetedCollectionPortletRenderer(self.portal["front-page"], self.portal.REQUEST, None, None, None)
         self.assertIsNone(renderer._criteriaHolder)
 
 

@@ -58,7 +58,7 @@ def filter_signrequest_assigned_users(org_uid):
     No need to manage '_default_assigned_user_' because assigned_user is here mandatory:
     the first voc value is selected
     """
-    return voc_selected_org_suffix_userids(org_uid, [u"demand_sign"], api.user.get_current().getId())
+    return voc_selected_org_suffix_userids(org_uid, ["demand_sign"], api.user.get_current().getId())
 
 
 class IImioDmsSignRequest(IDmsDocument):
@@ -66,7 +66,7 @@ class IImioDmsSignRequest(IDmsDocument):
 
     # rich treating_groups with master/slave on the assigned_user (same as outgoing mail)
     treating_groups = LocalRoleMasterSelectField(
-        title=_(u"Treating groups"),
+        title=_("Treating groups"),
         required=True,
         source=signrequest_active_orgs,
         slave_fields=(
@@ -82,13 +82,13 @@ class IImioDmsSignRequest(IDmsDocument):
     )
 
     recipient_groups = LocalRolesField(
-        title=_(u"Recipient groups"),
+        title=_("Recipient groups"),
         required=False,
-        value_type=schema.Choice(vocabulary=u"collective.dms.basecontent.recipient_groups"),
+        value_type=schema.Choice(vocabulary="collective.dms.basecontent.recipient_groups"),
     )
 
     internal_reference_no = schema.TextLine(
-        title=_(u"Internal Reference Number"),
+        title=_("Internal Reference Number"),
         required=False,
     )
 
@@ -111,8 +111,8 @@ class ImioDmsSignRequest(DmsDocument):
     __ac_local_roles_block__ = True
 
     # Needed by collective.z3cform.rolefield. Need to be overriden here
-    treating_groups = FieldProperty(IImioDmsSignRequest[u"treating_groups"])
-    recipient_groups = FieldProperty(IImioDmsSignRequest[u"recipient_groups"])
+    treating_groups = FieldProperty(IImioDmsSignRequest["treating_groups"])
+    recipient_groups = FieldProperty(IImioDmsSignRequest["recipient_groups"])
 
     def approval(self):
         """Returns the adapter providing approval behavior.
@@ -249,9 +249,9 @@ class SignRequestView(DmsDocumentView):
         manage_fields(self, "request_fields", "view")
 
     def legend_extra(self, group):
-        if group.__name__ == 'signing':
-            return self.context.restrictedTraverse('@@signing_actions_panel')()
-        return u""
+        if group.__name__ == "signing":
+            return self.context.restrictedTraverse("@@signing_actions_panel")()
+        return ""
 
 
 ###################################################################
@@ -261,12 +261,14 @@ class SignRequestView(DmsDocumentView):
 
 def internalReferenceSignRequestDefaultValue(data):
     """Default value of internal_reference_no for a signing request."""
-    return six.ensure_text(evaluateInternalReference(
-        data.context,
-        data.request,
-        SIGNREQUEST_NUMBER_RECORD,
-        SIGNREQUEST_TALEXPRESSION_RECORD,
-    ))
+    return six.ensure_text(
+        evaluateInternalReference(
+            data.context,
+            data.request,
+            SIGNREQUEST_NUMBER_RECORD,
+            SIGNREQUEST_TALEXPRESSION_RECORD,
+        )
+    )
 
 
 InternalReferenceSignRequestDefault = ComputedWidgetAttribute(
@@ -306,9 +308,7 @@ def incrementSignRequestNumber(signrequest, event):
             SIGNREQUEST_NUMBER_RECORD,
             SIGNREQUEST_TALEXPRESSION_RECORD,
         )
-        signrequest.reindexObject(
-            idxs=("Title", "internal_reference_number", "SearchableText", "sortable_title")
-        )
+        signrequest.reindexObject(idxs=("Title", "internal_reference_number", "SearchableText", "sortable_title"))
     if getattr(signrequest, "_auto_ref", True):
         registry = getUtility(IRegistry)
         registry[SIGNREQUEST_NUMBER_RECORD] += 1

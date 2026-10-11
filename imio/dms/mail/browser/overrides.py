@@ -285,24 +285,22 @@ class ClassificationJSONCollectionsCount(JSONCollectionsCount):
 class DocsImportFormSecondStep(ImportFormSecondStep):
     def _get_treating_groups_titles(self):
         tgt = super(DocsImportFormSecondStep, self)._get_treating_groups_titles()
-        csv_file = os.path.join(BLDT_DIR, u"imports/tg_matching.csv")
+        csv_file = os.path.join(BLDT_DIR, "imports/tg_matching.csv")
         if os.path.exists(csv_file):
             msg, rows = read_dictcsv(csv_file, fieldnames=["otgt", "ntgt"], skip_lines=1)
             if msg:
-                raise Invalid(u"Error reading '{}': '{}'".format(csv_file, msg))
+                raise Invalid("Error reading '{}': '{}'".format(csv_file, msg))
             errors = []
             for row in rows:
                 otgt = six.ensure_text(row["otgt"])
                 ntgt = six.ensure_text(row["ntgt"])
                 if otgt not in tgt:
                     if ntgt not in tgt:
-                        errors.append(u"{}: new value '{}' not found".format(row["_ln"], ntgt))
+                        errors.append("{}: new value '{}' not found".format(row["_ln"], ntgt))
                     else:
                         tgt[otgt] = tgt[ntgt]
             if errors:
-                raise Invalid(
-                    u"Existing groups = '{}'. Errors: '{}'".format(u", ".join(tgt.keys()), u", ".join(errors))
-                )
+                raise Invalid("Existing groups = '{}'. Errors: '{}'".format(", ".join(tgt.keys()), ", ".join(errors)))
         return tgt
 
 
@@ -331,6 +329,7 @@ try:
     from imio.helpers.batching import batch_skip_key
     from imio.helpers.batching import can_delete_batch_files
     from Products.ZCatalog.ProgressHandler import ZLogHandler
+
     BaseMaintenanceView = SolrMaintenanceView
 except ImportError:
     BaseMaintenanceView = BrowserView
@@ -426,8 +425,8 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
         def batch_unindex(unindex):
             pghandler = ZLogHandler(steps=batch)
             i = 0
-            pghandler.init('sync', len(unindex))
-            pklfile = batch_hashed_filename('collective.solr.sync.unindex.pkl')
+            pghandler.init("sync", len(unindex))
+            pklfile = batch_hashed_filename("collective.solr.sync.unindex.pkl")
             batch_keys, batch_config = batch_get_keys(pklfile, loop_length=len(unindex))
             for uid in unindex:
                 if batch_skip_key(uid, batch_keys, batch_config):
@@ -459,8 +458,8 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
         def batch_index(index):
             pghandler = ZLogHandler(steps=batch)
             i = 0
-            pghandler.init('sync', len(index))
-            pklfile = batch_hashed_filename('collective.solr.sync.index.pkl')
+            pghandler.init("sync", len(index))
+            pklfile = batch_hashed_filename("collective.solr.sync.index.pkl")
             batch_keys, batch_config = batch_get_keys(pklfile, loop_length=len(index))
             for uid in index:
                 if batch_skip_key(uid, batch_keys, batch_config):
@@ -496,8 +495,8 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
         def batch_reindex(reindex):
             pghandler = ZLogHandler(steps=batch)
             i = 0
-            pghandler.init('sync', len(reindex))
-            pklfile = batch_hashed_filename('collective.solr.sync.reindex.pkl')
+            pghandler.init("sync", len(reindex))
+            pklfile = batch_hashed_filename("collective.solr.sync.reindex.pkl")
             batch_keys, batch_config = batch_get_keys(pklfile, loop_length=len(reindex))
             for uid, rid in reindex.items():
                 if batch_skip_key(uid, batch_keys, batch_config):

@@ -12,9 +12,9 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
     def test_permissions_incoming_mail_wfadapt_pre_manager(self):
         change_user(self.portal)
         params = {
-            "state_title": u"À valider avant le DG",
-            "forward_transition_title": u"Proposer pour prévalidation DG",
-            "backward_transition_title": u"Renvoyer pour prévalidation DG",
+            "state_title": "À valider avant le DG",
+            "forward_transition_title": "Proposer pour prévalidation DG",
+            "backward_transition_title": "Renvoyer pour prévalidation DG",
             "defer_security_update": False,
         }
         pmva = IMPreManagerValidation()
@@ -205,10 +205,10 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
         change_user(self.portal)
         params = {
             "validation_level": 1,
-            "state_title": u"À valider par le chef de service",
-            "forward_transition_title": u"Proposer au chef de service",
-            "backward_transition_title": u"Renvoyer au chef de service",
-            "function_title": u"N+1",
+            "state_title": "À valider par le chef de service",
+            "forward_transition_title": "Proposer au chef de service",
+            "backward_transition_title": "Renvoyer au chef de service",
+            "function_title": "N+1",
         }
         sva = IMServiceValidation()
         sva.patch_workflow("incomingmail_workflow", **params)
@@ -411,7 +411,7 @@ class TestPermissionsIncomingMailWfAdapt(TestPermissionsBaseIncomingMail):
         self.assertHasNoPerms("chef", self.task)
 
         change_user(self.portal, "chef")
-        self.imail.assigned_user = 'agent'
+        self.imail.assigned_user = "agent"
         self.pw.doActionFor(self.imail, "propose_to_agent")
         clean_borg_cache(self.portal.REQUEST)
 

@@ -51,7 +51,7 @@ def convert_odt(afile, fmt="pdf", gen_context=None, delete_temp_files=True, **kw
             gen_context["view"]._set_appy_renderer(renderer)
         renderer.run()
         if not os.path.exists(converted_filename):
-            msg = u"Conversion failed, no converted file '{}'".format(safe_unicode(converted_filename))
+            msg = "Conversion failed, no converted file '{}'".format(safe_unicode(converted_filename))
             api.portal.show_message(message=_(msg), request=getSite().REQUEST, type="error")
             raise Invalid(msg)
         with open(converted_filename, "rb") as f:
@@ -69,7 +69,7 @@ def convert_file(afile, fmt="pdf", renderer=False, gen_context=None, delete_temp
     appy converter script. Return the converted content."""
     if renderer:
         if not afile.filename.endswith(".odt"):
-            raise Invalid(_(u"Conversion with renderer only works from odt files."))
+            raise Invalid(_("Conversion with renderer only works from odt files."))
         return convert_odt(afile, fmt=fmt, gen_context=gen_context, delete_temp_files=delete_temp_files)
 
     file_ext = afile.filename.split(".")[-1].lower()
@@ -85,7 +85,7 @@ def convert_file(afile, fmt="pdf", renderer=False, gen_context=None, delete_temp
         out, err, code = runCommand(command)
         # This command has no output on success
         if code != 0 or err or not os.path.exists(converted_filename):
-            raise Invalid(_(u"Conversion failed, no converted file '{}'".format(safe_unicode(converted_filename))))
+            raise Invalid(_("Conversion failed, no converted file '{}'".format(safe_unicode(converted_filename))))
         with open(converted_filename, "rb") as f:
             converted_file = f.read()
     except Exception as e:
@@ -99,8 +99,15 @@ def convert_file(afile, fmt="pdf", renderer=False, gen_context=None, delete_temp
 
 
 def convert_and_save_file(
-    afile, container, portal_type, output_name, fmt="pdf", from_uid=None, attributes=None, renderer=False,
-    gen_context=None
+    afile,
+    container,
+    portal_type,
+    output_name,
+    fmt="pdf",
+    from_uid=None,
+    attributes=None,
+    renderer=False,
+    gen_context=None,
 ):
     """Convert a file and save it as a new content (portal_type) in container."""
     converted_file = convert_file(afile, fmt=fmt, gen_context=gen_context, renderer=renderer)

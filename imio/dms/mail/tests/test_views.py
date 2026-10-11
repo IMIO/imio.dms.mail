@@ -64,10 +64,10 @@ class TestCreateFromTemplateForm(unittest.TestCase):
 
     def test_label(self):
         self.assertIsInstance(self.view, CreateFromTemplateForm)
-        self.assertEqual(self.view.label(), u"S0001 - Réponse 1: créer à partir d'un modèle")
+        self.assertEqual(self.view.label(), "S0001 - Réponse 1: créer à partir d'un modèle")
 
     def test_get_action_name(self):
-        self.assertEqual(self.view.get_action_name(), u"Choisir ce modèle")
+        self.assertEqual(self.view.get_action_name(), "Choisir ce modèle")
 
     def test_get_query(self):
         self.assertDictEqual(
@@ -82,7 +82,7 @@ class TestCreateFromTemplateForm(unittest.TestCase):
         data = json.loads(self.view.get_data())
         self.assertListEqual(
             [(node["title"], node["folder"]) for node in data],
-            [(u"Modèle de base", False), (u"Modèles communs", True), (u"Direction générale - Secrétariat", True)],
+            [("Modèle de base", False), ("Modèles communs", True), ("Direction générale - Secrétariat", True)],
         )
         main = self.portal["templates"]["om"]["main"]
         main.enabled = False
@@ -95,18 +95,19 @@ class TestCreateFromTemplateForm(unittest.TestCase):
         self.assertRegex(
             self.view.redirect_url("abc"),
             r"^{}/persistent-document-generation\?template_uid=abc&output_format=odt&_authenticator=\w+$".format(
-                self.omail.absolute_url()),
+                self.omail.absolute_url()
+            ),
         )
 
     def test_call(self):
         # GET: the fancytree form
         self.request["REQUEST_METHOD"] = "GET"
         rendered = self.view()
-        self.assertIn(u"<h1>S0001 - Réponse 1: créer à partir d'un modèle</h1>", rendered)
-        self.assertIn(u'<form id="tree-form" method="post"', rendered)
-        self.assertIn(u'<div id="tree" data-nodes="[{&quot;title&quot;: ', rendered)
-        self.assertIn(u'<input name="uid" type="hidden" value="" />', rendered)
-        self.assertIn(u'<input type="submit" value="Choisir ce modèle" />', rendered)
+        self.assertIn("<h1>S0001 - Réponse 1: créer à partir d'un modèle</h1>", rendered)
+        self.assertIn('<form id="tree-form" method="post"', rendered)
+        self.assertIn('<div id="tree" data-nodes="[{&quot;title&quot;: ', rendered)
+        self.assertIn('<input name="uid" type="hidden" value="" />', rendered)
+        self.assertIn('<input type="submit" value="Choisir ce modèle" />', rendered)
         # POST: redirect to the generation view
         main = self.portal["templates"]["om"]["main"]
         self.request.method = "POST"
@@ -164,7 +165,7 @@ class TestContactSuggest(unittest.TestCase):
         view.request["term"] = "()"
         ret = json.loads(view())
         self.assertListEqual(
-            [dic["text"] for dic in ret[:3]], [u"Electrabel", u"Electrabel / Travaux 1", u"Mon organisation"]
+            [dic["text"] for dic in ret[:3]], ["Electrabel", "Electrabel / Travaux 1", "Mon organisation"]
         )
         self.assertGreater(len(ret), 20)
 
@@ -179,14 +180,14 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Monsieur Fred Agent, Agent Événements (Mon organisation / Événements)",
+                "text": "Monsieur Fred Agent, Agent Événements (Mon organisation / Événements)",
                 "id": self.pf["agent"]["agent-evenements"].UID(),
             },
         )
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Monsieur Stef Agent, Agent Événements (Mon organisation / Événements)",
+                "text": "Monsieur Stef Agent, Agent Événements (Mon organisation / Événements)",
                 "id": self.pf["agent1"]["agent-evenements"].UID(),
             },
         )
@@ -196,38 +197,38 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Mon organisation / Direction générale / GRH",
-                u"id": self.pgo["direction-generale"]["grh"].UID(),
+                "text": "Mon organisation / Direction générale / GRH",
+                "id": self.pgo["direction-generale"]["grh"].UID(),
             },
         )
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Monsieur Fred Agent, Agent GRH (Mon organisation / Direction générale / GRH)",
+                "text": "Monsieur Fred Agent, Agent GRH (Mon organisation / Direction générale / GRH)",
                 "id": self.pf["agent"]["agent-grh"].UID(),
             },
         )
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Monsieur Michel Chef, Responsable GRH (Mon organisation / Direction générale / GRH)",
+                "text": "Monsieur Michel Chef, Responsable GRH (Mon organisation / Direction générale / GRH)",
                 "id": self.pf["chef"]["responsable-grh"].UID(),
             },
         )
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Mon organisation / Direction générale / GRH [TOUT]",
-                u"id": "l:%s" % self.pgo["direction-generale"]["grh"].UID(),
+                "text": "Mon organisation / Direction générale / GRH [TOUT]",
+                "id": "l:%s" % self.pgo["direction-generale"]["grh"].UID(),
             },
         )
         # a term emptied by the cleaning: empty SearchableText, every internal contact is found (Plone 4 catalog)
         view.request["term"] = "*"
         ret = json.loads(view())
         self.assertListEqual(
-            [dic["text"] for dic in ret[:2]], [u"Mon organisation", u"Mon organisation / Collège communal"]
+            [dic["text"] for dic in ret[:2]], ["Mon organisation", "Mon organisation / Collège communal"]
         )
-        self.assertNotIn(u"Electrabel", [dic["text"] for dic in ret])
+        self.assertNotIn("Electrabel", [dic["text"] for dic in ret])
 
 
 class TestServerSentEvents(unittest.TestCase):
@@ -247,7 +248,7 @@ class TestServerSentEvents(unittest.TestCase):
         # a dmsommainfile has been added manually and we go back on the dmsoutgoingmail
         omf.conversion_finished = True  # set by the collective.documentviewer conversion (dropped on Plone 6)
         self.assertFalse(hasattr(omf, "generated"))
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         response = sse_vw.request.response
         self.assertEqual(response.getHeader("Content-Type"), "text/event-stream; charset=utf-8")
         self.assertEqual(response.getHeader("Cache-Control"), "no-cache")
@@ -255,14 +256,14 @@ class TestServerSentEvents(unittest.TestCase):
         # a dmsommainfile has been generated
         omf.generated = 1
         omf.conversion_finished = True
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         self.assertEqual(omf.generated, 2)  # waiting external edition
         # we lock like zopeedit
         omf.restrictedTraverse("lock-unlock")()
         self.assertTrue(eee_vw.isObjectLocked())
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         self.assertEqual(omf.generated, 3)  # was always waiting but will end
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         self.assertEqual(omf.generated, 3)  # no more waiting but locked
         # we unlock
         omf.restrictedTraverse("lock-unlock")(unlock=1)
@@ -275,14 +276,14 @@ class TestServerSentEvents(unittest.TestCase):
         # a dmsommainfile is edited with zopeedit
         self.assertFalse(hasattr(omf, "generated"))
         self.assertFalse(hasattr(omf, "conversion_finished"))
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         # we lock like zopeedit
         omf.restrictedTraverse("lock-unlock")()
         self.assertTrue(eee_vw.isObjectLocked())
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         # we save the file in the editor but dont close it
         omf.conversion_finished = True
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         self.assertEqual(omf.generated, 3)  # set as no more waiting
         # we unlock
         omf.restrictedTraverse("lock-unlock")(unlock=1)
@@ -332,11 +333,11 @@ class TestSendEmail(unittest.TestCase):
 
     def test_call(self):
         omail1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
-        omail1.send_modes = [u"email"]
-        omail1.email_subject = u"Email subject"
-        omail1.email_sender = u"sender@mio.be"
-        omail1.email_recipient = u"contakt@mio.be"
-        omail1.email_body = richtextval(u"My email content.")
+        omail1.send_modes = ["email"]
+        omail1.email_subject = "Email subject"
+        omail1.email_sender = "sender@mio.be"
+        omail1.email_recipient = "contakt@mio.be"
+        omail1.email_body = richtextval("My email content.")
         view = omail1.unrestrictedTraverse("@@send_email")
         # Status before call
         self.assertEqual(api.content.get_state(omail1), "created")
@@ -353,7 +354,7 @@ class TestSendEmail(unittest.TestCase):
         self.assertEqual(api.content.get_state(omail1), "sent")
         self.assertIsNotNone(omail1.email_status)
         messages = IStatusMessage(self.portal.REQUEST).show()
-        self.assertIn(u"Votre email a été envoyé", [msg.message for msg in messages])
+        self.assertIn("Votre email a été envoyé", [msg.message for msg in messages])
         # second sending (GET, without CSRF token), with reply-to option and without closing
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send", True
@@ -369,8 +370,8 @@ class TestSendEmail(unittest.TestCase):
         message = safe_unicode(mail_host.messages[0])
         self.assertIn("reply-to: sender@mio.be", message)
         self.assertIn("From: noreply@macommune.be", message)
-        self.assertTrue(omail1.email_status.startswith(first_status + u" "))
-        self.assertEqual(omail1.email_status.count(u"Email envoyé le"), 2)
+        self.assertTrue(omail1.email_status.startswith(first_status + " "))
+        self.assertEqual(omail1.email_status.count("Email envoyé le"), 2)
 
 
 class TestRenderEmailSignature(unittest.TestCase):
@@ -381,11 +382,11 @@ class TestRenderEmailSignature(unittest.TestCase):
         self.portal = self.layer["portal"]
         self.pgo = self.portal.contacts["plonegroup-organization"]
         self.pgo.use_parent_address = False
-        self.pgo.street = u"Rue Léon Morel"
-        self.pgo.number = u"1"
-        self.pgo.zip_code = u"5032"
-        self.pgo.city = u"Isnes"
-        self.pgo.email = u"contakt@mio.be"
+        self.pgo.street = "Rue Léon Morel"
+        self.pgo.number = "1"
+        self.pgo.zip_code = "5032"
+        self.pgo.city = "Isnes"
+        self.pgo.email = "contakt@mio.be"
 
     def test_call(self):
         model = api.portal.get_registry_record(
@@ -395,18 +396,18 @@ class TestRenderEmailSignature(unittest.TestCase):
         omail1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         view = omail1.unrestrictedTraverse("@@render_email_signature")
         self.assertIn("sender", view.namespace)
-        self.assertEqual(view.namespace["sender"]["org_full_title"], u"Direction générale - GRH")
-        self.assertEqual(view.namespace["sender"]["person"].title, u"Monsieur Michel Chef")
+        self.assertEqual(view.namespace["sender"]["org_full_title"], "Direction générale - GRH")
+        self.assertEqual(view.namespace["sender"]["person"].title, "Monsieur Michel Chef")
         # ctct_det = view.namespace['dghv'].get_ctct_det(view.namespace['sender']['hp'])
         rendered = view().output
-        self.assertIn(u">Michel Chef<", rendered)
-        self.assertIn(u">Responsable GRH<", rendered)
-        self.assertIn(u">Direction générale<", rendered)
-        self.assertIn(u">GRH<", rendered)
-        self.assertIn(u">chef@macommune.be<", rendered)
-        self.assertIn(u">012/34.56.79<", rendered)
-        self.assertIn(u">Rue Léon Morel, 1<", rendered)
-        self.assertIn(u">5032 Isnes<", rendered)
+        self.assertIn(">Michel Chef<", rendered)
+        self.assertIn(">Responsable GRH<", rendered)
+        self.assertIn(">Direction générale<", rendered)
+        self.assertIn(">GRH<", rendered)
+        self.assertIn(">chef@macommune.be<", rendered)
+        self.assertIn(">012/34.56.79<", rendered)
+        self.assertIn(">Rue Léon Morel, 1<", rendered)
+        self.assertIn(">5032 Isnes<", rendered)
 
 
 class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
@@ -431,7 +432,7 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         set_esign_registry_file_url("https://downloads.files.com")
         intids = getUtility(IIntIds)
         params = {
-            "title": u"Courrier test esign",
+            "title": "Courrier test esign",
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
@@ -440,25 +441,25 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",
             "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
-            "send_modes": u"post",
+            "send_modes": "post",
             "signers": [
                 {
                     "number": 1,
                     "signer": self.pf["dirg"]["directeur-general"].UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "editor": True,
                 },
                 {
                     "number": 2,
                     "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "editor": False,
                 },
             ],
             "esign": True,
         }
         omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-esign", **params)
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         files = []
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
@@ -490,9 +491,10 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
 
     def test_annot_html(self):
         """Test approval_annot_html and esign_session_html."""
+
         def fmt_dt(dte):
             """Format a datetime like the view does."""
-            return u"datetime({})".format(dte.strftime("%d/%m/%Y %H:%M:%S"))
+            return "datetime({})".format(dte.strftime("%d/%m/%Y %H:%M:%S"))
 
         omail, files, approval = self._setup_esign_omail()
         self._approve_all_files(omail, files, approval)
@@ -502,7 +504,7 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         # approval annot html
         self.assertEqual(
             unescape(view.approval_annot_html),
-            u"""{{
+            """{{
   "approval": [
     [
       {{
@@ -593,7 +595,7 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         # self.maxDiff = None
         self.assertEqual(
             unescape(view.esign_session_html(esign_session[1])),
-            u"""{{
+            """{{
   "acroform": True,
   "client_id": "0129999",
   "discriminators": [
@@ -645,13 +647,15 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
 }}""".format(  # noqa E501
                 c_uid=omail.UID(),
                 pdf1_uid=api.content.get(omail.absolute_url_path() + "/file0").UID(),
-                pdf2_uid=api.content.get(omail.absolute_url_path()
-                                         + "/modele-de-base-s0010-courrier-test-esign.pdf").UID(),
+                pdf2_uid=api.content.get(
+                    omail.absolute_url_path() + "/modele-de-base-s0010-courrier-test-esign.pdf"
+                ).UID(),
                 folder_name=omail.__parent__.__name__,
                 last_update=fmt_dt(get_session_annotation()["sessions"][0]["last_update"]),
                 size=api.content.get(omail.absolute_url_path() + "/file0").file.size
-                + api.content.get(omail.absolute_url_path()
-                                  + "/modele-de-base-s0010-courrier-test-esign.pdf").file.size,
+                + api.content.get(
+                    omail.absolute_url_path() + "/modele-de-base-s0010-courrier-test-esign.pdf"
+                ).file.size,
             ),
         )
 
@@ -702,36 +706,40 @@ class TestObjectRenameTitleView(unittest.TestCase):
         request["HTTP_REFERER"] = omail.absolute_url() + "?foo=bar"
         view = omf.restrictedTraverse("@@object_rename_title")
         rendered = view()
-        self.assertIn(u'name="new_title"', rendered)
+        self.assertIn('name="new_title"', rendered)
         self.assertIn(original_title, rendered)
         self.assertEqual(view.orig_template, omail.absolute_url())
         self.assertEqual(omf.Title(), original_title)
 
         # POST with empty title: re-renders with error, title unchanged
         request.form.clear()
-        request.form.update({
-            "form.submitted": "1",
-            "_authenticator": token,
-            "new_title": u"   ",
-            "orig_template": omail.absolute_url(),
-            "form.button.RenameAll": "Rename All",
-        })
+        request.form.update(
+            {
+                "form.submitted": "1",
+                "_authenticator": token,
+                "new_title": "   ",
+                "orig_template": omail.absolute_url(),
+                "form.button.RenameAll": "Rename All",
+            }
+        )
         view = omf.restrictedTraverse("@@object_rename_title")
         rendered = view()
         self.assertTrue(view.error)
-        self.assertIn(u"field error", rendered)
+        self.assertIn("field error", rendered)
         self.assertEqual(omf.Title(), original_title)
 
         # POST with new title: persists, reindexes, redirects
-        new_title = u"Nouveau titre éàü"
+        new_title = "Nouveau titre éàü"
         request.form.clear()
-        request.form.update({
-            "form.submitted": "1",
-            "_authenticator": token,
-            "new_title": new_title,
-            "orig_template": omail.absolute_url(),
-            "form.button.RenameAll": "Rename All",
-        })
+        request.form.update(
+            {
+                "form.submitted": "1",
+                "_authenticator": token,
+                "new_title": new_title,
+                "orig_template": omail.absolute_url(),
+                "form.button.RenameAll": "Rename All",
+            }
+        )
         view = omf.restrictedTraverse("@@object_rename_title")
         view()
         self.assertEqual(omf.Title(), new_title)
@@ -762,7 +770,7 @@ class TestImioRecreateSessionView(unittest.TestCase):
         annotation, mirroring what add_mail_files_to_session does during a real workflow."""
         intids = getUtility(IIntIds)
         params = {
-            "title": u"Courrier recreate test",
+            "title": "Courrier recreate test",
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
@@ -771,22 +779,20 @@ class TestImioRecreateSessionView(unittest.TestCase):
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",
             "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
-            "send_modes": u"post",
+            "send_modes": "post",
             "signers": [
                 {
                     "number": 1,
                     "signer": self.pf["dirg"]["directeur-general"].UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "editor": True,
                 },
             ],
             "esign": True,
         }
-        omail = sub_create(
-            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-recreate", **params
-        )
+        omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-recreate", **params)
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file_obj = createContentInContainer(
                 omail,
@@ -797,10 +803,8 @@ class TestImioRecreateSessionView(unittest.TestCase):
                 content_category=calculate_category_id(ct),
             )
 
-        signers = [("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")]
-        old_id, _session = add_files_to_session(
-            signers, [file_obj.UID()], title=_("[iA.Docs] Session {sign_id}")
-        )[-1]
+        signers = [("dirg", "dirg@macommune.be", "Maxime DG", "Directeur Général")]
+        old_id, _session = add_files_to_session(signers, [file_obj.UID()], title=_("[iA.Docs] Session {sign_id}"))[-1]
         # Flip to refused
         annot = get_session_annotation()
         annot["sessions"][old_id]["state"] = "refused"
@@ -841,7 +845,7 @@ class TestImioRecreateSessionView(unittest.TestCase):
         annot = get_session_annotation()
         # the old session is consumed by the recreation, the new one gets a title with the new sign_id
         self.assertNotIn(old_id, annot["sessions"])
-        self.assertEqual(annot["sessions"][new_id]["title"], u"[iA.Docs] Courrier sortant - 012999900001")
+        self.assertEqual(annot["sessions"][new_id]["title"], "[iA.Docs] Courrier sortant - 012999900001")
 
 
 class TestPlusPortaltabContent(unittest.TestCase):
@@ -864,8 +868,8 @@ class TestPlusPortaltabContent(unittest.TestCase):
             ],
         )
         rendered = view()
-        self.assertIn(u'<div id="subportaltab-plus">', rendered)
-        self.assertIn(u'<a href="http://nohost/plone/annexes_types">Types d\'annexes</a>', rendered)
+        self.assertIn('<div id="subportaltab-plus">', rendered)
+        self.assertIn('<a href="http://nohost/plone/annexes_types">Types d\'annexes</a>', rendered)
 
 
 class TestDmsMailRestClientView(unittest.TestCase):
@@ -879,7 +883,7 @@ class TestDmsMailRestClientView(unittest.TestCase):
         view = imail.unrestrictedTraverse("@@IncomingmailRestWSClient")
         self.assertEqual(
             view.detailed_description(),
-            u'<p>Fiche courrier liée: <a href="{}/view" target="_blank">E0001 - Courrier 1</a></p>'.format(
+            '<p>Fiche courrier liée: <a href="{}/view" target="_blank">E0001 - Courrier 1</a></p>'.format(
                 imail.absolute_url()
             ),
         )
@@ -893,7 +897,7 @@ class TestImioSessionsListingView(unittest.TestCase):
         self.portal = self.layer["portal"]
         self.request = self.portal.REQUEST
         change_user(self.portal)
-        self.signers = [("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")]
+        self.signers = [("dirg", "dirg@macommune.be", "Maxime DG", "Directeur Général")]
 
     def test_session_portal_type(self):
         view = ImioSessionsListingView(self.portal, self.request)
@@ -944,7 +948,7 @@ class TestImioSessionsListingView(unittest.TestCase):
         activate_signing(self.portal)
         # session manager
         self.assertTrue(view.available())
-        self.assertIn(u"<", self.portal.unrestrictedTraverse("@@parapheo")())
+        self.assertIn("<", self.portal.unrestrictedTraverse("@@parapheo")())
         # approver
         change_user(self.portal, "dirg")
         self.assertTrue(view.available())
@@ -979,7 +983,9 @@ class TestImioExternalSessionCreateView(unittest.TestCase):
         self.assertTrue(view.may_create_external_sessions())
         # no session id: back to the sessions listing with an error
         self.assertEqual(view(), "http://nohost/plone/@@parapheo")
-        self.assertIn(u"Aucun identifiant de session fourni !", [msg.message for msg in IStatusMessage(self.request).show()])
+        self.assertIn(
+            "Aucun identifiant de session fourni !", [msg.message for msg in IStatusMessage(self.request).show()]
+        )
         change_user(self.portal, "dirg")
         self.assertTrue(view.may_create_external_sessions())
         change_user(self.portal, "agent1")
@@ -1033,8 +1039,7 @@ class TestImioRemoveItemFromSessionView(unittest.TestCase):
         view.index()
         self.assertNotIn(pdf_uid, get_session_annotation()["uids"])
         self.assertEqual(self.request.response.getHeader("Location"), self.sreq.absolute_url())
-        self.assertIn(u"Élément retiré de la session !",
-                      [msg.message for msg in IStatusMessage(self.request).show()])
+        self.assertIn("Élément retiré de la session !", [msg.message for msg in IStatusMessage(self.request).show()])
         # not available anymore: nothing done
         self.request.response.setHeader("Location", "")
         self.assertIsNone(view.index())
@@ -1068,13 +1073,13 @@ class TestApprovalTableView(unittest.TestCase):
         sreq, files = create_sign_request(self.portal, oid="sr-approvals", nb_files=1)
         self.request["REQUEST_METHOD"] = "GET"
         rendered = sreq.unrestrictedTraverse("@@approvals")()
-        self.assertIn(u'action="{}/@@approvals"'.format(sreq.absolute_url()), rendered)
-        self.assertIn(u'<input type="checkbox" name="approvals.{}.dirg"  />'.format(files[0].UID()), rendered)
-        self.assertIn(u'name="form.button.Save"', rendered)
+        self.assertIn('action="{}/@@approvals"'.format(sreq.absolute_url()), rendered)
+        self.assertIn('<input type="checkbox" name="approvals.{}.dirg"  />'.format(files[0].UID()), rendered)
+        self.assertIn('name="form.button.Save"', rendered)
         # CSRF token in the form (Plone 6)
-        action = u'action="{}/@@approvals"'.format(sreq.absolute_url())
-        form_html = rendered[rendered.index(action):rendered.index(u'name="form.button.Cancel"')]
-        self.assertIn(u'name="_authenticator"', form_html)
+        action = 'action="{}/@@approvals"'.format(sreq.absolute_url())
+        form_html = rendered[rendered.index(action) : rendered.index('name="form.button.Cancel"')]
+        self.assertIn('name="_authenticator"', form_html)
         # cancel
         self.request.form["form.button.Cancel"] = "Cancel"
         sreq.unrestrictedTraverse("@@approvals")()

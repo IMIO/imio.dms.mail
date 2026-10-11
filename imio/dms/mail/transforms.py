@@ -33,9 +33,7 @@ class odt_2_text(popentransform):
         with tempfile.NamedTemporaryFile(suffix=".odt") as infile:
             infile.write(data)
             infile.flush()
-            out = subprocess.run(
-                [self.binary] + self.binaryArgs.split() + [infile.name], stdout=subprocess.PIPE
-            ).stdout
+            out = subprocess.run([self.binary] + self.binaryArgs.split() + [infile.name], stdout=subprocess.PIPE).stdout
         cache.setData(safe_bytes(self.getData(safe_text(out).splitlines())))
         return cache
 

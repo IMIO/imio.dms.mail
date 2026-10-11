@@ -34,7 +34,7 @@ class TestBrowserTask(unittest.TestCase, ImioTestHelpers):
         voc = filter_task_assigned_users(selected_orgs[0])
         self.assertListEqual([t.title for t in voc._terms], [])  # direction generale => no user
         voc = filter_task_assigned_users(selected_orgs[1])
-        self.assertListEqual([t.title for t in voc._terms], [u"Fred Agent", u"Jean Encodeur"])
+        self.assertListEqual([t.title for t in voc._terms], ["Fred Agent", "Jean Encodeur"])
         # masterselect json call with a single user: it becomes the default value
         api.group.add_user(groupname="{}_editeur".format(selected_orgs[0]), username="chef")
         self.request["REQUEST_METHOD"] = "GET"
@@ -61,22 +61,32 @@ class TestBrowserTask(unittest.TestCase, ImioTestHelpers):
         # value is userid and not username
         self.assertListEqual(
             sorted([t.value for t in voc_inst(None)]),
-            ["agent", "agent1", "bourgmestre", "chef", "dirg", "encodeur", "lecteur", "scanner", "siteadmin",
-             "test_user_1_"],
+            [
+                "agent",
+                "agent1",
+                "bourgmestre",
+                "chef",
+                "dirg",
+                "encodeur",
+                "lecteur",
+                "scanner",
+                "siteadmin",
+                "test_user_1_",
+            ],
         )
         self.assertListEqual(
             [t.title for t in voc_inst(None)],
             [
-                u"Fred Agent",
-                u"Jean Encodeur",
-                u"Jef Lecteur",
-                u"Maxime DG",
-                u"Michel Chef",
-                u"Paul BM",
-                u"siteadmin",
-                u"Scanner",
-                u"Stef Agent",
-                u"test_user_1_",
+                "Fred Agent",
+                "Jean Encodeur",
+                "Jef Lecteur",
+                "Maxime DG",
+                "Michel Chef",
+                "Paul BM",
+                "siteadmin",
+                "Scanner",
+                "Stef Agent",
+                "test_user_1_",
             ],
         )
 
@@ -96,8 +106,10 @@ class TestTaskEdit(unittest.TestCase, ImioTestHelpers):
         form = self.task.unrestrictedTraverse("@@edit")
         self.assertIsInstance(form, TaskEdit)
         form.update()
-        self.assertNotEqual(form.widgets["ITask.assigned_user"].field.description,
-                            u"You must select an assigned user before continuing !")
+        self.assertNotEqual(
+            form.widgets["ITask.assigned_user"].field.description,
+            "You must select an assigned user before continuing !",
+        )
         # to assign (task service validation with a n+1 user) without assigned user: a warning description
         add_applied_adaptation("imio.dms.mail.wfadaptations.TaskServiceValidation", "task_workflow", False)
         n_plus_1 = "{}_n_plus_1".format(self.task.assigned_group)
@@ -107,8 +119,10 @@ class TestTaskEdit(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(api.content.get_state(self.task), "to_assign")
         form = self.task.unrestrictedTraverse("@@edit")
         form.update()
-        self.assertEqual(form.widgets["ITask.assigned_user"].field.description,
-                         u"You must select an assigned user before continuing !")
+        self.assertEqual(
+            form.widgets["ITask.assigned_user"].field.description,
+            "You must select an assigned user before continuing !",
+        )
 
 
 class TestCustomAddForm(unittest.TestCase, ImioTestHelpers):

@@ -57,9 +57,7 @@ class ContactContentBackrefsViewlet(ViewletBase):
             if IContactContent.providedBy(relation.from_object):
                 continue
             # Plone 6 relation catalog has no more from_interfaces_flattened index
-            if from_interfaces_flattened is not None and not from_interfaces_flattened.providedBy(
-                relation.from_object
-            ):
+            if from_interfaces_flattened is not None and not from_interfaces_flattened.providedBy(relation.from_object):
                 continue
             # PERF TEST TODO: use directly objects or use the path as request in the portal_catalog to find brain
             ret.append(relation.from_path)
@@ -153,9 +151,9 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
                 errors.append((contact, empty_keys))
 
         ret = []
-        for (contact, keys) in errors:
+        for contact, keys in errors:
             msg = translate(
-                u"This contact '${title}' has missing address fields: ${keys}",
+                "This contact '${title}' has missing address fields: ${keys}",
                 domain="imio.dms.mail",
                 context=self.request,
                 mapping={
@@ -211,8 +209,10 @@ class ImioFacetedSessionInfoViewlet(PortalUrlMixin, FacetedSessionInfoViewlet):
             return ""
         if self.sessions:
             return self.index()
-        self.request.set("esign_portal_type",
-                         collection.aq_parent.aq_parent.getId() == "requests" and "sign_request" or "dmsoutgoingmail")
+        self.request.set(
+            "esign_portal_type",
+            collection.aq_parent.aq_parent.getId() == "requests" and "sign_request" or "dmsoutgoingmail",
+        )
         return self.sessions_listing_view(self.context, self.request).render_table()
 
 
@@ -220,8 +220,7 @@ class ImioItemSessionInfoViewlet(PortalUrlMixin, ItemSessionInfoViewlet):
 
     def get_table_rows(self, column):
         """Get the table rows following the column"""
-        return {1: ["session_id", "state"],
-                2: ["external_link", "update_date"]}.get(column, [])
+        return {1: ["session_id", "state"], 2: ["external_link", "update_date"]}.get(column, [])
 
     @property
     def session_listing_url(self):

@@ -37,8 +37,14 @@ class TestDmsPloneGroupContactChecksAdapter(unittest.TestCase, ImioTestHelpers):
         api.content.delete(obj=self.urbanisme)
         self.assertNotIn("urbanisme", self.portal["contacts"]["plonegroup-organization"]["direction-technique"])
         # a service used as treating group of an incoming mail cannot be deleted
-        sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id",
-                   title=u"Test", treating_groups=self.informatique.UID())
+        sub_create(
+            self.portal["incoming-mail"],
+            "dmsincomingmail",
+            datetime.now(),
+            "my-id",
+            title="Test",
+            treating_groups=self.informatique.UID(),
+        )
         self.assertRaises(LinkIntegrityNotificationException, api.content.delete, obj=self.informatique)
 
     def test_check_items_on_transition(self):
@@ -48,12 +54,12 @@ class TestDmsPloneGroupContactChecksAdapter(unittest.TestCase, ImioTestHelpers):
         # a service used as assigned group of a task cannot be deactivated
         task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]
         task.assigned_group = self.informatique.UID()
-        task.title = u"Task 1"  # ASCII: a non-ASCII title breaks the refusal message (see phase 3 notes)
+        task.title = "Task 1"  # ASCII: a non-ASCII title breaks the refusal message (see phase 3 notes)
         self.assertRaises(Redirect, api.content.transition, obj=self.informatique, transition="deactivate")
         self.assertEqual(api.content.get_state(self.informatique), "active")
         msgs = IStatusMessage(self.portal.REQUEST).show()
-        self.assertEqual(msgs[-2].message, u"Vous ne pouvez pas désactiver cet élément !")
-        self.assertTrue(msgs[-1].message.startswith(u"Ce contact est utilisé dans le contenu suivant: "))
+        self.assertEqual(msgs[-2].message, "Vous ne pouvez pas désactiver cet élément !")
+        self.assertTrue(msgs[-1].message.startswith("Ce contact est utilisé dans le contenu suivant: "))
         self.assertIn(task.absolute_url(), msgs[-1].message)
 
 

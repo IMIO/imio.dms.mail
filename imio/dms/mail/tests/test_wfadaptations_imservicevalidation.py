@@ -40,7 +40,7 @@ class TestIMServiceValidation1(unittest.TestCase, ImioTestHelpers):
         self.imw = self.pw["incomingmail_workflow"]
         api.group.create("abc_group_encoder", "ABC group encoder")
         self.imail = sub_create(
-            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "test", **{"title": u"test"}
+            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "test", **{"title": "test"}
         )
         self.portal.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-im_n_plus_1_wfadaptation", run_dependencies=False
@@ -136,9 +136,9 @@ class TestIMServiceValidation1(unittest.TestCase, ImioTestHelpers):
             ],
         )
         # check vocabularies
-        factory = getUtility(IVocabularyFactory, u"collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
+        factory = getUtility(IVocabularyFactory, "collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
         self.assertEqual(len(factory(folder, folder)), 16)
-        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.IMReviewStatesVocabulary")
+        factory = getUtility(IVocabularyFactory, "imio.dms.mail.IMReviewStatesVocabulary")
         self.assertEqual(len(factory(folder)), 6)
         # check configuration
         lst = api.portal.get_registry_record("imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions")
@@ -267,7 +267,7 @@ class TestIMServiceValidation2(unittest.TestCase, ImioTestHelpers):
         self.pw = self.portal.portal_workflow
         self.imw = self.pw["incomingmail_workflow"]
         self.imail = sub_create(
-            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "test", **{"title": u"test"}
+            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "test", **{"title": "test"}
         )
         api.group.create("abc_group_encoder", "ABC group encoder")
         self.portal.portal_setup.runImportStepFromProfile(
@@ -276,10 +276,10 @@ class TestIMServiceValidation2(unittest.TestCase, ImioTestHelpers):
         sva = IMServiceValidation()
         n_plus_2_params = {
             "validation_level": 2,
-            "state_title": u"Valider par le chef de département",
-            "forward_transition_title": u"Proposer au chef de département",
-            "backward_transition_title": u"Renvoyer au chef de département",
-            "function_title": u"chef de département",
+            "state_title": "Valider par le chef de département",
+            "forward_transition_title": "Proposer au chef de département",
+            "backward_transition_title": "Renvoyer au chef de département",
+            "function_title": "chef de département",
         }
         adapt_is_applied = sva.patch_workflow("incomingmail_workflow", **n_plus_2_params)
         if adapt_is_applied:
@@ -401,9 +401,9 @@ class TestIMServiceValidation2(unittest.TestCase, ImioTestHelpers):
             ],
         )
         # check vocabularies
-        factory = getUtility(IVocabularyFactory, u"collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
+        factory = getUtility(IVocabularyFactory, "collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
         self.assertEqual(len(factory(folder, folder)), 17)
-        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.IMReviewStatesVocabulary")
+        factory = getUtility(IVocabularyFactory, "imio.dms.mail.IMReviewStatesVocabulary")
         self.assertEqual(len(factory(folder)), 7)
         # check configuration
         lst = api.portal.get_registry_record("imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions")

@@ -44,7 +44,7 @@ class BatchActions(unittest.TestCase):
         view.request.form["form.widgets.uids"] = ",".join([self.im1.UID(), self.im2.UID()])
         view.update()
         # override z3c.form.field.FieldWidgets.extract
-        view.widgets.extract = lambda *a, **kw: ({"transition": u"propose_to_manager", "comment": u""}, [])
+        view.widgets.extract = lambda *a, **kw: ({"transition": "propose_to_manager", "comment": ""}, [])
         view.handleApply(view, "apply")
         self.assertEqual("proposed_to_manager", api.content.get_state(self.im1))
         self.assertEqual("proposed_to_manager", api.content.get_state(self.im2))
@@ -178,7 +178,7 @@ class BatchActions(unittest.TestCase):
         view = self.tsf.unrestrictedTraverse("@@transition-batch-action")
         view.request.form["form.widgets.uids"] = ",".join([self.ta1.UID(), self.ta2.UID()])
         view.update()
-        view.widgets.extract = lambda *a, **kw: ({"transition": u"do_to_assign", "comment": u""}, [])
+        view.widgets.extract = lambda *a, **kw: ({"transition": "do_to_assign", "comment": ""}, [])
         view.handleApply(view, "apply")
         # to_do due to automatic transition
         self.assertEqual("to_do", api.content.get_state(self.ta1))
@@ -212,8 +212,8 @@ class BatchActions(unittest.TestCase):
     def test_DuplicatedBatchActionForm_on_personnel_dashboard(self):
         pf = self.portal["contacts"]["personnel-folder"]
         psf = pf["personnel-searches"]
-        p1 = api.content.create(container=pf, type="person", id="dup1", lastname=u"Dupont")
-        p2 = api.content.create(container=pf, type="person", id="dup2", lastname=u"Dupond")
+        p1 = api.content.create(container=pf, type="person", id="dup1", lastname="Dupont")
+        p2 = api.content.create(container=pf, type="person", id="dup2", lastname="Dupond")
         view = psf.unrestrictedTraverse("@@duplicated-batch-action")
         alsoProvides(view.request, ICollectiveContactDuplicatedLayer)
         view.request["uids"] = ",".join([p1.UID(), p2.UID()])
@@ -240,8 +240,8 @@ class BatchActions(unittest.TestCase):
         rendered = view()
         # the multiple-reply form is rendered in place
         self.assertEqual(view.request["URL"], "{}/multiple-reply".format(self.msf.absolute_url()))
-        self.assertIn(u"Répondre à 2 courriers entrants", rendered)
-        self.assertIn(u'name="form.widgets.IDublinCore.title"', rendered)
+        self.assertIn("Répondre à 2 courriers entrants", rendered)
+        self.assertIn('name="form.widgets.IDublinCore.title"', rendered)
         # uids separated by ";" (Plone 6 relation widget)
         self.assertEqual(view.request.form["form.widgets.reply_to"], "{};{}".format(self.im1.UID(), self.im2.UID()))
 
@@ -254,7 +254,7 @@ class BatchActions(unittest.TestCase):
         view.update()
         self.assertTrue(view.do_apply)
         # add
-        view.widgets.extract = lambda *a, **kw: ({"action_choice": u"add", "added_values": [self.swde]}, [])
+        view.widgets.extract = lambda *a, **kw: ({"action_choice": "add", "added_values": [self.swde]}, [])
         view.handleApply(view, "apply")
         self.assertSetEqual(set([rel.to_object for rel in self.im1.sender]), {self.elec, self.swde})
         self.assertListEqual([rel.to_object for rel in self.im2.sender], [self.swde])
@@ -263,7 +263,7 @@ class BatchActions(unittest.TestCase):
             {self.im1.UID(), self.im2.UID()},
         )
         # remove
-        view.widgets.extract = lambda *a, **kw: ({"action_choice": u"remove", "removed_values": [self.elec]}, [])
+        view.widgets.extract = lambda *a, **kw: ({"action_choice": "remove", "removed_values": [self.elec]}, [])
         view.handleApply(view, "apply")
         self.assertListEqual([rel.to_object for rel in self.im1.sender], [self.swde])
         self.assertNotIn(self.im1.UID(), [b.UID for b in self.pc(sender_index=self.elec.UID())])
@@ -287,24 +287,24 @@ class BatchActions(unittest.TestCase):
 
     def test_SendModesBatchActionForm(self):
         uids = ",".join([self.om1.UID(), self.om2.UID()])
-        self.assertListEqual(self.om1.send_modes, [u"post"])
+        self.assertListEqual(self.om1.send_modes, ["post"])
         view = self.omsf.unrestrictedTraverse("@@send-modes-batch-action")
         view.request["uids"] = uids
         view.update()
         self.assertTrue(view.do_apply)  # Manage portal on dashboard
-        view.widgets.extract = lambda *a, **kw: ({"action_choice": u"add", "added_values": [u"email"]}, [])
+        view.widgets.extract = lambda *a, **kw: ({"action_choice": "add", "added_values": ["email"]}, [])
         view.handleApply(view, "apply")
         # vocabulary order is kept
-        self.assertListEqual(list(self.om1.send_modes), [u"post", u"email"])
-        self.assertListEqual(list(self.om2.send_modes), [u"post", u"email"])
-        self.assertEqual(len(self.pc(UID=[self.om1.UID(), self.om2.UID()], Subject=u"email")), 2)
+        self.assertListEqual(list(self.om1.send_modes), ["post", "email"])
+        self.assertListEqual(list(self.om2.send_modes), ["post", "email"])
+        self.assertEqual(len(self.pc(UID=[self.om1.UID(), self.om2.UID()], Subject="email")), 2)
         # the result cannot be empty
         view.widgets.extract = lambda *a, **kw: (
-            {"action_choice": u"remove", "removed_values": [u"post", u"email"]},
+            {"action_choice": "remove", "removed_values": ["post", "email"]},
             [],
         )
         view.handleApply(view, "apply")
-        self.assertListEqual(list(self.om1.send_modes), [u"post", u"email"])
+        self.assertListEqual(list(self.om1.send_modes), ["post", "email"])
         # an agent cannot apply it
         change_user(self.portal, "agent")
         view = self.omsf.unrestrictedTraverse("@@send-modes-batch-action")
@@ -319,14 +319,14 @@ class BatchActions(unittest.TestCase):
         view.update()
         self.assertTrue(view.do_apply)
         view.widgets.extract = lambda *a, **kw: (
-            {"action_choice": u"replace", "removed_values": [self.elec], "added_values": [self.swde]},
+            {"action_choice": "replace", "removed_values": [self.elec], "added_values": [self.swde]},
             [],
         )
         view.handleApply(view, "apply")
         self.assertListEqual([rel.to_object for rel in self.om1.recipients], [self.swde])
         self.assertListEqual([rel.to_object for rel in self.om2.recipients], [self.swde])
         self.assertIn(self.om1.UID(), [b.UID for b in self.pc(recipients_index=self.swde.UID())])
-        view.widgets.extract = lambda *a, **kw: ({"action_choice": u"overwrite", "added_values": [self.elec]}, [])
+        view.widgets.extract = lambda *a, **kw: ({"action_choice": "overwrite", "added_values": [self.elec]}, [])
         view.handleApply(view, "apply")
         self.assertListEqual([rel.to_object for rel in self.om1.recipients], [self.elec])
         self.assertListEqual([rel.to_object for rel in self.om2.recipients], [self.elec])

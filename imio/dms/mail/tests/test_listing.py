@@ -24,8 +24,8 @@ class TestListingView(unittest.TestCase):
         results = self.view.findIncomingMails()
         # mails are grouped by treating group, titled with the group full title
         dg = self.pgof["direction-generale"]
-        self.assertEqual(results[dg.UID()]["title"], u"Direction générale")
-        self.assertEqual(results[dg["secretariat"].UID()]["title"], u"Direction générale - Secrétariat")
+        self.assertEqual(results[dg.UID()]["title"], "Direction générale")
+        self.assertEqual(results[dg["secretariat"].UID()]["title"], "Direction générale - Secrétariat")
         self.assertNotIn("1_no_group", results)
         # mails are sorted by internal reference number
         im1 = get_object(oid="courrier1", ptype="dmsincomingmail")
@@ -40,9 +40,16 @@ class TestListingView(unittest.TestCase):
         self.assertDictEqual(self.view.findIncomingMails(start_date=tomorrow), {})
         # mail without treating group
         sub_create(
-            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id",
-            **{"title": u"No group", "mail_type": u"courrier", "reception_date": datetime.now(),
-               "internal_reference_no": u"E9999"}
+            self.portal["incoming-mail"],
+            "dmsincomingmail",
+            datetime.now(),
+            "my-id",
+            **{
+                "title": "No group",
+                "mail_type": "courrier",
+                "reception_date": datetime.now(),
+                "internal_reference_no": "E9999",
+            }
         )
         results = self.view.findIncomingMails()
         self.assertEqual(results["1_no_group"]["title"], "listing_no_group")
@@ -51,12 +58,12 @@ class TestListingView(unittest.TestCase):
     def test_call(self):
         """Render the printable listing."""
         rendered = self.view()
-        self.assertIn(u"Direction générale - Secrétariat", rendered)
-        self.assertIn(u"<td>E0001 - Courrier 1</td>", rendered)
-        self.assertIn(u"Electrabel", rendered)
-        self.assertIn(u'src="http://nohost/plone/++plone++bootstrap-icons/printer.svg"', rendered)
+        self.assertIn("Direction générale - Secrétariat", rendered)
+        self.assertIn("<td>E0001 - Courrier 1</td>", rendered)
+        self.assertIn("Electrabel", rendered)
+        self.assertIn('src="http://nohost/plone/++plone++bootstrap-icons/printer.svg"', rendered)
         # nothing to list
         self.view.request.form["start_date"] = "29991231"
         self.view.request["start_date"] = "29991231"
         rendered = self.view()
-        self.assertNotIn(u"Courrier 1", rendered)
+        self.assertNotIn("Courrier 1", rendered)

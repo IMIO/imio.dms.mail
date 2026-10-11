@@ -39,6 +39,7 @@ class MultipleAnnexesMixin(object):
     typeupload = None
 
     """Mixin class for batch upload of dmsappendixfiles"""
+
     def may_multiple_annexes(self):
         """Method that defines if quickupload 'Annexes multiples' has to be displayed"""
         if not self.isInFacetedNavigation() and self.member.has_permission("Add portal content", self.context):
@@ -200,19 +201,10 @@ class SigningFieldsetActionsPanelView(ActionsPanelView):
 
     @ram.cache(actionspanelview_cachekey)
     def SigningFieldsetActionsPanelView__call__(
-        self,
-        useIcons=True,
-        showEdit=True,
-        showOwnDelete=False,
-        showTransitions=False,
-        **kwargs
+        self, useIcons=True, showEdit=True, showOwnDelete=False, showTransitions=False, **kwargs
     ):
         super(SigningFieldsetActionsPanelView, self).__call__(
-            useIcons=useIcons,
-            showEdit=showEdit,
-            showOwnDelete=showOwnDelete,
-            showTransitions=showTransitions,
-            **kwargs
+            useIcons=useIcons, showEdit=showEdit, showOwnDelete=showOwnDelete, showTransitions=showTransitions, **kwargs
         )
         self.saveHasActions()  # To remove dash "-" when no actions available
         return self.index()

@@ -121,13 +121,13 @@ class TestDmsSignRequest(unittest.TestCase, ImioTestHelpers):
         number = api.portal.get_registry_record(SIGNREQUEST_NUMBER)
         request, files = create_sign_request(self.portal, oid="sr-num", signers=[], nb_files=0)
         # reference computed from the tal expression and counter incremented
-        self.assertEqual(request.internal_reference_no, u"D%04d" % number)
+        self.assertEqual(request.internal_reference_no, "D%04d" % number)
         self.assertEqual(api.portal.get_registry_record(SIGNREQUEST_NUMBER), number + 1)
         # _auto_ref False => reference still (re)set but counter left untouched
         request._auto_ref = False
-        request.internal_reference_no = u""
+        request.internal_reference_no = ""
         incrementSignRequestNumber(request, None)
-        self.assertEqual(request.internal_reference_no, u"D%04d" % (number + 1))
+        self.assertEqual(request.internal_reference_no, "D%04d" % (number + 1))
         self.assertEqual(api.portal.get_registry_record(SIGNREQUEST_NUMBER), number + 1)
 
     def test_signrequest_internal_reference_number_indexer(self):
@@ -135,7 +135,7 @@ class TestDmsSignRequest(unittest.TestCase, ImioTestHelpers):
         indexer = signrequest_internal_reference_number_indexer(request)
         self.assertEqual(indexer(), request.internal_reference_no)
         # empty reference is not indexed
-        request.internal_reference_no = u""
+        request.internal_reference_no = ""
         self.assertEqual(signrequest_internal_reference_number_indexer(request)(), _marker)
 
     def test_schema(self):
@@ -146,19 +146,20 @@ class TestDmsSignRequest(unittest.TestCase, ImioTestHelpers):
         self.assertIn("related_docs", omitted)
 
     def test_Title(self):
-        request, files = create_sign_request(self.portal, oid="sr-title", signers=[], nb_files=0,
-                                             title=u"Demande à signer")
+        request, files = create_sign_request(
+            self.portal, oid="sr-title", signers=[], nb_files=0, title="Demande à signer"
+        )
         ref = request.internal_reference_no
-        self.assertEqual(safe_unicode(request.Title()), u"{} - Demande à signer".format(ref))
+        self.assertEqual(safe_unicode(request.Title()), "{} - Demande à signer".format(ref))
         # no reference
         request.internal_reference_no = None
-        self.assertEqual(safe_unicode(request.Title()), u"Demande à signer")
+        self.assertEqual(safe_unicode(request.Title()), "Demande à signer")
 
     def test_internalReferenceSignRequestDefaultValue(self):
         number = api.portal.get_registry_record(SIGNREQUEST_NUMBER)
         value = internalReferenceSignRequestDefaultValue(DummyView(self.portal, self.portal.REQUEST))
-        self.assertEqual(value, u"D%04d" % number)
-        self.assertIsInstance(value, type(u""))
+        self.assertEqual(value, "D%04d" % number)
+        self.assertIsInstance(value, type(""))
 
     def test_InternalReferenceSignRequestValidator(self):
         request, files = create_sign_request(self.portal, oid="sr-val", signers=[], nb_files=0)
@@ -166,13 +167,13 @@ class TestDmsSignRequest(unittest.TestCase, ImioTestHelpers):
         validator = InternalReferenceSignRequestValidator(
             self.portal["requests"], self.portal.REQUEST, None, IImioDmsSignRequest["internal_reference_no"], None
         )
-        self.assertEqual(validator.good_value(), u"D%04d" % number)
+        self.assertEqual(validator.good_value(), "D%04d" % number)
         # a free reference is valid
-        self.assertIsNone(validator.validate(u"D%04d" % number))
+        self.assertIsNone(validator.validate("D%04d" % number))
         # an already used reference is refused, the next free one is proposed
         with self.assertRaises(Invalid) as cm:
             validator.validate(request.internal_reference_no)
-        self.assertEqual(cm.exception.args[0].mapping["good_value"], u"D%04d" % number)
+        self.assertEqual(cm.exception.args[0].mapping["good_value"], "D%04d" % number)
 
     def test_sign_request_updatefields(self):
         form = Dummy(fields=Fields(ITask, prefix="ITask").select("ITask.assigned_user"))
@@ -196,10 +197,15 @@ class TestDmsSignRequest(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(form.widgets["ITask.assigned_user"].value, ["siteadmin"])
         self.assertEqual(form.request.get("disable_plone.leftcolumn"), 1)
         # the request is added in a period subfolder
-        obj = createContent("sign_request", title=u"Demande formulaire", treating_groups=org_uid,
-                            assigned_user="chef", recipient_groups=[])
+        obj = createContent(
+            "sign_request",
+            title="Demande formulaire",
+            treating_groups=org_uid,
+            assigned_user="chef",
+            recipient_groups=[],
+        )
         form.add(obj)
-        added = api.content.find(context=rfolder, portal_type="sign_request", Title=u"formulaire")[0].getObject()
+        added = api.content.find(context=rfolder, portal_type="sign_request", Title="formulaire")[0].getObject()
         self.assertEqual(added.__parent__.__parent__, rfolder)
         self.assertTrue(form.immediate_view.startswith(added.absolute_url()))
 
@@ -216,7 +222,7 @@ class TestDmsSignRequest(unittest.TestCase, ImioTestHelpers):
         view = SignRequestView(request, request.REQUEST)
         view.update()
         # the signing fieldset legend shows the signing actions panel
-        self.assertEqual(view.legend_extra(Dummy(__name__="other")), u"")
+        self.assertEqual(view.legend_extra(Dummy(__name__="other")), "")
         self.assertEqual(
             view.legend_extra(Dummy(__name__="signing")), request.restrictedTraverse("@@signing_actions_panel")()
         )

@@ -50,7 +50,7 @@ def video_doc_init(self, pdb=""):
         return self.REQUEST.response.redirect(self.absolute_url())
     orig_sizes = api.portal.get_registry_record("plone.allowed_sizes")
     new_sizes = [size for size in orig_sizes if not size.startswith("preview")]
-    new_sizes.append(u"preview 768:768")
+    new_sizes.append("preview 768:768")
     api.portal.set_registry_record("plone.allowed_sizes", new_sizes)
     filepath = add_path("tests/robot/outlook-ruban-1.jpg")
     with open(filepath, "rb") as fo:

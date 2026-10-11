@@ -44,7 +44,6 @@ from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from Products.GenericSetup.utils import PropertyManagerHelpers
 from Products.MailHost.interfaces import IMailHost
 from profilehooks import timecall
-# from z3c.relationfield import RelationValue
 from z3c.relationfield.event import removeRelations
 from z3c.relationfield.event import updateRelations
 from z3c.relationfield.interfaces import IHasOutgoingRelations
@@ -54,7 +53,6 @@ from zope.component import getUtilitiesFor
 from zope.component import getUtility
 from zope.component import provideAdapter
 from zope.globalrequest.local import setLocal
-# from zope.intid import IIntIds
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 from zope.ramcache.interfaces.ram import IRAMCache
@@ -88,8 +86,13 @@ class PloneDmsFixture(PloneFixture):
     def setUpZCML(self):
         """Include imio.dms.mail i18n locales before Plone to override plone messages."""
         pr = list(self.products)
-        pr.insert(-2, ("imio.dms.mail", {"loadZCML": True, "install": False,
-                                         "load_only": {"configure.zcml": "testing_locales.zcml"}}))
+        pr.insert(
+            -2,
+            (
+                "imio.dms.mail",
+                {"loadZCML": True, "install": False, "load_only": {"configure.zcml": "testing_locales.zcml"}},
+            ),
+        )
         self.products = tuple(pr)
 
         # Create a new global registry
@@ -190,7 +193,7 @@ class DmsmailLayer(PloneWithPackageLayer):
         setRoles(portal, TEST_USER_ID, ["Manager"])
         folder_uid = portal["contacts"]["plonegroup-organization"]["direction-generale"]["secretariat"].UID()
         newobj = api.content.copy(portal["templates"]["om"]["main"], portal["templates"]["om"][folder_uid])
-        newobj.title = u"Modèle type"
+        newobj.title = "Modèle type"
         newobj.reindexObject()
 
         # avoid redirection after document generation
@@ -245,7 +248,7 @@ class DmsmailLayerNP1(DmsmailLayer):
         # Change some settings
         api.portal.set_registry_record(
             "collective.contact.core.interfaces.IContactCoreParameters.contact_source_metadata_content",
-            u"{gft} # {number}, {street}, {zip_code}, {city} # {email}",
+            "{gft} # {number}, {street}, {zip_code}, {city} # {email}",
         )
         # Activate n+1
         portal.portal_setup.runImportStepFromProfile(
@@ -298,7 +301,10 @@ DMSMAIL_FIXTURE = DmsmailLayer(
     zcml_package=imio.dms.mail,
     # Products.ExternalEditor: Folder.externalEditLink_ (a Zope instance imports every product, Plone 4 fixture did)
     additional_z2_products=(
-        "Products.PythonScripts", "imio.dashboard", "imio.dms.mail", "Products.PasswordStrength",
+        "Products.PythonScripts",
+        "imio.dashboard",
+        "imio.dms.mail",
+        "Products.PasswordStrength",
         "Products.ExternalEditor",
     ),
     gs_profile_id="imio.dms.mail:testing",
@@ -310,7 +316,10 @@ DMSMAIL_NP1_FIXTURE = DmsmailLayerNP1(
     zcml_package=imio.dms.mail,
     # Products.ExternalEditor: Folder.externalEditLink_ (a Zope instance imports every product, Plone 4 fixture did)
     additional_z2_products=(
-        "Products.PythonScripts", "imio.dashboard", "imio.dms.mail", "Products.PasswordStrength",
+        "Products.PythonScripts",
+        "imio.dashboard",
+        "imio.dms.mail",
+        "Products.PasswordStrength",
         "Products.ExternalEditor",
     ),
     gs_profile_id="imio.dms.mail:testing",
@@ -378,8 +387,19 @@ ACCEPTANCE = FunctionalTesting(
 
 def warm_up_cache_keys(portal):
     """Create the imio.helpers volatile cache keys: written on first read, a GET would ask a CSRF confirmation."""
-    for ptype in ("dmsincomingmail", "dmsincoming_email", "dmsoutgoingmail", "sign_request", "task", "organization",
-                  "person", "held_position", "contact_list", "ClassificationFolder", "ClassificationSubfolder"):
+    for ptype in (
+        "dmsincomingmail",
+        "dmsincoming_email",
+        "dmsoutgoingmail",
+        "sign_request",
+        "task",
+        "organization",
+        "person",
+        "held_position",
+        "contact_list",
+        "ClassificationFolder",
+        "ClassificationSubfolder",
+    ):
         list_wf_states(portal, ptype)
     get_cachekey_volatile("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     for name, factory in getUtilitiesFor(IVocabularyFactory):
@@ -404,8 +424,10 @@ def reset_dms_config():
         ["wf_from_to", "dmsincomingmail", "n_plus", "to"], [("proposed_to_agent", "propose_to_agent")]  # i_e ok
     )
     set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "from"], [("created", "back_to_creation")])
-    set_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus", "to"],
-                   [("sent", "mark_as_sent"), ("to_be_signed", "propose_to_be_signed")])
+    set_dms_config(
+        ["wf_from_to", "dmsoutgoingmail", "n_plus", "to"],
+        [("sent", "mark_as_sent"), ("to_be_signed", "propose_to_be_signed")],
+    )
     set_dms_config(
         ["review_levels", "dmsincomingmail"], OrderedDict([("dir_general", {"st": ["proposed_to_manager"]})])  # i_e ok
     )
@@ -447,18 +469,31 @@ def change_user(portal, user="siteadmin"):
 def ensure_demand_sign(portal, org_uid, userids=("chef", "dirg")):
     """Register the 'demand_sign' plonegroup function and add users to '<org_uid>_demand_sign'."""
     functions = get_registry_functions()
-    if u"demand_sign" not in [fct["fct_id"] for fct in functions]:
+    if "demand_sign" not in [fct["fct_id"] for fct in functions]:
         functions.append(
-            {"fct_title": u"Demande Sign.", "fct_id": u"demand_sign", "fct_orgs": [],
-             "fct_management": False, "enabled": True}
+            {
+                "fct_title": "Demande Sign.",
+                "fct_id": "demand_sign",
+                "fct_orgs": [],
+                "fct_management": False,
+                "enabled": True,
+            }
         )
         set_registry_functions(functions)
     for userid in userids:
         portal.acl_users.source_groups.addPrincipalToGroup(userid, "%s_demand_sign" % org_uid)
 
 
-def create_sign_request(portal, oid="sr1", signers=None, nb_files=1, org_uid=None,
-                        assigned_user="chef", esign=False, title=u"Demande de signature test"):
+def create_sign_request(
+    portal,
+    oid="sr1",
+    signers=None,
+    nb_files=1,
+    org_uid=None,
+    assigned_user="chef",
+    esign=False,
+    title="Demande de signature test",
+):
     """Create a sign_request in the 'requests' folder with optional signers and appendix files.
 
     Returns a (request, files) tuple.
@@ -476,7 +511,7 @@ def create_sign_request(portal, oid="sr1", signers=None, nb_files=1, org_uid=Non
     }
     request = sub_create(portal["requests"], "sign_request", datetime.datetime.now(), oid, **params)
     ct = portal["annexes_types"]["sign_request_appendix_files"]["sign-request-appendix-file"]
-    filename = u"3-degradation-voirie.odt"
+    filename = "3-degradation-voirie.odt"
     filepath = "%s/batchimport/toprocess/requests/%s" % (imio.dms.mail.__path__[0], filename)
     files = []
     for i in range(nb_files):
@@ -502,8 +537,7 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
     import imio.dms.mail as imiodmsmail
 
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
-    files = [safe_unicode(name) for name in os.listdir(filespath)
-             if Path(name).suffix[1:] in ("pdf", "doc", "jpg")]
+    files = [safe_unicode(name) for name in os.listdir(filespath) if Path(name).suffix[1:] in ("pdf", "doc", "jpg")]
     files_cycle = cycle(files)
 
     # intids = getUtility(IIntIds)
@@ -515,7 +549,7 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
     orgas_cycle = cycle(selected_orgs)
 
     ifld = tc.layer["portal"]["incoming-mail"]
-    setattr(ifld, "folder_period", u"day")
+    setattr(ifld, "folder_period", "day")
     with api.env.adopt_user(username="encodeur"):
         days = 0
         for i in range(start, end + 1):

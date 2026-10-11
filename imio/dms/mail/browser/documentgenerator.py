@@ -85,10 +85,13 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
             return fmt % val
         return ""
 
-    def get_classification_folders(self, sep=u", "):
+    def get_classification_folders(self, sep=", "):
         obj = self.real_context
-        if (not self.has_field("classification_folders") or not hasattr(obj, "classification_folders")
-                or not obj.classification_folders):
+        if (
+            not self.has_field("classification_folders")
+            or not hasattr(obj, "classification_folders")
+            or not obj.classification_folders
+        ):
             return []
         ret = []
         for fld in obj.classification_folders:
@@ -139,7 +142,7 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
 
     def get_separate_titles(self, contact, **kwargs):
         """Return a list with separate title for organization and person"""
-        ret = [u"", u""]  # org, pers
+        ret = ["", ""]  # org, pers
         if IPerson.providedBy(contact):
             ret[1] = contact.get_title()
         elif IOrganization.providedBy(contact):
@@ -157,15 +160,13 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
             return None
         return uuidToObject(obj.treating_groups, unrestricted=True)
 
-    def person_title(
-        self, contact, pers_dft=u"Monsieur", org_dft=u"Madame, Monsieur", with_name=False, upper_name=False
-    ):
+    def person_title(self, contact, pers_dft="Monsieur", org_dft="Madame, Monsieur", with_name=False, upper_name=False):
         def pers_title(pers):
             title = contact.person_title
             if not title:
                 title = pers_dft
             if with_name and pers.lastname:
-                return u"{} {}".format(title, upper_name and pers.lastname.upper() or pers.lastname)
+                return "{} {}".format(title, upper_name and pers.lastname.upper() or pers.lastname)
             else:
                 return title
 
@@ -176,19 +177,19 @@ class BaseDGHelper(DXDocumentGenerationHelperView):
         elif IHeldPosition.providedBy(contact):
             return pers_title(contact.get_person())
         else:
-            return u""
+            return ""
 
-    def separate_full_title(self, tg=u"", nb=2, sep=u" - "):
+    def separate_full_title(self, tg="", nb=2, sep=" - "):
         """Separates a treating group name in different parts.
         Returns always the good number of parts, fulled with empty strings."""
-        ret = [u"" for i in range(0, nb)]
+        ret = ["" for i in range(0, nb)]
         if not tg:
             return ret
         parts = tg.split(sep)
         for i in range(0, nb - 1):
             ret[i] = parts[i]
         if len(parts) >= nb:
-            ret[-1] = sep.join(parts[nb - 1:])
+            ret[-1] = sep.join(parts[nb - 1 :])
         return ret
 
 
@@ -233,9 +234,9 @@ class OMDGHelper(BaseDGHelper):
     def mailed_context(self, mailed_data):
         """Modify context to separate mailing_list tuple."""
         new_context = super(OMDGHelper, self).mailed_context(mailed_data)
-        (contact, send_mode) = new_context['mailed_data']
-        new_context['mailed_data'] = contact
-        new_context['send_mode'] = send_mode
+        (contact, send_mode) = new_context["mailed_data"]
+        new_context["mailed_data"] = contact
+        new_context["send_mode"] = send_mode
         return new_context
 
     def is_first_doc(self):
@@ -245,7 +246,7 @@ class OMDGHelper(BaseDGHelper):
             return False
         return True
 
-    def display_send_modes(self, separator=u", ", filter_on=None):
+    def display_send_modes(self, separator=", ", filter_on=None):
         """Return a list of send modes to display in the template.
 
         :param separator: separator to join values
@@ -394,11 +395,13 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
                 if not pages:
                     api.portal.show_message(
                         message=translate(
-                            _(u"Warning: cannot determine the page count of document '${doc}' of mail "
-                              u"'${mail}'. This document will not be included in the printing.",
-                              mapping={u"doc": safe_unicode(obj.Title()),
-                                       u"mail": safe_unicode(mail.Title())}),
-                            context=self.request),
+                            _(
+                                "Warning: cannot determine the page count of document '${doc}' of mail "
+                                "'${mail}'. This document will not be included in the printing.",
+                                mapping={"doc": safe_unicode(obj.Title()), "mail": safe_unicode(mail.Title())},
+                            ),
+                            context=self.request,
+                        ),
                         request=self.request,
                         type="warning",
                     )
@@ -455,7 +458,7 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
             # ponytail: statistic written by LibreOffice at save (documentgenerator always calls it), 0 if missing
             try:
                 with zipfile.ZipFile(io.BytesIO(obj.file.data)) as zfile:
-                    match = re.search(br'meta:page-count="(\d+)"', zfile.read("meta.xml"))
+                    match = re.search(rb'meta:page-count="(\d+)"', zfile.read("meta.xml"))
             except (zipfile.BadZipFile, KeyError):
                 return 0
             return match and int(match.group(1)) or 0
@@ -488,15 +491,21 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
             return []
         # previews were made by collective.documentviewer (no Plone 6 viewer yet)
         annot = IAnnotations(afile).get("collective.documentviewer", "")
-        if (not annot or not annot.get("successfully_converted") or not annot.get("num_pages")
-                or not annot.get("blob_files")):
+        if (
+            not annot
+            or not annot.get("successfully_converted")
+            or not annot.get("num_pages")
+            or not annot.get("blob_files")
+        ):
             api.portal.show_message(
                 message=translate(
-                    _(u"Warning: no preview image found for document '${doc}' of mail '${mail}'. "
-                      u"This document will not be included in the printing.",
-                      mapping={u"doc": safe_unicode(afile.Title()),
-                               u"mail": safe_unicode(afile.aq_parent.Title())}),
-                    context=self.request),
+                    _(
+                        "Warning: no preview image found for document '${doc}' of mail '${mail}'. "
+                        "This document will not be included in the printing.",
+                        mapping={"doc": safe_unicode(afile.Title()), "mail": safe_unicode(afile.aq_parent.Title())},
+                    ),
+                    context=self.request,
+                ),
                 request=self.request,
                 type="warning",
             )
@@ -543,7 +552,7 @@ class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView, Dashboar
             id += 1
             self.uids[brain.UID] = id
             obj = brain._unrestrictedGetObject()
-            path = brain.getPath()[self.dp_len:]
+            path = brain.getPath()[self.dp_len :]
             parts = path.split("/")
             p_path = "/".join(parts[:-1])
             paths[path] = id
@@ -565,7 +574,7 @@ class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView, Dashboar
         ):
             id += 1
             self.uids[brain.UID] = id
-            self.pers[brain.getPath()[self.dp_len:]] = id
+            self.pers[brain.getPath()[self.dp_len :]] = id
             obj = brain._unrestrictedGetObject()
             lst.append((id, obj))
         return lst
@@ -584,7 +593,7 @@ class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView, Dashboar
             self.uids[brain.UID] = id
             obj = brain._unrestrictedGetObject()
             # pers id
-            path = brain.getPath()[self.dp_len:]
+            path = brain.getPath()[self.dp_len :]
             parts = path.split("/")
             p_path = "/".join(parts[:-1])
             p_id = self.pers[p_path]
@@ -618,7 +627,6 @@ class DbDocumentGenerationView(DashboardDocumentGenerationView):
 
 
 class OMPDGenerationView(PersistentDocumentGenerationView):
-
     """Generation view used on an outgoingmail"""
 
     def _get_title(self, doc_name, gen_context):
@@ -627,14 +635,21 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
     def mailing_related_generation_context(self, helper_view, gen_context):
         mailing_list = helper_view.mailing_list(gen_context)
         if len(mailing_list) == 0:
-            utils.update_dict_with_validation(gen_context, {'mailed_data': None},
-                                              _dg("Error when merging mailed_data in generation context"))
+            utils.update_dict_with_validation(
+                gen_context, {"mailed_data": None}, _dg("Error when merging mailed_data in generation context")
+            )
         elif len(mailing_list) == 1:
             ctx = helper_view.mailed_context(mailing_list[0])
-            utils.update_dict_with_validation(gen_context, {'mailed_data': ctx['mailed_data']},
-                                              _dg("Error when merging mailed_data in generation context"))
-            utils.update_dict_with_validation(gen_context, {'send_mode': ctx['send_mode']},
-                                              _dg("Error when merging mailed_data in generation context"))
+            utils.update_dict_with_validation(
+                gen_context,
+                {"mailed_data": ctx["mailed_data"]},
+                _dg("Error when merging mailed_data in generation context"),
+            )
+            utils.update_dict_with_validation(
+                gen_context,
+                {"send_mode": ctx["send_mode"]},
+                _dg("Error when merging mailed_data in generation context"),
+            )
 
     def generate_persistent_doc(self, pod_template, output_format):
         """Create a dmsmainfile from the generated document"""
@@ -680,8 +695,8 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         In both non-"rules" modes, when neither the template nor the rules provide any signer, an
         _empty_ placeholder is set so the field is no longer reprocessed on next modification.
         """
-        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
-        if mode == u"rules":
+        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, "rules")
+        if mode == "rules":
             return
         source = pod_template
         if not isinstance(source, ConfigurablePODTemplate) and hasattr(self, "orig_template"):
@@ -692,7 +707,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         mail_has_signers = bool(mail.signers)
 
         # "rules_first": when the rules already produced signers, the template configuration is ignored.
-        if mode == u"rules_first" and mail_has_signers:
+        if mode == "rules_first" and mail_has_signers:
             return
 
         signers_source, _z = get_template_signers_source(source)
@@ -701,7 +716,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
             if mail_has_signers:
                 return
             # we are in rules_first or template_first and mail has not signer
-            if mode == u"template_first":
+            if mode == "template_first":
                 # fall back to the signer rules to set signers
                 apply_signer_rules(mail)
             if not mail.signers:
@@ -718,9 +733,12 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
             if mail.signers != resolved_signers:
                 api.portal.show_message(
                     message=translate(
-                        _(u"Warning: the mail already has signers configured that differ from the template. "
-                          u"The template signers were not applied."),
-                        context=self.request),
+                        _(
+                            "Warning: the mail already has signers configured that differ from the template. "
+                            "The template signers were not applied."
+                        ),
+                        context=self.request,
+                    ),
                     request=self.request,
                     type="warning",
                 )
@@ -773,7 +791,7 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
     """Inherits from 2 classes"""
 
     def _get_title(self, doc_name, gen_context):
-        return u"%s, %s" % (self.pod_template.title, self.document.title)
+        return "%s, %s" % (self.pod_template.title, self.document.title)
 
     def _get_generation_context(self, helper_view, pod_template):
         """
@@ -788,12 +806,13 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
 
         return generation_context
 
+
 # # # TEMPLATE FORM OVERRIDES # # #
 
 
 def _filter_signing_fieldset(form_instance):
     """Remove the signing fieldset from template form groups when signers come from rules only."""
-    if api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules") == u"rules":
+    if api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, "rules") == "rules":
         form_instance.groups = [gr for gr in form_instance.groups if gr.__name__ != "signing"]
 
 
@@ -817,31 +836,33 @@ class DmsViewConfigurablePodTemplate(ViewConfigurablePodTemplate):
 class TemplateSignersColumn(Column):
     """Column showing whether a template defines signers (directly or via a merge sub-template)."""
 
-    header = _(u"Signers")
+    header = _("Signers")
     weight = 55
     cssClasses = {"td": "signers-column"}
 
     def renderCell(self, item):
         if not base_hasattr(item, "signers"):
             # types without the signing behavior (e.g. style or mailing loop templates)
-            return u""
+            return ""
         tmpl, itself = get_template_signers_source(item)
         if tmpl is not None:
             if itself:
-                return u"<span class='svg-icon pt_self_signers' title='{0}'></span>".format(
-                    translate(_(u"Signers defined"), context=self.request)
+                return "<span class='svg-icon pt_self_signers' title='{0}'></span>".format(
+                    translate(_("Signers defined"), context=self.request)
                 )
             else:
-                return u"<span class='svg-icon pt_sub_signers' title='{0}'></span>".format(
-                    translate(_(u"Signers defined via sub template"), context=self.request)
+                return "<span class='svg-icon pt_sub_signers' title='{0}'></span>".format(
+                    translate(_("Signers defined via sub template"), context=self.request)
                 )
-            icon = ("++resource++imio.dms.mail/itemIsSignedYes.png",
-                    translate(_(u"Signers defined"), context=self.request))
+            icon = (
+                "++resource++imio.dms.mail/itemIsSignedYes.png",
+                translate(_("Signers defined"), context=self.request),
+            )
         else:
-            return u""
-        return u"<img class='svg-icon' title='{0}' src='{1}' />".format(
-            safe_unicode(icon[1]).replace("'", "&#39;"),
-            u"{0}/{1}".format(self.table.portal_url, icon[0]))
+            return ""
+        return "<img class='svg-icon' title='{0}' src='{1}' />".format(
+            safe_unicode(icon[1]).replace("'", "&#39;"), "{0}/{1}".format(self.table.portal_url, icon[0])
+        )
 
 
 class DmsTemplatesTable(TemplatesTable):
@@ -849,8 +870,8 @@ class DmsTemplatesTable(TemplatesTable):
 
     def setUpColumns(self):
         columns = super(DmsTemplatesTable, self).setUpColumns()
-        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
-        if mode == u"rules":
+        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, "rules")
+        if mode == "rules":
             columns = [col for col in columns if col.__name__ != "TemplateSignersColumn"]
         return columns
 

@@ -318,14 +318,14 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
             datetime.now(),
             "id1",
             **{
-                "title": u"test",
+                "title": "test",
                 "treating_groups": dguid,
-                "assigned_user": u"chef",
-                "orig_sender_email": u'"Dexter Morgan" <dexter.morgan@mpd.am>',
+                "assigned_user": "chef",
+                "orig_sender_email": '"Dexter Morgan" <dexter.morgan@mpd.am>',
             }
         )
         indexer = im_sender_email_index(imail)
-        self.assertEqual(indexer(), u"dexter.morgan@mpd.am")
+        self.assertEqual(indexer(), "dexter.morgan@mpd.am")
 
     def test_ready_for_email_index(self):
         omail = sub_create(
@@ -344,15 +344,16 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         omail.send_modes = ["email"]
         self.assertTrue(indexer())
         # email with a doc not signed
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             createContentInContainer(omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
         self.assertFalse(indexer())
         # email with another doc signed
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-            createContentInContainer(omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename),
-                                     signed=True)
+            createContentInContainer(
+                omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename), signed=True
+            )
         self.assertTrue(indexer())
 
     def test_state_group_index(self):
@@ -362,7 +363,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
             "dmsincomingmail",
             datetime.now(),
             "id1",
-            **{"title": u"test", "treating_groups": dguid, "assigned_user": u"chef"}
+            **{"title": "test", "treating_groups": dguid, "assigned_user": "chef"}
         )
         indexer = state_group_index(imail)
         self.assertEqual(indexer(), "created")
@@ -420,7 +421,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         fh = open("testfile.txt", "w+")
         fh.write("One word\n")
         fh.seek(0)
-        file_object = NamedBlobFile(fh.read(), filename=u"testfile.txt")
+        file_object = NamedBlobFile(fh.read(), filename="testfile.txt")
         obj = createContentInContainer(
             imail,
             "dmsmainfile",
@@ -433,7 +434,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         ext = ScanSearchableExtender(obj)
         self.assertEqual(ext(), "testid2 title 010999900000690 IMIO010999900000690 description One word\n")
         # a binary file is converted to text by portal_transforms
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             obj = createContentInContainer(
                 imail, "dmsmainfile", id="testid3", title="title", file=NamedBlobFile(fo.read(), filename=filename)
@@ -442,15 +443,15 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         # a native string (utf8 bytes on Python 2)
         self.assertIsInstance(text, str)
         text = safe_unicode(text)
-        self.assertTrue(text.startswith(u"testid3 title Commune de Belleville\n"))
-        self.assertIn(u"Concerne : Votre demande de réservation de salle\n", text)
+        self.assertTrue(text.startswith("testid3 title Commune de Belleville\n"))
+        self.assertIn("Concerne : Votre demande de réservation de salle\n", text)
         # no transformation to text for an image
-        filename = u"in-Fiche IMIO urbanisme.jpg"
+        filename = "in-Fiche IMIO urbanisme.jpg"
         with open("%s/batchimport/toprocess/incoming-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             obj = createContentInContainer(
                 imail, "dmsmainfile", id="testid4", title="title", file=NamedBlobFile(fo.read(), filename=filename)
             )
-        self.assertEqual(ScanSearchableExtender(obj)(), u"testid4 title")
+        self.assertEqual(ScanSearchableExtender(obj)(), "testid4 title")
 
     def test_IdmSearchableExtender(self):
         imail = sub_create(
@@ -458,20 +459,20 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
             "dmsincomingmail",
             datetime.now(),
             "my-id",
-            **{"title": u"My title", "description": u"Description"}
+            **{"title": "My title", "description": "Description"}
         )
         ext = IdmSearchableExtender(imail)
         self.assertEqual(ext(), None)
         createContentInContainer(imail, "dmsmainfile", id="testid1", scan_id="010999900000690")
-        self.assertEqual(ext(), u"010999900000690 IMIO010999900000690 690")
+        self.assertEqual(ext(), "010999900000690 IMIO010999900000690 690")
         pc = imail.portal_catalog
         rid = pc(id="my-id")[0].getRID()
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(
-            index_value, ["e0010", "my", "title", "description", u"010999900000690", "imio010999900000690", u"690"]
+            index_value, ["e0010", "my", "title", "description", "010999900000690", "imio010999900000690", "690"]
         )
         createContentInContainer(imail, "dmsmainfile", id="testid2", scan_id="010999900000700")
-        self.assertEqual(ext(), u"010999900000690 IMIO010999900000690 690 010999900000700 IMIO010999900000700 700")
+        self.assertEqual(ext(), "010999900000690 IMIO010999900000690 690 010999900000700 IMIO010999900000700 700")
         processQueue()  # deferred indexing, read below without a catalog query
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(
@@ -481,12 +482,12 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
                 "my",
                 "title",
                 "description",
-                u"010999900000690",
+                "010999900000690",
                 "imio010999900000690",
-                u"690",
-                u"010999900000700",
+                "690",
+                "010999900000700",
                 "imio010999900000700",
-                u"700",
+                "700",
             ],
         )
 
@@ -501,22 +502,32 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         )
         ext = OdmSearchableExtender(omail)
         self.assertEqual(ext(), None)
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-            createContentInContainer(omail, "dmsommainfile", id="testid1", scan_id="011999900000690",
-                                     file=NamedBlobFile(fo.read(), filename=filename))
-        self.assertEqual(ext(), u"011999900000690 IMIO011999900000690 690")
+            createContentInContainer(
+                omail,
+                "dmsommainfile",
+                id="testid1",
+                scan_id="011999900000690",
+                file=NamedBlobFile(fo.read(), filename=filename),
+            )
+        self.assertEqual(ext(), "011999900000690 IMIO011999900000690 690")
         pc = omail.portal_catalog
         rid = pc(id="my-id")[0].getRID()
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(
-            index_value, ["s0010", "my", "title", "description", u"011999900000690", "imio011999900000690", u"690"]
+            index_value, ["s0010", "my", "title", "description", "011999900000690", "imio011999900000690", "690"]
         )
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-            createContentInContainer(omail, "dmsommainfile", id="testid2", scan_id="011999900000700",
-                                     file=NamedBlobFile(fo.read(), filename=filename))
-        self.assertEqual(ext(), u"011999900000690 IMIO011999900000690 690 011999900000700 IMIO011999900000700 700")
+            createContentInContainer(
+                omail,
+                "dmsommainfile",
+                id="testid2",
+                scan_id="011999900000700",
+                file=NamedBlobFile(fo.read(), filename=filename),
+            )
+        self.assertEqual(ext(), "011999900000690 IMIO011999900000690 690 011999900000700 IMIO011999900000700 700")
         processQueue()  # deferred indexing, read below without a catalog query
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(
@@ -526,12 +537,12 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
                 "my",
                 "title",
                 "description",
-                u"011999900000690",
+                "011999900000690",
                 "imio011999900000690",
-                u"690",
-                u"011999900000700",
+                "690",
+                "011999900000700",
                 "imio011999900000700",
-                u"700",
+                "700",
             ],
         )
 
@@ -547,7 +558,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
             "dmsincomingmail",
             datetime.now(),
             "my-id",
-            **{"title": u"My title", "mail_type": u"courrier", "assigned_user": u"agent"}
+            **{"title": "My title", "mail_type": "courrier", "assigned_user": "agent"}
         )
         view = imail.restrictedTraverse("@@view")
         view.update()
@@ -686,15 +697,15 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
             "dmsincomingmail",
             datetime.now(),
             "my-id",
-            title=u"My title",
+            title="My title",
             treating_groups=dguid,
-            assigned_user=u"chef",
+            assigned_user="chef",
         )
         adapter = IPrettyLink(imail)
         self.assertIsInstance(adapter, IMPrettyLinkAdapter)
         self.assertEqual(adapter._leadingIcons(), [])
         # a remark is only shown in the configured states (proposed_to_agent)
-        imail.task_description = RichTextValue(u"<p>Remarque</p>", "text/html", "text/x-html-safe")
+        imail.task_description = RichTextValue("<p>Remarque</p>", "text/html", "text/x-html-safe")
         self.assertEqual(adapter._leadingIcons(), [])
         api.content.transition(obj=imail, to_state="proposed_to_manager")
         api.content.transition(obj=imail, to_state="proposed_to_agent")
@@ -718,17 +729,18 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
             "dmsoutgoingmail",
             datetime.now(),
             "my-id",
-            title=u"My title",
+            title="My title",
             treating_groups=self.pgof["direction-generale"]["secretariat"].UID(),
         )
         adapter = IPrettyLink(omail)
         self.assertIsInstance(adapter, OMPrettyLinkAdapter)
         self.assertEqual(adapter._leadingIcons(), [])
-        omail.task_description = RichTextValue(u"<p>Remarque</p>", "text/html", "text/x-html-safe")
+        omail.task_description = RichTextValue("<p>Remarque</p>", "text/html", "text/x-html-safe")
         self.assertEqual(adapter._leadingIcons(), [])
         # a remark is only shown in the configured states
-        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states",
-                                       ["created"])
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states", ["created"]
+        )
         self.assertEqual([icon for icon, title in adapter._leadingIcons()], ["++resource++imio.dms.mail/remark.gif"])
         # a back transition
         with api.env.adopt_roles(["Manager"]):
@@ -773,7 +785,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
 
     def test_om_sender_email_index(self):
         omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
-        omail.orig_sender_email = u'"Dexter Morgan" <dexter.morgan@mpd.am>'
+        omail.orig_sender_email = '"Dexter Morgan" <dexter.morgan@mpd.am>'
         omail.reindexObject(idxs=["email"])
         pc = self.portal.portal_catalog
         self.assertEqual(
@@ -795,15 +807,15 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
 
     def test_get_full_title_index(self):
         imail = sub_create(
-            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id", title=u"Réponse à l'été"
+            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id", title="Réponse à l'été"
         )
         value = get_full_title_index(imail)()
         # a native string (utf8 bytes on Python 2), json serialized by the classification folder autocomplete
         self.assertIsInstance(value, str)
-        self.assertEqual(safe_unicode(value), u"Réponse à l'été")
+        self.assertEqual(safe_unicode(value), "Réponse à l'été")
         brain = self.portal.portal_catalog.unrestrictedSearchResults(UID=imail.UID())[0]
-        self.assertEqual(safe_unicode(brain.get_full_title), u"Réponse à l'été")
-        imail.title = u""
+        self.assertEqual(safe_unicode(brain.get_full_title), "Réponse à l'été")
+        imail.title = ""
         self.assertIs(get_full_title_index(imail)(), common_marker)
 
     def test_get_obj_size(self):
@@ -812,7 +824,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
             ((10, "1 KB"), (1024, "1.0 KB"), (5000, "4.9 KB"), (2 * 1048576 + 300000, "2.3 MB"))
         ):
             dfile = createContentInContainer(
-                imail, "dmsmainfile", id="f%d" % i, file=NamedBlobFile(b"x" * size, filename=u"f.bin")
+                imail, "dmsmainfile", id="f%d" % i, file=NamedBlobFile(b"x" * size, filename="f.bin")
             )
             self.assertEqual(get_obj_size(dfile), expected)
 
@@ -910,10 +922,10 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         self.assertEqual(om_markers(omail), ["lastDmsFileIsOdt"])
         self.assertEqual(IAnnotations(omail)["dmsmail.markers"], ["lastDmsFileIsOdt"])
-        omail.email_status = u"sent"
+        omail.email_status = "sent"
         self.assertEqual(om_markers(omail), ["lastDmsFileIsOdt", "emailSent"])
         # the last main file is not an odt
-        createContentInContainer(omail, "dmsommainfile", id="2", file=NamedBlobFile(b"text", filename=u"scan.txt"))
+        createContentInContainer(omail, "dmsommainfile", id="2", file=NamedBlobFile(b"text", filename="scan.txt"))
         self.assertEqual(om_markers(omail), ["emailSent"])
         new_omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "my-id")
         self.assertEqual(om_markers(new_omail), [])
@@ -935,7 +947,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(IAnnotations(dfile)["dmsmail.markers"], ["dvConvError"])
         # an eml file cannot be converted
         eml = createContentInContainer(
-            imail, "dmsappendixfile", id="eml", file=NamedBlobFile(b"Subject: test", filename=u"message.eml")
+            imail, "dmsappendixfile", id="eml", file=NamedBlobFile(b"Subject: test", filename="message.eml")
         )
         self.assertEqual(markers_conversion_error(eml), ["dvConvError"])
 
@@ -944,7 +956,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         dfile = [obj for obj in imail.objectValues() if obj.portal_type == "dmsmainfile"][0]
         self.assertEqual(markers_dmf_index(dfile)(), [])
         eml = createContentInContainer(
-            imail, "dmsmainfile", id="eml", file=NamedBlobFile(b"Subject: test", filename=u"message.eml")
+            imail, "dmsmainfile", id="eml", file=NamedBlobFile(b"Subject: test", filename="message.eml")
         )
         self.assertEqual(markers_dmf_index(eml)(), ["dvConvError"])
         pc = self.portal.portal_catalog
@@ -953,7 +965,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
     def test_markers_dmaf_index(self):
         imail = get_object(oid="courrier1", ptype="dmsincomingmail")
         eml = createContentInContainer(
-            imail, "dmsappendixfile", id="eml", file=NamedBlobFile(b"Subject: test", filename=u"message.eml")
+            imail, "dmsappendixfile", id="eml", file=NamedBlobFile(b"Subject: test", filename="message.eml")
         )
         self.assertEqual(markers_dmaf_index(eml)(), ["dvConvError"])
         pc = self.portal.portal_catalog
@@ -963,9 +975,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         imail = get_object(oid="courrier1", ptype="dmsincomingmail")
         imail.reception_date = datetime(2024, 1, 2, 10, 20)
         # strings: the index also stores organization types, Python 3 can't compare str and int keys
-        self.assertEqual(
-            im_reception_date_index(imail)(), "%010d" % time.mktime((2024, 1, 2, 10, 20, 0, 1, 2, -1))
-        )
+        self.assertEqual(im_reception_date_index(imail)(), "%010d" % time.mktime((2024, 1, 2, 10, 20, 0, 1, 2, -1)))
         imail.reception_date = None
         self.assertEqual(im_reception_date_index(imail)(), "0000000000")
 
@@ -973,9 +983,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         self.assertEqual(om_outgoing_date_index(omail)(), "0000000000")
         omail.outgoing_date = datetime(2024, 1, 2, 10, 20)
-        self.assertEqual(
-            om_outgoing_date_index(omail)(), "%010d" % time.mktime((2024, 1, 2, 10, 20, 0, 1, 2, -1))
-        )
+        self.assertEqual(om_outgoing_date_index(omail)(), "%010d" % time.mktime((2024, 1, 2, 10, 20, 0, 1, 2, -1)))
 
     def test_task_state_group_index(self):
         task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]
@@ -1006,12 +1014,12 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         pc = self.portal.portal_catalog
         # the registered metadata indexer
         indexer = getMultiAdapter((self.portal["contacts"]["electrabel"], pc), IIndexer, name="contact_source")
-        self.assertEqual(indexer(), u"Electrabel ⏺ 1, Rue de l'électron, 0020, E-ville ⏺ contak@electrabel.eb")
+        self.assertEqual(indexer(), "Electrabel ⏺ 1, Rue de l'électron, 0020, E-ville ⏺ contak@electrabel.eb")
         # empty address parts are cleaned
-        org = api.content.create(container=self.portal["contacts"], type="organization", id="org", title=u"Org")
-        self.assertEqual(imio_contact_source(org)(), u"Org ⏺  ⏺")
-        org.email = u"org@macommune.be"
-        self.assertEqual(imio_contact_source(org)(), u"Org ⏺  ⏺ org@macommune.be")
+        org = api.content.create(container=self.portal["contacts"], type="organization", id="org", title="Org")
+        self.assertEqual(imio_contact_source(org)(), "Org ⏺  ⏺")
+        org.email = "org@macommune.be"
+        self.assertEqual(imio_contact_source(org)(), "Org ⏺  ⏺ org@macommune.be")
 
     def test_labels(self):
         imail = get_object(oid="courrier1", ptype="dmsincomingmail")
@@ -1087,14 +1095,14 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         imail = get_object(oid="courrier1", ptype="dmsincomingmail")
         dfile = [obj for obj in imail.objectValues() if obj.portal_type == "dmsmainfile"][0]
         annex = createContentInContainer(
-            imail, "dmsappendixfile", id="annex", title=u"Annexe é", file=NamedBlobFile(b"text", filename=u"a.txt")
+            imail, "dmsappendixfile", id="annex", title="Annexe é", file=NamedBlobFile(b"text", filename="a.txt")
         )
         adapter = ISendableAnnexesToPM(imail)
         self.assertIsInstance(adapter, SendableAnnexesToPMAdapter)
         # tasks are not sent
         self.assertEqual(
             list(adapter.get()),
-            [{"title": dfile.title, "UID": dfile.UID()}, {"title": u"Annexe é", "UID": annex.UID()}],
+            [{"title": dfile.title, "UID": dfile.UID()}, {"title": "Annexe é", "UID": annex.UID()}],
         )
 
     def test_DmsCategorizedObjectInfoAdapter(self):
@@ -1127,7 +1135,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
         self.pf = self.portal["contacts"]["personnel-folder"]
         params = {
-            "title": u"Courrier sortant test",
+            "title": "Courrier sortant test",
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
@@ -1136,18 +1144,18 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",
             "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
-            "send_modes": u"post",
+            "send_modes": "post",
             "signers": [
                 {
                     "number": 1,
                     "signer": self.pf["dirg"]["directeur-general"].UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "editor": True,
                 },
                 {
                     "number": 2,
                     "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
-                    "approvings": [u"_themself_", self.pf["chef"].UID()],
+                    "approvings": ["_themself_", self.pf["chef"].UID()],
                     "editor": False,
                 },
             ],
@@ -1155,7 +1163,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         }
         self.omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om", **params)
 
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         self.files = []
         for i in range(2):
@@ -1196,8 +1204,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1225,7 +1233,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
     def test_signers_details(self):
         self.assertEqual(
-            self.approval.signers_details, [(0, u"Maxime DG", u"Directeur Général"), (1, u"Paul BM", u"Bourgmestre")]
+            self.approval.signers_details, [(0, "Maxime DG", "Directeur Général"), (1, "Paul BM", "Bourgmestre")]
         )
 
     def test_approvers(self):
@@ -1333,23 +1341,21 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # Second approvers
         self.assertEqual(
-            self.approval.roles, {"bourgmestre": ("Reader", "Reviewer"), "chef": ("Reader", "Reviewer"),
-                                  "dirg": ("Reader",)}
+            self.approval.roles,
+            {"bourgmestre": ("Reader", "Reviewer"), "chef": ("Reader", "Reviewer"), "dirg": ("Reader",)},
         )
         self.approval.approve_file(self.files[0], "bourgmestre")
         self.approval.approve_file(self.files[1], "bourgmestre")
 
         # Approval process finished
-        self.assertEqual(
-            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader",)}
-        )
+        self.assertEqual(self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader",)})
 
     def test_roles2(self):
         self.omail.signers = [
             {
                 "number": 1,
                 "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
-                "approvings": [u"_themself_"],
+                "approvings": ["_themself_"],
                 "editor": True,
             },
             {
@@ -1374,16 +1380,14 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # Second approvers and signer
         self.assertEqual(
-            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader", "Reviewer"),
-                                  "dirg": ("Reader", "Reviewer")}
+            self.approval.roles,
+            {"bourgmestre": ("Reader",), "chef": ("Reader", "Reviewer"), "dirg": ("Reader", "Reviewer")},
         )
         self.approval.approve_file(self.files[0], "chef")
         self.approval.approve_file(self.files[1], "chef")
 
         # Approval process finished
-        self.assertEqual(
-            self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader",)}
-        )
+        self.assertEqual(self.approval.roles, {"bourgmestre": ("Reader",), "chef": ("Reader",), "dirg": ("Reader",)})
 
     def test_start_approval_process(self):
         # Initial state
@@ -1544,8 +1548,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1579,8 +1583,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1610,8 +1614,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1626,7 +1630,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.omail.signers[0]["approvings"].append(self.pf["chef"].UID())
         self.approval.reset()
         self.assertRaises(ValueError, self.approval.update_signers)
-        self.omail.signers[0]["approvings"] = [u"_themself_"]
+        self.omail.signers[0]["approvings"] = ["_themself_"]
 
         # Duplicate emails for approvers
         api.user.get("bourgmestre").setMemberProperties({"email": "duplicate@belleville.eb"})
@@ -1651,8 +1655,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1674,8 +1678,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1703,8 +1707,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1732,8 +1736,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1821,8 +1825,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1854,8 +1858,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1887,8 +1891,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1920,8 +1924,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1956,8 +1960,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1995,8 +1999,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -2024,8 +2028,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -2048,8 +2052,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -2096,13 +2100,14 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "c_uids": {},
             },
         )
-        self.assertEqual(self.approval.add_mail_files_to_session(),
-                         (True, "${count} file(s) added to session(s) ${session_ids}"))
+        self.assertEqual(
+            self.approval.add_mail_files_to_session(), (True, "${count} file(s) added to session(s) ${session_ids}")
+        )
         self.assertEqual(len(self.omail.values()), 4)
         self.assertIn("modele-de-base-s0010-courrier-sortant-test.pdf", self.omail)
         pdf_file = self.omail["modele-de-base-s0010-courrier-sortant-test.pdf"]
         self.assertEqual(self.approval.annot["pdf_files"], [[pdf_file.UID()]])
-        self.assertEqual(pdf_file.title, u"Modele de base S0010 Courrier sortant test.pdf")
+        self.assertEqual(pdf_file.title, "Modele de base S0010 Courrier sortant test.pdf")
         self.assertTrue(pdf_file.to_sign)
         self.assertFalse(pdf_file.to_approve)
         self.assertFalse(pdf_file.approved)
@@ -2122,27 +2127,26 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                                 "context_uid": self.omail.UID(),
                                 "scan_id": orig_scanid,
                                 "uid": pdf_file.UID(),
-                                "title": u"Modele de base S0010 Courrier sortant test.pdf",
-                                "filename": u"Modele de base S0010 Courrier sortant test__{}.pdf".format(
-                                    pdf_file.UID()),
+                                "title": "Modele de base S0010 Courrier sortant test.pdf",
+                                "filename": "Modele de base S0010 Courrier sortant test__{}.pdf".format(pdf_file.UID()),
                             }
                         ],
                         "discriminators": ("dmsoutgoingmail",),
                         "watchers": [],
-                        "title": u'[iA.Docs] Courrier sortant - 012999900000',
+                        "title": "[iA.Docs] Courrier sortant - 012999900000",
                         "state": "draft",
                         "signers": [
                             {
                                 "status": "",
-                                "position": u"Directeur G\xe9n\xe9ral",
-                                "fullname": u"Maxime DG",
+                                "position": "Directeur G\xe9n\xe9ral",
+                                "fullname": "Maxime DG",
                                 "userid": "dirg",
                                 "email": "dirg@macommune.be",
                             },
                             {
                                 "status": "",
-                                "position": u"Bourgmestre",
-                                "fullname": u"Paul BM",
+                                "position": "Bourgmestre",
+                                "fullname": "Paul BM",
                                 "userid": "bourgmestre",
                                 "email": "bourgmestre@macommune.be",
                             },
@@ -2166,8 +2170,9 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.approval.session_ids[0], 0)
 
         # Already done
-        self.assertEqual(self.approval.add_mail_files_to_session(),
-                         (True, "${count} file(s) added to session(s) ${session_ids}"))
+        self.assertEqual(
+            self.approval.add_mail_files_to_session(), (True, "${count} file(s) added to session(s) ${session_ids}")
+        )
         last_update = get_session_annotation()["sessions"][0]["last_update"]
         self.assertEqual(
             get_session_annotation(),
@@ -2180,27 +2185,26 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                                 "context_uid": self.omail.UID(),
                                 "scan_id": orig_scanid,
                                 "uid": pdf_file.UID(),
-                                "title": u"Modele de base S0010 Courrier sortant test.pdf",
-                                "filename": u"Modele de base S0010 Courrier sortant test__{}.pdf".format(
-                                    pdf_file.UID()),
+                                "title": "Modele de base S0010 Courrier sortant test.pdf",
+                                "filename": "Modele de base S0010 Courrier sortant test__{}.pdf".format(pdf_file.UID()),
                             }
                         ],
                         "discriminators": ("dmsoutgoingmail",),
                         "watchers": [],
-                        "title": u'[iA.Docs] Courrier sortant - 012999900000',
+                        "title": "[iA.Docs] Courrier sortant - 012999900000",
                         "state": "draft",
                         "signers": [
                             {
                                 "status": "",
-                                "position": u"Directeur G\xe9n\xe9ral",
-                                "fullname": u"Maxime DG",
+                                "position": "Directeur G\xe9n\xe9ral",
+                                "fullname": "Maxime DG",
                                 "userid": "dirg",
                                 "email": "dirg@macommune.be",
                             },
                             {
                                 "status": "",
-                                "position": u"Bourgmestre",
-                                "fullname": u"Paul BM",
+                                "position": "Bourgmestre",
+                                "fullname": "Paul BM",
                                 "userid": "bourgmestre",
                                 "email": "bourgmestre@macommune.be",
                             },
@@ -2235,7 +2239,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             "dmsommainfile",
             id="pdffile",
             scan_id="012999900000601",
-            file=NamedBlobFile(pdf_data, filename=u"example.pdf"),
+            file=NamedBlobFile(pdf_data, filename="example.pdf"),
             content_category=calculate_category_id(ct),
         )
 
@@ -2277,8 +2281,8 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
         # 2 ODT originals but the first one has been converted
         self.assertEqual(len(list(self.omail.objectIds())), 2)
-        self.assertTrue(self.files[0].file.filename.endswith(u".pdf"))
-        self.assertTrue(self.files[1].file.filename.endswith(u".odt"))
+        self.assertTrue(self.files[0].file.filename.endswith(".pdf"))
+        self.assertTrue(self.files[1].file.filename.endswith(".odt"))
         pdf_file = self.files[0]
 
         # Check page count: at least one page produced by the conversion
@@ -2316,7 +2320,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "dmsommainfile",
                 id="docfile",
                 scan_id="012999900000601",
-                file=NamedBlobFile(doc_data, contentType="application/msword", filename=u"in-courrier4.doc"),
+                file=NamedBlobFile(doc_data, contentType="application/msword", filename="in-courrier4.doc"),
                 content_category=calculate_category_id(ct),
             )
 
@@ -2439,12 +2443,12 @@ class TestItemSignersAdapter(unittest.TestCase, ImioTestHelpers):
         self.dg = pf["dirg"]["directeur-general"]
         self.bm = pf["bourgmestre"]["bourgmestre"]
         signers = [
-            {"number": 1, "signer": self.dg.UID(), "approvings": [u"_themself_"], "editor": True},
-            {"number": 2, "signer": u"_empty_", "approvings": [], "editor": False},
-            {"number": 3, "signer": self.bm.UID(), "approvings": [u"_themself_"], "editor": False},
+            {"number": 1, "signer": self.dg.UID(), "approvings": ["_themself_"], "editor": True},
+            {"number": 2, "signer": "_empty_", "approvings": [], "editor": False},
+            {"number": 3, "signer": self.bm.UID(), "approvings": ["_themself_"], "editor": False},
         ]
         self.omail = sub_create(
-            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om", title=u"Test", signers=signers
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om", title="Test", signers=signers
         )
         self.adapter = ISignable(self.omail)
 
@@ -2452,7 +2456,7 @@ class TestItemSignersAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertIsInstance(self.adapter, ItemSignersAdapter)
         self.assertEqual(
             [(s["held_position"].UID(), s["name"], s["function"]) for s in self.adapter.get_signers()],
-            [(self.dg.UID(), u"Maxime DG", u"Directeur Général"), (self.bm.UID(), u"Paul BM", u"Bourgmestre")],
+            [(self.dg.UID(), "Maxime DG", "Directeur Général"), (self.bm.UID(), "Paul BM", "Bourgmestre")],
         )
 
     def test_get_files_uids(self):

@@ -53,14 +53,13 @@ import json
 
 
 class CreateFromTemplateForm(BaseRenderFancyTree):
-
     """Create a document from a collective.documentgenerator template."""
 
     root = "/templates/om"
 
     def label(self):
         return translate(
-            _(u"${title}: create from template", mapping={"title": safe_unicode(self.context.Title())}),
+            _("${title}: create from template", mapping={"title": safe_unicode(self.context.Title())}),
             context=self.request,
         )
 
@@ -108,7 +107,7 @@ def clean_query(query):
 class ContactSuggest(BrowserView):
     """Contact Autocomplete view"""
 
-    label = u"Contact"
+    label = "Contact"
 
     def __call__(self):
         result = []
@@ -128,7 +127,7 @@ class ContactSuggest(BrowserView):
         for brain in brains:
             hp.append({"id": brain.UID, "text": brain.get_full_title})
         # search organizations
-        crit = {"portal_type": ("organization", ), "sort_on": "sortable_title"}
+        crit = {"portal_type": ("organization",), "sort_on": "sortable_title"}
         crit.update(query)
         brains = pc(**crit)
         make_bis = (len(hp) + len(brains)) > 1 and True or False
@@ -138,7 +137,7 @@ class ContactSuggest(BrowserView):
                 org_bis.append({"id": "l:%s" % brain.UID, "text": "%s [%s]" % (brain.get_full_title, all_str)})
         result += hp
         # search persons
-        crit = {"portal_type": ("person", ), "sort_on": "sortable_title"}
+        crit = {"portal_type": ("person",), "sort_on": "sortable_title"}
         crit.update(query)
         brains = pc(**crit)
         for brain in brains:
@@ -152,7 +151,7 @@ class ContactSuggest(BrowserView):
 class SenderSuggest(BrowserView):
     """Contact Autocomplete view"""
 
-    label = u"Sender"
+    label = "Sender"
 
     def __call__(self):
         result = []
@@ -169,7 +168,7 @@ class SenderSuggest(BrowserView):
             "portal_type": "held_position",
             "path": "%s/contacts/personnel-folder" % portal_path,
             "sort_on": "sortable_title",
-            "sort_order": "ascending"
+            "sort_order": "ascending",
             # 'sort_on': ['end', 'sortable_title'], 'sort_order': ['descending', 'ascending']  # solr error
         }
         crit.update(query)
@@ -178,7 +177,7 @@ class SenderSuggest(BrowserView):
             hp.append({"id": brain.UID, "text": brain.get_full_title})
         # search organizations in plonegroup-organization folder
         crit = {
-            "portal_type": ("organization", ),
+            "portal_type": ("organization",),
             "sort_on": "sortable_title",
             "path": "%s/contacts/plonegroup-organization" % portal_path,
         }
@@ -205,7 +204,7 @@ class ServerSentEvents(BrowserView):
         self.request.response.setHeader("Content-Type", "text/event-stream")
         self.request.response.setHeader("Cache-Control", "no-cache")
         self.request.response.setHeader("Pragma", "no-cache")
-        response = u""
+        response = ""
         for child in self.context.listFolderContents():
             if IImioDmsFile.providedBy(child) and getattr(child, "conversion_finished", False):
                 # generated is added by creation subscriber, only when file is generated
@@ -225,9 +224,9 @@ class ServerSentEvents(BrowserView):
                     # avoid to refresh if file was added manually and we return on the parent
                     delattr(child, "conversion_finished")
                     continue
-                info = {u"id": child.getId(), u"path": u"/".join(child.getPhysicalPath()), u"refresh": True}
-                line = u"data: {}\n\n".format(json.dumps(info))
-                response = u"{}{}".format(response, line)
+                info = {"id": child.getId(), "path": "/".join(child.getPhysicalPath()), "refresh": True}
+                line = "data: {}\n\n".format(json.dumps(info))
+                response = "{}{}".format(response, line)
                 delattr(child, "conversion_finished")
                 delattr(child, "generated")
         return response
@@ -262,9 +261,9 @@ class SendEmail(BrowserView):
                 add_attachment(msg, title, content=a_obj.file.data)
         mailhost = get_mail_host(check=False)
         replyto_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send"
-        if mailhost.smtp_host == u"localhost" and not PMH_ENABLED:
+        if mailhost.smtp_host == "localhost" and not PMH_ENABLED:
             api.portal.show_message(
-                _("Your email has not been sent: ${error}.", mapping={"error": _(u"Cannot use localhost as smtp")}),
+                _("Your email has not been sent: ${error}.", mapping={"error": _("Cannot use localhost as smtp")}),
                 self.request,
                 type="error",
             )
@@ -301,11 +300,11 @@ class SendEmail(BrowserView):
 
         # 2 Update status on omail
         now = datetime.strftime(datetime.now(), "%Y-%m-%d %H:%M")
-        status = _tr(u"Email sent at ${date_hour}.", mapping={"date_hour": now})
+        status = _tr("Email sent at ${date_hour}.", mapping={"date_hour": now})
         if not self.context.email_status:
             self.context.email_status = status
         else:
-            self.context.email_status += u" {}".format(status)
+            self.context.email_status += " {}".format(status)
         modified(self.context)
 
         # 3 Close if necessary
@@ -391,7 +390,7 @@ class DmsMailRestClientView(BrowserView):
 
     def detailed_description(self):
         """Return a link to current object"""
-        return u"<p>Fiche courrier liée: %s</p>" % object_link(self.context, target="_blank")
+        return "<p>Fiche courrier liée: %s</p>" % object_link(self.context, target="_blank")
 
 
 class ImioSessionsListingView(SessionsListingView):
@@ -409,7 +408,8 @@ class ImioSessionsListingView(SessionsListingView):
         else:
             folder_id, searches_id = "outgoing-mail", "mail-searches"
         collection_uid = portal[folder_id][searches_id]["in_esign_sessions"].UID()
-        return "{portal_url}/{folder_id}/{searches_id}#c3=20&b_start=0&c1={collection_uid}" \
+        return (
+            "{portal_url}/{folder_id}/{searches_id}#c3=20&b_start=0&c1={collection_uid}"
             "&esign_session_id={session_id}".format(
                 portal_url=portal.absolute_url(),
                 folder_id=folder_id,
@@ -417,6 +417,7 @@ class ImioSessionsListingView(SessionsListingView):
                 collection_uid=collection_uid,
                 session_id=session["id"],
             )
+        )
 
     def get_sessions(self):
         """Only list the sessions matching the dashboard type (set on the request by the viewlet)."""
@@ -514,7 +515,7 @@ class ImioRecreateSessionView(RecreateSessionView):
             domain="plone",
             context=self.context.REQUEST,
         )
-        return u"[iA.Docs] {} - {{sign_id}}".format(type_label)
+        return "[iA.Docs] {} - {{sign_id}}".format(type_label)
 
 
 class ApprovalTableView(BrowserView):
@@ -570,7 +571,7 @@ class ApprovalTableView(BrowserView):
             for fobj, i_signer in to_approve:
                 approval.approve_file(fobj, userid, c_a=i_signer, transition=True)
 
-            IStatusMessage(self.request).addStatusMessage(_(u"Changes saved."), type="info")
+            IStatusMessage(self.request).addStatusMessage(_("Changes saved."), type="info")
             self.request.response.redirect(self.context.absolute_url())
 
         elif cancel_button:
@@ -582,7 +583,7 @@ class ImioCatalogNavigationTabs(CatalogNavigationTabs):
 
     def topLevelTabs(self, actions=None, category="portal_tabs"):
         if actions is None:
-            context_state = getMultiAdapter((aq_inner(self.context), self.request), name=u"plone_context_state")
+            context_state = getMultiAdapter((aq_inner(self.context), self.request), name="plone_context_state")
             actions = context_state.actions(category)
         result = super(ImioCatalogNavigationTabs, self).topLevelTabs(actions=[], category=category)
         for action_info in actions:
@@ -612,8 +613,10 @@ class ObjectRenameTitleView(BrowserView):
         sm = getSecurityManager()
         if not sm.checkPermission("Modify portal content", self.context):
             raise Unauthorized(
-                _(u"Permission denied to rename «${title}».",
-                  mapping={u"title": safe_unicode(self.context.title_or_id())})
+                _(
+                    "Permission denied to rename «${title}».",
+                    mapping={"title": safe_unicode(self.context.title_or_id())},
+                )
             )
 
         form = self.request.form
@@ -622,11 +625,9 @@ class ObjectRenameTitleView(BrowserView):
             target = form.get("orig_template") or self.context.absolute_url()
             if "form.button.Cancel" in form:
                 return self.request.response.redirect(target)
-            new_title = safe_unicode(form.get("new_title", u"")).strip()
+            new_title = safe_unicode(form.get("new_title", "")).strip()
             if not new_title:
-                IStatusMessage(self.request).addStatusMessage(
-                    _(u"Please provide a title."), type="error"
-                )
+                IStatusMessage(self.request).addStatusMessage(_("Please provide a title."), type="error")
                 self.error = True
                 self.title = safe_unicode(self.context.Title())
                 self.orig_template = target
@@ -634,9 +635,7 @@ class ObjectRenameTitleView(BrowserView):
             self.context.setTitle(new_title)
             self.context.reindexObject(idxs=["Title", "sortable_title", "SearchableText"])
             modified(self.context)
-            IStatusMessage(self.request).addStatusMessage(
-                _(u"Title changed."), type="info"
-            )
+            IStatusMessage(self.request).addStatusMessage(_("Title changed."), type="info")
             return self.request.response.redirect(target)
 
         self.error = False

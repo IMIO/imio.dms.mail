@@ -104,28 +104,25 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
     def test_add_remove_values_in_registry_list(self):
         """add_remove_values_in_registry_list adds/removes/reorders values idempotently"""
         key = "imio.dms.mail.displayed_tabs"
-        api.portal.set_registry_record(key, [u"incoming-mail", u"outgoing-mail"])
+        api.portal.set_registry_record(key, ["incoming-mail", "outgoing-mail"])
         # add a new value
-        self.assertTrue(add_remove_values_in_registry_list(key, to_add=(u"requests",)))
-        self.assertIn(u"requests", api.portal.get_registry_record(key))
+        self.assertTrue(add_remove_values_in_registry_list(key, to_add=("requests",)))
+        self.assertIn("requests", api.portal.get_registry_record(key))
         # adding an already present value does nothing
-        self.assertFalse(add_remove_values_in_registry_list(key, to_add=(u"requests",)))
+        self.assertFalse(add_remove_values_in_registry_list(key, to_add=("requests",)))
         # remove a value
-        self.assertTrue(add_remove_values_in_registry_list(key, to_remove=(u"outgoing-mail",)))
-        self.assertNotIn(u"outgoing-mail", api.portal.get_registry_record(key))
+        self.assertTrue(add_remove_values_in_registry_list(key, to_remove=("outgoing-mail",)))
+        self.assertNotIn("outgoing-mail", api.portal.get_registry_record(key))
         # removing an absent value does nothing
-        self.assertFalse(add_remove_values_in_registry_list(key, to_remove=(u"outgoing-mail",)))
+        self.assertFalse(add_remove_values_in_registry_list(key, to_remove=("outgoing-mail",)))
         # order reorders known values first, unknown keep relative order
-        self.assertTrue(
-            add_remove_values_in_registry_list(key, order=[u"requests", u"incoming-mail"]))
-        self.assertEqual(api.portal.get_registry_record(key), [u"requests", u"incoming-mail"])
+        self.assertTrue(add_remove_values_in_registry_list(key, order=["requests", "incoming-mail"]))
+        self.assertEqual(api.portal.get_registry_record(key), ["requests", "incoming-mail"])
         # order already respected does nothing
-        self.assertFalse(
-            add_remove_values_in_registry_list(key, order=[u"requests", u"incoming-mail"]))
+        self.assertFalse(add_remove_values_in_registry_list(key, order=["requests", "incoming-mail"]))
         # add + order in one call
-        self.assertTrue(
-            add_remove_values_in_registry_list(key, to_add=(u"tasks",), order=[u"tasks", u"requests"]))
-        self.assertEqual(api.portal.get_registry_record(key), [u"tasks", u"requests", u"incoming-mail"])
+        self.assertTrue(add_remove_values_in_registry_list(key, to_add=("tasks",), order=["tasks", "requests"]))
+        self.assertEqual(api.portal.get_registry_record(key), ["tasks", "requests", "incoming-mail"])
 
     def test_list_wf_states_sign_request(self):
         states = [state for state, title in list_wf_states(self.portal, "sign_request")]
@@ -270,14 +267,14 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(config["to_do"][org2], ("", "back_in_created2"))
 
     def test_update_transitions_auc_config(self):
-        api.portal.set_registry_record(AUC_RECORD, u"no_check")
+        api.portal.set_registry_record(AUC_RECORD, "no_check")
         # no check
         config = get_dms_config(["transitions_auc", "dmsincomingmail"])
         self.assertSetEqual(set(config.keys()), {"close", "propose_to_agent"})
         self.assertTrue(all(config["propose_to_agent"].values()))  # can always do transition
         self.assertTrue(all(config["close"].values()))  # can always do transition
         # n_plus_1
-        api.portal.set_registry_record(AUC_RECORD, u"n_plus_1")
+        api.portal.set_registry_record(AUC_RECORD, "n_plus_1")
         # only one transition
         config = get_dms_config(["transitions_auc", "dmsincomingmail"])
         self.assertSetEqual(set(config.keys()), {"close", "propose_to_agent"})
@@ -384,8 +381,8 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             datetime.now(),
             "test",
             **{
-                "assigned_user": u"agent",
-                "title": u"test",
+                "assigned_user": "agent",
+                "title": "test",
                 "treating_groups": self.pgof["direction-generale"]["secretariat"].UID(),
             }
         )
@@ -406,15 +403,21 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
     def test_get_scan_id(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
-        obj = createContentInContainer(imail, "dmsmainfile", id="testid1.pdf", scan_id=u"010999900000690")
-        self.assertListEqual(get_scan_id(obj), [u"010999900000690", u"IMIO010999900000690", u"690"])
+        obj = createContentInContainer(imail, "dmsmainfile", id="testid1.pdf", scan_id="010999900000690")
+        self.assertListEqual(get_scan_id(obj), ["010999900000690", "IMIO010999900000690", "690"])
 
     def test_UtilsMethods_current_user_groups_ids(self):
         self.change_user("dirg")
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
-            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs",
-             "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID())},
+            {
+                "AuthenticatedUsers",
+                "audit_contacts",
+                "createurs_dossier",
+                "dir_general",
+                "lecteurs_globaux_cs",
+                "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID()),
+            },
         )
 
     def test_UtilsMethods_highest_scan_id(self):
@@ -435,8 +438,14 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
-            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs",
-             "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID())},
+            {
+                "AuthenticatedUsers",
+                "audit_contacts",
+                "createurs_dossier",
+                "dir_general",
+                "lecteurs_globaux_cs",
+                "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID()),
+            },
         )
         # with groups
         self.assertFalse(view.is_in_user_groups(groups=["abc"]))
@@ -924,13 +933,13 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         # Setup: create the registry records collective.solr would normally provide
         plone_registry = getUtility(IRegistry)
         solr_records = {
-            "collective.solr.port": (reg_field.Int(title=u"port"), 8983),
-            "collective.solr.host": (reg_field.TextLine(title=u"host"), u"localhost"),
-            "collective.solr.base": (reg_field.TextLine(title=u"base"), u"/solr"),
-            "collective.solr.solr_login": (reg_field.TextLine(title=u"login"), u"login"),
-            "collective.solr.solr_password": (reg_field.TextLine(title=u"password"), u"pwd"),
-            "collective.solr.https_connection": (reg_field.Bool(title=u"https"), False),
-            "collective.solr.ignore_certificate_check": (reg_field.Bool(title=u"ignore cert"), True),
+            "collective.solr.port": (reg_field.Int(title="port"), 8983),
+            "collective.solr.host": (reg_field.TextLine(title="host"), "localhost"),
+            "collective.solr.base": (reg_field.TextLine(title="base"), "/solr"),
+            "collective.solr.solr_login": (reg_field.TextLine(title="login"), "login"),
+            "collective.solr.solr_password": (reg_field.TextLine(title="password"), "pwd"),
+            "collective.solr.https_connection": (reg_field.Bool(title="https"), False),
+            "collective.solr.ignore_certificate_check": (reg_field.Bool(title="ignore cert"), True),
         }
         for key, (fld, value) in solr_records.items():
             rec = Record(fld)
@@ -942,16 +951,20 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         os.environ["COLLECTIVE_SOLR_HTTPS_CONNECTION"] = "true"
         os.environ["COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK"] = "false"
         update_solr_config()
-        self.assertEqual(api.portal.get_registry_record("collective.solr.host"), u"newhost")
+        self.assertEqual(api.portal.get_registry_record("collective.solr.host"), "newhost")
         self.assertEqual(api.portal.get_registry_record("collective.solr.port"), 9000)
         self.assertEqual(api.portal.get_registry_record("collective.solr.https_connection"), True)
         self.assertEqual(api.portal.get_registry_record("collective.solr.ignore_certificate_check"), False)
         # Absent env vars → unchanged values
-        self.assertEqual(api.portal.get_registry_record("collective.solr.base"), u"/solr")
-        self.assertEqual(api.portal.get_registry_record("collective.solr.solr_login"), u"login")
+        self.assertEqual(api.portal.get_registry_record("collective.solr.base"), "/solr")
+        self.assertEqual(api.portal.get_registry_record("collective.solr.solr_login"), "login")
         # os.environ is process-level state, not rolled back by the test layer
-        for key in ("COLLECTIVE_SOLR_HOST", "COLLECTIVE_SOLR_PORT", "COLLECTIVE_SOLR_HTTPS_CONNECTION",
-                    "COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK"):
+        for key in (
+            "COLLECTIVE_SOLR_HOST",
+            "COLLECTIVE_SOLR_PORT",
+            "COLLECTIVE_SOLR_HTTPS_CONNECTION",
+            "COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK",
+        ):
             del os.environ[key]
 
     def test_is_hp_used_in_signer_rules(self):
@@ -964,7 +977,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             "number": 1,
             "signer": bourgmestre_hp.UID(),
             "esign": True,
-            "approvings": [u"_empty_"],
+            "approvings": ["_empty_"],
             "editor": False,
             "treating_groups": [],
             "mail_types": [],
@@ -1024,10 +1037,11 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("agent")
         self.assertIsNone(view.check_scan_id())
         self.change_user("siteadmin")
-        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id", title=u"Scan",
-                           internal_reference_no=u"E9999")
+        imail = sub_create(
+            self.imf, "dmsincomingmail", datetime.now(), "my-id", title="Scan", internal_reference_no="E9999"
+        )
         createContentInContainer(imail, "dmsmainfile", id="scan", scan_id="010999900001000")
-        bad = sub_create(self.imf, "dmsincomingmail", datetime.now(), "bad-id", title=u"Bad scan")
+        bad = sub_create(self.imf, "dmsincomingmail", datetime.now(), "bad-id", title="Bad scan")
         createContentInContainer(bad, "dmsmainfile", id="bad", scan_id="010999900AB")
         # one scan id by 1000, by flow
         out = view.check_scan_id()
@@ -1043,16 +1057,16 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("agent")
         self.assertIsNone(view.kofax_orgs())
         self.change_user("siteadmin")
-        lines = safe_unicode(view.kofax_orgs()).split(u"\r\n")
+        lines = safe_unicode(view.kofax_orgs()).split("\r\n")
         self.assertEqual(lines[0], _tr("Creating groups : to be used in kofax index"))
         self.assertIn(_tr("Treating groups : to be used in kofax index"), lines)
         dg_uid = self.pgof["direction-generale"].UID()
-        self.assertIn(u"Direction générale ___ {}".format(dg_uid), lines)
+        self.assertIn("Direction générale ___ {}".format(dg_uid), lines)
 
     def test_VariousMethods_template_infos(self):
         omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         # a file not generated from a template
-        annex = createContentInContainer(omail, "dmsappendixfile", file=NamedBlobFile("pdf", filename=u"a.pdf"))
+        annex = createContentInContainer(omail, "dmsappendixfile", file=NamedBlobFile("pdf", filename="a.pdf"))
         self.assertEqual(VariousUtilsMethods(annex, annex.REQUEST).template_infos(), "No template infos")
         # a document generated from a template
         main = self.portal["templates"]["om"]["main"]
@@ -1061,10 +1075,10 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         gen_view.output_format = "odt"
         doc = gen_view.generate_persistent_doc(main, "odt")
         out = VariousUtilsMethods(doc, doc.REQUEST).template_infos()
-        self.assertTrue(out.startswith(u"<p>Template: "))
+        self.assertTrue(out.startswith("<p>Template: "))
         self.assertIn(main.absolute_url(), out)
         for name in sorted(main.get_templates_to_merge()):
-            self.assertIn(u"<li>{} = ".format(name), out)
+            self.assertIn("<li>{} = ".format(name), out)
 
     def test_VariousMethods_user_usages(self):
         view = VariousUtilsMethods(self.portal, self.portal.REQUEST)
@@ -1075,19 +1089,19 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         # the report is also printed: stdout is captured (non-ASCII titles break on an ASCII stdout)
         with patch("sys.stdout", StringIO()):
             out = view.user_usages("chef")
-        self.assertIn(u"<h1>Usages of user name 'chef'</h1>", out)
-        self.assertIn(u"Email='chef@macommune.be'", out)
-        self.assertIn(u"<p>=> Found a person ", out)
+        self.assertIn("<h1>Usages of user name 'chef'</h1>", out)
+        self.assertIn("Email='chef@macommune.be'", out)
+        self.assertIn("<p>=> Found a person ", out)
         # chef is the sender of 3 outgoing mails as "responsable-grh"
         hp = self.contacts["personnel-folder"]["chef"]["responsable-grh"]
         om_url = "{}/outgoing-mail/mail-searches#c1={}&c7={}".format(
             self.portal.absolute_url(), self.omf["mail-searches"]["all_mails"].UID(), hp.UID()
         )
-        self.assertIn(u'<a href="{}" target="_blank">3</a> om sender.'.format(om_url), out)
+        self.assertIn('<a href="{}" target="_blank">3</a> om sender.'.format(om_url), out)
 
     def test_manage_fields(self):
         rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields"
-        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id", title=u"Test")
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id", title="Test")
         # sender first, mail_type not editable, description not displayed, external reference removed
         config = []
         for dic in api.portal.get_registry_record(rk):
@@ -1095,9 +1109,9 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 continue
             dic = dict(dic)
             if dic["field_name"] == "mail_type":
-                dic["write_tal_condition"] = u"python:False"
+                dic["write_tal_condition"] = "python:False"
             elif dic["field_name"] == "IDublinCore.description":
-                dic["read_tal_condition"] = u"python:False"
+                dic["read_tal_condition"] = "python:False"
             if dic["field_name"] == "sender":
                 config.insert(0, dic)
             else:
@@ -1119,15 +1133,20 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertNotIn("IDublinCore.description", form_fields(view))
         self.assertNotIn("external_reference_no", form_fields(view))
         # the signing fieldset is shown only when a signing field is configured
-        omail = sub_create(self.omf, "dmsoutgoingmail", datetime.now(), "my-id", title=u"Test",
-                           treating_groups=get_registry_organizations()[0])
+        omail = sub_create(
+            self.omf,
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-id",
+            title="Test",
+            treating_groups=get_registry_organizations()[0],
+        )
         edit = OMEdit(omail, omail.REQUEST)
         edit.update()
         self.assertNotIn("signing", [group.__name__ for group in edit.groups])
         rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields"
         config = api.portal.get_registry_record(rk)
-        config.append({"field_name": "ISigningBehavior.signers", "read_tal_condition": u"",
-                       "write_tal_condition": u""})
+        config.append({"field_name": "ISigningBehavior.signers", "read_tal_condition": "", "write_tal_condition": ""})
         api.portal.set_registry_record(rk, config)
         edit = OMEdit(omail, omail.REQUEST)
         edit.update()
@@ -1136,17 +1155,23 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
     def _im_in_n_plus_1(self):
         """Return an incoming mail proposed to the n+1 level of its treating group."""
-        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id", title=u"Test",
-                           treating_groups=get_registry_organizations()[0])
+        imail = sub_create(
+            self.imf,
+            "dmsincomingmail",
+            datetime.now(),
+            "my-id",
+            title="Test",
+            treating_groups=get_registry_organizations()[0],
+        )
         self.portal.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-im_n_plus_1_wfadaptation", run_dependencies=False
         )
-        api.portal.set_registry_record(AUC_RECORD, u"no_check")
+        api.portal.set_registry_record(AUC_RECORD, "no_check")
         api.content.transition(imail, "propose_to_n_plus_1")
         return imail
 
     def test_is_n_plus_level_obsolete(self):
-        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id2", title=u"Test")
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id2", title="Test")
         # no treating group
         self.assertEqual(is_n_plus_level_obsolete(imail, "dmsincomingmail"), (False, None, None))
         # not in a validation state

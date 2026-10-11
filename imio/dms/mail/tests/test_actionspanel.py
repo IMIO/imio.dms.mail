@@ -56,8 +56,17 @@ class TestActionspanel(unittest.TestCase):
         view = im2.unrestrictedTraverse("@@actions_panel")
         self.assertEqual(
             actionspanelview_cachekey(None, view),
-            (True, False, False, False, True, "/".join(im2.getPhysicalPath()), "siteadmin",
-             im2.modified().strftime("%Y%m%d-%H%M%S-%f"), get_plone_groups_for_user(user=user)),
+            (
+                True,
+                False,
+                False,
+                False,
+                True,
+                "/".join(im2.getPhysicalPath()),
+                "siteadmin",
+                im2.modified().strftime("%Y%m%d-%H%M%S-%f"),
+                get_plone_groups_for_user(user=user),
+            ),
         )
         self.assertEqual(
             actionspanelview_cachekey(None, view, useIcons=False, showActions=True)[0:3], (False, False, True)
@@ -94,7 +103,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         # change title
         self.im2.title = None
         self.assertFalse(self.view.mayReply())
-        self.im2.title = u"title"
+        self.im2.title = "title"
         # removed permission
         api.content.transition(self.im2, to_state="proposed_to_agent")
         change_user(self.portal, "lecteur")
@@ -132,24 +141,24 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         token = "TOKEN"
         self.assertEqual(
             no_token(self.view.renderAssignUser()),
-            u"<td>\n    <form action=''>\n      <select name=\"Assign\" class=\"apButton apButtonSelect apButtonAction "
-            u'apButtonAction_assign" onchange="javascript:callViewAndReload(base_url=\'{}\', view_name=\'@@update_item\', '
-            u"params={{'assigned_user': this.value, '_authenticator': '{}'}})\">\n"
-            u'        <option style="display:none" value=#>Assigner</option>\n        \n        '
-            u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
-            u"</option>\n      </select>\n    </form>\n</td>"
-            u"\n".format(self.im2.absolute_url(), token),
+            '<td>\n    <form action=\'\'>\n      <select name="Assign" class="apButton apButtonSelect apButtonAction '
+            "apButtonAction_assign\" onchange=\"javascript:callViewAndReload(base_url='{}', view_name='@@update_item', "
+            "params={{'assigned_user': this.value, '_authenticator': '{}'}})\">\n"
+            '        <option style="display:none" value=#>Assigner</option>\n        \n        '
+            '<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
+            "</option>\n      </select>\n    </form>\n</td>"
+            "\n".format(self.im2.absolute_url(), token),
         )
         self.view.useIcons = True
         self.assertEqual(
             no_token(self.view.renderAssignUser()),
-            u"<td>\n    <form action=''>\n      <select name=\"Assign\" class=\"apButton apButtonSelect apButtonAction "
-            u'apButtonAction_assign apUseIcons" onchange="javascript:callViewAndReload(base_url=\'{}\', '
-            u"view_name='@@update_item', params={{'assigned_user': this.value, '_authenticator': '{}'}})\">\n"
-            u'        \n        <option style="display:none" value=#></option>\n        '
-            u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
-            u"</option>\n      </select>\n    </form>\n</td>"
-            u"\n".format(self.im2.absolute_url(), token),
+            '<td>\n    <form action=\'\'>\n      <select name="Assign" class="apButton apButtonSelect apButtonAction '
+            "apButtonAction_assign apUseIcons\" onchange=\"javascript:callViewAndReload(base_url='{}', "
+            "view_name='@@update_item', params={{'assigned_user': this.value, '_authenticator': '{}'}})\">\n"
+            '        \n        <option style="display:none" value=#></option>\n        '
+            '<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
+            "</option>\n      </select>\n    </form>\n</td>"
+            "\n".format(self.im2.absolute_url(), token),
         )
         # without treating_groups
         new = api.content.create(self.portal["incoming-mail"], "dmsincomingmail", "c1")
@@ -189,18 +198,18 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         # TODO update this irrelevant test
         ret0 = self.view()
         # we have 5 actions: edit, propose manager, propose agent, reply, multiple_annexes
-        self.assertEqual(ret0.count(u"<td "), 6)
+        self.assertEqual(ret0.count("<td "), 6)
         api.content.transition(self.im2, "propose_to_agent")
         ret1 = self.view()
         # we have the same transitions because there is a cache on getTransitions
         # we have also assign but it starts with <td>
-        self.assertEqual(ret1.count(u"<td "), 6)
+        self.assertEqual(ret1.count("<td "), 6)
         # we add a reply
         om2 = get_object(oid="reponse2", ptype="dmsoutgoingmail")
         om2.reply_to = [RelationValue(self.intids.getId(self.im2))]
         modified(om2)
         ret2 = self.view()
-        self.assertEqual(ret2.count(u"<td "), 6)
+        self.assertEqual(ret2.count("<td "), 6)
 
 
 class TestDmsOMActionsPanelView(unittest.TestCase):
@@ -230,53 +239,52 @@ class TestDmsOMActionsPanelView(unittest.TestCase):
 
     def test_render_create_from_template_button(self):
         rendered = self.view.render_create_from_template_button()
-        self.assertIn(u'href="{}/@@create-from-template"'.format(self.om.absolute_url()), rendered)
+        self.assertIn('href="{}/@@create-from-template"'.format(self.om.absolute_url()), rendered)
         # modal (Plone 4 overlay)
-        self.assertIn(u'class="pat-plone-modal link-overlay-actionspanel overlay-template-selection"', rendered)
-        self.assertIn(u'value="Créer depuis modèle"', rendered)
+        self.assertIn('class="pat-plone-modal link-overlay-actionspanel overlay-template-selection"', rendered)
+        self.assertIn('value="Créer depuis modèle"', rendered)
         self.view.request["URL"] = "http://nohost/plone/@@faceted_query"
         self.assertEqual(self.view.render_create_from_template_button(), "")
 
     def test_may_create_new_message(self):
         self.assertFalse(self.view.may_create_new_message())
-        self.om.send_modes = [u"email"]
+        self.om.send_modes = ["email"]
         self.assertTrue(self.view.may_create_new_message())
 
     def test_render_create_new_message(self):
         self.assertEqual(self.view.render_create_new_message(), "")
-        self.om.send_modes = [u"email"]
+        self.om.send_modes = ["email"]
         rendered = self.view.render_create_new_message()
-        self.assertIn(u'href="{}/edit?edit-email=1#fieldsetlegend-email"'.format(self.om.absolute_url()), rendered)
-        self.assertIn(u'class="apButton apButtonAction apButtonAction_wemail"', rendered)
-        self.om.email_subject = u"Subject"
-        self.assertIn(u'class="apButton apButtonAction apButtonAction_wemail_ok"',
-                      self.view.render_create_new_message())
+        self.assertIn('href="{}/edit?edit-email=1#fieldsetlegend-email"'.format(self.om.absolute_url()), rendered)
+        self.assertIn('class="apButton apButtonAction apButtonAction_wemail"', rendered)
+        self.om.email_subject = "Subject"
+        self.assertIn('class="apButton apButtonAction apButtonAction_wemail_ok"', self.view.render_create_new_message())
 
     def test_may_send_email(self):
-        self.om.send_modes = [u"email"]
+        self.om.send_modes = ["email"]
         self.assertFalse(self.view.may_send_email())
-        self.om.email_subject = u"Subject"
+        self.om.email_subject = "Subject"
         self.assertTrue(self.view.may_send_email())
 
     def test_render_send_email(self):
         self.assertEqual(self.view.render_send_email(), "")
-        self.om.send_modes = [u"email"]
-        self.om.email_subject = u"Subject"
+        self.om.send_modes = ["email"]
+        self.om.email_subject = "Subject"
         rendered = self.view.render_send_email()
         # the email is sent by a GET ajax call, with the CSRF token
         self.assertIn(
-            u"onclick=\"javascript:callViewAndReload(base_url='{}', view_name='@@send_email', "
-            u"params={{'_authenticator': 'TOKEN'}})\"".format(self.om.absolute_url()),
+            "onclick=\"javascript:callViewAndReload(base_url='{}', view_name='@@send_email', "
+            "params={{'_authenticator': 'TOKEN'}})\"".format(self.om.absolute_url()),
             no_token(rendered),
         )
-        self.assertIn(u'class="apButton apButtonAction apButtonAction_sendemail"', rendered)
+        self.assertIn('class="apButton apButtonAction apButtonAction_sendemail"', rendered)
 
     def test_call(self):
         rendered = self.view(useIcons=False)
-        self.assertIn(u"@@create-from-template", rendered)
-        self.assertIn(u"quick_upload?typeupload=dmsappendixfile", rendered)
-        self.assertIn(u"apButtonWF_propose_to_be_signed", rendered)
-        self.assertNotIn(u"@@send_email", rendered)
+        self.assertIn("@@create-from-template", rendered)
+        self.assertIn("quick_upload?typeupload=dmsappendixfile", rendered)
+        self.assertIn("apButtonWF_propose_to_be_signed", rendered)
+        self.assertNotIn("@@send_email", rendered)
 
     def test_multiple_annexes(self):
         self.assertTrue(self.view.may_multiple_annexes())
@@ -311,19 +319,19 @@ class TestSigningFieldsetActionsPanelView(unittest.TestCase):
         self.view.kwargs = {}
         self.view.useIcons = True
         rendered = self.view.renderEdit()
-        self.assertIn(u'href="{}/edit#fieldsetlegend-signing"'.format(self.om.absolute_url()), rendered)
-        self.assertIn(u'src="http://nohost/plone/++plone++bootstrap-icons/pencil.svg"', rendered)
+        self.assertIn('href="{}/edit#fieldsetlegend-signing"'.format(self.om.absolute_url()), rendered)
+        self.assertIn('src="http://nohost/plone/++plone++bootstrap-icons/pencil.svg"', rendered)
         self.view.useIcons = False
         rendered = self.view.renderEdit()
-        self.assertIn(u'action="{}/edit#fieldsetlegend-signing"'.format(self.om.absolute_url()), rendered)
+        self.assertIn('action="{}/edit#fieldsetlegend-signing"'.format(self.om.absolute_url()), rendered)
         self.view.showEdit = False
         self.assertEqual(self.view.renderEdit(), "")
 
     def test_call(self):
         rendered = self.view()
-        self.assertIn(u"edit#fieldsetlegend-signing", rendered)
+        self.assertIn("edit#fieldsetlegend-signing", rendered)
         # no transition
-        self.assertNotIn(u"apButtonWF", rendered)
+        self.assertNotIn("apButtonWF", rendered)
 
 
 class TestDmsSignRequestActionsPanelView(unittest.TestCase):
@@ -347,8 +355,8 @@ class TestDmsSignRequestActionsPanelView(unittest.TestCase):
 
     def test_call(self):
         rendered = self.view(useIcons=False)
-        self.assertIn(u"apButtonWF_propose_to_approve", rendered)
-        self.assertIn(u"quick_upload?typeupload=dmsappendixfile", rendered)
+        self.assertIn("apButtonWF_propose_to_approve", rendered)
+        self.assertIn("quick_upload?typeupload=dmsappendixfile", rendered)
 
 
 class TestDmsFileActionsPanelView(unittest.TestCase):
@@ -386,7 +394,7 @@ class TestDmsTaskActionsPanelView(unittest.TestCase):
 
     def test_call(self):
         rendered = self.view(useIcons=False)
-        self.assertIn(u"apButtonWF_do_to_assign", rendered)
+        self.assertIn("apButtonWF_do_to_assign", rendered)
         self.assertListEqual(self.view.ACCEPTABLE_ACTIONS, ["copy", "cut", "paste", "delete"])
 
 
@@ -402,7 +410,7 @@ class TestClassificationFolderActionsPanelView(unittest.TestCase):
         view = folder.unrestrictedTraverse("@@actions_panel")
         self.assertIsInstance(view, ClassificationFolderActionsPanelView)
         rendered = view(useIcons=False)
-        self.assertIn(u"quick_upload?typeupload=annex", rendered)
+        self.assertIn("quick_upload?typeupload=annex", rendered)
         self.assertListEqual(view.ACCEPTABLE_ACTIONS, ["cut", "copy", "paste", "delete"])
 
 
@@ -418,10 +426,12 @@ class TestClassificationContainersActionsPanelView(unittest.TestCase):
             self.assertIsInstance(view, ClassificationContainersActionsPanelView)
             rendered = view(useIcons=False)
             # actions with the CSRF token
-            self.assertIn(u'action="{}/@@import?_authenticator='.format(container.absolute_url()), rendered)
-            self.assertIn(u'action="{}/@@refresh-cache?_authenticator='.format(container.absolute_url()), rendered)
-        self.assertIn(u'action="http://nohost/plone/tree/add-ClassificationCategory?_authenticator=',
-                      portal["tree"].unrestrictedTraverse("@@actions_panel")(useIcons=False))
+            self.assertIn('action="{}/@@import?_authenticator='.format(container.absolute_url()), rendered)
+            self.assertIn('action="{}/@@refresh-cache?_authenticator='.format(container.absolute_url()), rendered)
+        self.assertIn(
+            'action="http://nohost/plone/tree/add-ClassificationCategory?_authenticator=',
+            portal["tree"].unrestrictedTraverse("@@actions_panel")(useIcons=False),
+        )
 
 
 class TestClassificationActionsPanelView(unittest.TestCase):
@@ -433,15 +443,16 @@ class TestClassificationActionsPanelView(unittest.TestCase):
         change_user(portal)
         # a category is not a content type: the tree container stores it (as its add form does)
         category = createObject("ClassificationCategory")
-        category.identifier = u"001"
-        category.title = u"Catégorie"
+        category.identifier = "001"
+        category.title = "Catégorie"
         portal["tree"]._add_element(category)
-        category = portal["tree"].get_by("identifier", u"001")
+        category = portal["tree"].get_by("identifier", "001")
         view = category.unrestrictedTraverse("@@actions_panel")
         self.assertIsInstance(view, ClassificationActionsPanelView)
-        self.assertListEqual(view.ACCEPTABLE_ACTIONS,
-                             ["cut", "copy", "paste", "delete", "rename", "classification.tree.add"])
-        self.assertIn(u"add-ClassificationCategory", view(useIcons=False))
+        self.assertListEqual(
+            view.ACCEPTABLE_ACTIONS, ["cut", "copy", "paste", "delete", "rename", "classification.tree.add"]
+        )
+        self.assertIn("add-ClassificationCategory", view(useIcons=False))
 
 
 class TestOnlyAddActionsPanelView(unittest.TestCase):
@@ -454,7 +465,7 @@ class TestOnlyAddActionsPanelView(unittest.TestCase):
         view = portal["annexes_types"]["annexes"].unrestrictedTraverse("@@actions_panel")
         self.assertIsInstance(view, OnlyAddActionsPanelView)
         self.assertListEqual(view.ACCEPTABLE_ACTIONS, ["paste"])
-        self.assertNotIn(u"delete", view(useIcons=False, showOwnDelete=False))
+        self.assertNotIn("delete", view(useIcons=False, showOwnDelete=False))
 
 
 class TestAnnexActionsPanelView(unittest.TestCase):
@@ -467,7 +478,10 @@ class TestAnnexActionsPanelView(unittest.TestCase):
         self.portal.REQUEST["AUTHENTICATED_USER"] = api.user.get(username="siteadmin")
         folder = self.portal["folders"]["ordre-public-reglement-general-de-police"]
         self.annex = createContentInContainer(
-            folder, "annex", title=u"Annexe", file=NamedBlobFile(b"content", filename=u"annexe.txt"),
+            folder,
+            "annex",
+            title="Annexe",
+            file=NamedBlobFile(b"content", filename="annexe.txt"),
             content_category=calculate_category_id(self.portal["annexes_types"]["annexes"]["annex"]),
         )
 
@@ -481,9 +495,9 @@ class TestAnnexActionsPanelView(unittest.TestCase):
 
     def test_call(self):
         rendered = self.annex.unrestrictedTraverse("@@actions_panel")(useIcons=False)
-        self.assertIn(u"{}/edit".format(self.annex.absolute_url()), rendered)
-        self.assertNotIn(u"apButtonWF", rendered)
-        self.assertNotIn(u"view_element", rendered)
+        self.assertIn("{}/edit".format(self.annex.absolute_url()), rendered)
+        self.assertNotIn("apButtonWF", rendered)
+        self.assertNotIn("view_element", rendered)
 
 
 class TestCPODTActionsPanelView(unittest.TestCase):
@@ -499,8 +513,8 @@ class TestCPODTActionsPanelView(unittest.TestCase):
         self.assertIsInstance(view, ConfigurablePODTemplateActionsPanelView)
         self.assertListEqual(view.ACCEPTABLE_ACTIONS, ["cut", "copy", "paste", "delete", "rename"])
         rendered = view()
-        self.assertIn(u"http://nohost/plone/templates/om/main/object_copy", rendered)
-        self.assertIn(u"http://nohost/plone/templates/om/main/edit", rendered)
+        self.assertIn("http://nohost/plone/templates/om/main/object_copy", rendered)
+        self.assertIn("http://nohost/plone/templates/om/main/edit", rendered)
 
 
 class TestBasicActionsPanelView(unittest.TestCase):
@@ -513,7 +527,7 @@ class TestBasicActionsPanelView(unittest.TestCase):
         view = portal["contacts"]["swde"].unrestrictedTraverse("@@actions_panel")
         self.assertIsInstance(view, BasicActionsPanelView)
         self.assertListEqual(view.ACCEPTABLE_ACTIONS, ["cut", "copy", "paste", "delete", "rename"])
-        self.assertIn(u"http://nohost/plone/contacts/swde/edit", view())
+        self.assertIn("http://nohost/plone/contacts/swde/edit", view())
 
 
 class TestCategoryActionsPanelView(unittest.TestCase):

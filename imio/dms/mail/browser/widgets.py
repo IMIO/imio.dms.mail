@@ -43,9 +43,10 @@ class ExpandableDataGridField(DataGridFieldWidget):
         valueType = self.field.value_type
         if IObject.providedBy(valueType):
             widget = ExpandableDataGridFieldObjectFactory(valueType, self.request)
-            widget.setErrors = idx not in ['TT', 'AA']
+            widget.setErrors = idx not in ["TT", "AA"]
         else:
             from zope.component import getMultiAdapter
+
             widget = getMultiAdapter(
                 (valueType, self.request),
                 interfaces.IFieldWidget,

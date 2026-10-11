@@ -31,7 +31,6 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.adapters import SignRequestApprovalAdapter
-# from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
@@ -83,7 +82,6 @@ from z3c.relationfield.event import updateRelations as orig_updateRelations
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
-# from zope.component.interfaces import ComponentLookupError
 from zope.component import getAdapter
 from zope.component import getMultiAdapter
 from zope.component import getSiteManager
@@ -123,8 +121,8 @@ def item_copied(obj, event):
     if get_site_root_relative_path(event.original) in ("/templates/om", "/templates/oem"):
         api.portal.show_message(
             message=_(
-                u"You cannot copy this item '${title}' ! If you are in a table, you have to "
-                u"use the buttons below the table.",
+                "You cannot copy this item '${title}' ! If you are in a table, you have to "
+                "use the buttons below the table.",
                 mapping={"title": safe_unicode(event.original.Title())},
             ),
             request=event.original.REQUEST,
@@ -148,7 +146,7 @@ def item_moved(obj, event):
         if IProtectedItem.providedBy(obj) and not check_zope_admin():
             api.portal.show_message(
                 message=_(
-                    u"You cannot delete, cut or rename this item '${title}' !",
+                    "You cannot delete, cut or rename this item '${title}' !",
                     mapping={"title": safe_unicode(obj.Title())},
                 ),
                 request=obj.REQUEST,
@@ -499,7 +497,7 @@ def apply_substitutes_to_signers(signers, substitutes=None):
     for signer in signers:
         new_signer = dict(signer)
         effective = new_signer.get("signer")
-        if effective and effective != u"_empty_" and effective in substitutes:
+        if effective and effective != "_empty_" and effective in substitutes:
             new_signer["signer"] = substitutes[effective] or effective
         result.append(new_signer)
     return result
@@ -540,7 +538,7 @@ def _apply_signer_rules(obj, registry_key):
         used_numbers.add(signer["number"])
 
         if signer["number"] == 0:
-            if signer["signer"] == u"_seal_":
+            if signer["signer"] == "_seal_":
                 obj.seal = True
                 obj.esign = True
             else:
@@ -550,25 +548,25 @@ def _apply_signer_rules(obj, registry_key):
 
         # only check if we have at least a signer 0 and 1 because 0 could be after 1 in rules
         if 0 in used_numbers and 1 in used_numbers and obj.seal and not obj.esign:
-            raise Invalid(_(u"You cannot have a seal without electronic signature ! You have to adapt the rules !"))
+            raise Invalid(_("You cannot have a seal without electronic signature ! You have to adapt the rules !"))
 
         if signer["number"] == 0:
             continue
 
         effective_signer = signer["signer"]
-        if effective_signer != u"_empty_" and effective_signer in substitutes:
+        if effective_signer != "_empty_" and effective_signer in substitutes:
             effective_signer = substitutes[effective_signer] or signer["signer"]
 
         person = None
-        if effective_signer != u"_empty_":
+        if effective_signer != "_empty_":
             signer_hp = uuidToObject(effective_signer, unrestricted=True)
             person = signer_hp.get_person()
         if person:
             if person.UID() in used_signers:
                 raise Invalid(
                     _(
-                        u"You cannot have the same signer (${signer_title}) multiple times ! "
-                        u"You have to adapt the rules !",
+                        "You cannot have the same signer (${signer_title}) multiple times ! "
+                        "You have to adapt the rules !",
                         mapping={"signer_title": person.get_title()},
                     )
                 )
@@ -612,15 +610,15 @@ def dmsoutgoingmail_modified(mail, event):
         return
 
     signers_update = False
-    signers_origin = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
+    signers_origin = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, "rules")
     # Update signers field only if empty. In "template_first" mode, signers are defined later, at
     # the first template generation (see browser.documentgenerator._copy_template_signers).
-    if not mail.signers and signers_origin in (u"rules", u"rules_first"):
+    if not mail.signers and signers_origin in ("rules", "rules_first"):
         rules_applied = apply_signer_rules(mail)
         if rules_applied and not mail.signers:
             mail.signers = get_empty_signers_value()
         signers_update = rules_applied or bool(mail.signers)
-    if not mail.signers and signers_origin == u"rules":
+    if not mail.signers and signers_origin == "rules":
         # if no signers, we add an empty one to not do again automatic assignment at next modification
         mail.signers = get_empty_signers_value()
         signers_update = True
@@ -676,8 +674,9 @@ def sign_request_modified(request, event):
 def sign_request_added(request, event):
     """If the content is manually created, we call the modified event after creation to set signers."""
     if request.title:
-        zope.event.notify(ObjectModifiedEvent(
-            request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers")))
+        zope.event.notify(
+            ObjectModifiedEvent(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
+        )
 
 
 def task_transition(task, event):
@@ -729,8 +728,8 @@ def _correct_to_sign(file_obj):
         )
         api.portal.show_message(
             message=_(
-                u"The file '${file_title}' cannot be electronically signed because its type is not allowed. "
-                u"It has been removed from the signing and approval process.",
+                "The file '${file_title}' cannot be electronically signed because its type is not allowed. "
+                "It has been removed from the signing and approval process.",
                 mapping={"file_title": safe_unicode(file_obj.Title())},
             ),
             request=file_obj.REQUEST,
@@ -822,8 +821,8 @@ def i_annex_added(obj, event):
             # generated from a template (see browser.documentgenerator._copy_template_signers). When an
             # appendix is added before any template generation, signers would otherwise stay empty, so we
             # apply the rules here too. If the rules produce no signer, an _empty_ placeholder is set.
-            mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
-            if mode == u"template_first" and not mail.signers:
+            mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, "rules")
+            if mode == "template_first" and not mail.signers:
                 apply_signer_rules(mail)
                 if not mail.signers:
                     mail.signers = get_empty_signers_value()
@@ -861,7 +860,7 @@ def i_annex_will_be_removed(obj, event):
             if approval.is_state_after_or_approve() and not check_zope_admin():
                 api.portal.show_message(
                     message=_(
-                        u"You cannot delete a file '${title}' part of already started esign process !",
+                        "You cannot delete a file '${title}' part of already started esign process !",
                         mapping={"title": safe_unicode(obj.Title())},
                     ),
                     request=obj.REQUEST,
@@ -891,7 +890,7 @@ def i_annex_removed(obj, event):
             if session_annot["sessions"][session_id]["state"] != "draft":
                 api.portal.show_message(
                     message=_(
-                        u"You cannot delete a file '${title}' part of already started esign process !",
+                        "You cannot delete a file '${title}' part of already started esign process !",
                         mapping={"title": safe_unicode(obj.Title())},
                     ),
                     request=obj.REQUEST,
@@ -902,8 +901,7 @@ def i_annex_removed(obj, event):
             # we remove this pdf_file from session and annotation
             getMultiAdapter((obj, obj.REQUEST), name="remove-item-from-esign-session").actions()
             esign_audit(
-                "delete_file_1",
-                "mail={} session={} file={}".format(obj.__parent__.UID(), session_id, current_uid)
+                "delete_file_1", "mail={} session={} file={}".format(obj.__parent__.UID(), session_id, current_uid)
             )
 
         # Case 2: We are removing a source file: odt or direct pdf
@@ -912,7 +910,7 @@ def i_annex_removed(obj, event):
             if approval.pdf_files_uids[file_index] and approval.pdf_files_uids[file_index][0] != current_uid:
                 api.portal.show_message(
                     message=_(
-                        u"You cannot delete a file '${title}' when there are still linked pdf files !",
+                        "You cannot delete a file '${title}' when there are still linked pdf files !",
                         mapping={"title": safe_unicode(obj.Title())},
                     ),
                     request=obj.REQUEST,
@@ -923,10 +921,7 @@ def i_annex_removed(obj, event):
             # The file may be a user-uploaded annex, try to remove it from session
             remove_files_from_session([current_uid])
             approval.remove_file_from_approval(current_uid)
-            esign_audit(
-                "delete_file_2",
-                "mail={} session=x file={}".format(obj.__parent__.UID(), current_uid)
-            )
+            esign_audit("delete_file_2", "mail={} session=x file={}".format(obj.__parent__.UID(), current_uid))
 
 
 def dmsmainfile_modified(dmf, event):
@@ -945,7 +940,7 @@ def dmsmainfile_modified(dmf, event):
                 break
             if desc.interface == IDmsFile and "file" in desc.attributes:
                 if dmf.file.filename.endswith(".eml") or dmf.file.contentType == "message/rfc822":
-                    if u"." in dmf.title and dmf.title != dmf.file.filename:
+                    if "." in dmf.title and dmf.title != dmf.file.filename:
                         dmf.title = dmf.file.filename
                         dmf.reindexObject()
     # we update parent index
@@ -1035,7 +1030,7 @@ def contact_plonegroup_change(event):
                     dic["%s_editeur" % uid] = ["Contributor"]  # an agent could add a contact on an email im
             folder._p_changed = True
         # _demand_sign groups (signing request requesters) can create in the requests folder
-        if "requests" in portal and any(dic["fct_id"] == u"demand_sign" for dic in s_fcts):
+        if "requests" in portal and any(dic["fct_id"] == "demand_sign" for dic in s_fcts):
             req_folder = portal["requests"]
             dic = req_folder.__ac_local_roles__
             for principal in list(dic.keys()):
@@ -1218,7 +1213,7 @@ def user_deleted(event):
         raise Redirect(request.get("ACTUAL_URL"))
 
     # search in assigned_user index
-    for (idx, domain, criterias) in (
+    for idx, domain, criterias in (
         ("assigned_user", "collective.eeafaceted.z3ctable", {}),
         ("Creator", "plone", {}),
         ("userid", "collective.contact.plonegroup", {"object_provides": IPersonnelContact.__identifier__}),
@@ -1298,7 +1293,7 @@ def group_deleted(event):
 
     # search in indexes following suffix use in type localroles
     if group_suffix in [fct["fct_id"] for fct in get_registry_functions()]:
-        for (idx, field, pts, domain) in (
+        for idx, field, pts, domain in (
             ("assigned_group", "assigned_group", ["task"], "collective.eeafaceted.z3ctable"),
             (
                 "treating_groups",
@@ -1659,8 +1654,11 @@ def zope_ready(event):
                     logger.info('=> CPUtils added methods: "{}"'.format(ret.replace("<br />", ", ")))
                 change = True
         # Changed permission after plone.restapi installation
-        if "Anonymous" in [dic["name"] for dic in site.rolesOfPermission("plone.restapi: Use REST API")
-                           if dic["selected"] == "SELECTED"]:
+        if "Anonymous" in [
+            dic["name"]
+            for dic in site.rolesOfPermission("plone.restapi: Use REST API")
+            if dic["selected"] == "SELECTED"
+        ]:
             logger.warning("Permission 'plone.restapi: Use REST API' is still given to Anonymous !!")
             # site.manage_permission("plone.restapi: Use REST API", ("Member",), acquire=0)
 
@@ -1675,6 +1673,6 @@ def i_annex_created(obj, event):
     if IDmsFile.providedBy(obj):
         return
     filename = getattr(getattr(obj, "file", None), "filename", None)
-    if not filename or obj.title not in (None, u"", filename):
+    if not filename or obj.title not in (None, "", filename):
         return
-    obj.title = safe_unicode(filename).rsplit(u".", 1)[0] or safe_unicode(filename)
+    obj.title = safe_unicode(filename).rsplit(".", 1)[0] or safe_unicode(filename)

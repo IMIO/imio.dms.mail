@@ -9,7 +9,6 @@ from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSig
 from imio.dms.mail.dg_compat import need_mailing_value
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import logger  # noqa F401
-# from imio.esign.audit import audit as esign_audit
 from plone import api
 from plone.memoize.interfaces import ICacheChooser
 from zope.component import getUtility
@@ -37,7 +36,7 @@ class ApprovedColumn(BaseApprovedColumn):
         super(ApprovedColumn, self).__init__(context, request, table)
         # self.context is the mail here
         self.approval = self.context.approval()
-        self.msg = u""
+        self.msg = ""
 
     def alt(self, content):
         return translate(
@@ -58,23 +57,27 @@ class ApprovedColumn(BaseApprovedColumn):
         if self.approval.is_state_before_approve(state=state):  # state < to_approve
             # to-approve class is used when state is prior to to_approve
             if self.is_deactivated(content):  # to_approve is False
-                if (not self.approval.approvers or not content.to_sign or not editable or  # noqa W504
-                        need_mailing_value(document=content.getObject())):
-                    self.msg = u"Deactivated for approval"
+                if (
+                    not self.approval.approvers
+                    or not content.to_sign
+                    or not editable  # noqa W504
+                    or need_mailing_value(document=content.getObject())
+                ):
+                    self.msg = "Deactivated for approval"
                     return " to-approve "
                 else:
-                    self.msg = u"Deactivated for approval (click to activate)"
+                    self.msg = "Deactivated for approval (click to activate)"
                     return " to-approve editable"
             elif editable:  # to_approve is True and editable
-                self.msg = u"Activated for approval (click to deactivate)"
+                self.msg = "Activated for approval (click to deactivate)"
                 return " active to-approve editable"
             else:
-                self.msg = u"Activated for approval"
+                self.msg = "Activated for approval"
                 return " active to-approve"
         elif self.is_deactivated(content):  # state >= to_approve and to_approve is False
             # if content.conv_from_uid:
             #     return " none"
-            self.msg = u"Deactivated for approval"
+            self.msg = "Deactivated for approval"
             return " to-approve"
         # when to_approve, the red icon (no class) is shown if :
         #  * no approval at all
@@ -84,27 +87,27 @@ class ApprovedColumn(BaseApprovedColumn):
             # current user can approve now
             if self.approval.can_approve(av.userid, av.uid):
                 if self.approval.is_file_approved(content.UID, nb=approver_number):
-                    self.msg = u"Already approved (click to change)"
+                    self.msg = "Already approved (click to change)"
                     return " active{}".format(editable)
-                self.msg = u"Waiting for your approval (click to approve)"
+                self.msg = "Waiting for your approval (click to approve)"
                 return editable
             # current user cannot approve now but is an approver
             elif av.userid in self.approval.approvers:
                 # approver must yet approve
                 current_nb = self.approval.current_nb
                 if approver_number is not None and current_nb is not None and approver_number > current_nb:
-                    self.msg = u"Waiting for other approval before you can approve"
+                    self.msg = "Waiting for other approval before you can approve"
                     return " waiting"
         # after a first approval, we show a partially or totally approved icon even for a previously approver
         # if content["approved"]:  # all approved  metadata not updated in approve_file function
         if self.approval.is_file_approved(content.UID):  # all approved
-            self.msg = u"Totally approved"
+            self.msg = "Totally approved"
             return " totally-approved"
         elif self.approval.is_file_approved(content.UID, totally=False):
-            self.msg = u"Partially approved. Still waiting for other approval(s)"
+            self.msg = "Partially approved. Still waiting for other approval(s)"
             return " partially-approved"
         else:
-            self.msg = u"Waiting for the first approval"
+            self.msg = "Waiting for the first approval"
             return " cant-approve"
 
     def get_url(self, content):
@@ -130,7 +133,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         self.parent = self.context.__parent__
         self.approval = self.parent.approval()
         self.uid = self.context.UID()
-        self.msg = u""
+        self.msg = ""
         self.reload = False
         self.could_reload = False
 
@@ -160,13 +163,13 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 if approved and self.approval.current_nb is not None:  # already approved at this level
                     status = 0
                     # the message is displayed after the change and must reflect the new status, not the current one !!
-                    self.msg = u"Already approved (click to change)"
+                    self.msg = "Already approved (click to change)"
                     signer_userid = self.approval.signers[self.approval.current_nb]
                     self.approval.unapprove_file(afile=self.context, signer_userid=signer_userid)
                     self.reload = True
                     values["approved"] = False
                 else:  # file not approved at this level
-                    self.msg = u"Waiting for your approval (click to approve)"
+                    self.msg = "Waiting for your approval (click to approve)"
                     # the status is changed (if totally approved) in sub method
                     # must we pass self to update self.msg: no need for now because we reload in all cases !!
                     # FIXME This triggers a transition that further raise Unauthorized in _may_set_values
@@ -189,13 +192,13 @@ class ApprovedChangeView(BaseApprovedChangeView):
                 values["approved"] = False
                 status = 1
                 self.approval.add_file_to_approval(self.uid)
-                self.msg = u"Activated for approval (click to deactivate)"
+                self.msg = "Activated for approval (click to deactivate)"
             else:
                 values["to_approve"] = False
                 values["approved"] = False
                 status = 0
                 self.approval.remove_file_from_approval(self.uid)
-                self.msg = u"Deactivated for approval (click to activate)"
+                self.msg = "Deactivated for approval (click to activate)"
         else:
             values = old_values.copy()
             # cannot be in after to_approve state because get_url column method ?
@@ -251,9 +254,9 @@ class SignedColumn(BaseSignedColumn):
         # permission: View
         # category group : signed_activated
         # allowed file type for signing
-        allowed_type = (not getattr(self.context, "esign", False)
-                        or content.contentType in get_allowed_content_types(
-                            esign=True, portal_type=self.context.portal_type))
+        allowed_type = not getattr(self.context, "esign", False) or content.contentType in get_allowed_content_types(
+            esign=True, portal_type=self.context.portal_type
+        )
         editable = allowed_type and self.is_editable(content) and " editable" or ""
         # when deactivated, anyone will see a grey icon
         # before to_approve
@@ -271,18 +274,18 @@ class SignedColumn(BaseSignedColumn):
         elif self.is_deactivated(content):  # state >= to_approve and to_sign is False
             return " deactivated"
         else:  # state >= to_approve and to_sign is True
-            base_css = self.is_active(content) and ' active' or ''  # signed is True ?
+            base_css = self.is_active(content) and " active" or ""  # signed is True ?
             if av.p_state in self.mark_signed_states:
                 # we don't want to unset to_sign if to_approve is True
                 if editable and (not content.to_sign or not content.to_approve):
-                    return '{0} editable'.format(base_css)
+                    return "{0} editable".format(base_css)
             return base_css
 
     def get_url(self, content):
         av = self.get_action_view(content)
         if av.p_state in self.disabled_url_states:
             return "#"
-        return '{url}/@@{action}'.format(
+        return "{url}/@@{action}".format(
             url=content.getURL(),
             action=self.get_action_view_name(content),
         )
@@ -314,28 +317,28 @@ class SignedChangeView(BaseSignedChangeView):
         # logger.info("Before values change: %s", old_values)
         if self.p_state not in ("to_approve", "to_print", "to_be_signed", "signed", "sent"):
             # before to_approve state, we can only enable or disable to_sign
-            if old_values['to_sign'] is False:
-                values['to_sign'] = True
-                values['signed'] = False
+            if old_values["to_sign"] is False:
+                values["to_sign"] = True
+                values["signed"] = False
                 status = 0
-#                esign_audit("enable_to_sign", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
+            #                esign_audit("enable_to_sign", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
             else:
-                values['to_sign'] = False
-                values['signed'] = False
+                values["to_sign"] = False
+                values["signed"] = False
                 status = -1
-#                esign_audit("disable_to_sign", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
+            #                esign_audit("disable_to_sign", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
             self.reload = True
-        elif old_values['to_sign'] and self.p_state in ("to_be_signed", "signed"):
-            if old_values['signed'] is False:
-                values['to_sign'] = True
-                values['signed'] = True
+        elif old_values["to_sign"] and self.p_state in ("to_be_signed", "signed"):
+            if old_values["signed"] is False:
+                values["to_sign"] = True
+                values["signed"] = True
                 status = 1
-#                esign_audit("mark_as_signed", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
+            #                esign_audit("mark_as_signed", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
             else:
-                values['to_sign'] = True
-                values['signed'] = False
+                values["to_sign"] = True
+                values["signed"] = False
                 status = 0
-#                esign_audit("unmark_as_signed", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
+        #                esign_audit("unmark_as_signed", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
         # logger.info("After values change: %s, %s", status, values)
         return status, values
 

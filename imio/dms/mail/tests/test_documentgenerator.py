@@ -75,20 +75,20 @@ class TestDocumentGenerator(unittest.TestCase):
         # get address from linked organization
         det = {
             "address": {
-                "city": u"E-ville",
+                "city": "E-ville",
                 "country": "",
                 "region": "",
                 "additional_address_details": "",
-                "number": u"1",
-                "street": u"Rue de l'électron",
-                "zip_code": u"0020",
+                "number": "1",
+                "street": "Rue de l'électron",
+                "zip_code": "0020",
             },
             "im_handle": "",
             "cell_phone": "",
-            "email": u"jean.courant@electrabel.eb",
+            "email": "jean.courant@electrabel.eb",
             "website": "",
             "fax": "",
-            "phone": u"012345678",
+            "phone": "012345678",
         }
         self.assertDictEqual(view1.get_ctct_det(self.jc["agent-electrabel"]), det)
 
@@ -96,7 +96,7 @@ class TestDocumentGenerator(unittest.TestCase):
         sender = {
             "person": self.chef,
             "hp": self.resp_grh,
-            "org_full_title": u"Direction générale - GRH",
+            "org_full_title": "Direction générale - GRH",
             "org": self.grh,
         }
         self.assertDictEqual(view1.get_sender(), sender)
@@ -106,18 +106,22 @@ class TestDocumentGenerator(unittest.TestCase):
         view1.real_context.sender = backup
 
         # Test mailing_list method
-        self.assertListEqual(view1.real_context.send_modes, [u"post"])
-        self.assertListEqual(view1.mailing_list(), [(self.electrabel, u"post")])
-        view1.real_context.send_modes = [u"post", u"post_registered"]
+        self.assertListEqual(view1.real_context.send_modes, ["post"])
+        self.assertListEqual(view1.mailing_list(), [(self.electrabel, "post")])
+        view1.real_context.send_modes = ["post", "post_registered"]
         self.assertListEqual(
             view1.mailing_list(),
-            [(self.electrabel, u"post"), (self.electrabel, u"post_registered")],
+            [(self.electrabel, "post"), (self.electrabel, "post_registered")],
         )
         view1.real_context.recipients.append(RelationValue(self.intids.getId(self.jc)))
         self.assertListEqual(
             view1.mailing_list(),
-            [(self.electrabel, u"post"), (self.electrabel, u"post_registered"),
-             (self.jc, u"post"), (self.jc, u"post_registered")],
+            [
+                (self.electrabel, "post"),
+                (self.electrabel, "post_registered"),
+                (self.jc, "post"),
+                (self.jc, "post_registered"),
+            ],
         )
         backup = view1.real_context.recipients[0]
         view1.real_context.recipients = None
@@ -126,43 +130,43 @@ class TestDocumentGenerator(unittest.TestCase):
 
         # Test get_full_title method
         self.assertEqual(view1.get_full_title(None), "")
-        self.assertEqual(view1.get_full_title(self.electrabel), u"Electrabel")
-        self.assertEqual(view1.get_full_title(self.grh), u"Mon organisation / Direction générale / GRH")
-        self.assertEqual(view1.get_full_title(self.grh, separator=" - ", first_index=1), u"Direction générale - GRH")
-        self.assertEqual(view1.get_full_title(self.jc), u"Monsieur Jean Courant")
-        self.assertEqual(view1.get_full_title(self.agent), u"Monsieur Jean Courant, Agent (Electrabel)")
+        self.assertEqual(view1.get_full_title(self.electrabel), "Electrabel")
+        self.assertEqual(view1.get_full_title(self.grh), "Mon organisation / Direction générale / GRH")
+        self.assertEqual(view1.get_full_title(self.grh, separator=" - ", first_index=1), "Direction générale - GRH")
+        self.assertEqual(view1.get_full_title(self.jc), "Monsieur Jean Courant")
+        self.assertEqual(view1.get_full_title(self.agent), "Monsieur Jean Courant, Agent (Electrabel)")
 
         # Test get_separate_titles method
-        self.assertListEqual(view1.get_separate_titles(None), [u"", u""])
-        self.assertListEqual(view1.get_separate_titles(self.electrabel), [u"Electrabel", u""])
-        self.assertListEqual(view1.get_separate_titles(self.grh), [u"Mon organisation / Direction générale / GRH", ""])
+        self.assertListEqual(view1.get_separate_titles(None), ["", ""])
+        self.assertListEqual(view1.get_separate_titles(self.electrabel), ["Electrabel", ""])
+        self.assertListEqual(view1.get_separate_titles(self.grh), ["Mon organisation / Direction générale / GRH", ""])
         self.assertListEqual(
-            view1.get_separate_titles(self.grh, separator=" - ", first_index=1), [u"Direction générale - GRH", ""]
+            view1.get_separate_titles(self.grh, separator=" - ", first_index=1), ["Direction générale - GRH", ""]
         )
-        self.assertListEqual(view1.get_separate_titles(self.jc), ["", u"Monsieur Jean Courant"])
-        self.assertListEqual(view1.get_separate_titles(self.agent), [u"Electrabel", u"Monsieur Jean Courant"])
+        self.assertListEqual(view1.get_separate_titles(self.jc), ["", "Monsieur Jean Courant"])
+        self.assertListEqual(view1.get_separate_titles(self.agent), ["Electrabel", "Monsieur Jean Courant"])
         self.assertListEqual(
             view1.get_separate_titles(self.resp_grh),
-            [u"Mon organisation / Direction générale / GRH", u"Monsieur Michel Chef"],
+            ["Mon organisation / Direction générale / GRH", "Monsieur Michel Chef"],
         )
 
         # Test person_title
         self.assertEqual(view1.person_title(None), "")
-        self.assertEqual(view1.person_title(self.jc), u"Monsieur")
-        self.assertEqual(view1.person_title(self.jc, with_name=True), u"Monsieur Courant")
-        self.assertEqual(view1.person_title(self.jc, with_name=True, upper_name=True), u"Monsieur COURANT")
+        self.assertEqual(view1.person_title(self.jc), "Monsieur")
+        self.assertEqual(view1.person_title(self.jc, with_name=True), "Monsieur Courant")
+        self.assertEqual(view1.person_title(self.jc, with_name=True, upper_name=True), "Monsieur COURANT")
         self.jc.person_title = None
-        self.assertEqual(view1.person_title(self.jc), u"Monsieur")
-        self.assertEqual(view1.person_title(self.jc, pers_dft=u"Madame"), u"Madame")
-        self.assertEqual(view1.person_title(self.jc, pers_dft=u"Madame", with_name=True), u"Madame Courant")
+        self.assertEqual(view1.person_title(self.jc), "Monsieur")
+        self.assertEqual(view1.person_title(self.jc, pers_dft="Madame"), "Madame")
+        self.assertEqual(view1.person_title(self.jc, pers_dft="Madame", with_name=True), "Madame Courant")
         self.assertEqual(
-            view1.person_title(self.jc, pers_dft=u"Madame", with_name=True, upper_name=True), u"Madame COURANT"
+            view1.person_title(self.jc, pers_dft="Madame", with_name=True, upper_name=True), "Madame COURANT"
         )
-        self.assertEqual(view1.person_title(self.electrabel), u"Madame, Monsieur")
-        self.assertEqual(view1.person_title(self.electrabel, org_dft=u"Messieurs"), u"Messieurs")
-        self.assertEqual(view1.person_title(self.agent), u"Monsieur")
-        self.assertEqual(view1.person_title(self.agent, with_name=True), u"Monsieur Courant")
-        self.assertEqual(view1.person_title(self.agent, with_name=True, upper_name=True), u"Monsieur COURANT")
+        self.assertEqual(view1.person_title(self.electrabel), "Madame, Monsieur")
+        self.assertEqual(view1.person_title(self.electrabel, org_dft="Messieurs"), "Messieurs")
+        self.assertEqual(view1.person_title(self.agent), "Monsieur")
+        self.assertEqual(view1.person_title(self.agent, with_name=True), "Monsieur Courant")
+        self.assertEqual(view1.person_title(self.agent, with_name=True, upper_name=True), "Monsieur COURANT")
 
         # Test is_first_doc
         res = {}
@@ -174,29 +178,29 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertFalse(view1.is_first_doc())
 
         # Test separate_full_title
-        self.assertListEqual(view1.separate_full_title(None), [u"", u""])
-        self.assertListEqual(view1.separate_full_title(u""), [u"", u""])
-        self.assertListEqual(view1.separate_full_title(u"Direction générale"), [u"Direction générale", u""])
+        self.assertListEqual(view1.separate_full_title(None), ["", ""])
+        self.assertListEqual(view1.separate_full_title(""), ["", ""])
+        self.assertListEqual(view1.separate_full_title("Direction générale"), ["Direction générale", ""])
         self.assertListEqual(
-            view1.separate_full_title(u"Direction générale - Secrétariat"), [u"Direction générale", u"Secrétariat"]
+            view1.separate_full_title("Direction générale - Secrétariat"), ["Direction générale", "Secrétariat"]
         )
         self.assertListEqual(
-            view1.separate_full_title(u"Direction générale - Secrétariat - Michèle"),
-            [u"Direction générale", u"Secrétariat - Michèle"],
+            view1.separate_full_title("Direction générale - Secrétariat - Michèle"),
+            ["Direction générale", "Secrétariat - Michèle"],
         )
         self.assertListEqual(
-            view1.separate_full_title(u"Direction générale - Secrétariat - Michèle", nb=3),
-            [u"Direction générale", u"Secrétariat", u"Michèle"],
+            view1.separate_full_title("Direction générale - Secrétariat - Michèle", nb=3),
+            ["Direction générale", "Secrétariat", "Michèle"],
         )
-        self.assertRaises(IndexError, view1.separate_full_title, u"Direction", nb=0)
+        self.assertRaises(IndexError, view1.separate_full_title, "Direction", nb=0)
 
         # Test mailed_context
         view1.appy_renderer = Mock()
         view1.appy_renderer.contentParser.env.context = {}
-        ctx = (self.electrabel, u"post")
+        ctx = (self.electrabel, "post")
         ctx = view1.mailed_context(ctx)
         self.assertEqual(ctx["mailed_data"], self.electrabel)
-        self.assertEqual(ctx["send_mode"], u"post")
+        self.assertEqual(ctx["send_mode"], "post")
 
         view1.appy_renderer = Mock()
         view1.appy_renderer.contentParser.env.context = {}
@@ -206,32 +210,41 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(ctx["send_mode"], None)
 
         # Test display_send_modes
-        self.assertEqual(view1.display_send_modes(), u'Courrier postal, Courrier recommand\xe9')
-        self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Courrier postal')
-        self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'')
-        self.assertEqual(view1.display_send_modes(separator=' & '), u'Courrier postal & Courrier recommand\xe9')
-        view1.real_context.send_modes = [u"post", u"post_registered", u"email"]
-        self.assertEqual(view1.display_send_modes(filter_on=u'post'), u'Courrier postal, Email')
-        self.assertEqual(view1.display_send_modes(filter_on=u'post_registered'), u'Courrier recommand\xe9, Email')
-        self.assertEqual(view1.display_send_modes(filter_on=[u'post', u'post_registered']),
-                         u'Courrier postal, Courrier recommand\xe9, Email')
-        self.assertEqual(view1.display_send_modes(filter_on=u'wrong_mode'), u'Email')
+        self.assertEqual(view1.display_send_modes(), "Courrier postal, Courrier recommand\xe9")
+        self.assertEqual(view1.display_send_modes(filter_on="post"), "Courrier postal")
+        self.assertEqual(view1.display_send_modes(filter_on="wrong_mode"), "")
+        self.assertEqual(view1.display_send_modes(separator=" & "), "Courrier postal & Courrier recommand\xe9")
+        view1.real_context.send_modes = ["post", "post_registered", "email"]
+        self.assertEqual(view1.display_send_modes(filter_on="post"), "Courrier postal, Email")
+        self.assertEqual(view1.display_send_modes(filter_on="post_registered"), "Courrier recommand\xe9, Email")
+        self.assertEqual(
+            view1.display_send_modes(filter_on=["post", "post_registered"]),
+            "Courrier postal, Courrier recommand\xe9, Email",
+        )
+        self.assertEqual(view1.display_send_modes(filter_on="wrong_mode"), "Email")
 
         # Test get_signers
-        self.assertEqual(view1.get_signers(), [(0, u'Maxime DG', u'Directeur Général'),
-                                               (1, u'Paul BM', u'Bourgmestre')])
-        view1.real_context.signers.append({'signer': self.resp_grh.UID(), 'approvings': [u'_empty_'], 'number': 3,
-                                           "editor": False})
-        zope.event.notify(ObjectModifiedEvent(view1.real_context,
-                                              Attributes(ISigningBehavior, "ISigningBehavior.signers")))
-        self.assertEqual(view1.get_signers(), [(0, u'Maxime DG', u'Directeur Général'), (1, u'Paul BM', u'Bourgmestre'),
-                                               (2, u'Michel Chef', u'Responsable GRH')])
+        self.assertEqual(view1.get_signers(), [(0, "Maxime DG", "Directeur Général"), (1, "Paul BM", "Bourgmestre")])
+        view1.real_context.signers.append(
+            {"signer": self.resp_grh.UID(), "approvings": ["_empty_"], "number": 3, "editor": False}
+        )
+        zope.event.notify(
+            ObjectModifiedEvent(view1.real_context, Attributes(ISigningBehavior, "ISigningBehavior.signers"))
+        )
+        self.assertEqual(
+            view1.get_signers(),
+            [
+                (0, "Maxime DG", "Directeur Général"),
+                (1, "Paul BM", "Bourgmestre"),
+                (2, "Michel Chef", "Responsable GRH"),
+            ],
+        )
         view1.real_context.signers = []
         # rules will be reapplied
-        zope.event.notify(ObjectModifiedEvent(view1.real_context,
-                                              Attributes(ISigningBehavior, "ISigningBehavior.signers")))
-        self.assertEqual(view1.get_signers(), [(0, u'Maxime DG', u'Directeur Général'),
-                                               (1, u'Paul BM', u'Bourgmestre')])
+        zope.event.notify(
+            ObjectModifiedEvent(view1.real_context, Attributes(ISigningBehavior, "ISigningBehavior.signers"))
+        )
+        self.assertEqual(view1.get_signers(), [(0, "Maxime DG", "Directeur Général"), (1, "Paul BM", "Bourgmestre")])
 
     def test_DocumentGenerationOMDashboardHelper(self):
         """
@@ -251,36 +264,36 @@ class TestDocumentGenerator(unittest.TestCase):
 
         # Test group_by_tg
         tg1 = self.ctct["plonegroup-organization"]["direction-generale"]
-        tg2 = tg1[u"secretariat"]
+        tg2 = tg1["secretariat"]
         res = {
-            tg1.UID(): {"mails": [view.objs[0]], "title": u"Direction générale"},
-            tg2.UID(): {"mails": [view.objs[1]], "title": u"Direction générale - Secrétariat"},
+            tg1.UID(): {"mails": [view.objs[0]], "title": "Direction générale"},
+            tg2.UID(): {"mails": [view.objs[1]], "title": "Direction générale - Secrétariat"},
         }
         self.assertDictEqual(view.group_by_tg(brains[:2]), res)
-        res = [[u"Direction générale", view.objs[0]], [u"Direction générale - Secrétariat", view.objs[1]]]
+        res = [["Direction générale", view.objs[0]], ["Direction générale - Secrétariat", view.objs[1]]]
         self.assertListEqual(view.flatten_group_by_tg(view.group_by_tg(brains[:2])), res)
         backup = brains[1].treating_groups
         brains[1].treating_groups = None
         res = {
-            tg1.UID(): {"mails": [view.objs[0]], "title": u"Direction générale"},
-            "1_no_group": {"mails": [view.objs[1]], "title": u"Courrier sans service traitant"},
+            tg1.UID(): {"mails": [view.objs[0]], "title": "Direction générale"},
+            "1_no_group": {"mails": [view.objs[1]], "title": "Courrier sans service traitant"},
         }
         self.assertDictEqual(view.group_by_tg(brains[:2]), res)
         # sorted by title
-        res = [[u"Courrier sans service traitant", view.objs[1]], [u"Direction générale", view.objs[0]]]
+        res = [["Courrier sans service traitant", view.objs[1]], ["Direction générale", view.objs[0]]]
         self.assertListEqual(view.flatten_group_by_tg(view.group_by_tg(brains[:2])), res)
         brains[1].treating_groups = backup
         brains2 = self.pc(portal_type="dmsoutgoingmail", sort_on="id")
         res = [
-            [u"Direction financière", brains2[4 - 1].getObject()],
-            [u"Direction financière - Budgets", brains2[5 - 1].getObject()],
-            [u"Direction financière - Comptabilité", brains2[6 - 1].getObject()],
-            [u"Direction générale", brains2[1 - 1].getObject()],
-            [u"Direction générale", brains2[7 - 1].getObject()],
-            [u"Direction générale - GRH", brains2[3 - 1].getObject()],
-            [u"Direction générale - GRH", brains2[9 - 1].getObject()],
-            [u"Direction générale - Secrétariat", brains2[2 - 1].getObject()],
-            [u"Direction générale - Secrétariat", brains2[8 - 1].getObject()],
+            ["Direction financière", brains2[4 - 1].getObject()],
+            ["Direction financière - Budgets", brains2[5 - 1].getObject()],
+            ["Direction financière - Comptabilité", brains2[6 - 1].getObject()],
+            ["Direction générale", brains2[1 - 1].getObject()],
+            ["Direction générale", brains2[7 - 1].getObject()],
+            ["Direction générale - GRH", brains2[3 - 1].getObject()],
+            ["Direction générale - GRH", brains2[9 - 1].getObject()],
+            ["Direction générale - Secrétariat", brains2[2 - 1].getObject()],
+            ["Direction générale - Secrétariat", brains2[8 - 1].getObject()],
         ]
         self.assertListEqual(view.flatten_group_by_tg(view.group_by_tg(brains2)), res)
 
@@ -303,11 +316,14 @@ class TestDocumentGenerator(unittest.TestCase):
             set_to_print(mail["1"], False)
         self.assertListEqual(view.get_dms_files(), [])
         # add a (non-odt) appendix to the first mail, reusing the main file category
-        filespath = u"%s/batchimport/toprocess/incoming-mail" % PRODUCT_DIR
-        with open(u"%s/in-courrier2.pdf" % filespath, "rb") as fo:
+        filespath = "%s/batchimport/toprocess/incoming-mail" % PRODUCT_DIR
+        with open("%s/in-courrier2.pdf" % filespath, "rb") as fo:
             appendix = createContentInContainer(
-                m0, "dmsappendixfile", id="app1", title=u"appendix",
-                file=NamedBlobFile(fo.read(), filename=u"in-courrier2.pdf"),
+                m0,
+                "dmsappendixfile",
+                id="app1",
+                title="appendix",
+                file=NamedBlobFile(fo.read(), filename="in-courrier2.pdf"),
                 content_category=m0["1"].content_category,
             )
         # non-odt files are printed from their preview (collective.documentviewer, not on Plone 6)
@@ -327,11 +343,15 @@ class TestDocumentGenerator(unittest.TestCase):
         m2["1"].esigned = True
         self.assertListEqual(view.get_dms_files(signed=True), [(appendix, 1), (m1["1"], 2), (m2["1"], 1)])
         # m0 main file converted to pdf when added to a sign session: only the pdf is considered
-        with open(u"%s/in-courrier2.pdf" % filespath, "rb") as fo:
+        with open("%s/in-courrier2.pdf" % filespath, "rb") as fo:
             pdf = createContentInContainer(
-                m0, "dmsommainfile", id="pdf1", title=u"converted",
-                file=NamedBlobFile(fo.read(), filename=u"converted.pdf"),
-                content_category=m0["1"].content_category, conv_from_uid=m0["1"].UID(),
+                m0,
+                "dmsommainfile",
+                id="pdf1",
+                title="converted",
+                file=NamedBlobFile(fo.read(), filename="converted.pdf"),
+                content_category=m0["1"].content_category,
+                conv_from_uid=m0["1"].UID(),
             )
         IAnnotations(pdf)["collective.documentviewer"] = {"successfully_converted": True, "num_pages": 1}
         set_to_print(pdf, True)
@@ -339,10 +359,13 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertListEqual(view.get_dms_files(), [(pdf, 1), (appendix, 1), (m1["1"], 2)])
         self.assertListEqual(view.get_dms_files(signed=True), [(pdf, 1), (appendix, 1), (m1["1"], 2), (m2["1"], 1)])
         # m1 main file mailed: only the mailed version is considered, even if it's not e-signed
-        with open(u"%s/in-courrier2.pdf" % filespath, "rb") as fo:
+        with open("%s/in-courrier2.pdf" % filespath, "rb") as fo:
             mailed = createContentInContainer(
-                m1, "dmsommainfile", id="mailed1", title=u"mailed",
-                file=NamedBlobFile(fo.read(), filename=u"mailed.pdf"),
+                m1,
+                "dmsommainfile",
+                id="mailed1",
+                title="mailed",
+                file=NamedBlobFile(fo.read(), filename="mailed.pdf"),
                 content_category=m1["1"].content_category,
             )
         IAnnotations(mailed)["collective.documentviewer"] = {"successfully_converted": True, "num_pages": 1}
@@ -368,12 +391,17 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertFalse(view.is_odt(appendix))
 
         # add an image appendix (a logo)
-        png = (b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
-               b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00"
-               b"\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82")
+        png = (
+            b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
+            b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00"
+            b"\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82"
+        )
         img_appendix = createContentInContainer(
-            m0, "dmsappendixfile", id="logo", title=u"logo",
-            file=NamedBlobFile(png, filename=u"logo.png", contentType="image/png"),
+            m0,
+            "dmsappendixfile",
+            id="logo",
+            title="logo",
+            file=NamedBlobFile(png, filename="logo.png", contentType="image/png"),
             content_category=m0["1"].content_category,
         )
         # Test is_image
@@ -393,8 +421,12 @@ class TestDocumentGenerator(unittest.TestCase):
         blob = Blob()
         with blob.open("w") as fo:
             fo.write(png)
-        dv_annot = {"successfully_converted": True, "num_pages": 1, "pdf_image_format": "png",
-                    "blob_files": {"large/dump_1.png": blob}}
+        dv_annot = {
+            "successfully_converted": True,
+            "num_pages": 1,
+            "pdf_image_format": "png",
+            "blob_files": {"large/dump_1.png": blob},
+        }
         IAnnotations(appendix)["collective.documentviewer"] = dv_annot
         self.assertListEqual(view.get_print_pages(appendix), [{"data": png, "format": "png"}])
         # no usable preview -> warning message and the file is left out of the printing
@@ -402,7 +434,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertListEqual(view.get_print_pages(appendix), [])
         msgs = IStatusMessage(view.request).show()
         self.assertEqual(len(msgs), 1)
-        self.assertIn(u"aucune prévisualisation pour le document", msgs[0].message)
+        self.assertIn("aucune prévisualisation pour le document", msgs[0].message)
         IAnnotations(appendix)["collective.documentviewer"] = dv_annot
 
         # Test print_page_count / needs_blank_after
@@ -476,7 +508,7 @@ class TestDocumentGenerator(unittest.TestCase):
         # view(template_uid=template.UID(), output_format='odt')
 
         # Test title
-        self.assertEqual(view._get_title("", ""), u"Modèle de base")
+        self.assertEqual(view._get_title("", ""), "Modèle de base")
 
         # Test generate_persistent_doc
         view.output_format = "odt"
@@ -508,9 +540,9 @@ class TestDocumentGenerator(unittest.TestCase):
         view = rep1.restrictedTraverse("mailing-loop-persistent-document-generation")
         view.pod_template = self.portal["templates"]["om"]["mailing"]
         view.document = rep1["1"]
-        view.document.title = u"Modèle de base"
+        view.document.title = "Modèle de base"
         # Test title
-        self.assertEqual(view._get_title("", ""), u"Publipostage, Modèle de base")
+        self.assertEqual(view._get_title("", ""), "Publipostage, Modèle de base")
 
     def test_copy_template_signers(self):
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
@@ -524,15 +556,11 @@ class TestDocumentGenerator(unittest.TestCase):
         bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
         request = self.portal.REQUEST
 
-        template_signers = [
-            {"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}
-        ]
-        empty_value = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
+        template_signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": ["_empty_"]}]
+        empty_value = [{"number": 1, "signer": "_empty_", "editor": False, "approvings": ["_empty_"]}]
         original_mail_signers = rep1.signers
         original_rules = api.portal.get_registry_record(rk_rules, default=[])
-        different_signers = [
-            {"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}
-        ]
+        different_signers = [{"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": ["_empty_"]}]
 
         # "rules" mode (default): no copy from template
         template.signers = template_signers
@@ -543,7 +571,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertIsNone(rep1.signers)
 
         # "template_first", template has signers, mail empty: copy
-        api.portal.set_registry_record(rk_so, u"template_first")
+        api.portal.set_registry_record(rk_so, "template_first")
         rep1.signers = None
         rep1.seal = False
         rep1.esign = False
@@ -561,7 +589,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(rep1.signers, empty_value)
         msgs = IStatusMessage(request).show()
         self.assertEqual(len(msgs), 1)
-        self.assertEqual(msgs[0].type, u"warning")
+        self.assertEqual(msgs[0].type, "warning")
 
         # "template_first", template has no signers
         template.signers = None
@@ -587,7 +615,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(rep1.signers, different_signers)
         msgs = IStatusMessage(request).show()
         self.assertEqual(len(msgs), 1)
-        self.assertEqual(msgs[0].type, u"warning")
+        self.assertEqual(msgs[0].type, "warning")
 
         # "template_first", same signers as template: no warning, no change
         rep1.signers = list(template_signers)
@@ -598,7 +626,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertFalse(rep1.esign)  # no change at all
 
         # "rules_first", mail already has real signers (from rules): template ignored, no warning
-        api.portal.set_registry_record(rk_so, u"rules_first")
+        api.portal.set_registry_record(rk_so, "rules_first")
         IStatusMessage(request).show()  # consume existing messages
         rep1.signers = different_signers
         view._copy_template_signers(template)
@@ -633,7 +661,7 @@ class TestDocumentGenerator(unittest.TestCase):
         template.signers = template_signers
 
         # MailingLoopTemplate: uses orig_template
-        api.portal.set_registry_record(rk_so, u"template_first")
+        api.portal.set_registry_record(rk_so, "template_first")
         mailing_view = rep1.restrictedTraverse("mailing-loop-persistent-document-generation")
         mailing_tpl = self.portal["templates"]["om"]["mailing"]
         mailing_view.orig_template = template
@@ -642,7 +670,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(rep1.signers, template_signers)
 
         # Cleanup
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
         api.portal.set_registry_record(rk_rules, original_rules)
         template.signers = None
         template.seal = None
@@ -657,9 +685,9 @@ class TestDocumentGenerator(unittest.TestCase):
         pf = self.portal["contacts"]["personnel-folder"]
         dirg_hp = pf["dirg"]["directeur-general"]
         bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
-        tpl_signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
-        sub_signers = [{"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}]
-        empty_value = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
+        tpl_signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": ["_empty_"]}]
+        sub_signers = [{"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": ["_empty_"]}]
+        empty_value = [{"number": 1, "signer": "_empty_", "editor": False, "approvings": ["_empty_"]}]
         original_signers = template.signers
         original_merge = list(template.merge_templates or [])
 
@@ -670,13 +698,13 @@ class TestDocumentGenerator(unittest.TestCase):
 
         # template defines its own signers: returned directly, itself=True
         template.signers = tpl_signers
-        template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
+        template.merge_templates = [{"template": sub.UID(), "pod_context_name": "sub", "do_rendering": False}]
         source, itself = get_template_signers_source(template)
         self.assertEqual(source.UID(), template.UID())
         self.assertTrue(itself)
         template.signers = None
         template.seal = True
-        template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
+        template.merge_templates = [{"template": sub.UID(), "pod_context_name": "sub", "do_rendering": False}]
         source, itself = get_template_signers_source(template)
         self.assertEqual(source.UID(), template.UID())
         self.assertTrue(itself)
@@ -719,8 +747,8 @@ class TestDocumentGenerator(unittest.TestCase):
         sub.seal = False
         sub.esign = True
         template.signers = None
-        template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
-        api.portal.set_registry_record(rk_so, u"template_first")
+        template.merge_templates = [{"template": sub.UID(), "pod_context_name": "sub", "do_rendering": False}]
+        api.portal.set_registry_record(rk_so, "template_first")
         rep1.signers = None
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers, sub_signers)
@@ -728,7 +756,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertFalse(rep1.seal)
 
         # Cleanup
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
         template.signers = original_signers
         template.merge_templates = original_merge
         rep1.signers = original_rep1_signers
@@ -748,17 +776,17 @@ class TestDocumentGenerator(unittest.TestCase):
             return view, [col.__name__ for col in view.table.columns]
 
         # "rules" mode (default): the signers column is hidden
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
         view, names = column_names()
         self.assertNotIn("TemplateSignersColumn", names)
 
         # "template_first": the signers column is shown
-        api.portal.set_registry_record(rk_so, u"template_first")
+        api.portal.set_registry_record(rk_so, "template_first")
         view, names = column_names()
         self.assertIn("TemplateSignersColumn", names)
 
         # "rules_first": the signers column is shown too
-        api.portal.set_registry_record(rk_so, u"rules_first")
+        api.portal.set_registry_record(rk_so, "rules_first")
         view, names = column_names()
         self.assertIn("TemplateSignersColumn", names)
         column = [col for col in view.table.columns if col.__name__ == "TemplateSignersColumn"][0]
@@ -773,16 +801,16 @@ class TestDocumentGenerator(unittest.TestCase):
         template.signers = None
         template.merge_templates = []
         sub.signers = None
-        self.assertEqual(column.renderCell(template), u"")
+        self.assertEqual(column.renderCell(template), "")
 
         # signers defined on the template itself
-        template.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
+        template.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": ["_empty_"]}]
         self.assertIn("pt_self_signers", column.renderCell(template))
 
         # signers defined via a merge sub-template
         template.signers = None
-        sub.signers = [{"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}]
-        template.merge_templates = [{"template": sub.UID(), "pod_context_name": u"sub", "do_rendering": False}]
+        sub.signers = [{"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": ["_empty_"]}]
+        template.merge_templates = [{"template": sub.UID(), "pod_context_name": "sub", "do_rendering": False}]
         self.assertIn("pt_sub_signers", column.renderCell(template))
 
         # the overridden page is resolved when the imio.dms.mail browser layer is active
@@ -793,7 +821,7 @@ class TestDocumentGenerator(unittest.TestCase):
             noLongerProvides(request, IImioDmsMailLayer)
 
         # Cleanup
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
         template.signers = original_signers
         template.merge_templates = original_merge
         sub.signers = original_sub_signers
@@ -812,16 +840,20 @@ class TestDocumentGenerator(unittest.TestCase):
         original_subs = api.portal.get_registry_record(rk_subs, default=[])
         original_rep1_signers = rep1.signers
 
-        template.signers = [
-            {"number": 1, "signer": bourgmestre_hp.UID(), "editor": True, "approvings": [u"_empty_"]}
-        ]
-        api.portal.set_registry_record(rk_so, u"template_first")
+        template.signers = [{"number": 1, "signer": bourgmestre_hp.UID(), "editor": True, "approvings": ["_empty_"]}]
+        api.portal.set_registry_record(rk_so, "template_first")
 
         # An active substitute replaces the template signer when copied to the mail
         api.portal.set_registry_record(
             rk_subs,
-            [{"absent_signer": bourgmestre_hp.UID(), "substitute_signer": dirg_hp.UID(),
-              "valid_from": None, "valid_until": None}],
+            [
+                {
+                    "absent_signer": bourgmestre_hp.UID(),
+                    "substitute_signer": dirg_hp.UID(),
+                    "valid_from": None,
+                    "valid_until": None,
+                }
+            ],
         )
         rep1.signers = None
         view._copy_template_signers(template)
@@ -842,7 +874,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(rep1.signers[0]["signer"], bourgmestre_hp.UID())
 
         # Cleanup
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
         api.portal.set_registry_record(rk_subs, original_subs)
         template.signers = original_signers
         rep1.signers = original_rep1_signers
@@ -859,19 +891,19 @@ class TestDocumentGenerator(unittest.TestCase):
                 self.groups = [_Group("default"), _Group("signing")]
 
         # "rules" mode: the signing fieldset is removed
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
         form = _Form()
         _filter_signing_fieldset(form)
         self.assertEqual([gr.__name__ for gr in form.groups], ["default"])
 
         # other modes: the signing fieldset is kept
-        for mode in (u"template_first", u"rules_first"):
+        for mode in ("template_first", "rules_first"):
             api.portal.set_registry_record(rk_so, mode)
             form = _Form()
             _filter_signing_fieldset(form)
             self.assertEqual([gr.__name__ for gr in form.groups], ["default", "signing"])
 
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
 
     def _form_groups(self, form):
         self.portal.REQUEST["REQUEST_METHOD"] = "GET"
@@ -885,9 +917,9 @@ class TestDocumentGenerator(unittest.TestCase):
         form = main.unrestrictedTraverse("@@edit")
         self.assertIsInstance(form, DmsEditConfigurablePodTemplate)
         self.assertNotIn("signing", self._form_groups(form))
-        api.portal.set_registry_record(rk_so, u"template_first")
+        api.portal.set_registry_record(rk_so, "template_first")
         self.assertIn("signing", self._form_groups(main.unrestrictedTraverse("@@edit")))
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
 
     def test_DmsAddConfigurablePodTemplate(self):
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
@@ -896,10 +928,10 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertIsInstance(view, DmsAddConfigurablePodTemplate)
         self.assertIsInstance(view.form_instance, DmsAddConfigurablePodTemplateForm)
         self.assertNotIn("signing", self._form_groups(view.form_instance))
-        api.portal.set_registry_record(rk_so, u"rules_first")
+        api.portal.set_registry_record(rk_so, "rules_first")
         view = self.portal["templates"]["om"].unrestrictedTraverse("++add++ConfigurablePODTemplate")
         self.assertIn("signing", self._form_groups(view.form_instance))
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
 
     def test_DmsEditSubTemplate(self):
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
@@ -908,9 +940,9 @@ class TestDocumentGenerator(unittest.TestCase):
         form = header.unrestrictedTraverse("@@edit")
         self.assertIsInstance(form, DmsEditSubTemplate)
         self.assertNotIn("signing", self._form_groups(form))
-        api.portal.set_registry_record(rk_so, u"template_first")
+        api.portal.set_registry_record(rk_so, "template_first")
         self.assertIn("signing", self._form_groups(header.unrestrictedTraverse("@@edit")))
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
 
     def test_DmsAddSubTemplate(self):
         alsoProvides(self.portal.REQUEST, IImioDmsMailLayer)

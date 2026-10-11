@@ -611,7 +611,7 @@ def get_obj_size(obj):
     try:
         primary_field_info = IPrimaryFieldInfo(obj)
     except TypeError:
-        logger.warning(u"Lookup of PrimaryField failed for %s" % obj.absolute_url())
+        logger.warning("Lookup of PrimaryField failed for %s" % obj.absolute_url())
         return ""
     const = {"KB": 1024, "MB": 1048576, "GB": 1073741824}
     order = ("GB", "MB", "KB")
@@ -903,7 +903,7 @@ class ScanSearchableExtender(object):
                 items.append(sid_short)
         if self.context.description:
             items.append(self.context.description)
-        return u" ".join(items)
+        return " ".join(items)
 
     def __call__(self):
         """Extend the searchable text with a custom string"""
@@ -952,7 +952,7 @@ class IdmSearchableExtender(object):
             if sid_infos[0]:
                 index += sid_infos
         if index:
-            return u" ".join(index)
+            return " ".join(index)
         return None
 
 
@@ -1168,7 +1168,7 @@ class ItemSignersAdapter(SignableAdapter):
                 yield {
                     "held_position": hp,
                     "name": hp.get_person().get_title(include_person_title=False),
-                    "function": hp.label or u"",
+                    "function": hp.label or "",
                 }
 
     def get_files_uids(self):
@@ -1415,8 +1415,10 @@ class ApprovalAdapter(object):
             esign_audit(
                 "start_approval_process",
                 "mail={} signers={} approvers={}".format(
-                    self.context.UID(), "|".join(self.signers), "|".join([",".join(sublist) for sublist in
-                                                                          self.annot["approvers"]]))
+                    self.context.UID(),
+                    "|".join(self.signers),
+                    "|".join([",".join(sublist) for sublist in self.annot["approvers"]]),
+                ),
             )
         if self.approvers:
             # first time transition, set the first level to "proposed"
@@ -1490,7 +1492,7 @@ class ApprovalAdapter(object):
             if signer_hp is None:
                 raise ValueError(
                     _(
-                        u"The signer held position with UID ${uid} does not exist !",
+                        "The signer held position with UID ${uid} does not exist !",
                         mapping={"uid": signer["signer"]},
                     )
                 )
@@ -1499,7 +1501,7 @@ class ApprovalAdapter(object):
             if user_email in signer_emails:
                 raise ValueError(
                     _(
-                        u"You cannot have the same email (${email}) for multiple signers !",
+                        "You cannot have the same email (${email}) for multiple signers !",
                         mapping={"email": user_email},
                     )
                 )
@@ -1534,7 +1536,7 @@ class ApprovalAdapter(object):
 
             # Add signer in annotation
             signer_name = signer_person.get_title(include_person_title=False)
-            signer_label = signer_hp.label or u""
+            signer_label = signer_hp.label or ""
             self.annot["signers"].append((signer_person.userid, signer_name, signer_label))
             self.annot["approvers"].append(approvers)
             self.annot["editors"].append(signer["editor"])
@@ -1554,8 +1556,10 @@ class ApprovalAdapter(object):
             esign_audit(
                 "update_signers",
                 "mail={} signers={} approvers={}".format(
-                    self.context.UID(), "|".join(self.signers), "|".join([",".join(sublist) for sublist in
-                                                                          self.annot["approvers"]]))
+                    self.context.UID(),
+                    "|".join(self.signers),
+                    "|".join([",".join(sublist) for sublist in self.annot["approvers"]]),
+                ),
             )
 
         for fuid in backup_files_uids:
@@ -1705,7 +1709,7 @@ class ApprovalAdapter(object):
         self.annot["current_nb"] = self.calculate_current_nb()
         esign_audit(
             "approve_file",
-            "mail={} file={} signer={} approver={}".format(self.context.UID(), f_uid, self.signers[c_a], userid)
+            "mail={} file={} signer={} approver={}".format(self.context.UID(), f_uid, self.signers[c_a], userid),
         )
         if self.is_file_approved(f_uid):
             afile.approved = True
@@ -1715,8 +1719,8 @@ class ApprovalAdapter(object):
         if yet_to_approve:
             api.portal.show_message(
                 message=_(
-                    u"The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files "
-                    u"to approve on this mail.",
+                    "The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files "
+                    "to approve on this mail.",
                     mapping={
                         "file": safe_unicode(afile.Title()),
                         "user": safe_unicode(fullname),
@@ -1727,7 +1731,7 @@ class ApprovalAdapter(object):
                 type="info",
             )
             return True, True
-        message = u"The file '${file}' has been approved by ${user}. "
+        message = "The file '${file}' has been approved by ${user}. "
         c_a = self.current_nb  # current approval
         pc = getToolByName(self.context, "portal_catalog")
         if c_a is not None and 0 <= c_a < len(self.annot["approval"]):
@@ -1737,7 +1741,7 @@ class ApprovalAdapter(object):
             self.annot["current_nb"] = self.calculate_current_nb()
             pc.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
             self.context.reindexObjectSecurity()  # to update local roles from adapter
-            message += u"Next approval number is ${nb}."
+            message += "Next approval number is ${nb}."
             api.portal.show_message(
                 message=_(
                     message,
@@ -1749,7 +1753,7 @@ class ApprovalAdapter(object):
             return True, True
         else:
             pc.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
-            message += u"All approvals have been done for this file."
+            message += "All approvals have been done for this file."
             api.portal.show_message(
                 message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname)}),
                 request=request,
@@ -1762,7 +1766,7 @@ class ApprovalAdapter(object):
                     if not ret:
                         api.portal.show_message(
                             message=_(
-                                u"There was an error while creating the signing session: ${msg} !", mapping={"msg": msg}
+                                "There was an error while creating the signing session: ${msg} !", mapping={"msg": msg}
                             ),
                             request=request,
                             type="error",
@@ -1770,7 +1774,7 @@ class ApprovalAdapter(object):
                         return False, True
                     else:
                         api.portal.show_message(
-                            message=_(u"A signing session has been created: ${msg}.", mapping={"msg": msg}),
+                            message=_("A signing session has been created: ${msg}.", mapping={"msg": msg}),
                             request=request,
                             type="info",
                         )
@@ -1810,10 +1814,7 @@ class ApprovalAdapter(object):
         self.annot["approval"][nb][f_index]["status"] = "w"
         self.annot["approval"][nb][f_index]["approved_on"] = None
         self.annot["approval"][nb][f_index]["approved_by"] = None
-        esign_audit(
-            "unapprove_file",
-            "mail={} file={} signer={}".format(self.context.UID(), f_uid, signer_userid)
-        )
+        esign_audit("unapprove_file", "mail={} file={} signer={}".format(self.context.UID(), f_uid, signer_userid))
         afile.approved = False
 
         if orig_nb != self.current_nb:
@@ -1858,18 +1859,20 @@ class ApprovalAdapter(object):
                     "context": self.context,
                     "portal": api.portal.get(),
                     "view": helper_view,
-                    "download_barcode": generate_barcode(download_url, barcode=58, scale=3, resize=0.5,
-                                                         extra_args=["--vwhitesp=2", "--whitesp=2"]).read(),
+                    "download_barcode": generate_barcode(
+                        download_url, barcode=58, scale=3, resize=0.5, extra_args=["--vwhitesp=2", "--whitesp=2"]
+                    ).read(),
                     "download_url": download_url,
                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
                     "render_download_barcode": True,
                 }
-                template_file = NamedBlobFile(download_template.get_file().data, filename=u"download_template.odt")
+                template_file = NamedBlobFile(download_template.get_file().data, filename="download_template.odt")
                 return convert_odt(template_file, fmt="pdf", gen_context=gen_context)
             except Exception:
                 logger.exception(
-                    u"Could not render download template for pdf file {} ({})".format(
-                        u'/'.join(orig_fobj.getPhysicalPath()), f_title)
+                    "Could not render download template for pdf file {} ({})".format(
+                        "/".join(orig_fobj.getPhysicalPath()), f_title
+                    )
                 )
                 return ""
 
@@ -1889,7 +1892,7 @@ class ApprovalAdapter(object):
                 logging=True,
             )
 
-        new_filename = u"{}.pdf".format(f_title)
+        new_filename = "{}.pdf".format(f_title)
         if nbf.contentType not in get_allowed_content_types(esign=True, portal_type=self.context.portal_type):
             raise NotImplementedError("Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType))
         gen_context = {}
@@ -1897,18 +1900,14 @@ class ApprovalAdapter(object):
         if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
             new_uid = uuid.uuid4().hex
             download_url, _s_uid = get_file_download_url(new_uid)
-            helper_view = getMultiAdapter(
-                (self.context, self.context.REQUEST), name="document_generation_helper_view"
-            )
+            helper_view = getMultiAdapter((self.context, self.context.REQUEST), name="document_generation_helper_view")
             helper_view.pod_template = orig_template.UID()
             helper_view.output_format = "pdf"
             gen_context = {"context": self.context, "portal": api.portal.get(), "view": helper_view}
             # update_dict_with_validation(gen_context, self._get_context_variables(pod_template),
             #                                   _("Error when merging context_variables in generation context"))
             merge_templates = [
-                dic["template"]
-                for dic in orig_template.merge_templates
-                if dic["pod_context_name"] == "doc_cb_download"
+                dic["template"] for dic in orig_template.merge_templates if dic["pod_context_name"] == "doc_cb_download"
             ]
             if merge_templates:
                 download_template = uuidToObject(merge_templates[0])
@@ -1917,8 +1916,9 @@ class ApprovalAdapter(object):
             update_dict_with_validation(
                 gen_context,
                 {
-                    "download_barcode": generate_barcode(download_url, barcode=58, scale=3, resize=0.5,
-                                                         extra_args=["--vwhitesp=2", "--whitesp=2"]).read(),
+                    "download_barcode": generate_barcode(
+                        download_url, barcode=58, scale=3, resize=0.5, extra_args=["--vwhitesp=2", "--whitesp=2"]
+                    ).read(),
                     "download_url": download_url,
                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
                     "render_download_barcode": True,
@@ -1958,12 +1958,9 @@ class ApprovalAdapter(object):
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
-        pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
+        pdf_file.file.filename = "{}__{}.pdf".format(f_title, pdf_uid)
         session_file_uids.append(pdf_uid)
-        esign_audit(
-            "create_pdf_file",
-            "mail={} file={} pdf={}".format(self.context.UID(), f_uid, pdf_uid)
-        )
+        esign_audit("create_pdf_file", "mail={} file={} pdf={}".format(self.context.UID(), f_uid, pdf_uid))
 
     def add_mail_files_to_session(self):
         """Add mail files to sign session."""
@@ -2014,8 +2011,8 @@ class ApprovalAdapter(object):
                     return False, _("Cannot split odt file uid ${uid}", mapping={"uid": f_uid})
                 num_digits = len(str(nbf))
                 for j, odt_data in enumerate(result, start=1):
-                    nb_title = u"{}_{{:0{}d}}".format(f_title, num_digits).format(j)
-                    file_object = NamedBlobFile(odt_data, filename=safe_unicode(u"{}.odt".format(nb_title)))
+                    nb_title = "{}_{{:0{}d}}".format(f_title, num_digits).format(j)
+                    file_object = NamedBlobFile(odt_data, filename=safe_unicode("{}.odt".format(nb_title)))
                     # file filename will be renamed later to include uid
                     self._create_pdf_file(fobj, file_object, nb_title, f_uid, i, session_file_uids)
             else:
@@ -2034,17 +2031,25 @@ class ApprovalAdapter(object):
             domain="plone",
             context=self.context.REQUEST,
         )
-        sessions_used = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
-                                             title=u"[iA.Docs] {} - {{sign_id}}".format(type_label),
-                                             discriminators=(self.context.portal_type,),
-                                             watchers=watcher_emails)
+        sessions_used = add_files_to_session(
+            signers,
+            session_file_uids,
+            bool(self.context.seal),
+            title="[iA.Docs] {} - {{sign_id}}".format(type_label),
+            discriminators=(self.context.portal_type,),
+            watchers=watcher_emails,
+        )
         for sid, _session in sessions_used:
             pdf_session_ids.add(sid)
             if sid not in self.annot["session_ids"]:
                 self.annot["session_ids"].append(sid)
-        return True, _("${count} file(s) added to session(s) ${session_ids}",
-                       mapping={"count": str(len(session_file_uids)),
-                                "session_ids": u", ".join([str(sid) for sid in sorted(pdf_session_ids)])})
+        return True, _(
+            "${count} file(s) added to session(s) ${session_ids}",
+            mapping={
+                "count": str(len(session_file_uids)),
+                "session_ids": ", ".join([str(sid) for sid in sorted(pdf_session_ids)]),
+            },
+        )
 
 
 @implementer(IOMApproval)

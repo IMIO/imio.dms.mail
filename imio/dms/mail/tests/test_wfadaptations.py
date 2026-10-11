@@ -67,13 +67,13 @@ class BaseTestWFAdaptations(unittest.TestCase):
             send_modes=["post"],
             treating_groups=self.pgof["direction-generale"].UID(),
             mail_type="courrier",
-            signers=[{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}],
+            signers=[{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}],
         )
         self.assertSetEqual(self._get_transition_ids(omail1), {"mark_as_sent"})
 
         filepath = "%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR
         with open(filepath, "rb") as fo:
-            file_object = NamedBlobFile(fo.read(), filename=u"example.odt")
+            file_object = NamedBlobFile(fo.read(), filename="example.odt")
             createContentInContainer(omail1, "dmsommainfile", id="1", title="Example", file=file_object)
         self.assertSetEqual(self._get_transition_ids(omail1), {"set_to_print", "propose_to_be_signed", "mark_as_sent"})
 
@@ -112,14 +112,14 @@ class BaseTestWFAdaptations(unittest.TestCase):
             send_modes=["post"],
             treating_groups=self.pgof["direction-generale"].UID(),
             mail_type="courrier",
-            signers=[{"signer": bourgmestre_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": False}],
+            signers=[{"signer": bourgmestre_hp.UID(), "approvings": ["_themself_"], "number": 1, "editor": False}],
         )
         self.assertSetEqual(self._get_transition_ids(omail2), {"mark_as_sent"})
 
         filepath = "%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         with open(filepath, "rb") as fo:
-            file_object = NamedBlobFile(fo.read(), filename=u"example.odt")
+            file_object = NamedBlobFile(fo.read(), filename="example.odt")
             file2 = createContentInContainer(
                 omail2,
                 "dmsommainfile",
@@ -175,7 +175,7 @@ class BaseTestWFAdaptations(unittest.TestCase):
             send_modes=["post"],
             treating_groups=self.pgof["direction-generale"].UID(),
             mail_type="courrier",
-            signers=[{"signer": bourgmestre_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": False}],
+            signers=[{"signer": bourgmestre_hp.UID(), "approvings": ["_themself_"], "number": 1, "editor": False}],
             esign=True,
         )
         self.assertSetEqual(self._get_transition_ids(omail3), {"mark_as_sent"})
@@ -183,7 +183,7 @@ class BaseTestWFAdaptations(unittest.TestCase):
         filepath = "%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         with open(filepath, "rb") as fo:
-            file_object = NamedBlobFile(fo.read(), filename=u"example.odt")
+            file_object = NamedBlobFile(fo.read(), filename="example.odt")
             file3 = createContentInContainer(
                 omail3,
                 "dmsommainfile",
@@ -224,7 +224,7 @@ class TestOMToPrintAdaptation(BaseTestWFAdaptations):
     def setUp(self):
         super(TestOMToPrintAdaptation, self).setUp()
         self.omail = sub_create(
-            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title=u"Test"
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title="Test"
         )
 
     def test_OMToPrintAdaptation(self):
@@ -279,7 +279,7 @@ class TestOMToPrintAdaptation(BaseTestWFAdaptations):
         self.assertIn("to_print", [dic["v"] for dic in folder["om_treating"].query if dic["i"] == "review_state"][0])
         self.assertEqual(folder.getObjectPosition("searchfor_to_be_signed"), 11)
         self.assertEqual(folder.getObjectPosition("searchfor_to_print"), 10)
-        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.OMReviewStatesVocabulary")
+        factory = getUtility(IVocabularyFactory, "imio.dms.mail.OMReviewStatesVocabulary")
         self.assertEqual(len(factory(self.portal)), 6)
 
         # Add ToApprove adaptation
@@ -366,7 +366,7 @@ class TestOMToApproveAdaptation(BaseTestWFAdaptations):
     def setUp(self):
         super(TestOMToApproveAdaptation, self).setUp()
         self.omail = sub_create(
-            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title=u"Test"
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title="Test"
         )
 
     def test_OMToApproveAdaptation(self):
@@ -430,7 +430,7 @@ class TestOMToApproveAdaptation(BaseTestWFAdaptations):
         )
         self.assertEqual(folder.getObjectPosition("searchfor_to_be_signed"), 13)
         self.assertEqual(folder.getObjectPosition("searchfor_to_approve"), 12)
-        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.OMReviewStatesVocabulary")
+        factory = getUtility(IVocabularyFactory, "imio.dms.mail.OMReviewStatesVocabulary")
         self.assertEqual(len(factory(self.portal)), 6)
 
         # Add ToPrint adaptation
@@ -577,7 +577,7 @@ class TestOMServiceValidation1(unittest.TestCase):
             "profile-imio.dms.mail:singles", "imiodmsmail-om_n_plus_1_wfadaptation", run_dependencies=False
         )
         self.omail = sub_create(
-            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title=u"test"
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "test-id", title="test"
         )
 
     def tearDown(self):
@@ -588,7 +588,7 @@ class TestOMServiceValidation1(unittest.TestCase):
         """Check workflow"""
         self.assertSetEqual(
             set(self.omw.states),
-            {"created", "scanned", "proposed_to_n_plus_1", "validated", "to_be_signed", "signed", "sent"}
+            {"created", "scanned", "proposed_to_n_plus_1", "validated", "to_be_signed", "signed", "sent"},
         )
         self.assertSetEqual(
             set(self.omw.transitions),
@@ -626,12 +626,18 @@ class TestOMServiceValidation1(unittest.TestCase):
         )
         self.assertSetEqual(
             set(self.omw.states["signed"].transitions),
-            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"}
+            {"back_to_be_signed", "back_to_scanned", "back_to_creation", "mark_as_sent"},
         )
         self.assertSetEqual(
             set(self.omw.states["sent"].transitions),
-            {"back_to_be_signed", "back_to_signed", "back_to_scanned", "back_to_creation", "back_to_n_plus_1",
-             "back_to_validated"},
+            {
+                "back_to_be_signed",
+                "back_to_signed",
+                "back_to_scanned",
+                "back_to_creation",
+                "back_to_n_plus_1",
+                "back_to_validated",
+            },
         )
 
     def test_OMServiceValidation1(self):
@@ -675,9 +681,9 @@ class TestOMServiceValidation1(unittest.TestCase):
             [("sent", "mark_as_sent"), ("to_be_signed", "propose_to_be_signed"), ("validated", "set_validated")],
         )
         # check vocabularies
-        factory = getUtility(IVocabularyFactory, u"collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
+        factory = getUtility(IVocabularyFactory, "collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
         self.assertEqual(len(factory(folder, folder)), 15)
-        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.OMReviewStatesVocabulary")
+        factory = getUtility(IVocabularyFactory, "imio.dms.mail.OMReviewStatesVocabulary")
         self.assertEqual(len(factory(folder)), 7)
         # check configuration
         lst = api.portal.get_registry_record("imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions")
@@ -691,9 +697,7 @@ class TestOMServiceValidation1(unittest.TestCase):
         """Test adaptations are reapplied from registry."""
         before = {state.getId(): sorted(state.transitions) for state in self.omw.states.values()}
         self.assertTrue(load_workflow_from_package("outgoingmail_workflow", "imio.dms.mail:default"))
-        _success, errors = apply_from_registry(
-            reapply=True, name=u"imio.dms.mail.wfadaptations.OMServiceValidation"
-        )
+        _success, errors = apply_from_registry(reapply=True, name="imio.dms.mail.wfadaptations.OMServiceValidation")
         self.assertEqual(errors, 0)
         after = {state.getId(): sorted(state.transitions) for state in self.omw.states.values()}
         self.assertEqual(before, after)
@@ -754,7 +758,7 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertFalse(group_has_user(groupname))
         self.assertFalse(adapted.can_do_transition("back_to_n_plus_1"))
         # add a file so it's possible to do transition
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             createContentInContainer(self.omail, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
         api.content.transition(self.omail, transition="propose_to_be_signed")
@@ -766,7 +770,7 @@ class TestOMServiceValidation1(unittest.TestCase):
         self.assertTrue(adapted.can_do_transition("back_to_n_plus_1"))
 
     def test_encodeur_active_orgs1(self):
-        factory = getUtility(IVocabularyFactory, u"collective.dms.basecontent.treating_groups")
+        factory = getUtility(IVocabularyFactory, "collective.dms.basecontent.treating_groups")
         all_titles = [t.title for t in factory(self.omail)]
         change_user(self.portal, "agent")
         # agent primary organization first (communication)
@@ -793,9 +797,9 @@ class TestIMPreManagerValidation(unittest.TestCase):
         self.pw = self.portal.portal_workflow
         self.imw = self.pw["incomingmail_workflow"]
         params = {
-            "state_title": u"À valider avant le DG",
-            "forward_transition_title": u"Proposer pour prévalidation DG",
-            "backward_transition_title": u"Renvoyer pour prévalidation DG",
+            "state_title": "À valider avant le DG",
+            "forward_transition_title": "Proposer pour prévalidation DG",
+            "backward_transition_title": "Renvoyer pour prévalidation DG",
             "defer_security_update": False,
         }
         pmva = IMPreManagerValidation()
@@ -868,7 +872,7 @@ class TestIMPreManagerValidation(unittest.TestCase):
         config = get_dms_config(["review_states", "dmsincomingmail"])
         self.assertIn("proposed_to_pre_manager", config)
         # check voc
-        factory = getUtility(IVocabularyFactory, u"imio.dms.mail.IMReviewStatesVocabulary")
+        factory = getUtility(IVocabularyFactory, "imio.dms.mail.IMReviewStatesVocabulary")
         self.assertEqual(len(factory(self.portal)), 6)
         # check configuration
         lst = api.portal.get_registry_record("imio.actionspanel.browser.registry.IImioActionsPanelConfig.transitions")

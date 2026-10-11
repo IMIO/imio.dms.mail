@@ -66,9 +66,12 @@ class DmsDeleteConfirmationInfo(PlonegroupDeleteConfirmationInfo):
         )
         sources = esign_breach_sources(obj) + personnel_breach_sources(obj)
         if IPloneGroupContact.providedBy(obj):
-            sources += search_value_in_objects(
-                obj, obj.UID(), p_types=list(PLONEGROUP_FIELDS), type_fields=copy.deepcopy(PLONEGROUP_FIELDS)
-            ) or []
+            sources += (
+                search_value_in_objects(
+                    obj, obj.UID(), p_types=list(PLONEGROUP_FIELDS), type_fields=copy.deepcopy(PLONEGROUP_FIELDS)
+                )
+                or []
+            )
         if not sources:
             return breaches
         if not breaches:
