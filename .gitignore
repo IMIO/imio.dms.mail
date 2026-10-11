@@ -2,3 +2,26 @@ imio.dms.mail.egg-info
 *.egg-info
 *.mo
 *.pyc
+.installed.cfg
+.mr.developer.cfg
+bin/
+develop-eggs/
+include/
+lib/
+local/
+parts/
+src/
+var/
+htmlcov/
+.coverage
+*.log
+output.xml
+report.html
+.plone-version
+.plone*
+checkversion*.html
+pyvenv.cfg
+.python-version
+CACHEDIR.TAG
+# written by collective.contact.importexport in the test layer
+pipeline.cfg
