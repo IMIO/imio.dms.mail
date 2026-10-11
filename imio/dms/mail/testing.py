@@ -447,7 +447,7 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
                     "internal_reference_no": "E{:04d}".format(i),
                     "reception_date": scan_date,
                     # 'sender': [RelationValue(senders_cycle.next())],
-                    "treating_groups": orgas_cycle.next(),
+                    "treating_groups": next(orgas_cycle),
                     "recipient_groups": [services[3]],  # Direction générale, communication
                     "description": "Ceci est la description du courrier %d" % i,
                 }
@@ -455,7 +455,7 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
                 mail = sub_create(ifld, "dmsincomingmail", scan_date, mid, **params)
                 if i == start or i % 1000 == 0:
                     print("Creation time at {}: '{}'".format(i, datetime.datetime.now() - t_st))
-                filename = files_cycle.next()
+                filename = next(files_cycle)
                 with open("%s/%s" % (filespath, filename), "rb") as fo:
                     file_object = NamedBlobFile(fo.read(), filename=filename)
                     createContentInContainer(

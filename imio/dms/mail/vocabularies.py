@@ -297,10 +297,10 @@ def get_internal_held_positions_vocabulary(states=(), usages=(), as_person=False
             )
 
     def sort_persons(t):
-        return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1])
+        return getattr(t[0], sort_on[0]) or u"", getattr(t[0], sort_on[1]) or u""
 
     def sort_hps(t):
-        return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1]), t[1].get_full_title(first_index=1)
+        return getattr(t[0], sort_on[0]) or u"", getattr(t[0], sort_on[1]) or u"", t[1].get_full_title(first_index=1)
 
     if as_person:
         return SimpleVocabulary([term for pers, term in sorted(terms_dict.values(), key=sort_persons)])

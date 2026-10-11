@@ -3,6 +3,8 @@ from imio.helpers.content import uuidToObject
 from Products.CMFCore.utils import getToolByName
 from Products.Five import BrowserView
 
+import six
+
 
 class ListingView(BrowserView):
     """
@@ -37,7 +39,7 @@ class ListingView(BrowserView):
             start_date = DateTime().strftime("%Y%m%d")
         for brain in self.pc(kw):
             obj = brain.getObject()
-            if mail_type and obj.mail_type.encode("utf8") != mail_type:
+            if mail_type and six.ensure_str(obj.mail_type) != mail_type:
                 continue
             if obj.reception_date.strftime("%Y%m%d") < start_date:
                 continue
@@ -56,5 +58,5 @@ class ListingView(BrowserView):
         if not results["1_no_group"]["mails"]:
             del results["1_no_group"]
         for service in results.keys():
-            results[service]["mails"].sort(lambda x, y: cmp(x.internal_reference_no, y.internal_reference_no))
+            results[service]["mails"].sort(key=lambda x: x.internal_reference_no)
         return results

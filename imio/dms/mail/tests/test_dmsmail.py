@@ -99,7 +99,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
 
         voc_inst = TreatingGroupsVocabulary()
         voc = voc_inst(self.portal)
-        self.assertEquals(len([t for t in voc]), 12)
+        self.assertEqual(len([t for t in voc]), 12)
         self.assertNotEqual(len(voc), 12)  # len = full vocabulary with hidden terms
 
     def test_RecipientGroupsVocabulary(self):
@@ -107,16 +107,16 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
 
         voc_inst = RecipientGroupsVocabulary()
         voc = voc_inst(self.portal)
-        self.assertEquals(len([t for t in voc]), 12)
+        self.assertEqual(len([t for t in voc]), 12)
         self.assertNotEqual(len(voc), 12)  # len = full vocabulary with hidden terms
 
     def test_IM_Title(self):
         imail1 = get_object(oid="courrier1", ptype="dmsincomingmail")
-        self.assertEquals(imail1.Title(), "E0001 - Courrier 1")
+        self.assertEqual(imail1.Title(), "E0001 - Courrier 1")
         imail = sub_create(
             self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id", **{"title": u"Test with auto ref"}
         )
-        self.assertEquals(imail.Title(), "E0010 - Test with auto ref")
+        self.assertEqual(imail.Title(), "E0010 - Test with auto ref")
 
     def test_ImioDmsIncomingMailWfConditionsAdapter_can_do_transition0(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
@@ -203,19 +203,19 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         # Based on test_settings from collective.dms.mailcontent
         self.change_user("encodeur")
         # check default config
-        self.assertEquals(
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number"
             ),
             10,
         )
-        self.assertEquals(
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression"
             ),
             u"python:'S%04d'%int(number)",
         )
-        self.assertEquals(
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn"
             ),
@@ -231,7 +231,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_today_mail_date"
             )
         )
-        self.assertEquals(
+        self.assertEqual(
             api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.due_date_extension"), 0
         )
 
@@ -240,14 +240,14 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         add = CustomAddForm(self.portal["incoming-mail"], self.request)
         add.portal_type = "dmsincomingmail"
         add.update()
-        self.assertEquals(add.widgets["ITask.due_date"].value, ("", "", ""))
+        self.assertEqual(add.widgets["ITask.due_date"].value, ("", "", ""))
         # set due_date_extension to 15
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.due_date_extension", 15)
         self.request = self.portal["incoming-mail"].REQUEST
         add = CustomAddForm(self.portal["incoming-mail"], self.request)
         add.portal_type = "dmsincomingmail"
         add.update()
-        self.assertNotEquals(add.widgets["ITask.due_date"].value, ("", "", ""))
+        self.assertNotEqual(add.widgets["ITask.due_date"].value, ("", "", ""))
 
         # testing OM views: default parameters
         api.portal.set_registry_record(
@@ -259,12 +259,12 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         add.update()
         self.assertNotIn("_hide_irn", self.request.keys())
         self.assertNotIn("_auto_ref", self.request.keys())
-        self.assertEquals(add.widgets["internal_reference_no"].mode, "input")  # not hidden
-        self.assertEquals(add.widgets["internal_reference_no"].value, u"S0010")
+        self.assertEqual(add.widgets["internal_reference_no"].mode, "input")  # not hidden
+        self.assertEqual(add.widgets["internal_reference_no"].value, u"S0010")
         obj = add.createAndAdd(self.om_params(add))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
         self.assertFalse(hasattr(om, "_auto_ref"))
-        self.assertEquals(
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number"
             ),
@@ -275,7 +275,7 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         edit.update()
         self.assertNotIn("_hide_irn", self.request.keys())
         self.assertNotIn("_auto_ref", self.request.keys())
-        self.assertEquals(edit.widgets["internal_reference_no"].mode, "input")  # not hidden
+        self.assertEqual(edit.widgets["internal_reference_no"].mode, "input")  # not hidden
         self.clean_request()
 
         # set outgoingmail_increment_number to False
@@ -285,13 +285,13 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         )
         add.update()
         self.assertNotIn("_hide_irn", self.request.keys())
-        self.assertEquals(self.request["_auto_ref"], False)
-        self.assertEquals(add.widgets["internal_reference_no"].mode, "input")  # not hidden
-        self.assertEquals(add.widgets["internal_reference_no"].value, u"S0011")
+        self.assertEqual(self.request["_auto_ref"], False)
+        self.assertEqual(add.widgets["internal_reference_no"].mode, "input")  # not hidden
+        self.assertEqual(add.widgets["internal_reference_no"].value, u"S0011")
         obj = add.createAndAdd(self.om_params(add))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
-        self.assertEquals(om._auto_ref, False)
-        self.assertEquals(
+        self.assertEqual(om._auto_ref, False)
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number"
             ),
@@ -301,8 +301,8 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         edit = OMEdit(om, self.request)
         edit.update()
         self.assertNotIn("_hide_irn", self.request.keys())
-        self.assertEquals(self.request["_auto_ref"], False)
-        self.assertEquals(edit.widgets["internal_reference_no"].mode, "input")  # not hidden
+        self.assertEqual(self.request["_auto_ref"], False)
+        self.assertEqual(edit.widgets["internal_reference_no"].mode, "input")  # not hidden
         self.clean_request()
 
         # set outgoingmail_increment_number to False and outgoingmail_edit_irn to hide
@@ -311,15 +311,15 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", u"hide"
         )
         add.update()
-        self.assertEquals(self.request["_hide_irn"], True)
+        self.assertEqual(self.request["_hide_irn"], True)
         self.assertNotIn("_auto_ref", self.request.keys())
-        self.assertEquals(add.widgets["internal_reference_no"].mode, "hidden")
-        self.assertEquals(add.widgets["internal_reference_no"].value, u"")
+        self.assertEqual(add.widgets["internal_reference_no"].mode, "hidden")
+        self.assertEqual(add.widgets["internal_reference_no"].value, u"")
         obj = add.createAndAdd(self.om_params(add))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
-        self.assertEquals(om.internal_reference_no, u"S0011")
+        self.assertEqual(om.internal_reference_no, u"S0011")
         self.assertFalse(hasattr(om, "_auto_ref"))
-        self.assertEquals(
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number"
             ),
@@ -328,9 +328,9 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.clean_request()
         edit = OMEdit(om, self.request)
         edit.update()
-        self.assertEquals(self.request["_hide_irn"], True)
+        self.assertEqual(self.request["_hide_irn"], True)
         self.assertNotIn("_auto_ref", self.request.keys())
-        self.assertEquals(edit.widgets["internal_reference_no"].mode, "hidden")
+        self.assertEqual(edit.widgets["internal_reference_no"].mode, "hidden")
         self.clean_request()
 
         # set outgoingmail_increment_number to False and outgoingmail_edit_irn to reply
@@ -339,15 +339,15 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", u"reply"
         )
         add.update()
-        self.assertEquals(self.request["_hide_irn"], True)
+        self.assertEqual(self.request["_hide_irn"], True)
         self.assertNotIn("_auto_ref", self.request.keys())
-        self.assertEquals(add.widgets["internal_reference_no"].mode, "hidden")
-        self.assertEquals(add.widgets["internal_reference_no"].value, u"")
+        self.assertEqual(add.widgets["internal_reference_no"].mode, "hidden")
+        self.assertEqual(add.widgets["internal_reference_no"].value, u"")
         obj = add.createAndAdd(self.om_params(add))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
-        self.assertEquals(om.internal_reference_no, u"S0012")
+        self.assertEqual(om.internal_reference_no, u"S0012")
         self.assertFalse(hasattr(om, "_auto_ref"))
-        self.assertEquals(
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number"
             ),
@@ -357,18 +357,18 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         edit = OMEdit(om, self.request)
         edit.update()
         # is not a response
-        self.assertEquals(self.request["_hide_irn"], True)
+        self.assertEqual(self.request["_hide_irn"], True)
         self.assertNotIn("_auto_ref", self.request.keys())
-        self.assertEquals(edit.widgets["internal_reference_no"].mode, "hidden")
+        self.assertEqual(edit.widgets["internal_reference_no"].mode, "hidden")
         self.clean_request()
         # is a response, workflow and initial state
         setattr(om, "_is_response", True)
         edit.update()
-        self.assertEquals(api.content.get_state(om), "created")
-        self.assertEquals(edit.is_initial_state(), True)
+        self.assertEqual(api.content.get_state(om), "created")
+        self.assertEqual(edit.is_initial_state(), True)
         self.assertNotIn("_hide_irn", self.request.keys())
-        self.assertEquals(self.request["_auto_ref"], False)
-        self.assertEquals(edit.widgets["internal_reference_no"].mode, "input")  # not hidden
+        self.assertEqual(self.request["_auto_ref"], False)
+        self.assertEqual(edit.widgets["internal_reference_no"].mode, "input")  # not hidden
         self.clean_request()
         # is a response, workflow and not initial state
         # add a file so it's possible to do transition
@@ -377,11 +377,11 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             createContentInContainer(om, "dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename))
         api.content.transition(om, "propose_to_be_signed")
         edit.update()
-        self.assertEquals(api.content.get_state(om), "to_be_signed")
-        self.assertEquals(edit.is_initial_state(), False)
-        self.assertEquals(self.request["_hide_irn"], True)
+        self.assertEqual(api.content.get_state(om), "to_be_signed")
+        self.assertEqual(edit.is_initial_state(), False)
+        self.assertEqual(self.request["_hide_irn"], True)
         self.assertNotIn("_auto_ref", self.request.keys())
-        self.assertEquals(edit.widgets["internal_reference_no"].mode, "hidden")
+        self.assertEqual(edit.widgets["internal_reference_no"].mode, "hidden")
         self.clean_request()
 
         # Testing reply view
@@ -404,16 +404,16 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         )
         reply = ReplyForm(im, self.request)
         reply.update()
-        self.assertEquals(self.request["_irn"], "E0010")
-        self.assertEquals(self.request["_hide_irn"], False)
+        self.assertEqual(self.request["_irn"], "E0010")
+        self.assertEqual(self.request["_hide_irn"], False)
         self.assertNotIn("_auto_ref", self.request.keys())
-        self.assertEquals(reply.widgets["internal_reference_no"].mode, "input")  # not hidden
-        self.assertEquals(reply.widgets["internal_reference_no"].value, u"S0013")
+        self.assertEqual(reply.widgets["internal_reference_no"].mode, "input")  # not hidden
+        self.assertEqual(reply.widgets["internal_reference_no"].value, u"S0013")
         obj = reply.createAndAdd(self.om_params(reply))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
         self.assertFalse(hasattr(om, "_auto_ref"))
-        self.assertEquals(om._is_response, True)
-        self.assertEquals(
+        self.assertEqual(om._is_response, True)
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number"
             ),
@@ -427,14 +427,14 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number", False
         )
         reply.update()
-        self.assertEquals(self.request["_hide_irn"], False)
-        self.assertEquals(self.request["_auto_ref"], False)
-        self.assertEquals(reply.widgets["internal_reference_no"].mode, "input")  # not hidden
-        self.assertEquals(reply.widgets["internal_reference_no"].value, u"S0014")
+        self.assertEqual(self.request["_hide_irn"], False)
+        self.assertEqual(self.request["_auto_ref"], False)
+        self.assertEqual(reply.widgets["internal_reference_no"].mode, "input")  # not hidden
+        self.assertEqual(reply.widgets["internal_reference_no"].value, u"S0014")
         obj = reply.createAndAdd(self.om_params(reply))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
-        self.assertEquals(om._auto_ref, False)
-        self.assertEquals(
+        self.assertEqual(om._auto_ref, False)
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number"
             ),
@@ -448,15 +448,15 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", u"hide"
         )
         reply.update()
-        self.assertEquals(self.request["_hide_irn"], True)
+        self.assertEqual(self.request["_hide_irn"], True)
         self.assertNotIn("_auto_ref", self.request.keys())
-        self.assertEquals(reply.widgets["internal_reference_no"].mode, "hidden")
-        self.assertEquals(reply.widgets["internal_reference_no"].value, u"")
+        self.assertEqual(reply.widgets["internal_reference_no"].mode, "hidden")
+        self.assertEqual(reply.widgets["internal_reference_no"].value, u"")
         obj = reply.createAndAdd(self.om_params(reply))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
-        self.assertEquals(om.internal_reference_no, u"S0014")
+        self.assertEqual(om.internal_reference_no, u"S0014")
         self.assertFalse(hasattr(om, "_auto_ref"))
-        self.assertEquals(
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number"
             ),
@@ -470,14 +470,14 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn", u"reply"
         )
         reply.update()
-        self.assertEquals(self.request["_hide_irn"], False)
-        self.assertEquals(self.request["_auto_ref"], False)
-        self.assertEquals(reply.widgets["internal_reference_no"].mode, "input")  # not hidden
-        self.assertEquals(reply.widgets["internal_reference_no"].value, u"S0015")
+        self.assertEqual(self.request["_hide_irn"], False)
+        self.assertEqual(self.request["_auto_ref"], False)
+        self.assertEqual(reply.widgets["internal_reference_no"].mode, "input")  # not hidden
+        self.assertEqual(reply.widgets["internal_reference_no"].value, u"S0015")
         obj = reply.createAndAdd(self.om_params(reply))
         om = api.content.find(self.portal["outgoing-mail"], id=obj.id)[0].getObject()
-        self.assertEquals(om._auto_ref, False)
-        self.assertEquals(
+        self.assertEqual(om._auto_ref, False)
+        self.assertEqual(
             api.portal.get_registry_record(
                 "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_number"
             ),
@@ -493,18 +493,18 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         api.portal.set_registry_record(AUC_RECORD, "mandatory")
         view.update()  # BEWARE can be called only once (plone.autoform.view.py) !
         # no treating_groups: cannot do anything
-        self.assertEquals(view.widgets["ITask.assigned_user"].field.description, u"")
+        self.assertEqual(view.widgets["ITask.assigned_user"].field.description, u"")
         # no assigned_user but mandatory
         imail.treating_groups = get_registry_organizations()[0]
         view.updateWidgets()  # because update() can be called only once
-        self.assertEquals(
+        self.assertEqual(
             view.widgets["ITask.assigned_user"].field.description,
             u"You must select an assigned user before you can propose to an agent !",
         )
         # no assigned user but mandatory only for n_plus_1 level
         api.portal.set_registry_record(AUC_RECORD, "n_plus_1")
         view.updateWidgets()
-        self.assertEquals(view.widgets["ITask.assigned_user"].field.description, u"")
+        self.assertEqual(view.widgets["ITask.assigned_user"].field.description, u"")
 
     def test_filter_dmsoutgoingmail_assigned_users(self):
         self.assertEqual(len(filter_dmsoutgoingmail_assigned_users(None)), 0)

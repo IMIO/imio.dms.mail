@@ -186,23 +186,23 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 **{"title": u"IMail created by scanner", "treating_groups": orgs[0]}
             )
             dfile = createContentInContainer(imail, "dmsmainfile", **{"title": "File created by scanner"})
-        self.assertEquals(imail.Creator(), "scanner")
-        self.assertEquals(imail.owner_info()["id"], "scanner")
-        self.assertEquals(imail.get_local_roles_for_userid("scanner"), ("Owner",))
-        self.assertEquals(dfile.Creator(), "scanner")
-        self.assertEquals(dfile.owner_info()["id"], "scanner")
-        self.assertEquals(dfile.get_local_roles_for_userid("scanner"), ("Owner",))
+        self.assertEqual(imail.Creator(), "scanner")
+        self.assertEqual(imail.owner_info()["id"], "scanner")
+        self.assertEqual(imail.get_local_roles_for_userid("scanner"), ("Owner",))
+        self.assertEqual(dfile.Creator(), "scanner")
+        self.assertEqual(dfile.owner_info()["id"], "scanner")
+        self.assertEqual(dfile.get_local_roles_for_userid("scanner"), ("Owner",))
         with api.env.adopt_user(username="encodeur"):
             imail.setTitle("IMail modified by encodeur")
             zope.event.notify(ObjectModifiedEvent(imail))
-        self.assertEquals(imail.Creator(), "encodeur")
-        self.assertEquals(imail.owner_info()["id"], "encodeur")
-        self.assertEquals(imail.get_local_roles_for_userid("encodeur"), ("Owner",))
-        self.assertEquals(imail.get_local_roles_for_userid("scanner"), ())
-        self.assertEquals(dfile.Creator(), "encodeur")
-        self.assertEquals(dfile.owner_info()["id"], "encodeur")
-        self.assertEquals(dfile.get_local_roles_for_userid("encodeur"), ("Owner",))
-        self.assertEquals(dfile.get_local_roles_for_userid("scanner"), ())
+        self.assertEqual(imail.Creator(), "encodeur")
+        self.assertEqual(imail.owner_info()["id"], "encodeur")
+        self.assertEqual(imail.get_local_roles_for_userid("encodeur"), ("Owner",))
+        self.assertEqual(imail.get_local_roles_for_userid("scanner"), ())
+        self.assertEqual(dfile.Creator(), "encodeur")
+        self.assertEqual(dfile.owner_info()["id"], "encodeur")
+        self.assertEqual(dfile.get_local_roles_for_userid("encodeur"), ("Owner",))
+        self.assertEqual(dfile.get_local_roles_for_userid("scanner"), ())
         # tasks update test
         task1 = api.content.create(container=imail, type="task", title="task1", id="t1", assigned_group=orgs[1])
         self.assertListEqual(task1.parents_assigned_groups, [orgs[0]])
@@ -737,7 +737,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message,
+            cm.exception.args[0],
             u"You cannot have the same signer (${signer_title}) multiple times ! " u"You have to adapt the rules !",
         )
 
@@ -781,7 +781,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message,
+            cm.exception.args[0],
             u"You cannot have the same signer (${signer_title}) multiple times ! " u"You have to adapt the rules !",
         )
 
@@ -908,7 +908,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message, u"You cannot have a seal without electronic signature ! You have to adapt the rules !"
+            cm.exception.args[0], u"You cannot have a seal without electronic signature ! You have to adapt the rules !"
         )
 
         # Test mail already has signers
@@ -982,7 +982,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message, u"The chef already exists in the approvings with another order 1 <=> 2"
+            cm.exception.args[0], u"The chef already exists in the approvings with another order 1 <=> 2"
         )
 
         # Test signers have same email
@@ -1018,7 +1018,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.message, u"You cannot have the same email (duplicate@belleville.eb) "
+        self.assertEqual(cm.exception.args[0], u"You cannot have the same email (duplicate@belleville.eb) "
                                                u"for multiple signers !")
         api.user.get("dirg").setMemberProperties({"email": "deduplicate@belleville.eb"})
 

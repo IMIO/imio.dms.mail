@@ -140,7 +140,7 @@ def item_copied(obj, event):
             message=_(
                 u"You cannot copy this item '${title}' ! If you are in a table, you have to "
                 u"use the buttons below the table.",
-                mapping={"title": event.original.Title().decode("utf8")},
+                mapping={"title": safe_unicode(event.original.Title())},
             ),
             request=event.original.REQUEST,
             type="error",
@@ -648,7 +648,7 @@ def dmsoutgoingmail_modified(mail, event):
         try:
             approval.update_signers()
         except ValueError as e:
-            raise Invalid(translate(e.message, context=mail.REQUEST))
+            raise Invalid(translate(e.args[0], context=mail.REQUEST))
 
 
 def dmsoutgoingmail_added(mail, event):
@@ -684,7 +684,7 @@ def sign_request_modified(request, event):
         try:
             approval.update_signers()
         except ValueError as e:
-            raise Invalid(e.message)
+            raise Invalid(e.args[0])
 
 
 def sign_request_added(request, event):
@@ -1091,7 +1091,7 @@ def contact_plonegroup_change(event):
             (portal["contacts"]["contact-lists-folder"]["common"], True),
         ):
             dic = folder.__ac_local_roles__
-            for principal in dic.keys():
+            for principal in list(dic.keys()):
                 if principal.endswith("_encodeur") or (editeur_too and principal.endswith("_editeur")):
                     del dic[principal]
             for uid in s_orgs:
@@ -1103,7 +1103,7 @@ def contact_plonegroup_change(event):
         if "requests" in portal and any(dic["fct_id"] == u"demand_sign" for dic in s_fcts):
             req_folder = portal["requests"]
             dic = req_folder.__ac_local_roles__
-            for principal in dic.keys():
+            for principal in list(dic.keys()):
                 if principal.endswith("_demand_sign"):
                     del dic[principal]
             for uid in s_orgs:
@@ -1178,7 +1178,7 @@ def contact_plonegroup_change(event):
             for folder in options_config:
                 if any([ge_config[opt] for opt in options_config[folder]]):
                     dic = folder.__ac_local_roles__
-                    for principal in dic.keys():
+                    for principal in list(dic.keys()):
                         if principal.endswith(CREATING_GROUP_SUFFIX):
                             del dic[principal]
                     for uid in orgs:
@@ -1687,7 +1687,7 @@ def cktemplate_moved(obj, event):
         current_path = path[:index]
         for part in parts:
             current_path += "/{}".format(part)
-            values.append(titles[current_path].decode("utf8"))
+            values.append(safe_unicode(titles[current_path]))
         value = u" - ".join(values)
     annot = IAnnotations(obj)
     annot["dmsmail.cke_tpl_tit"] = value

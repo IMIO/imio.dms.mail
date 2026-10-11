@@ -82,7 +82,7 @@ from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
-from zope.component import adapts
+from zope.component import adapter
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.interface import alsoProvides
@@ -187,7 +187,7 @@ def filter_dmsincomingmail_assigned_users(org_uid):
         elif isinstance(view, MasterSelectJSONValue):
             form = view.widget.form
             if "ITask.assigned_user" in form.widgets and not form.widgets["ITask.assigned_user"].value:
-                view.request.set("_default_assigned_user_", voc.by_value.keys()[0])
+                view.request.set("_default_assigned_user_", list(voc.by_value)[0])
     return voc
 
 
@@ -318,8 +318,8 @@ class ImioDmsIncomingMail(DmsIncomingMail):
 
 
 @implementer(IImioDmsIncomingMailWfConditions)
+@adapter(IImioDmsIncomingMail)
 class ImioDmsIncomingMailWfConditionsAdapter(object):
-    adapts(IImioDmsIncomingMail)
     security = ClassSecurityInfo()
 
     def __init__(self, context):
@@ -900,8 +900,8 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
 
 
 @implementer(IImioDmsOutgoingMailWfConditions)
+@adapter(IImioDmsOutgoingMail)
 class ImioDmsOutgoingMailWfConditionsAdapter(object):
-    adapts(IImioDmsOutgoingMail)
     security = ClassSecurityInfo()
 
     def __init__(self, context):

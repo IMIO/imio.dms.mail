@@ -88,7 +88,7 @@ class TestTable(unittest.TestCase):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
         task = createContentInContainer(imail, "task", id="testid1", assigned_group=group0)
         col = AssignedGroupColumn(self.portal, self.portal.REQUEST, None)
-        self.assertEqual(col.renderCell(task).encode("utf8"), "Direction générale")
+        self.assertEqual(col.renderCell(task), u"Direction générale")
 
     def test_EnquirerColumn(self):
         task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]

@@ -351,7 +351,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
     def test_highest_review_level(self):
         self.assertIsNone(highest_review_level("a_type", ""))
         self.assertIsNone(highest_review_level("dmsincomingmail", ""))
-        self.assertEquals(highest_review_level("dmsincomingmail", "['dir_general']"), "dir_general")
+        self.assertEqual(highest_review_level("dmsincomingmail", "['dir_general']"), "dir_general")
         set_dms_config(
             ["review_levels", "dmsincomingmail"],
             OrderedDict(
@@ -361,7 +361,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 ]
             ),
         )
-        self.assertEquals(highest_review_level("dmsincomingmail", "['111_n_plus_1']"), "_n_plus_1")
+        self.assertEqual(highest_review_level("dmsincomingmail", "['111_n_plus_1']"), "_n_plus_1")
 
     def test_list_wf_states(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")

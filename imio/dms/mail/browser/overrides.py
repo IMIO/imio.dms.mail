@@ -64,13 +64,19 @@ from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
 from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from time import clock
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.component import queryUtility
 from zope.interface.exceptions import Invalid
 
 import os
+import six
+
+
+try:
+    from time import process_time as clock
+except ImportError:  # Python 2
+    from time import clock
 
 
 class IMRenderCategoryView(RenderCategoryView):
@@ -332,8 +338,8 @@ class DocsImportFormSecondStep(ImportFormSecondStep):
                 raise Invalid(u"Error reading '{}': '{}'".format(csv_file, msg))
             errors = []
             for row in rows:
-                otgt = row["otgt"].decode("utf8")
-                ntgt = row["ntgt"].decode("utf8")
+                otgt = six.ensure_text(row["otgt"])
+                ntgt = six.ensure_text(row["ntgt"])
                 if otgt not in tgt:
                     if ntgt not in tgt:
                         errors.append(u"{}: new value '{}' not found".format(row["_ln"], ntgt))
@@ -575,6 +581,6 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
 
         log("solr index synced.\n")
         msg = "self._processed %d object(s) in %s (%s cpu time)."
-        msg = msg % (self._processed, real.next(), cpu.next())
+        msg = msg % (self._processed, next(real), next(cpu))
         log(msg)
         logger.info(msg)

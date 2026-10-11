@@ -1815,7 +1815,7 @@ def configure_group_encoder(field_name, contacts_part=False):
         if config.get(portal_type):
             msg = add_fti_configuration(portal_type, config[portal_type], keyname="creating_group")
             if msg:
-                logger.warn(msg)
+                logger.warning(msg)
 
         # criterias
         folder_id, category_id, default_id = criterias.get(portal_type, ("", "", ""))

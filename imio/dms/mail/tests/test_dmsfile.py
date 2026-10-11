@@ -36,11 +36,11 @@ class TestDmsfile(unittest.TestCase):
 
     def test_RestrictedNamedBlobFile(self):
         path = "%s/batchimport/toprocess/outgoing-mail/Accusé de réception.odt" % imiodmsmail.__path__[0]
-        odtfile = file(path, "rb")  # noqa F821
+        odtfile = open(path, "rb")
         odtblob = NamedBlobFile(data=odtfile.read(), filename=u"file.odt")
         odtfile.close()
         path = os.path.join(os.path.dirname(__file__), "files", "example.pdf")
-        otherfile = file(path, "rb")  # noqa F821
+        otherfile = open(path, "rb")
         otherblob = NamedBlobFile(data=otherfile.read(), filename=u"file.pdf")
         otherfile.close()
         registry = getUtility(IRegistry)

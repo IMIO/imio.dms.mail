@@ -172,10 +172,10 @@ def setup_classification(site):
     for keyname in roles_config:
         msg = add_fti_configuration("ClassificationFolder", roles_config[keyname], keyname=keyname)
         if msg:
-            logger.warn(msg)
+            logger.warning(msg)
         msg = add_fti_configuration("ClassificationSubfolder", roles_config[keyname], keyname=keyname)
         if msg:
-            logger.warn(msg)
+            logger.warning(msg)
 
     roles_config = {
         "internally_published": {"createurs_dossier": {"roles": ["Contributor"]}},
@@ -183,7 +183,7 @@ def setup_classification(site):
     }
     msg = add_fti_configuration("ClassificationFolders", roles_config)
     if msg:
-        logger.warn(msg)
+        logger.warning(msg)
 
     fti = getUtility(IDexterityFTI, name=site["folders"].portal_type)
     if "Folder" not in fti.allowed_content_types:
@@ -2427,10 +2427,10 @@ def configure_rolefields(context):
         # don't overwrite existing configuration
         msg = add_fti_configuration("dmsincomingmail", roles_config[keyname], keyname=keyname)
         if msg:
-            logger.warn(msg)
+            logger.warning(msg)
         msg = add_fti_configuration("dmsincoming_email", copy.deepcopy(roles_config[keyname]), keyname=keyname)
         if msg:
-            logger.warn(msg)
+            logger.warning(msg)
 
 
 def configure_iem_rolefields(context):
@@ -2548,7 +2548,7 @@ def configure_om_rolefields(context):
         # don't overwrite existing configuration
         msg = add_fti_configuration("dmsoutgoingmail", roles_config[keyname], keyname=keyname)
         if msg:
-            logger.warn(msg)
+            logger.warning(msg)
         # msg = add_fti_configuration('dmsoutgoing_email', roles_config[keyname], keyname=keyname)
         # if msg:
         #     logger.warn(msg)
@@ -2608,7 +2608,7 @@ def configure_signrequest_rolefields(context):
         # don't overwrite existing configuration
         msg = add_fti_configuration("sign_request", roles_config[keyname], keyname=keyname)
         if msg:
-            logger.warn(msg)
+            logger.warning(msg)
 
 
 def configure_task_rolefields(context, force=False):
@@ -2693,7 +2693,7 @@ def configure_task_rolefields(context, force=False):
         # we overwrite existing configuration from task installation !
         msg = add_fti_configuration("task", roles_config[keyname], keyname=keyname, force=force)
         if msg:
-            logger.warn(msg)
+            logger.warning(msg)
 
 
 def configure_task_config(context):
@@ -2850,7 +2850,7 @@ def add_templates(site):
     """Create pod templates."""
     from collective.documentgenerator.content.pod_template import POD_TEMPLATE_TYPES
 
-    template_types = POD_TEMPLATE_TYPES.keys() + ["Folder", "DashboardPODTemplate"]
+    template_types = list(POD_TEMPLATE_TYPES) + ["Folder", "DashboardPODTemplate"]
     for path, title, interfaces in [
         ("templates", _(u"templates_tab"), [IActionsPanelFolderAll]),
         ("templates/om", _(u"Outgoing mail"), [IOMTemplatesFolder, IActionsPanelFolderAll]),

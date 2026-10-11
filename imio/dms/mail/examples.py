@@ -147,7 +147,7 @@ def add_test_contact_lists(context):
     clf = contacts["contact-lists-folder"]
 
     if base_hasattr(clf, "common"):
-        logger.warn("Nothing done: common already exists. You must first delete it to reimport!")
+        logger.warning("Nothing done: common already exists. You must first delete it to reimport!")
         return
 
     # set common
@@ -610,7 +610,7 @@ def add_test_plonegroup_services(context):
     own_orga = contacts["plonegroup-organization"]
 
     if len(own_orga.objectIds()):
-        logger.warn("Nothing done: plonegroup-organization already contains children!")
+        logger.warning("Nothing done: plonegroup-organization already contains children!")
         return
 
     # Departments and services creation

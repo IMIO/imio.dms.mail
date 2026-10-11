@@ -78,6 +78,7 @@ import datetime
 import logging
 import os
 import pwd
+import six
 
 
 logger = logging.getLogger("imio.dms.mail: steps")
@@ -227,7 +228,7 @@ def update_templates_step(context):
         return
     templates_list = [(tup[1], tup[2]) for tup in list_templates()]
     ret = update_templates(templates_list)
-    ret = "\n".join(["%s: %s" % (tup[0], tup[2]) for tup in ret]).encode("utf8")
+    ret = six.ensure_str("\n".join(["%s: %s" % (tup[0], tup[2]) for tup in ret]))
     logger.info("\n{}".format(ret))
     return ret
 
@@ -237,7 +238,7 @@ def override_templates_step(context):
         return
     templates_list = [(tup[1], tup[2]) for tup in list_templates()]
     ret = update_templates(templates_list, force=True)
-    ret = "\n".join(["%s: %s" % (tup[0], tup[2]) for tup in ret]).encode("utf8")
+    ret = six.ensure_str("\n".join(["%s: %s" % (tup[0], tup[2]) for tup in ret]))
     logger.info("\n{}".format(ret))
     return ret
 
@@ -245,13 +246,13 @@ def override_templates_step(context):
 def create_persons_from_users_step(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    return "\n".join(create_persons_from_users(context.getSite())).encode("utf8")
+    return six.ensure_str("\n".join(create_persons_from_users(context.getSite())))
 
 
 def create_persons_from_users_step_inverted(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    return "\n".join(create_persons_from_users(context.getSite(), fn_first=False)).encode("utf8")
+    return six.ensure_str("\n".join(create_persons_from_users(context.getSite(), fn_first=False)))
 
 
 def add_icons_to_contact_workflow(context):

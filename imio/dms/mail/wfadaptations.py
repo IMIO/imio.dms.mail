@@ -27,6 +27,7 @@ from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import logging
+import six
 
 
 logger = logging.getLogger("imio.dms.mail.wfadaptations")
@@ -87,7 +88,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         wf.states.addState(new_state_id)
         state = wf.states[new_state_id]
         state.setProperties(
-            title=parameters["state_title"].encode("utf8"),
+            title=six.ensure_str(parameters["state_title"]),
             description="",
             transitions=["back_to_creation", "propose_to_manager"],
         )
@@ -108,7 +109,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         # add transitions
         wf.transitions.addTransition(propose_tr_id)
         wf.transitions[propose_tr_id].setProperties(
-            title=parameters["forward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["forward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -121,7 +122,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         back_tr_id = "back_to_pre_manager"
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
-            title=parameters["backward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["backward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -234,11 +235,11 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         # update configuration annotation
         config = get_dms_config(["review_levels", "dmsincomingmail"])  # i_e ok
         if "pre_manager" not in config:
-            new_value = OrderedDict([("pre_manager", {"st": [new_state_id]})] + config.items())
+            new_value = OrderedDict([("pre_manager", {"st": [new_state_id]})] + list(config.items()))
             set_dms_config(keys=["review_levels", "dmsincomingmail"], value=new_value)  # i_e ok
         config = get_dms_config(["review_states", "dmsincomingmail"])  # i_e ok
         if new_state_id not in config:
-            new_value = OrderedDict([(new_state_id, {"group": "pre_manager"})] + config.items())
+            new_value = OrderedDict([(new_state_id, {"group": "pre_manager"})] + list(config.items()))
             set_dms_config(keys=["review_states", "dmsincomingmail"], value=new_value)  # i_e ok
 
         # update state list
@@ -338,7 +339,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             return False, "State {} already in workflow".format(new_state_id)
         wf.states.addState(new_state_id)
         state = wf.states[new_state_id]
-        state.setProperties(title=parameters["state_title"].encode("utf8"), description="", transitions=transitions)
+        state.setProperties(title=six.ensure_str(parameters["state_title"]), description="", transitions=transitions)
         # permissions
         perms = {
             "Access contents information": ("Editor", "Manager", "Reader", "Reviewer", "Site Administrator"),
@@ -356,7 +357,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # add transitions
         wf.transitions.addTransition(propose_tr_id)
         wf.transitions[propose_tr_id].setProperties(
-            title=parameters["forward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["forward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -372,7 +373,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         back_tr_id = "back_to_{}".format(new_id)
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
-            title=parameters["backward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["backward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -658,7 +659,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         if val_set_tr_id not in new_state_transitions:
             new_state_transitions.append(val_set_tr_id)
         state.setProperties(
-            title=parameters["state_title"].encode("utf8"), description="", transitions=new_state_transitions
+            title=six.ensure_str(parameters["state_title"]), description="", transitions=new_state_transitions
         )
         # permissions
         perms = {
@@ -688,7 +689,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # add N+ transitions
         wf.transitions.addTransition(propose_tr_id)
         wf.transitions[propose_tr_id].setProperties(
-            title=parameters["forward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["forward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -703,7 +704,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         )
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
-            title=parameters["backward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["backward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",

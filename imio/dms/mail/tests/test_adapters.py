@@ -2326,7 +2326,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(len(list(self.omail.objectIds())), 3)
 
         # At least 1 converted content page + 1 barcode page
-        pdf_file = self.omail.values()[-1]
+        pdf_file = list(self.omail.values())[-1]
         self.assertTrue(pdf_file.file.filename.endswith(".pdf"))
         page_count = _pdf_page_count(pdf_file.file.data)
         self.assertGreaterEqual(page_count, 2)

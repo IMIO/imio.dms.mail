@@ -199,7 +199,7 @@ class ApprovedChangeView(BaseApprovedChangeView):
         else:
             values = old_values.copy()
             # cannot be in after to_approve state because get_url column method ?
-            logger.warn("IN else of approved change view ???")
+            logger.warning("IN else of approved change view ???")
         # logger.info("After annot change: %s, ", self.approval.annot)
         # logger.info("After values change: %s, %s", status, values)
         return status, values

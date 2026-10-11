@@ -18,6 +18,7 @@ from imio.dms.mail.interfaces import IImioDmsMailLayer
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
+from mock import Mock
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
@@ -31,7 +32,6 @@ from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import ObjectModifiedEvent
 
-import mocker  # must be replaced in Plone 5 with python 3 unittest.mock
 import unittest
 import zope.event
 
@@ -165,15 +165,12 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(view1.person_title(self.agent, with_name=True, upper_name=True), u"Monsieur COURANT")
 
         # Test is_first_doc
-        mock = mocker.Mocker()
         res = {}
-        view1.appy_renderer = mock.mock()
-        mocker.expect(view1.appy_renderer.contentParser.env.context).result(res).replay()
+        view1.appy_renderer = Mock()
+        view1.appy_renderer.contentParser.env.context = res
         self.assertTrue(view1.is_first_doc())
-        mock2 = mocker.Mocker()
-        res["loop"] = mock2.mock()
-        mocker.expect(res["loop"].mailed_data.first).result(False).replay()
-        mock.replay()
+        res["loop"] = Mock()
+        res["loop"].mailed_data.first = False
         self.assertFalse(view1.is_first_doc())
 
         # Test separate_full_title
@@ -194,15 +191,15 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertRaises(IndexError, view1.separate_full_title, u"Direction", nb=0)
 
         # Test mailed_context
-        view1.appy_renderer = mocker.Mocker().mock()
-        mocker.expect(view1.appy_renderer.contentParser.env.context).result({}).replay()
+        view1.appy_renderer = Mock()
+        view1.appy_renderer.contentParser.env.context = {}
         ctx = (self.electrabel, u"post")
         ctx = view1.mailed_context(ctx)
         self.assertEqual(ctx["mailed_data"], self.electrabel)
         self.assertEqual(ctx["send_mode"], u"post")
 
-        view1.appy_renderer = mocker.Mocker().mock()
-        mocker.expect(view1.appy_renderer.contentParser.env.context).result({}).replay()
+        view1.appy_renderer = Mock()
+        view1.appy_renderer.contentParser.env.context = {}
         ctx = (self.electrabel, None)
         ctx = view1.mailed_context(ctx)
         self.assertEqual(ctx["mailed_data"], self.electrabel)
@@ -353,10 +350,10 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertListEqual(view.get_dms_files(), [])
 
         # Test get_num_pages
-        self.assertEquals(view.get_num_pages(view.objs[0]["1"]), 1)
-        self.assertEquals(view.get_num_pages(view.objs[1]["1"]), 2)
-        self.assertEquals(view.get_num_pages(view.objs[2]["1"]), 1)
-        self.assertEquals(view.get_num_pages(self.portal["incoming-mail"]), 0)
+        self.assertEqual(view.get_num_pages(view.objs[0]["1"]), 1)
+        self.assertEqual(view.get_num_pages(view.objs[1]["1"]), 2)
+        self.assertEqual(view.get_num_pages(view.objs[2]["1"]), 1)
+        self.assertEqual(view.get_num_pages(self.portal["incoming-mail"]), 0)
 
         # Test get_dv_images
         images = view.get_dv_images(view.objs[0]["1"])

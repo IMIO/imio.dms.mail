@@ -177,7 +177,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
 
     def test_get_settings_vta_table(self):
         voc_list = [(t.value, t.title) for t in get_settings_vta_table("mail_types")]
-        self.assertEquals(
+        self.assertEqual(
             voc_list,
             [
                 (u"courrier", u"Courrier"),

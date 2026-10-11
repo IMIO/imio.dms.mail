@@ -91,6 +91,7 @@ setup(
         "plonetheme.imioapps",
         "Products.cron4plone",
         "Products.PluggableAuthService>=1.11.3",
+        "six",
         "z3c.unconfigure",
         # -*- Extra requirements: -*-
     ],

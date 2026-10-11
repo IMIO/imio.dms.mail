@@ -124,8 +124,8 @@ class TestIMServiceValidation1(unittest.TestCase, ImioTestHelpers):
         config = get_dms_config(["transitions_auc", "dmsincomingmail"])
         self.assertIn("propose_to_n_plus_1", config)
         config = get_dms_config(["transitions_levels", "dmsincomingmail"])
-        self.assertEqual(config["proposed_to_manager"].values()[0][0], "propose_to_n_plus_1")
-        self.assertEqual(config["proposed_to_agent"].values()[0][1], "back_to_n_plus_1")
+        self.assertEqual(list(config["proposed_to_manager"].values())[0][0], "propose_to_n_plus_1")
+        self.assertEqual(list(config["proposed_to_agent"].values())[0][1], "back_to_n_plus_1")
         wf_from_to = get_dms_config(["wf_from_to", "dmsincomingmail", "n_plus"])
         self.assertListEqual(
             wf_from_to["to"],
@@ -386,10 +386,10 @@ class TestIMServiceValidation2(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(all(config["propose_to_n_plus_1"].values()))  # all is True
         self.assertFalse(any(config["propose_to_agent"].values()))  # all is False
         config = get_dms_config(["transitions_levels", "dmsincomingmail"])
-        self.assertEqual(config["proposed_to_manager"].values()[0][0], "propose_to_n_plus_2")
-        self.assertEqual(config["proposed_to_n_plus_2"].values()[0][0], "propose_to_n_plus_1")
-        self.assertEqual(config["proposed_to_n_plus_1"].values()[0][1], "back_to_n_plus_2")
-        self.assertEqual(config["proposed_to_agent"].values()[0][1], "back_to_n_plus_1")
+        self.assertEqual(list(config["proposed_to_manager"].values())[0][0], "propose_to_n_plus_2")
+        self.assertEqual(list(config["proposed_to_n_plus_2"].values())[0][0], "propose_to_n_plus_1")
+        self.assertEqual(list(config["proposed_to_n_plus_1"].values())[0][1], "back_to_n_plus_2")
+        self.assertEqual(list(config["proposed_to_agent"].values())[0][1], "back_to_n_plus_1")
         wf_from_to = get_dms_config(["wf_from_to", "dmsincomingmail", "n_plus"])
         self.assertListEqual(
             wf_from_to["to"],

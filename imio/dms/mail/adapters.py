@@ -91,7 +91,6 @@ from z3c.form.term import MissingTermsMixin
 from z3c.form.validator import SimpleFieldValidator
 from zope.annotation import IAnnotations
 from zope.component import adapter
-from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.i18n import translate
@@ -103,6 +102,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 import datetime
 import os
+import six
 import time
 import uuid
 
@@ -596,7 +596,7 @@ def get_full_title_index(obj):
     """Metadata of 'get_full_title' for IImioDmsIncomingMail. Stores title !"""
     # No acquisition pb because get_full_title isn't an attr
     if obj.title:
-        return obj.title.encode("utf8")
+        return six.ensure_str(obj.title)
     return common_marker
 
 
@@ -606,7 +606,7 @@ def get_obj_size(obj):
     try:
         primary_field_info = IPrimaryFieldInfo(obj)
     except TypeError:
-        logger.warn(u"Lookup of PrimaryField failed for %s" % obj.absolute_url())
+        logger.warning(u"Lookup of PrimaryField failed for %s" % obj.absolute_url())
         return ""
     const = {"KB": 1024, "MB": 1048576, "GB": 1073741824}
     order = ("GB", "MB", "KB")
@@ -614,7 +614,7 @@ def get_obj_size(obj):
     if size < 1024:
         return "1 KB"
     for c in order:
-        if size / const[c] > 0:
+        if size // const[c] > 0:
             break
     return "%.1f %s" % (float(size / float(const[c])), c)  # noqa
 
@@ -866,9 +866,8 @@ def imio_contact_source(contact):
 
 
 @implementer(IDynamicTextIndexExtender)
+@adapter(IScanFields)
 class ScanSearchableExtender(object):
-    adapts(IScanFields)
-
     def __init__(self, context):
         self.context = context
 
@@ -901,7 +900,7 @@ class ScanSearchableExtender(object):
             return self.searchable_text()
         mimetype = primary_field.value.contentType
         transforms = getToolByName(self.context, "portal_transforms")
-        value = str(primary_field.value.data)
+        value = primary_field.value.data
         filename = primary_field.value.filename
         try:
             transformed_value = transforms.convertTo("text/plain", value, mimetype=mimetype, filename=filename)
@@ -916,13 +915,12 @@ class ScanSearchableExtender(object):
 
 
 @implementer(IDynamicTextIndexExtender)
+@adapter(IImioDmsIncomingMail)
 class IdmSearchableExtender(object):
     """
     Extends SearchableText of scanned dms document.
     Concatenate the contained dmsmainfiles scan_id infos.
     """
-
-    adapts(IImioDmsIncomingMail)
 
     def __init__(self, context):
         self.context = context
@@ -946,10 +944,9 @@ class IdmSearchableExtender(object):
         return None
 
 
+@adapter(IImioDmsOutgoingMail)
 class OdmSearchableExtender(IdmSearchableExtender):
     """See IdmSearchableExtender"""
-
-    adapts(IImioDmsOutgoingMail)
 
 
 #########################
@@ -1022,9 +1019,8 @@ class OMMCTV(MissingChoiceTermsVocabulary, MissingTerms):
 #########################
 
 
+@adapter(Interface, Interface, Interface, IField, IContactAutocompleteWidget)
 class ContactAutocompleteValidator(SimpleFieldValidator):
-
-    adapts(Interface, Interface, Interface, IField, IContactAutocompleteWidget)
 
     def validate(self, value, force=False):
         """

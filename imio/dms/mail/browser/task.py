@@ -26,7 +26,7 @@ def filter_task_assigned_users(group):
         elif isinstance(view, MasterSelectJSONValue):
             form = view.widget.form
             if "ITask.assigned_user" in form.widgets and not form.widgets["ITask.assigned_user"].value:
-                view.request.set("_default_assigned_user_", voc.by_value.keys()[0])
+                view.request.set("_default_assigned_user_", list(voc.by_value)[0])
     return voc
 
 

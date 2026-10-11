@@ -23,7 +23,7 @@ class DmsPloneGroupContactChecksAdapter(PloneGroupContactChecksAdapter):
             "dmsoutgoingmail": ["treating_groups", "recipient_groups"],
             "task": ["assigned_group", "enquirer", "parents_assigned_groups", "parents_enquirers"],
         }
-        search_value_in_objects(self.context, self.context.UID(), p_types=fields.keys(), type_fields=fields)
+        search_value_in_objects(self.context, self.context.UID(), p_types=list(fields.keys()), type_fields=fields)
 
     def check_items_on_transition(self):
         fields = {
@@ -32,7 +32,7 @@ class DmsPloneGroupContactChecksAdapter(PloneGroupContactChecksAdapter):
             "dmsoutgoingmail": ["treating_groups", "recipient_groups"],
             "task": ["assigned_group", "enquirer", "parents_assigned_groups", "parents_enquirers"],
         }
-        search_value_in_objects(self.context, self.context.UID(), p_types=fields.keys(), type_fields=fields)
+        search_value_in_objects(self.context, self.context.UID(), p_types=list(fields.keys()), type_fields=fields)
 
 
 class DmsTaskContentAdapter(TaskContentAdapter):

@@ -33,6 +33,7 @@ from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import datetime
+import six
 
 
 # IM and OM batch actions
@@ -70,7 +71,7 @@ class TreatingGroupBatchActionForm(BaseBatchActionForm):
                     api.portal.show_message(
                         _(
                             u"An assigned user is not in this new treating group. " u'Mail "${mail}" !',
-                            mapping={"mail": brain.Title.decode("utf8")},
+                            mapping={"mail": six.ensure_text(brain.Title)},
                         ),
                         self.request,
                         "error",

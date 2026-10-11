@@ -34,12 +34,13 @@ from plone.registry.interfaces import IRegistry
 from Products.PluginIndexes.common.UnIndex import _marker
 from z3c.form import validator
 from zope import schema
-from zope.component import adapts
+from zope.component import adapter
 from zope.component import getUtility
 from zope.interface import implementer
 from zope.schema.fieldproperty import FieldProperty
 
 import copy
+import six
 
 
 # registry records holding the signing request auto-numbering configuration
@@ -122,8 +123,8 @@ class ImioDmsSignRequest(DmsDocument):
 
     def Title(self):
         if self.internal_reference_no is None:
-            return self.title.encode("utf8")
-        return "%s - %s" % (self.internal_reference_no.encode("utf8"), self.title.encode("utf8"))
+            return six.ensure_str(self.title)
+        return "%s - %s" % (six.ensure_str(self.internal_reference_no), six.ensure_str(self.title))
 
     def get_mainfiles(self):
         """A signing request only contains annexes, no main file."""
@@ -151,8 +152,8 @@ class ImioDmsSignRequest(DmsDocument):
 
 
 @implementer(ISignRequestWfConditions)
+@adapter(IImioDmsSignRequest)
 class SignRequestWfConditionsAdapter(object):
-    adapts(IImioDmsSignRequest)
     security = ClassSecurityInfo()
 
     def __init__(self, context):
@@ -261,12 +262,12 @@ class SignRequestView(DmsDocumentView):
 @default_value(field=IImioDmsSignRequest["internal_reference_no"])
 def internalReferenceSignRequestDefaultValue(data):
     """Default value of internal_reference_no for a signing request."""
-    return evaluateInternalReference(
+    return six.ensure_text(evaluateInternalReference(
         data.context,
         data.request,
         SIGNREQUEST_NUMBER_RECORD,
         SIGNREQUEST_TALEXPRESSION_RECORD,
-    ).decode("utf8")
+    ))
 
 
 class InternalReferenceSignRequestValidator(InternalReferenceBaseValidator):

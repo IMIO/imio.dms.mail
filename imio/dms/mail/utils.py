@@ -24,6 +24,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.helpers.batching import batch_delete_files
@@ -44,7 +45,6 @@ from imio.helpers.security import check_zope_admin
 from imio.helpers.security import separate_fullname
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
-from interfaces import IIMDashboard
 from natsort import natsorted
 from operator import attrgetter
 from persistent.dict import PersistentDict
@@ -77,6 +77,7 @@ from zope.schema.interfaces import IVocabularyFactory
 
 import logging
 import os
+import six
 
 
 cg_separator = " ___ "
@@ -505,7 +506,7 @@ def get_scan_id(obj):
 def reimport_faceted_config(folder, xml, default_UID=None):  # noqa
     """Reimport faceted navigation config."""
     folder.unrestrictedTraverse("@@faceted_exportimport").import_xml(
-        import_file=open(os.path.dirname(__file__) + "/faceted_conf/%s" % xml)
+        import_file=open(os.path.dirname(__file__) + "/faceted_conf/%s" % xml, "rb")
     )
     if default_UID:
         _updateDefaultCollectionFor(folder, default_UID)
@@ -825,7 +826,7 @@ class VariousUtilsMethods(UtilsMethods):
         catalog = portal.portal_catalog
         dic = get_dms_config(["read_label_cron"], missing_key_handling=True, missing_key_value={})
         count = 0
-        for userid in dic.keys():
+        for userid in list(dic.keys()):
             if api.user.get(userid=userid) is None:
                 continue
             for brain in catalog(
@@ -867,7 +868,7 @@ class VariousUtilsMethods(UtilsMethods):
             "days_back": api.portal.get_registry_record("imio.dms.mail.dv_clean_days", default=None),
             "date_back": api.portal.get_registry_record("imio.dms.mail.dv_clean_date", default=None),
         }
-        for k, v in params.items():
+        for k, v in list(params.items()):
             if not params[k]:
                 del params[k]
         if not params:
@@ -921,15 +922,15 @@ class VariousUtilsMethods(UtilsMethods):
             values = []
             factory = getUtility(IVocabularyFactory, voc_name)
             for term in factory(self.context):
-                values.append("{}{}{}".format(term.title.encode("utf8"), cg_separator, term.value))
+                values.append("{}{}{}".format(six.ensure_str(term.title), cg_separator, term.value))
             return values
 
         ret = []  # noqa
-        ret.append(_("Creating groups : to be used in kofax index").encode("utf8"))
+        ret.append(six.ensure_str(_("Creating groups : to be used in kofax index")))
         ret.append("")
         ret.append("\r\n".join(get_voc_values("imio.dms.mail.ActiveCreatingGroupVocabulary")))
         ret.append("")
-        ret.append(_("Treating groups : to be used in kofax index").encode("utf8"))
+        ret.append(six.ensure_str(_("Treating groups : to be used in kofax index")))
         ret.append("")
         ret.append("\r\n".join(get_voc_values("collective.dms.basecontent.treating_groups")))
         return "\r\n".join(ret)
@@ -997,7 +998,7 @@ class VariousUtilsMethods(UtilsMethods):
             status = uid in activated and "a" or "na"
             if only_activated == "1" and status == "na":
                 continue
-            lst.append((uid, title.encode("utf8"), status))
+            lst.append((uid, six.ensure_str(title), status))
         # sorted(lst, key=itemgetter(1))
         if output != "csv":
             return lst
@@ -1302,7 +1303,7 @@ def create_period_folder(main_dir, dte, subfolder=""):
     if dte_str not in main_dir:
         with api.env.adopt_user(username="admin"):
             main_dir.setConstrainTypesMode(0)
-            subfolder = api.content.create(main_dir, "Folder", dte_str, dte_str.decode())
+            subfolder = api.content.create(main_dir, "Folder", dte_str, six.ensure_text(dte_str))
             main_dir.setConstrainTypesMode(1)
             alsoProvides(subfolder, INextPrevNotNavigable)
             alsoProvides(subfolder, IHideFromBreadcrumbs)
@@ -1336,7 +1337,7 @@ def create_personnel_content(
         persons = portal.portal_catalog.unrestrictedSearchResults(userid=userid, portal_type="person")
         if persons:
             if len(persons) > 1:
-                logger.warn(
+                logger.warning(
                     "Found multiple personnel persons linked to userid '{}' : {}".format(
                         userid, "\n".join([br.getURL() for br in persons])
                     )
@@ -1374,7 +1375,7 @@ def create_personnel_content(
         ]
         hps_orgs = dict([(hp.get_organization(), hp) for hp in hps])
         if len(hps) != len(hps_orgs):
-            logger.warn(
+            logger.warning(
                 u"Found multiple held positions for the same org in userid '{}' : {}".format(
                     userid, u" | ".join([hp.get_full_title() for hp in hps])
                 )

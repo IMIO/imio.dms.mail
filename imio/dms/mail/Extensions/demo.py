@@ -238,7 +238,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
     count = 1
     limit = int(number)
     while count <= limit:
-        doc = docs_cycle.next()
+        doc = next(docs_cycle)
         if only and doc not in onlys:
             time.sleep(0.5)
             continue
@@ -337,7 +337,7 @@ def import_scanned2(self, number=2):
     limit = int(number)
     user = api.user.get_current()
     while count <= limit:
-        doc = docs_cycle.next()
+        doc = next(docs_cycle)
         with open(add_path("Extensions/%s" % doc), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=doc)
         count += 1
