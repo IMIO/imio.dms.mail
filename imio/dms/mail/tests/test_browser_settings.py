@@ -13,7 +13,11 @@ from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail import FIRST_LEVEL_TABS
+from imio.dms.mail.browser.settings import datagrid_value_types
+from imio.dms.mail.browser.settings import heal_datagrid_value_types
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.settings import PGSettingsEditForm
+from imio.dms.mail.browser.settings import SettingsEditForm
 from imio.dms.mail.browser.views import ImioCatalogNavigationTabs
 from imio.dms.mail.browser.views import PlusPortaltabContent
 from imio.dms.mail.content.behaviors import default_creating_group
@@ -450,3 +454,74 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         for fid in ("orgs-searches", "persons-searches", "hps-searches", "cls-searches"):
             crit = ICriteria(self.portal["contacts"][fid])
             self.assertIn("c90", crit.keys())
+
+
+class TestSettingsFunctions(unittest.TestCase):
+    """Module functions of browser/settings.py."""
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_datagrid_value_types(self):
+        value_types = datagrid_value_types(IImioDmsMailConfig)
+        names = [field.__name__ for field, row_schema, required in value_types]
+        self.assertIn("imail_fields", names)
+        self.assertIn("omail_signer_rules", names)
+        field, row_schema, required = value_types[names.index("imail_fields")]
+        self.assertEqual(field.value_type.schema, row_schema)
+        self.assertFalse(required)
+
+    def test_heal_datagrid_value_types(self):
+        value_types = datagrid_value_types(IImioDmsMailConfig)
+        before = [field.value_type for field, row_schema, required in value_types]
+        heal_datagrid_value_types(value_types)
+        # nothing to heal: value types are kept
+        self.assertListEqual([field.value_type for field, row_schema, required in value_types], before)
+
+
+class TestSettingsEditForm(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.portal.REQUEST
+        change_user(self.portal)
+
+    def test_update(self):
+        key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields"
+        fields = api.portal.get_registry_record(key)
+        api.portal.set_registry_record(
+            key, [dic for dic in fields if dic["field_name"] != "IDublinCore.description"]
+        )
+        voc = getUtility(IVocabularyFactory, "imio.dms.mail.IMFieldsVocabulary")(self.portal)
+        title = voc.getTerm("IDublinCore.description").title
+        self.request["REQUEST_METHOD"] = "GET"
+        view = self.portal.unrestrictedTraverse("@@imiodmsmail-settings")
+        rendered = view()
+        form = view.form_instance
+        self.assertIsInstance(form, SettingsEditForm)
+        groups = dict([(grp.__name__, grp) for grp in form.groups])
+        description = groups["incomingmail"].widgets["imail_fields"].field.description
+        self.assertIn(u"<span class='unconfigured-fields'>Les champs non configurés et donc non affichés sont: ",
+                      description)
+        self.assertIn(u'"{}"'.format(title), description)
+        # outgoing mail signing fields are added by activate_om_signing
+        self.assertIn(u'sont: "Sceau", "Signataires", "Signature élec."</span>',
+                      groups["outgoingmail"].widgets["omail_fields"].field.description)
+        self.assertIn(u'id="form-widgets-imail_fields"', rendered)
+        self.assertIn(u"unconfigured-fields", rendered)
+
+
+class TestPGSettingsEditForm(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_update(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        portal.REQUEST["REQUEST_METHOD"] = "GET"
+        view = portal.unrestrictedTraverse("@@contact-plonegroup-settings")
+        rendered = view()
+        self.assertIsInstance(view.form_instance, PGSettingsEditForm)
+        self.assertIn(u'id="form-widgets-organizations"', rendered)
+        self.assertIn(u'id="form-widgets-functions"', rendered)

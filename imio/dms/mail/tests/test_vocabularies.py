@@ -2,8 +2,10 @@
 from collections import OrderedDict
 from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.contact.plonegroup.utils import get_organizations
 from collective.contact.plonegroup.utils import get_person_from_userid
 from datetime import datetime
+from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.browser.settings import configure_group_encoder
@@ -11,12 +13,15 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import ensure_demand_sign
 from imio.dms.mail.utils import sub_create
+from imio.dms.mail.vocabularies import ActionCategoriesVocabularyFactory
 from imio.dms.mail.vocabularies import ActiveCreatingGroupVocabulary
 from imio.dms.mail.vocabularies import AssignedUsersForFacetedFilterVocabulary
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.dms.mail.vocabularies import CreatingGroupVocabulary
 from imio.dms.mail.vocabularies import DmsFilesCategoryVocabulary
+from imio.dms.mail.vocabularies import DmsPrimaryOrganizationsVocabulary
 from imio.dms.mail.vocabularies import encodeur_active_orgs
+from imio.dms.mail.vocabularies import FirstLevelTabsVocabulary
 from imio.dms.mail.vocabularies import get_settings_vta_table
 from imio.dms.mail.vocabularies import IMReviewStatesVocabulary
 from imio.dms.mail.vocabularies import MyLabelsVocabulary
@@ -34,6 +39,7 @@ from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.registry.interfaces import IRegistry
+from Products.CMFPlone.utils import safe_unicode
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
 
@@ -358,7 +364,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 in getUtility(IVocabularyFactory, u"imio.dms.mail.SignRequestActiveOrgsVocabulary")(self.portal)]
         self.assertEqual([t.value for t in signrequest_active_orgs(self.portal)], base)
 
-    def test_LabelsVocabulary(self):
+    def test_MyLabelsVocabulary(self):
         self.change_user("agent")
         voc_inst = MyLabelsVocabulary()
         voc_list = [t.value for t in voc_inst(self.imail)]
@@ -518,3 +524,241 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         # === Other context → get all content categories ===
         tasks_folder = api.content.get(path="/tasks")
         self.assertEqual(len(voc_inst(tasks_folder)), 12)
+
+    def test_OMReviewStatesVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.OMReviewStatesVocabulary")
+        voc_list = [(t.value, t.title) for t in voc_inst(self.omail)]
+        self.assertEqual(
+            voc_list,
+            [
+                ("scanned", u"Scanné"),
+                ("created", u"En création"),
+                ("to_be_signed", u"À la signature"),
+                ("signed", u"Signé"),
+                ("sent", u"Envoyé"),
+            ],
+        )
+
+    def test_ContactsReviewStatesVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.ContactsReviewStatesVocabulary")
+        voc_list = [(t.value, t.title) for t in voc_inst(self.portal["contacts"])]
+        self.assertEqual(voc_list, [("active", u"Active"), ("deactivated", u"Deactivated")])
+
+    def test_FirstLevelTabsVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.FirstLevelTabsVocabulary")
+        self.assertIsInstance(voc_inst, FirstLevelTabsVocabulary)
+        voc_list = [(t.value, t.title) for t in voc_inst(self.portal)]
+        self.assertEqual(
+            voc_list,
+            [
+                ("incoming-mail", u"Entrant"),
+                ("outgoing-mail", u"Sortant"),
+                ("requests", u"Demandes sign."),
+                ("folders", u"Dossiers"),
+                ("tasks", u"Tâches"),
+                ("plus", u"\u25cf \u25cf \u25cf"),
+                ("contacts", u"Contacts"),
+                ("templates", u"Modèles"),
+                ("tree", u"Classement"),
+                ("annexes_types", u"Types d'annexes"),
+            ],
+        )
+
+    def test_HeldPositionUsagesVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.HeldPositionUsagesVocabulary")
+        voc_list = [(t.value, t.title) for t in voc_inst(self.portal)]
+        self.assertEqual(voc_list, [("signer", u"Signer"), ("approving", u"Approving")])
+
+    def test_OMSendModesVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.OMSendModesVocabulary")
+        voc_list = [(t.value, t.title) for t in voc_inst(self.omail)]
+        self.assertEqual(
+            voc_list,
+            [
+                (u"post", u"Courrier postal"),
+                (u"post_registered", u"Courrier recommandé"),
+                (u"post_registered_dr", u"Courrier recommandé avec AR"),
+                (u"email", u"Email"),
+            ],
+        )
+        # a deactivated send mode is kept
+        self.deactivate_send_mode("omail_send_modes", u"post")
+        self.assertEqual([(t.value, t.title) for t in voc_inst(self.omail)], voc_list)
+
+    def test_OMActiveSendModesVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.OMActiveSendModesVocabulary")
+        voc_list = [t.value for t in voc_inst(self.omail)]
+        self.assertEqual(voc_list, [u"post", u"post_registered", u"post_registered_dr", u"email"])
+        self.deactivate_send_mode("omail_send_modes", u"post")
+        self.assertEqual([t.value for t in voc_inst(self.omail)], [u"post_registered", u"post_registered_dr", u"email"])
+
+    def test_IMSendModesVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMSendModesVocabulary")
+        voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
+        self.assertEqual(
+            voc_list,
+            [
+                (u"post", u"Courrier postal"),
+                (u"post_registered", u"Courrier recommandé"),
+                (u"post_registered_dr", u"Courrier recommandé avec AR"),
+                (u"email", u"Email"),
+            ],
+        )
+        # a deactivated send mode is kept
+        self.deactivate_send_mode("imail_send_modes", u"email")
+        self.assertEqual([(t.value, t.title) for t in voc_inst(self.imail)], voc_list)
+
+    def test_IMActiveSendModesVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMActiveSendModesVocabulary")
+        voc_list = [t.value for t in voc_inst(self.imail)]
+        self.assertEqual(voc_list, [u"post", u"post_registered", u"post_registered_dr", u"email"])
+        self.deactivate_send_mode("imail_send_modes", u"email")
+        self.assertEqual([t.value for t in voc_inst(self.imail)], [u"post", u"post_registered", u"post_registered_dr"])
+
+    def test_OMSignersVocabulary(self):
+        pf = self.portal.contacts["personnel-folder"]
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.OMSignersVocabulary")
+        voc_list = [(t.value, t.title) for t in voc_inst(self.omail)]
+        self.assertEqual(
+            voc_list,
+            [
+                (pf["dirg"]["directeur-general"].UID(), u"Monsieur Maxime DG, Directeur Général (Direction générale)"),
+                (pf["bourgmestre"]["bourgmestre"].UID(), u"Monsieur Paul BM, Bourgmestre (Collège communal)"),
+            ],
+        )
+
+    def test_SigningApprovingsVocabulary(self):
+        pf = self.portal.contacts["personnel-folder"]
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.SigningApprovingsVocabulary")
+        voc_list = [(t.value, t.title) for t in voc_inst(self.omail)]
+        self.assertEqual(
+            voc_list,
+            [(u"_empty_", u"* No validation"), (u"_themself_", u"* Themself"), (pf["chef"].UID(), u"Michel Chef")],
+        )
+
+    def test_TreatingGroupsWithDeactivatedVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary")
+        # active organizations first, sorted by title
+        self.assertEqual(
+            [t.title for t in voc_inst(self.imail)],
+            [
+                u"Collège communal",
+                u"Direction financière",
+                u"Direction financière / Budgets",
+                u"Direction financière / Comptabilité",
+                u"Direction générale",
+                u"Direction générale / Communication",
+                u"Direction générale / GRH",
+                u"Direction générale / Secrétariat",
+                u"Direction technique",
+                u"Direction technique / Bâtiments",
+                u"Direction technique / Voiries",
+                u"Événements",
+                u"Conseil communal (Désactivé)",
+                u"Département culturel (Désactivé)",
+                u"Département culturel / Culture-loisirs (Désactivé)",
+                u"Département culturel / Enseignement (Désactivé)",
+                u"Département population (Désactivé)",
+                u"Département population / État-civil (Désactivé)",
+                u"Département population / Population (Désactivé)",
+                u"Direction financière / Marchés publics (Désactivé)",
+                u"Direction financière / Taxes (Désactivé)",
+                u"Direction générale / Informatique (Désactivé)",
+                u"Direction technique / Urbanisme (Désactivé)",
+            ],
+        )
+        self.assertEqual(
+            sorted(t.value for t in voc_inst(self.imail)),
+            sorted(org.UID() for org in get_organizations(only_selected=False)),
+        )
+
+    def test_TreatingGroupsForFacetedFilterVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.TreatingGroupsForFacetedFilterVocabulary")
+        all_voc = getUtility(IVocabularyFactory, "imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary")
+        all_values = [t.value for t in all_voc(self.imail)]
+        self.assertEqual([t.value for t in voc_inst(self.imail)], all_values)
+        # hidden organizations are removed
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.groups_hidden_in_dashboard_filter", [all_values[0]]
+        )
+        self.assertEqual([t.value for t in voc_inst(self.imail)], all_values[1:])
+
+    def test_ActiveInactiveStatesVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.ActiveInactiveStatesVocabulary")
+        voc_list = [(t.value, t.title) for t in voc_inst(self.portal)]
+        self.assertEqual(voc_list, [("active", u"Active"), ("deactivated", u"Deactivated")])
+
+    def test_IMPortalTypesVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMPortalTypesVocabulary")
+        voc_list = [(t.value, t.title) for t in voc_inst(self.portal)]
+        self.assertEqual(voc_list, [("dmsincomingmail", u"Incoming Mail"), ("dmsincoming_email", u"Incoming Email")])
+
+    def test_PODTemplateContentCategoriesVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.PODTemplateContentCategoriesVocabulary")
+        # titles are the catalog Title metadata (utf8 bytes on Python 2)
+        voc_list = [(t.token, safe_unicode(t.title)) for t in voc_inst(self.portal["templates"])]
+        self.assertEqual(
+            voc_list,
+            [
+                ("plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file", u"Fichier ged CS"),
+                ("plone-annexes_types_-_outgoing_dms_files_-_outgoing-scanned-dms-file", u"Fichier ged CS scanné"),
+            ],
+        )
+
+    def test_DmsPrimaryOrganizationsVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "collective.contact.plonegroup.primary_organizations")
+        self.assertIsInstance(voc_inst, DmsPrimaryOrganizationsVocabulary)
+        # the organizations where the user is in a service group
+        self.assertEqual(
+            [t.title for t in voc_inst(None, userid="agent")],
+            [
+                u"Direction générale - Secrétariat",
+                u"Direction générale - GRH",
+                u"Direction générale - Communication",
+                u"Direction financière - Budgets",
+                u"Direction financière - Comptabilité",
+                u"Direction technique - Bâtiments",
+                u"Direction technique - Voiries",
+                u"Événements",
+                u"Collège communal",
+            ],
+        )
+        self.assertEqual([t.title for t in voc_inst(None, userid="scanner")], [])
+
+    def test_ActionCategoriesVocabularyFactory(self):
+        voc_inst = getUtility(IVocabularyFactory, "plone.app.vocabularies.Actions")
+        self.assertIsInstance(voc_inst, ActionCategoriesVocabularyFactory)
+        self.assertEqual(
+            [t.value for t in voc_inst(self.portal)],
+            [
+                "controlpanel",
+                "document_actions",
+                "folder_buttons",
+                "jqueryui_panels",
+                "object",
+                "object_buttons",
+                "object_portlet",
+                "portal_tabs",
+                "site_actions",
+                "user",
+            ],
+        )
+
+    def test_LabelsVocabulary(self):
+        voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.LabelsVocabulary")
+        # only personal labels in the incoming mail folder
+        self.assertEqual(len(voc_inst(self.imail)), 0)
+        ILabelJar(self.portal["incoming-mail"]).add("Urgent", "red", False)
+        self.assertEqual([(t.value, t.title) for t in voc_inst(self.imail)], [("urgent", u"Urgent")])
+        # personal labels are only in MyLabelsVocabulary
+        self.change_user("agent")
+        self.assertEqual([t.value for t in MyLabelsVocabulary()(self.imail)], ["agent:lu", "agent:suivi"])
+
+    def deactivate_send_mode(self, record, value):
+        """Deactivate a send mode in the configuration."""
+        key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(record)
+        modes = [dict(mode) for mode in api.portal.get_registry_record(key)]
+        for mode in modes:
+            if mode["value"] == value:
+                mode["active"] = False
+        api.portal.set_registry_record(key, modes)

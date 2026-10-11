@@ -1,50 +1,70 @@
 # -*- coding: utf-8 -*-
+from App.config import getConfiguration
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.config import set_registry_organizations
+from collective.contact.plonegroup.interfaces import INotPloneGroupContact
+from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
+from DateTime import DateTime
+from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.content.behaviors import IUsagesBehavior
+from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IOMApproval
+from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.subscribers import i_annex_removed
 from imio.dms.mail.subscribers import reindex_person_usages
+from imio.dms.mail.subscribers import zope_ready
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import DummyView
+from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
+from imio.dms.mail.vocabularies import OMActiveSenderVocabulary
+from imio.dms.mail.vocabularies import OMSenderVocabulary
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import get_session_annotation
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
 from imio.helpers.content import uuidToObject
+from imio.helpers.ram import IMIORAMCache
 from imio.helpers.test_helpers import ImioTestHelpers
 from mock import Mock
 from mock import patch
 from plone import api
 from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.dexterity.behaviors.metadata import IBasic
+from plone.app.linkintegrity.exceptions import LinkIntegrityNotificationException
 from plone.app.testing import TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
+from plone.dexterity.events import EditFinishedEvent
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from plone.registry.events import RecordModifiedEvent
+from plone.registry.interfaces import IRegistry
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield import RelationValue
 from zExceptions import Redirect
 from zope.annotation import IAnnotations
+from zope.component import getSiteManager
 from zope.component import getUtility
+from zope.i18n import translate
 from zope.interface import Interface
 from zope.interface import Invalid
 from zope.intid import IIntIds
@@ -52,6 +72,8 @@ from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import modified
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.lifecycleevent import ObjectRemovedEvent
+from zope.ramcache.interfaces.ram import IRAMCache
+from zope.ramcache.ram import RAMCache
 
 import unittest
 import zope.event
@@ -1743,6 +1765,286 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         # removing the held position reindexes the person (held_position_removed subscriber)
         api.content.delete(person["hp1"])
         self.assertListEqual(self._person_usages(person), [])
+
+    def _answered(self, imail):
+        """Return True if the incoming mail is found as answered (hasResponse marker) in the catalog."""
+        return len(self.portal.portal_catalog(UID=imail.UID(), markers="hasResponse")) == 1
+
+    def test_update_relations(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.assertFalse(self._answered(imail))
+        # an outgoing mail replying to an incoming mail marks the latter as answered
+        omail.reply_to = [RelationValue(self.intids.getId(imail))]
+        modified(omail)
+        self.assertTrue(self._answered(imail))
+        # the reply link is removed: the incoming mail is no more answered
+        omail.reply_to = []
+        modified(omail)
+        self.assertFalse(self._answered(imail))
+
+    def test_remove_relations(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        omail.reply_to = [RelationValue(self.intids.getId(imail))]
+        modified(omail)
+        self.assertTrue(self._answered(imail))
+        # the reply is deleted: the incoming mail is no more answered
+        api.content.delete(obj=omail, check_linkintegrity=False)
+        self.assertFalse(self._answered(imail))
+
+    def test_im_edit_finished(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        request = imail.REQUEST
+        # the editor can still view the mail: no redirection
+        zope.event.notify(EditFinishedEvent(imail))
+        self.assertIsNone(request.response.getHeader("location"))
+        # the editor cannot view the mail anymore: redirected to the incoming mails dashboard with a message
+        self.change_user("agent1")
+        self.assertFalse(api.user.has_permission("View", obj=imail))
+        zope.event.notify(EditFinishedEvent(imail))
+        all_mails = self.portal["incoming-mail"]["mail-searches"]["all_mails"]
+        self.assertEqual(
+            request.response.getHeader("location"),
+            "{}/incoming-mail/mail-searches#c1={}".format(self.portal.absolute_url(), all_mails.UID()),
+        )
+        msgs = IStatusMessage(request).show()
+        self.assertEqual(msgs[-1].type, u"warning")
+        self.assertEqual(
+            msgs[-1].message,
+            u"You have been redirected here because you do not have access anymore to the element you just edited.",
+        )
+
+    def test_dexterity_transition(self):
+        task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]
+        old = DateTime("2020/01/01")
+        task.setModificationDate(old)
+        task.reindexObject(idxs=["modified"])
+        recently_modified = {"UID": task.UID(), "modified": {"query": DateTime("2020/01/02"), "range": "min"}}
+        self.assertEqual(len(self.portal.portal_catalog(**recently_modified)), 0)
+        # a transition is a modification: the modification date is updated and reindexed
+        api.content.transition(task, transition="do_to_assign")
+        self.assertGreater(task.modified(), old)
+        self.assertEqual(len(self.portal.portal_catalog(**recently_modified)), 1)
+
+    def test_group_unassignment(self):
+        self.addCleanup(reset_dms_config)
+        grh_uid = self.pgof["direction-generale"]["grh"].UID()
+        # an agent removed from the encoders of a service: his held position (as OM sender) is deactivated
+        hp = self.pf["agent"]["agent-grh"]
+        self.assertEqual(api.content.get_state(hp), "active")
+        api.group.remove_user(groupname="{}_encodeur".format(grh_uid), username="agent")
+        self.assertEqual(api.content.get_state(hp), "deactivated")
+        # the last n+1 validator removed from a service: the service has no more validation level
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-im_n_plus_1_wfadaptation", run_dependencies=False
+        )
+        config = get_dms_config(["transitions_levels", "dmsincomingmail"])
+        self.assertTrue(config["proposed_to_n_plus_1"][grh_uid][2])
+        self.assertEqual(config["proposed_to_manager"][grh_uid][0], "propose_to_n_plus_1")
+        api.group.remove_user(groupname="{}_n_plus_1".format(grh_uid), username="chef")
+        config = get_dms_config(["transitions_levels", "dmsincomingmail"])
+        self.assertFalse(config["proposed_to_n_plus_1"][grh_uid][2])
+        self.assertEqual(config["proposed_to_manager"][grh_uid][0], "propose_to_agent")
+
+    def test_plonegroup_contact_changed(self):
+        pc = self.portal.portal_catalog
+        dg = self.pgof["direction-generale"]
+        secr = dg["secretariat"]
+        folders = (self.portal["templates"]["om"], self.portal["contacts"]["contact-lists-folder"])
+        for folder in folders:
+            self.assertEqual(folder[secr.UID()].title, u"Direction générale - Secrétariat")
+        # renaming a service renames its templates and contact lists folders, and the sub-services ones
+        dg.title = u"Direction générale bis"
+        modified(dg)
+        for folder in folders:
+            self.assertEqual(folder[dg.UID()].title, u"Direction générale bis")
+            self.assertEqual(folder[secr.UID()].title, u"Direction générale bis - Secrétariat")
+            self.assertEqual(len(pc(UID=folder[secr.UID()].UID(), Title=u"bis")), 1)
+        # an organization outside the own organization is not concerned
+        elec = self.portal["contacts"]["electrabel"]
+        elec.title = u"Electrabel bis"
+        modified(elec)
+        self.assertNotIn(elec.UID(), folders[0])
+
+    def test_mark_contact(self):
+        def provided(obj, iface):
+            return len(self.portal.portal_catalog(UID=obj.UID(), object_provides=iface.__identifier__)) == 1
+
+        contacts = self.portal["contacts"]
+        # a service added in the own organization
+        org = api.content.create(container=self.pgof, type="organization", id="new-service", title=u"Nouveau")
+        self.assertTrue(provided(org, IPloneGroupContact))
+        self.assertFalse(provided(org, INotPloneGroupContact))
+        # a person added in the personnel folder
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        self.assertTrue(provided(person, IPersonnelContact))
+        self.assertFalse(provided(person, INotPloneGroupContact))
+        # an external person
+        ext = api.content.create(container=contacts, type="person", id="external", lastname=u"External")
+        self.assertTrue(provided(ext, INotPloneGroupContact))
+        self.assertFalse(provided(ext, IPersonnelContact))
+        # the external person is moved in the personnel folder
+        ext = api.content.move(source=ext, target=self.pf)
+        self.assertTrue(provided(ext, IPersonnelContact))
+        self.assertFalse(provided(ext, INotPloneGroupContact))
+        # and moved out again
+        ext = api.content.move(source=ext, target=contacts)
+        self.assertTrue(provided(ext, INotPloneGroupContact))
+        self.assertFalse(provided(ext, IPersonnelContact))
+
+    def test_contact_added(self):
+        contacts = self.portal["contacts"]
+        # contact group encoder not activated: no creating group
+        org = api.content.create(container=contacts, type="organization", id="org1", title=u"Organisation 1")
+        self.assertIsNone(getattr(org, "creating_group", None))
+        # contact group encoder activated: the creating group of the creator is stored
+        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder", True)
+        org0, org1 = get_registry_organizations()[:2]
+        api.group.add_user(groupname="{}_{}".format(org0, CREATING_GROUP_SUFFIX), username="chef")
+        api.group.add_user(groupname="{}_{}".format(org1, CREATING_GROUP_SUFFIX), username="encodeur")
+        self.change_user("encodeur")
+        org = api.content.create(container=contacts, type="organization", id="org2", title=u"Organisation 2")
+        self.assertEqual(org.creating_group, org1)
+        # the stored value doesn't depend on the user reading it (the field default is the user creating group)
+        self.change_user("siteadmin")
+        self.assertEqual(org.creating_group, org1)
+
+    def test_contact_modified(self):
+        hp = self.pf["chef"]["responsable-grh"]
+        voc = OMSenderVocabulary()
+        self.assertNotIn(u"Chefbis", voc(self.portal).getTerm(hp.UID()).title)
+        # a personnel person is renamed: the senders vocabulary shows the new name
+        chef = self.pf["chef"]
+        chef.lastname = u"Chefbis"
+        modified(chef)
+        self.assertIn(u"Chefbis", voc(self.portal).getTerm(hp.UID()).title)
+        # a personnel held position is deactivated: it's no more an active sender
+        active_voc = OMActiveSenderVocabulary()
+        self.assertIn(hp.UID(), active_voc(self.portal).by_value)
+        api.content.transition(hp, "deactivate")
+        self.assertNotIn(hp.UID(), active_voc(self.portal).by_value)
+        self.assertIn(hp.UID(), voc(self.portal).by_value)
+
+    def test_personnel_contact_removed(self):
+        # a held position not used as outgoing mail sender can be deleted
+        api.content.delete(obj=self.pf["chef"]["responsable-batiments"])
+        self.assertNotIn("responsable-batiments", self.pf["chef"])
+        # a held position used as outgoing mail sender (reponse1): its deletion is refused
+        hp = self.pf["chef"]["responsable-grh"]
+        self.assertEqual(get_object(oid="reponse1", ptype="dmsoutgoingmail").sender, hp.UID())
+        self.assertRaises(LinkIntegrityNotificationException, api.content.delete, obj=hp)
+
+    def test_personnel_contact_will_be_removed(self):
+        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+        hp = self.pf["bourgmestre"]["bourgmestre"]
+        # a held position not used in signer rules can be deleted
+        api.content.delete(obj=self.pf["agent1"]["agent-evenements"])
+        self.assertNotIn("agent-evenements", self.pf["agent1"])
+        # a held position used as signer in the signer rules: its deletion is refused
+        self.assertIn(hp.UID(), [rule["signer"] for rule in api.portal.get_registry_record(rk)])
+        self.assertRaises(LinkIntegrityNotificationException, api.content.delete, obj=hp)
+
+    def test_i_annex_will_be_removed(self):
+        # approval started: a file to approve cannot be deleted
+        request, files = create_sign_request(self.portal, oid="sr-started")
+        self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
+        self.assertRaises(Redirect, api.content.delete, obj=files[0])
+        self.assertIn(files[0].getId(), request)
+        msgs = IStatusMessage(request.REQUEST).show()
+        self.assertEqual(msgs[-1].type, u"error")
+        self.assertEqual(
+            msgs[-1].message,
+            translate(
+                _(u"You cannot delete a file '${title}' part of already started esign process !",
+                  mapping={"title": u"3-degradation-voirie"}),
+                context=request.REQUEST,
+            ),
+        )
+        # approval not started: deleting a file to approve must be confirmed (link integrity breach)
+        request, files = create_sign_request(self.portal, oid="sr-created")
+        self.assertIn(files[0].UID(), ISignRequestApproval(request).files_uids)
+        self.assertRaises(LinkIntegrityNotificationException, api.content.delete, obj=files[0])
+
+    def test_member_area_added(self):
+        mtool = self.portal.portal_membership
+        mtool.memberareaCreationFlag = 1
+        mtool.createMemberArea("agent")
+        area = self.portal["Members"]["agent"]
+        self.assertEqual(area.portal_type, "member_area")
+        # nothing can be added directly in the personal folder
+        self.assertEqual(area.getConstrainTypesMode(), 1)
+        self.assertEqual(list(area.getLocallyAllowedTypes()), [])
+        # a personal contact lists folder is created, owned by the user
+        self.assertIn("contact-lists", area)
+        folder = area["contact-lists"]
+        self.assertEqual(folder.getConstrainTypesMode(), 1)
+        self.assertEqual(list(folder.getLocallyAllowedTypes()), ["contact_list"])
+        self.assertEqual(list(folder.getImmediatelyAddableTypes()), ["contact_list"])
+        self.assertEqual(sorted(folder.get_local_roles_for_userid("agent")), ["Contributor", "Editor", "Reader"])
+
+    def test_folder_added(self):
+        # folders added in om templates, email templates or contact lists are only "add" folders
+        for container in (
+            self.portal["templates"]["om"],
+            self.portal["templates"]["oem"],
+            self.portal["contacts"]["contact-lists-folder"],
+        ):
+            folder = api.content.create(container=container, type="Folder", id="new-folder", title=u"Nouveau")
+            self.assertTrue(IActionsPanelFolderOnlyAdd.providedBy(folder), container.getId())
+            self.assertTrue(INextPrevNotNavigable.providedBy(folder), container.getId())
+        # elsewhere, a folder is a "normal" folder
+        folder = api.content.create(container=self.portal, type="Folder", id="new-folder", title=u"Nouveau")
+        self.assertFalse(IActionsPanelFolderOnlyAdd.providedBy(folder))
+        self.assertFalse(INextPrevNotNavigable.providedBy(folder))
+
+    def test_wsclient_configuration_changed(self):
+        record = getUtility(IRegistry).records[
+            "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"
+        ]
+        actions = self.portal.portal_actions
+        self.assertNotIn("plonemeeting_wsclient_action_1", actions.object_buttons)
+        self.assertListEqual(actions.object_portlet.objectIds(), ["batchimport", "im-listing"])
+        # the "send to PloneMeeting" actions are generated and also shown in the actions portlet, before im-listing
+        zope.event.notify(RecordModifiedEvent(record, record.value, record.value))
+        self.assertIn("plonemeeting_wsclient_action_1", actions.object_buttons)
+        self.assertListEqual(
+            actions.object_portlet.objectIds(), ["batchimport", "plonemeeting_wsclient_action_1", "im-listing"]
+        )
+        # regenerated actions are not duplicated
+        zope.event.notify(RecordModifiedEvent(record, record.value, record.value))
+        self.assertListEqual(
+            actions.object_portlet.objectIds(), ["batchimport", "plonemeeting_wsclient_action_1", "im-listing"]
+        )
+
+    def test_record_modified(self):
+        action = self.portal.portal_actions.user["audit-contacts"]
+        self.assertFalse(action.visible)
+        # activating the contacts access audit shows the audit user action
+        record = "collective.contact.core.interfaces.IContactCoreParameters.audit_contact_access"
+        api.portal.set_registry_record(record, True)
+        self.assertTrue(action.visible)
+        api.portal.set_registry_record(record, False)
+        self.assertFalse(action.visible)
+
+    def test_zope_ready(self):
+        sml = getSiteManager(self.portal)
+        sml.unregisterUtility(provided=IRAMCache)
+        sml.registerUtility(component=RAMCache(), provided=IRAMCache)
+        # the process-start hook opens its own ZODB connection and commits: both are patched here
+        with patch("imio.dms.mail.subscribers.get_zope_root", return_value=self.layer["app"]):
+            with patch("imio.dms.mail.subscribers.transaction.commit") as commit:
+                # no plone-path configured for imio.dms.mail: nothing is done
+                zope_ready(None)
+                self.assertNotIsInstance(getUtility(IRAMCache), IMIORAMCache)
+                self.assertFalse(commit.called)
+                # plone-path configured: the site uses the imio.helpers ram cache
+                config = getConfiguration().product_config
+                config["imio.dms.mail"] = {"plone-path": self.portal.getId()}
+                self.addCleanup(config.pop, "imio.dms.mail")
+                zope_ready(None)
+                self.assertIsInstance(getUtility(IRAMCache), IMIORAMCache)
+                self.assertTrue(commit.called)
 
 
 class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):

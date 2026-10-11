@@ -1,20 +1,34 @@
 # -*- coding: utf-8 -*-
 """Test the sign_request content type (dmssignrequest.py)."""
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.task.behaviors import ITask
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail.dmssignrequest import filter_signrequest_assigned_users
 from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.dmssignrequest import incrementSignRequestNumber
+from imio.dms.mail.dmssignrequest import internalReferenceSignRequestDefaultValue
+from imio.dms.mail.dmssignrequest import InternalReferenceSignRequestValidator
+from imio.dms.mail.dmssignrequest import sign_request_updatefields
 from imio.dms.mail.dmssignrequest import signrequest_internal_reference_number_indexer
+from imio.dms.mail.dmssignrequest import SignRequestAddForm
+from imio.dms.mail.dmssignrequest import SignRequestEdit
+from imio.dms.mail.dmssignrequest import SignRequestView
 from imio.dms.mail.dmssignrequest import SignRequestWfConditionsAdapter
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import ensure_demand_sign
+from imio.dms.mail.utils import Dummy
+from imio.dms.mail.utils import DummyView
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.autoform.interfaces import OMITTED_KEY
+from plone.dexterity.utils import createContent
+from Products.CMFPlone.utils import safe_unicode
 from Products.PluginIndexes.common.UnIndex import _marker
+from z3c.form.field import Fields
+from zope.interface import Invalid
 
 import unittest
 
@@ -130,3 +144,79 @@ class TestDmsSignRequest(unittest.TestCase, ImioTestHelpers):
         omitted = [entry[1] for entry in IImioDmsSignRequest.queryTaggedValue(OMITTED_KEY, [])]
         self.assertIn("notes", omitted)
         self.assertIn("related_docs", omitted)
+
+    def test_Title(self):
+        request, files = create_sign_request(self.portal, oid="sr-title", signers=[], nb_files=0,
+                                             title=u"Demande à signer")
+        ref = request.internal_reference_no
+        self.assertEqual(safe_unicode(request.Title()), u"{} - Demande à signer".format(ref))
+        # no reference
+        request.internal_reference_no = None
+        self.assertEqual(safe_unicode(request.Title()), u"Demande à signer")
+
+    def test_internalReferenceSignRequestDefaultValue(self):
+        number = api.portal.get_registry_record(SIGNREQUEST_NUMBER)
+        value = internalReferenceSignRequestDefaultValue(DummyView(self.portal, self.portal.REQUEST))
+        self.assertEqual(value, u"D%04d" % number)
+        self.assertIsInstance(value, type(u""))
+
+    def test_InternalReferenceSignRequestValidator(self):
+        request, files = create_sign_request(self.portal, oid="sr-val", signers=[], nb_files=0)
+        number = api.portal.get_registry_record(SIGNREQUEST_NUMBER)
+        validator = InternalReferenceSignRequestValidator(
+            self.portal["requests"], self.portal.REQUEST, None, IImioDmsSignRequest["internal_reference_no"], None
+        )
+        self.assertEqual(validator.good_value(), u"D%04d" % number)
+        # a free reference is valid
+        self.assertIsNone(validator.validate(u"D%04d" % number))
+        # an already used reference is refused, the next free one is proposed
+        with self.assertRaises(Invalid) as cm:
+            validator.validate(request.internal_reference_no)
+        self.assertEqual(cm.exception.args[0].mapping["good_value"], u"D%04d" % number)
+
+    def test_sign_request_updatefields(self):
+        form = Dummy(fields=Fields(ITask, prefix="ITask").select("ITask.assigned_user"))
+        sign_request_updatefields(form)
+        # assigned user is mandatory in the form, the schema field is left untouched
+        self.assertTrue(form.fields["ITask.assigned_user"].field.required)
+        self.assertFalse(ITask["assigned_user"].required)
+        # no assigned user field: nothing to do
+        form = Dummy(fields=Fields(ITask, prefix="ITask").select("ITask.due_date"))
+        sign_request_updatefields(form)
+        self.assertNotIn("ITask.assigned_user", form.fields)
+
+    def test_SignRequestAddForm(self):
+        org_uid = get_registry_organizations()[0]
+        ensure_demand_sign(self.portal, org_uid)
+        rfolder = self.portal["requests"]
+        form = SignRequestAddForm(rfolder, self.portal.REQUEST)
+        form.update()
+        self.assertTrue(form.fields["ITask.assigned_user"].field.required)
+        # the current user is preselected as assigned user, without left column
+        self.assertEqual(form.widgets["ITask.assigned_user"].value, ["siteadmin"])
+        self.assertEqual(form.request.get("disable_plone.leftcolumn"), 1)
+        # the request is added in a period subfolder
+        obj = createContent("sign_request", title=u"Demande formulaire", treating_groups=org_uid,
+                            assigned_user="chef", recipient_groups=[])
+        form.add(obj)
+        added = api.content.find(context=rfolder, portal_type="sign_request", Title=u"formulaire")[0].getObject()
+        self.assertEqual(added.__parent__.__parent__, rfolder)
+        self.assertTrue(form.immediate_view.startswith(added.absolute_url()))
+
+    def test_SignRequestEdit(self):
+        request, files = create_sign_request(self.portal, oid="sr-edit", signers=[], nb_files=0)
+        form = SignRequestEdit(request, request.REQUEST)
+        form.update()
+        self.assertTrue(form.fields["ITask.assigned_user"].field.required)
+        self.assertEqual(form.request.get("disable_plone.leftcolumn"), 1)
+
+    def test_SignRequestView(self):
+        request, files = create_sign_request(self.portal, oid="sr-view", signers=[], nb_files=0)
+        self.change_user("siteadmin")  # sets AUTHENTICATED_USER (actions panel cachekey)
+        view = SignRequestView(request, request.REQUEST)
+        view.update()
+        # the signing fieldset legend shows the signing actions panel
+        self.assertEqual(view.legend_extra(Dummy(__name__="other")), u"")
+        self.assertEqual(
+            view.legend_extra(Dummy(__name__="signing")), request.restrictedTraverse("@@signing_actions_panel")()
+        )

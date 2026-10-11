@@ -70,6 +70,17 @@ test: oneof-plone bin/buildout  ## run bin/test without robot
 	# can be run by example with: make test opt='-t "settings"'
 	bin/test -t \!robot ${opt}
 
+.PHONY: robot
+robot: oneof-plone bin/buildout  ## run robot tests in headless firefox
+	# can be run by example with: make robot opt='-t "Reply*"'
+	MOZ_HEADLESS=1 bin/test --all -t robot ${opt}
+
+.PHONY: robot-server
+robot-server:  ## Starts robot server (layer=<layer name in testing.py>, default ACCEPTANCE)
+	# run a robot file against it with: bin/robot -v PLONE_MAJOR:$(firstword $(subst ., ,$(plone))) -v ZOPE_PORT:55013 imio/dms/mail/tests/robot/test_<feature>.robot
+	# OO_PORT: LibreOffice of the documentgenerator templates (bin/test reads it from [testenv], robot-server doesn't)
+	env ZSERVER_HOST=localhost ZSERVER_PORT=55013 OO_PORT=55012 PYTHON_UNO=/usr/bin/python3 bin/robot-server -v imio.dms.mail.testing.$(or $(layer),ACCEPTANCE)
+
 .PHONY: cleanall
 cleanall:  ## Cleans all installed buildout files
 	rm -fr bin include lib local share develop-eggs downloads eggs parts .installed.cfg .mr.developer.cfg .python-version pyvenv.cfg

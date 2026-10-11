@@ -6,7 +6,11 @@ from datetime import datetime
 from datetime import timedelta
 from DateTime import DateTime
 from ftw.labels.interfaces import ILabeling
+from imio.dms.mail import _tr
 from imio.dms.mail import AUC_RECORD
+from imio.dms.mail.dmsmail import IMEdit
+from imio.dms.mail.dmsmail import IMView
+from imio.dms.mail.dmsmail import OMEdit
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import add_remove_values_in_registry_list
@@ -16,10 +20,14 @@ from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import current_user_groups_ids
+from imio.dms.mail.utils import do_next_transition
+from imio.dms.mail.utils import Dummy
+from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import dv_clean
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_allowed_content_types
+from imio.dms.mail.utils import get_context_with_request
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import group_has_user
@@ -27,6 +35,7 @@ from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
+from imio.dms.mail.utils import is_n_plus_level_obsolete
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import set_dms_config
@@ -37,6 +46,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.utils import UtilsMethods
 from imio.dms.mail.utils import VariousUtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from mock import Mock
 from mock import patch
@@ -49,6 +59,8 @@ from plone.registry import field as reg_field
 from plone.registry import Record
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import base_hasattr
+from Products.CMFPlone.utils import safe_unicode
+from six import StringIO
 from z3c.relationfield.relation import RelationValue
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
@@ -1176,3 +1188,197 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
         # Approver in rules, remaining_usages=["approving"]: not a conflict
         self.assertFalse(is_hp_used_in_signer_rules(bourgmestre_hp, ["approving"]))
+
+    def test_VariousMethods_check_scan_id(self):
+        view = VariousUtilsMethods(self.portal, self.portal.REQUEST)
+        self.change_user("agent")
+        self.assertIsNone(view.check_scan_id())
+        self.change_user("siteadmin")
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id", title=u"Scan",
+                           internal_reference_no=u"E9999")
+        createContentInContainer(imail, "dmsmainfile", id="scan", scan_id="010999900001000")
+        bad = sub_create(self.imf, "dmsincomingmail", datetime.now(), "bad-id", title=u"Bad scan")
+        createContentInContainer(bad, "dmsmainfile", id="bad", scan_id="010999900AB")
+        # one scan id by 1000, by flow
+        out = view.check_scan_id()
+        self.assertIn("<h1>Courrier entrant</h1>", out)
+        self.assertIn('<a href="{}" target="_blank">1000</a>, E9999'.format(imail.absolute_url()), out)
+        self.assertIn("Invalid scan_id '010999900AB' for item {}".format(bad["bad"].absolute_url()), out)
+        # sorted by internal reference
+        out = view.check_scan_id(sort="ref")
+        self.assertIn('<a href="{}" target="_blank">E9999</a>, 1000'.format(imail.absolute_url()), out)
+
+    def test_VariousMethods_kofax_orgs(self):
+        view = VariousUtilsMethods(self.portal, self.portal.REQUEST)
+        self.change_user("agent")
+        self.assertIsNone(view.kofax_orgs())
+        self.change_user("siteadmin")
+        lines = safe_unicode(view.kofax_orgs()).split(u"\r\n")
+        self.assertEqual(lines[0], _tr("Creating groups : to be used in kofax index"))
+        self.assertIn(_tr("Treating groups : to be used in kofax index"), lines)
+        dg_uid = self.pgof["direction-generale"].UID()
+        self.assertIn(u"Direction générale ___ {}".format(dg_uid), lines)
+
+    def test_VariousMethods_template_infos(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        # a file not generated from a template
+        annex = createContentInContainer(omail, "dmsappendixfile", file=NamedBlobFile("pdf", filename=u"a.pdf"))
+        self.assertEqual(VariousUtilsMethods(annex, annex.REQUEST).template_infos(), "No template infos")
+        # a document generated from a template
+        main = self.portal["templates"]["om"]["main"]
+        gen_view = omail.restrictedTraverse("persistent-document-generation")
+        gen_view.pod_template = main
+        gen_view.output_format = "odt"
+        doc = gen_view.generate_persistent_doc(main, "odt")
+        out = VariousUtilsMethods(doc, doc.REQUEST).template_infos()
+        self.assertTrue(out.startswith(u"<p>Template: "))
+        self.assertIn(main.absolute_url(), out)
+        for name in sorted(main.get_templates_to_merge()):
+            self.assertIn(u"<li>{} = ".format(name), out)
+
+    def test_VariousMethods_user_usages(self):
+        view = VariousUtilsMethods(self.portal, self.portal.REQUEST)
+        self.assertEqual(view.user_usages("chef"), "You must be a zope manager to run this script")
+        self.change_user("admin")
+        self.assertEqual(view.user_usages(), "You must give a parameter named 'userid'")
+        self.assertEqual(view.user_usages("unknown"), "Cannot find a user with userid='unknown'")
+        # the report is also printed: stdout is captured (non-ASCII titles break on an ASCII stdout)
+        with patch("sys.stdout", StringIO()):
+            out = view.user_usages("chef")
+        self.assertIn(u"<h1>Usages of user name 'chef'</h1>", out)
+        self.assertIn(u"Email='chef@macommune.be'", out)
+        self.assertIn(u"<p>=> Found a person ", out)
+        # chef is the sender of 3 outgoing mails as "responsable-grh"
+        hp = self.contacts["personnel-folder"]["chef"]["responsable-grh"]
+        om_url = "{}/outgoing-mail/mail-searches#c1={}&c7={}".format(
+            self.portal.absolute_url(), self.omf["mail-searches"]["all_mails"].UID(), hp.UID()
+        )
+        self.assertIn(u'<a href="{}" target="_blank">3</a> om sender.'.format(om_url), out)
+
+    def test_VariousMethods_dv_images_clean(self):
+        # the site keeps the document viewer images 180 days
+        self.assertEqual(api.portal.get_registry_record("imio.dms.mail.dv_clean_days"), 180)
+        self.assertIsNone(api.portal.get_registry_record("imio.dms.mail.dv_clean_date"))
+        self.change_user("admin")
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", title=u"Courrier 10",
+                           mail_type="courrier", treating_groups=self.pgof["direction-generale"]["grh"].UID(),
+                           sender=[RelationValue(getUtility(IIntIds).getId(self.contacts["jeancourant"]))])
+        with open(os.path.join(os.path.dirname(__file__), "files", "example.pdf"), "rb") as fo:
+            createContentInContainer(imail, "dmsmainfile", title="", scan_id="050999900000010",
+                                     file=NamedBlobFile(fo.read(), filename=u"example.pdf"))
+        annot = IAnnotations(imail["example.pdf"])["collective.documentviewer"]
+        self.assertEqual(annot["num_pages"], 6)
+        for transition in ("propose_to_agent", "treat", "close"):
+            api.content.transition(imail, transition)
+        imail.setModificationDate(DateTime() - 200)
+        imail.reindexObject(idxs=["modified"])
+        # a closed mail not modified since more than 180 days: its preview images are replaced
+        VariousUtilsMethods(self.portal, self.portal.REQUEST).dv_images_clean()
+        annot = IAnnotations(imail["example.pdf"])["collective.documentviewer"]
+        self.assertEqual(annot["num_pages"], 1)
+        self.assertEqual(annot["last_updated"], "2010-01-01T00:00:00")
+
+    def test_manage_fields(self):
+        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields"
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id", title=u"Test")
+        # sender first, mail_type not editable, description not displayed, external reference removed
+        config = []
+        for dic in api.portal.get_registry_record(rk):
+            if dic["field_name"] == "external_reference_no":
+                continue
+            dic = dict(dic)
+            if dic["field_name"] == "mail_type":
+                dic["write_tal_condition"] = u"python:False"
+            elif dic["field_name"] == "IDublinCore.description":
+                dic["read_tal_condition"] = u"python:False"
+            if dic["field_name"] == "sender":
+                config.insert(0, dic)
+            else:
+                config.append(dic)
+        api.portal.set_registry_record(rk, config)
+
+        def form_fields(form):
+            return list(form.fields.keys()) + [name for group in form.groups for name in group.fields.keys()]
+
+        edit = IMEdit(imail, imail.REQUEST)
+        edit.update()
+        self.assertEqual(list(edit.fields.keys())[0], "sender")
+        self.assertNotIn("mail_type", form_fields(edit))
+        self.assertIn("IDublinCore.description", form_fields(edit))
+        self.assertNotIn("external_reference_no", form_fields(edit))
+        view = IMView(imail, imail.REQUEST)
+        view.update()
+        self.assertIn("mail_type", form_fields(view))
+        self.assertNotIn("IDublinCore.description", form_fields(view))
+        self.assertNotIn("external_reference_no", form_fields(view))
+        # the signing fieldset is shown only when a signing field is configured
+        omail = sub_create(self.omf, "dmsoutgoingmail", datetime.now(), "my-id", title=u"Test",
+                           treating_groups=get_registry_organizations()[0])
+        edit = OMEdit(omail, omail.REQUEST)
+        edit.update()
+        self.assertNotIn("signing", [group.__name__ for group in edit.groups])
+        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields"
+        config = api.portal.get_registry_record(rk)
+        config.append({"field_name": "ISigningBehavior.signers", "read_tal_condition": u"",
+                       "write_tal_condition": u""})
+        api.portal.set_registry_record(rk, config)
+        edit = OMEdit(omail, omail.REQUEST)
+        edit.update()
+        signing = [group for group in edit.groups if group.__name__ == "signing"]
+        self.assertEqual(list(signing[0].fields.keys()), ["ISigningBehavior.signers"])
+
+    def _im_in_n_plus_1(self):
+        """Return an incoming mail proposed to the n+1 level of its treating group."""
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id", title=u"Test",
+                           treating_groups=get_registry_organizations()[0])
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-im_n_plus_1_wfadaptation", run_dependencies=False
+        )
+        api.portal.set_registry_record(AUC_RECORD, u"no_check")
+        api.content.transition(imail, "propose_to_n_plus_1")
+        return imail
+
+    def test_is_n_plus_level_obsolete(self):
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id2", title=u"Test")
+        # no treating group
+        self.assertEqual(is_n_plus_level_obsolete(imail, "dmsincomingmail"), (False, None, None))
+        # not in a validation state
+        imail.treating_groups = get_registry_organizations()[0]
+        self.assertEqual(is_n_plus_level_obsolete(imail, "dmsincomingmail"), (False, "created", None))
+        # in the n+1 validation state, with a n+1 user
+        imail = self._im_in_n_plus_1()
+        obsolete, state, config = is_n_plus_level_obsolete(imail, "dmsincomingmail")
+        self.assertFalse(obsolete)
+        self.assertEqual(state, "proposed_to_n_plus_1")
+        self.assertEqual(config, get_dms_config(["transitions_levels", "dmsincomingmail"]))
+        # the validation state checked is not the current one
+        self.assertFalse(is_n_plus_level_obsolete(imail, "dmsincomingmail", state_start="proposed_to_manager")[0])
+        # no more n+1 user in the treating group: the level is obsolete
+        api.group.remove_user(groupname="{}_n_plus_1".format(imail.treating_groups), username="chef")
+        self.assertTrue(is_n_plus_level_obsolete(imail, "dmsincomingmail")[0])
+
+    def test_do_next_transition(self):
+        imail = self._im_in_n_plus_1()
+        # the n+1 level has no more user: the mail goes to the next level
+        api.group.remove_user(groupname="{}_n_plus_1".format(imail.treating_groups), username="chef")
+        do_next_transition(imail, "dmsincomingmail")
+        self.assertEqual(api.content.get_state(imail), "proposed_to_agent")
+
+    def test_get_context_with_request(self):
+        col = self.imf["mail-searches"]["all_mails"]
+        request = self.portal.REQUEST
+        # a context with a request is kept
+        self.assertEqual(get_context_with_request(col).UID(), col.UID())
+        # no request (the registry when editing a collection): the published view context is used
+        request.set("PUBLISHED", DummyView(col, request))
+        self.assertEqual(get_context_with_request(Dummy()).UID(), col.UID())
+        # no published view: the collection is found from the referer
+        request.set("PUBLISHED", None)
+        request.set("HTTP_REFERER", "{}/edit".format(col.absolute_url()))
+        self.assertEqual(get_context_with_request(Dummy()).UID(), col.UID())
+        # the referer is not a collection
+        request.set("HTTP_REFERER", self.imf.absolute_url())
+        self.assertIsNone(get_context_with_request(Dummy()))
+        # the referer is not found
+        request.set("HTTP_REFERER", "{}/unknown/edit".format(self.portal.absolute_url()))
+        self.assertIsNone(get_context_with_request(Dummy()))

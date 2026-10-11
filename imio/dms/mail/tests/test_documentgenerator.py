@@ -4,6 +4,13 @@ from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.browser.documentgenerator import _filter_signing_fieldset
+from imio.dms.mail.browser.documentgenerator import DmsAddConfigurablePodTemplate
+from imio.dms.mail.browser.documentgenerator import DmsAddConfigurablePodTemplateForm
+from imio.dms.mail.browser.documentgenerator import DmsAddSubTemplate
+from imio.dms.mail.browser.documentgenerator import DmsAddSubTemplateForm
+from imio.dms.mail.browser.documentgenerator import DmsEditConfigurablePodTemplate
+from imio.dms.mail.browser.documentgenerator import DmsEditSubTemplate
 from imio.dms.mail.browser.documentgenerator import DmsTemplatesListing
 from imio.dms.mail.browser.documentgenerator import OutgoingMailLinksViewlet
 from imio.dms.mail.content.behaviors import ISigningBehavior
@@ -858,8 +865,6 @@ class TestDocumentGenerator(unittest.TestCase):
         rep1.signers = original_rep1_signers
 
     def test_filter_signing_fieldset(self):
-        from imio.dms.mail.browser.documentgenerator import _filter_signing_fieldset
-
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
 
         class _Group(object):
@@ -884,6 +889,52 @@ class TestDocumentGenerator(unittest.TestCase):
             self.assertEqual([gr.__name__ for gr in form.groups], ["default", "signing"])
 
         api.portal.set_registry_record(rk_so, u"rules")
+
+    def _form_groups(self, form):
+        self.portal.REQUEST["REQUEST_METHOD"] = "GET"
+        form.update()
+        return [gr.__name__ for gr in form.groups]
+
+    def test_DmsEditConfigurablePodTemplate(self):
+        rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
+        alsoProvides(self.portal.REQUEST, IImioDmsMailLayer)
+        main = self.portal["templates"]["om"]["main"]
+        form = main.unrestrictedTraverse("@@edit")
+        self.assertIsInstance(form, DmsEditConfigurablePodTemplate)
+        self.assertNotIn("signing", self._form_groups(form))
+        api.portal.set_registry_record(rk_so, u"template_first")
+        self.assertIn("signing", self._form_groups(main.unrestrictedTraverse("@@edit")))
+        api.portal.set_registry_record(rk_so, u"rules")
+
+    def test_DmsAddConfigurablePodTemplate(self):
+        rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
+        alsoProvides(self.portal.REQUEST, IImioDmsMailLayer)
+        view = self.portal["templates"]["om"].unrestrictedTraverse("++add++ConfigurablePODTemplate")
+        self.assertIsInstance(view, DmsAddConfigurablePodTemplate)
+        self.assertIsInstance(view.form_instance, DmsAddConfigurablePodTemplateForm)
+        self.assertNotIn("signing", self._form_groups(view.form_instance))
+        api.portal.set_registry_record(rk_so, u"rules_first")
+        view = self.portal["templates"]["om"].unrestrictedTraverse("++add++ConfigurablePODTemplate")
+        self.assertIn("signing", self._form_groups(view.form_instance))
+        api.portal.set_registry_record(rk_so, u"rules")
+
+    def test_DmsEditSubTemplate(self):
+        rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
+        alsoProvides(self.portal.REQUEST, IImioDmsMailLayer)
+        header = self.portal["templates"]["om"]["header"]
+        form = header.unrestrictedTraverse("@@edit")
+        self.assertIsInstance(form, DmsEditSubTemplate)
+        self.assertNotIn("signing", self._form_groups(form))
+        api.portal.set_registry_record(rk_so, u"template_first")
+        self.assertIn("signing", self._form_groups(header.unrestrictedTraverse("@@edit")))
+        api.portal.set_registry_record(rk_so, u"rules")
+
+    def test_DmsAddSubTemplate(self):
+        alsoProvides(self.portal.REQUEST, IImioDmsMailLayer)
+        view = self.portal["templates"]["om"].unrestrictedTraverse("++add++SubTemplate")
+        self.assertIsInstance(view, DmsAddSubTemplate)
+        self.assertIsInstance(view.form_instance, DmsAddSubTemplateForm)
+        self.assertNotIn("signing", self._form_groups(view.form_instance))
 
     def test_OutgoingMailLinksViewlet(self):
         """

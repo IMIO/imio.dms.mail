@@ -7,6 +7,8 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.content.behaviors import PlonegroupUserLinkUseridValidator
+from imio.dms.mail.content.behaviors import signing_request_signers
+from imio.dms.mail.content.behaviors import signing_signers
 from imio.dms.mail.content.behaviors import UsagesSignerRulesValidator
 from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -505,3 +507,20 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         # Keeping the signer usage: no conflict.
         self.assertIsNone(hp_validator.validate(["signer"]))
         api.portal.set_registry_record(rk_rules, [])
+
+    def test_signing_signers(self):
+        values = [term.value for term in signing_signers(self.portal)]
+        # a value must be chosen, "no signature" is possible
+        self.assertListEqual(values[:2], [None, u"_empty_"])
+        # the personnel held positions with the signer usage
+        self.assertIn(self.pf["dirg"]["directeur-general"].UID(), values)
+        self.assertIn(self.pf["bourgmestre"]["bourgmestre"].UID(), values)
+        self.assertNotIn(self.pf["agent"]["agent-grh"].UID(), values)
+
+    def test_signing_request_signers(self):
+        values = [term.value for term in signing_request_signers(self.portal)]
+        # a signature is mandatory: no "no signature" choice
+        self.assertEqual(values[0], None)
+        self.assertNotIn(u"_empty_", values)
+        self.assertIn(self.pf["dirg"]["directeur-general"].UID(), values)
+        self.assertIn(self.pf["bourgmestre"]["bourgmestre"].UID(), values)

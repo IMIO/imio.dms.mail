@@ -28,6 +28,7 @@ from plone.app.testing import logout
 # from plone.app.testing import setRoles
 # from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
+from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from plone.namedfile.file import NamedBlobFile
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
@@ -82,6 +83,16 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual([t.title for t in voc._terms], [])  # direction generale => no user
         voc = filter_dmsincomingmail_assigned_users(selected_orgs[1])
         self.assertListEqual([t.title for t in voc._terms], [u"Fred Agent", u"Jean Encodeur"])
+        # treating group chosen in the add form (masterselect call): its only editor is the default assigned user
+        api.group.add_user(groupname="{}_editeur".format(selected_orgs[0]), username="agent")
+        request = self.portal.REQUEST
+        add = CustomAddForm(self.portal["incoming-mail"], request)
+        add.portal_type = "dmsincomingmail"
+        add.update()
+        request.set("PUBLISHED", MasterSelectJSONValue(add.widgets["treating_groups"], request))
+        voc = filter_dmsincomingmail_assigned_users(selected_orgs[0])
+        self.assertListEqual([t.value for t in voc._terms], ["agent"])
+        self.assertEqual(request.get("_default_assigned_user_"), "agent")
 
     def test_TreatingGroupsVocabulary(self):
         from imio.dms.mail.dmsmail import TreatingGroupsVocabulary

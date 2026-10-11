@@ -8,6 +8,9 @@ from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.browser.table import AssignedGroupColumn
+from imio.dms.mail.browser.table import CKTemplatesTable
+from imio.dms.mail.browser.table import EnquirerColumn
+from imio.dms.mail.browser.table import IMVersionsTable
 from imio.dms.mail.browser.table import IMVersionsTitleColumn
 from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.table import SignRequestVersionsTable
@@ -86,6 +89,39 @@ class TestTable(unittest.TestCase):
         task = createContentInContainer(imail, "task", id="testid1", assigned_group=group0)
         col = AssignedGroupColumn(self.portal, self.portal.REQUEST, None)
         self.assertEqual(col.renderCell(task).encode("utf8"), "Direction générale")
+
+    def test_EnquirerColumn(self):
+        task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]
+        col = EnquirerColumn(self.portal, self.portal.REQUEST, None)
+        self.assertEqual(col.renderCell(task), u"Direction générale")
+        task.enquirer = None
+        self.assertEqual(col.renderCell(task), "")
+
+    def test_BaseVersionsTable(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        table = IMVersionsTable(imail, self.portal.REQUEST, None)
+        self.assertListEqual([cc.UID for cc in table.values], [obj.UID() for obj in imail.objectValues()
+                                                                if obj.portal_type == "dmsmainfile"])
+        self.assertFalse(table.is_edit_mode())
+        names = [col.__name__ for col in table.setUpColumns()]
+        self.assertIn("filesize-column", names)
+        self.assertIn("action-column", names)
+        # edit mode: useless columns are removed
+        self.portal.REQUEST["ACTUAL_URL"] = "{}/edit".format(imail.absolute_url())
+        table = IMVersionsTable(imail, self.portal.REQUEST, None)
+        self.assertTrue(table.is_edit_mode())
+        names = [col.__name__ for col in table.setUpColumns()]
+        self.assertNotIn("filesize-column", names)
+        self.assertNotIn("action-column", names)
+
+    def test_CKTemplatesTable(self):
+        oem = self.portal["templates"]["oem"]
+        table = CKTemplatesTable(oem, self.portal.REQUEST)
+        self.assertEqual(table.context_path, "/plone/templates/oem")
+        self.assertEqual(table.context_path_level, 4)
+        table.results = [oem["emain"]]
+        self.assertListEqual(table.values, [oem["emain"]])
+        self.assertEqual(table.wtool, self.portal.portal_workflow)
 
     def test_SignRequestVersionsTable(self):
         activate_signing(self.portal)

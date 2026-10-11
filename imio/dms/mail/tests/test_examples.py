@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from imio.dms.mail.examples import add_special_model_mail
+from imio.dms.mail.examples import add_test_sign_requests
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import ensure_demand_sign
 from imio.dms.mail.utils import create_period_folder
 from plone import api
 from plone.registry.interfaces import IRegistry
@@ -95,3 +97,25 @@ class TestExamples(unittest.TestCase):
         self.assertEquals(len(code_to_type_mapping), 1)
         self.assertEquals(code_to_type_mapping[0]["code"], u"in")
         self.assertEquals(code_to_type_mapping[0]["portal_type"], u"dmsincomingmail")
+
+    def test_add_test_sign_requests(self):
+        pc = self.portal.portal_catalog
+        own_org = self.portal["contacts"]["plonegroup-organization"]
+        directions = [own_org[oid].UID() for oid in ("direction-financiere", "direction-generale", "direction-technique")]
+        for org_uid in directions:
+            ensure_demand_sign(self.portal, org_uid, userids=())
+        add_test_sign_requests(self.portal)
+        brains = pc(portal_type="sign_request", sort_on="id")
+        self.assertListEqual([brain.id for brain in brains], ["demande1", "demande2", "demande3"])
+        requests = [brain.getObject() for brain in brains]
+        self.assertListEqual([req.treating_groups for req in requests], directions)
+        self.assertListEqual([req.assigned_user for req in requests], ["chef", "dirg", "chef"])
+        for req in requests:
+            self.assertListEqual(req.objectIds(), ["1"])
+        # chef and dirg can request a signature for the three directions
+        for org_uid in directions:
+            members = [user.getId() for user in api.user.get_users(groupname="{}_demand_sign".format(org_uid))]
+            self.assertListEqual(sorted(members), ["chef", "dirg"])
+        # called again, nothing is duplicated
+        add_test_sign_requests(self.portal)
+        self.assertEqual(len(pc(portal_type="sign_request")), 3)

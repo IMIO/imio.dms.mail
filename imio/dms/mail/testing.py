@@ -299,6 +299,12 @@ DMSMAIL_ROBOT_TESTING = FunctionalTesting(
     name="DMSMAIL_ROBOT_TESTING",
 )
 
+# version-independent robot suites (tests/robot/test_*.robot): default site with the example mails
+ACCEPTANCE = FunctionalTesting(
+    bases=(DMSMAIL_FIXTURE, REMOTE_LIBRARY_BUNDLE_FIXTURE, z2.ZSERVER_FIXTURE),
+    name="DmsMailFixture:Acceptance",
+)
+
 
 def end_setup(portal):
     setattr(portal, "_v_ready", True)

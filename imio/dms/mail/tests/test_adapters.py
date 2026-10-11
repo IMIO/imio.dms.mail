@@ -1,56 +1,134 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+from collective.classification.folder.interfaces import IServiceInCharge
+from collective.classification.folder.interfaces import IServiceInCopy
+from collective.contact.plonegroup.config import get_registry_organizations
+from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.iconifiedcategory.interfaces import IIconifiedInfos
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.iconifiedcategory.utils import get_category_object
+from collective.task.behaviors import ITask
 from collective.wfadaptations.api import add_applied_adaptation
+from datetime import date
 from datetime import datetime
+from ftw.labels.interfaces import ILabeling
+from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.adapters import ActionsSubMenuItem
+from imio.dms.mail.adapters import ApprovalRoleAdapter
+from imio.dms.mail.adapters import AssignedUserDataManager
+from imio.dms.mail.adapters import ClassificationFolderInCopyGroupCriterion
+from imio.dms.mail.adapters import ClassificationFolderInTreatingGroupCriterion
+from imio.dms.mail.adapters import common_marker
+from imio.dms.mail.adapters import ContactAutocompleteValidator
+from imio.dms.mail.adapters import creating_group_index
+from imio.dms.mail.adapters import DateDataManager
 from imio.dms.mail.adapters import default_criterias
+from imio.dms.mail.adapters import DmsCategorizedObjectInfoAdapter
+from imio.dms.mail.adapters import FactoriesSubMenuItem
+from imio.dms.mail.adapters import fancy_tree_folder_index
+from imio.dms.mail.adapters import get_full_title_index
+from imio.dms.mail.adapters import get_obj_size
+from imio.dms.mail.adapters import get_obj_size_af_index
+from imio.dms.mail.adapters import get_obj_size_df_index
 from imio.dms.mail.adapters import IdmSearchableExtender
+from imio.dms.mail.adapters import im_irn_no_index
+from imio.dms.mail.adapters import im_markers
+from imio.dms.mail.adapters import im_reception_date_index
 from imio.dms.mail.adapters import im_sender_email_index
+from imio.dms.mail.adapters import imio_contact_source
+from imio.dms.mail.adapters import IMPrettyLinkAdapter
+from imio.dms.mail.adapters import in_out_date_index
+from imio.dms.mail.adapters import IncomingMailFollowedCriterion
 from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
 from imio.dms.mail.adapters import IncomingMailInCopyGroupCriterion
+from imio.dms.mail.adapters import IncomingMailInCopyGroupUnreadCriterion
 from imio.dms.mail.adapters import IncomingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import IncomingMailValidationCriterion
+from imio.dms.mail.adapters import ItemSignersAdapter
+from imio.dms.mail.adapters import mail_date_index
+from imio.dms.mail.adapters import mail_type_index
+from imio.dms.mail.adapters import markers_conversion_error
+from imio.dms.mail.adapters import markers_dmaf_index
+from imio.dms.mail.adapters import markers_dmf_index
+from imio.dms.mail.adapters import markers_im_index
+from imio.dms.mail.adapters import markers_om_index
 from imio.dms.mail.adapters import OdmSearchableExtender
+from imio.dms.mail.adapters import om_in_out_date_index
+from imio.dms.mail.adapters import om_irn_no_index
+from imio.dms.mail.adapters import om_mail_date_index
+from imio.dms.mail.adapters import om_markers
+from imio.dms.mail.adapters import om_outgoing_date_index
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.adapters import OMPrettyLinkAdapter
 from imio.dms.mail.adapters import org_sortable_title_index
 from imio.dms.mail.adapters import OutgoingMailInCopyGroupCriterion
 from imio.dms.mail.adapters import OutgoingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import OutgoingMailValidationCriterion
+from imio.dms.mail.adapters import person_usages_index
 from imio.dms.mail.adapters import ready_for_email_index
 from imio.dms.mail.adapters import ScanSearchableExtender
+from imio.dms.mail.adapters import send_modes_index
+from imio.dms.mail.adapters import SendableAnnexesToPMAdapter
+from imio.dms.mail.adapters import ServiceInChargeAdapter
+from imio.dms.mail.adapters import ServiceInCopyAdapter
 from imio.dms.mail.adapters import signrequest_approvings_index
 from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.adapters import SignRequestInCopyGroupCriterion
 from imio.dms.mail.adapters import SignRequestInTreatingGroupCriterion
 from imio.dms.mail.adapters import state_group_index
+from imio.dms.mail.adapters import task_enquirer_index
 from imio.dms.mail.adapters import TaskInAssignedGroupCriterion
 from imio.dms.mail.adapters import TaskInProposingGroupCriterion
+from imio.dms.mail.adapters import TaskPrettyLinkAdapter
 from imio.dms.mail.adapters import TaskValidationCriterion
+from imio.dms.mail.adapters import WorkflowMenu
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
+from imio.esign.adapters import ISignable
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import get_session_annotation
+from imio.helpers import EMPTY_DATE
+from imio.helpers import EMPTY_STRING
+from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from imio.helpers.tests.test_pdf import _pdf_page_count
+from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
+from imio.prettylink.interfaces import IPrettyLink
+from persistent.mapping import PersistentMapping
 from plone import api
+from plone.app.contentmenu.interfaces import IContentMenuItem
+from plone.app.textfield.value import RichTextValue
 from plone.dexterity.utils import createContentInContainer
+from plone.indexer.interfaces import IIndexer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
+from Products.CMFPlone.utils import safe_unicode
+from z3c.form.interfaces import IDataManager
+from z3c.form.interfaces import IValidator
 from z3c.relationfield.relation import RelationValue
+from zope.annotation import IAnnotations
+from zope.browsermenu.interfaces import IBrowserMenu
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import modified
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
+from zope.schema.interfaces import RequiredMissing
+from zope.security.management import endInteraction
+from zope.security.management import newInteraction
 
+import time
 import unittest
 import zope.event
 
@@ -353,6 +431,25 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         )
         ext = ScanSearchableExtender(obj)
         self.assertEqual(ext(), "testid2 title 010999900000690 IMIO010999900000690 description One word\n")
+        # a binary file is converted to text by portal_transforms
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            obj = createContentInContainer(
+                imail, "dmsmainfile", id="testid3", title="title", file=NamedBlobFile(fo.read(), filename=filename)
+            )
+        text = ScanSearchableExtender(obj)()
+        # a native string (utf8 bytes on Python 2)
+        self.assertIsInstance(text, str)
+        text = safe_unicode(text)
+        self.assertTrue(text.startswith(u"testid3 title Commune de Belleville\n"))
+        self.assertIn(u"Concerne : Votre demande de réservation de salle\n", text)
+        # no transformation to text for an image
+        filename = u"in-Fiche IMIO urbanisme.jpg"
+        with open("%s/batchimport/toprocess/incoming-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            obj = createContentInContainer(
+                imail, "dmsmainfile", id="testid4", title="title", file=NamedBlobFile(fo.read(), filename=filename)
+            )
+        self.assertEqual(ScanSearchableExtender(obj)(), u"testid4 title")
 
     def test_IdmSearchableExtender(self):
         imail = sub_create(
@@ -496,6 +593,513 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
         self.assertIn("Missing", view.widgets["mail_type"].render())
 
+    def test_IncomingMailInCopyGroupUnreadCriterion(self):
+        crit = IncomingMailInCopyGroupUnreadCriterion(self.portal)
+        self.assertEqual(crit.query, {"recipient_groups": {"query": []}, "labels": {"not": ["siteadmin:lu"]}})
+        api.group.create(groupname="111_lecteur")
+        api.group.add_user(groupname="111_lecteur", username="siteadmin")
+        self.change_user("siteadmin")
+        self.assertEqual(crit.query, {"recipient_groups": {"query": ["111"]}, "labels": {"not": ["siteadmin:lu"]}})
+        # the dashboard query: a mail in copy of the agent's service, until the agent reads it
+        org_uid = get_person_from_userid("agent").primary_organization
+        imail = sub_create(
+            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id", recipient_groups=[org_uid]
+        )
+        self.change_user("agent")
+        pc = self.portal.portal_catalog
+        self.assertIn(imail.UID(), [b.UID for b in pc.unrestrictedSearchResults(**crit.query)])
+        ILabeling(imail).pers_update(["lu"], True)
+        imail.reindexObject(idxs=["labels"])
+        self.assertNotIn(imail.UID(), [b.UID for b in pc.unrestrictedSearchResults(**crit.query)])
+
+    def test_IncomingMailFollowedCriterion(self):
+        crit = IncomingMailFollowedCriterion(self.portal)
+        self.assertEqual(crit.query, {"labels": {"query": "siteadmin:suivi"}})
+        # the dashboard query: the mails the agent follows
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.change_user("agent")
+        pc = self.portal.portal_catalog
+        self.assertEqual(len(pc.unrestrictedSearchResults(**crit.query)), 0)
+        ILabeling(imail).pers_update(["suivi"], True)
+        imail.reindexObject(idxs=["labels"])
+        self.assertEqual([b.UID for b in pc.unrestrictedSearchResults(**crit.query)], [imail.UID()])
+
+    def test_ClassificationFolderInCopyGroupCriterion(self):
+        crit = ClassificationFolderInCopyGroupCriterion(self.portal)
+        self.assertEqual(crit.query, {"recipient_groups": {"query": []}})
+        api.group.create(groupname="111_editeur")
+        api.group.add_user(groupname="111_editeur", username="siteadmin")
+        self.change_user("siteadmin")
+        self.assertEqual(crit.query, {"recipient_groups": {"query": ["111"]}})
+
+    def test_ClassificationFolderInTreatingGroupCriterion(self):
+        crit = ClassificationFolderInTreatingGroupCriterion(self.portal)
+        self.assertEqual(crit.query, {"treating_groups": {"query": []}})
+        api.group.create(groupname="111_lecteur")
+        api.group.add_user(groupname="111_lecteur", username="siteadmin")
+        self.change_user("siteadmin")
+        self.assertEqual(crit.query, {"treating_groups": {"query": ["111"]}})
+
+    def test_ActionsSubMenuItem(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        item = getMultiAdapter((imail, self.portal.REQUEST), IContentMenuItem, name="plone.contentmenu.actions")
+        self.assertIsInstance(item, ActionsSubMenuItem)
+        self.assertTrue(item.available())
+        # only shown to users with "Manage portal"
+        self.change_user("agent")
+        item = getMultiAdapter((imail, self.portal.REQUEST), IContentMenuItem, name="plone.contentmenu.actions")
+        self.assertFalse(item.available())
+
+    def test_FactoriesSubMenuItem(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        item = getMultiAdapter((imail, self.portal.REQUEST), IContentMenuItem, name="plone.contentmenu.factories")
+        self.assertIsInstance(item, FactoriesSubMenuItem)
+        self.assertTrue(item.available())
+        # only shown to users with "Manage portal"
+        self.change_user("agent")
+        item = getMultiAdapter((imail, self.portal.REQUEST), IContentMenuItem, name="plone.contentmenu.factories")
+        self.assertFalse(item.available())
+
+    def test_WorkflowMenu(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        menu = getUtility(IBrowserMenu, name="plone_contentmenu_workflow")
+        self.assertIsInstance(menu, WorkflowMenu)
+        self.assertEqual(
+            [item["extra"]["id"] for item in menu.getMenuItems(imail, self.portal.REQUEST)],
+            [
+                "workflow-transition-propose_to_agent",
+                "workflow-transition-propose_to_manager",
+                "workflow-transition-advanced",
+            ],
+        )
+        # only shown to users with "Manage portal"
+        self.change_user("dirg")
+        self.assertEqual(menu.getMenuItems(imail, self.portal.REQUEST), [])
+
+    def test_IMPrettyLinkAdapter(self):
+        dguid = self.pgof["direction-generale"].UID()
+        imail = sub_create(
+            self.portal["incoming-mail"],
+            "dmsincomingmail",
+            datetime.now(),
+            "my-id",
+            title=u"My title",
+            treating_groups=dguid,
+            assigned_user=u"chef",
+        )
+        adapter = IPrettyLink(imail)
+        self.assertIsInstance(adapter, IMPrettyLinkAdapter)
+        self.assertEqual(adapter._leadingIcons(), [])
+        # a remark is only shown in the configured states (proposed_to_agent)
+        imail.task_description = RichTextValue(u"<p>Remarque</p>", "text/html", "text/x-html-safe")
+        self.assertEqual(adapter._leadingIcons(), [])
+        api.content.transition(obj=imail, to_state="proposed_to_manager")
+        api.content.transition(obj=imail, to_state="proposed_to_agent")
+        self.assertEqual([icon for icon, title in adapter._leadingIcons()], ["++resource++imio.dms.mail/remark.gif"])
+        # a back transition
+        api.content.transition(obj=imail, transition="back_to_manager")
+        self.assertEqual([icon for icon, title in adapter._leadingIcons()], ["++resource++imio.dms.mail/wf_back.png"])
+        # an outgoing mail replies to it
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        omail.reply_to = [RelationValue(getUtility(IIntIds).getId(imail))]
+        modified(omail)
+        self.assertEqual(
+            [icon for icon, title in adapter._leadingIcons()],
+            ["++resource++imio.dms.mail/wf_back.png", "++resource++imio.dms.mail/replied_icon.png"],
+        )
+
+    def test_OMPrettyLinkAdapter(self):
+        omail = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-id",
+            title=u"My title",
+            treating_groups=self.pgof["direction-generale"]["secretariat"].UID(),
+        )
+        adapter = IPrettyLink(omail)
+        self.assertIsInstance(adapter, OMPrettyLinkAdapter)
+        self.assertEqual(adapter._leadingIcons(), [])
+        omail.task_description = RichTextValue(u"<p>Remarque</p>", "text/html", "text/x-html-safe")
+        self.assertEqual(adapter._leadingIcons(), [])
+        # a remark is only shown in the configured states
+        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_remark_states",
+                                       ["created"])
+        self.assertEqual([icon for icon, title in adapter._leadingIcons()], ["++resource++imio.dms.mail/remark.gif"])
+        # a back transition
+        with api.env.adopt_roles(["Manager"]):
+            api.content.transition(obj=omail, transition="mark_as_sent")
+            api.content.transition(obj=omail, transition="back_to_creation")
+        self.assertEqual(
+            [icon for icon, title in adapter._leadingIcons()],
+            ["++resource++imio.dms.mail/remark.gif", "++resource++imio.dms.mail/wf_back.png"],
+        )
+
+    def test_TaskPrettyLinkAdapter(self):
+        task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]
+        adapter = IPrettyLink(task)
+        self.assertIsInstance(adapter, TaskPrettyLinkAdapter)
+        self.assertEqual(adapter._leadingIcons(), [])
+        api.content.transition(obj=task, transition="do_to_assign")  # automatically to to_do
+        self.assertEqual(api.content.get_state(task), "to_do")
+        self.assertEqual(adapter._leadingIcons(), [])
+        api.content.transition(obj=task, transition="back_in_created2")
+        self.assertEqual([icon for icon, title in adapter._leadingIcons()], ["++resource++imio.dms.mail/wf_back.png"])
+        # to_do again
+        api.content.transition(obj=task, transition="do_to_assign")
+        self.assertEqual([icon for icon, title in adapter._leadingIcons()], ["++resource++imio.dms.mail/wf_again.png"])
+
+    def test_person_usages_index(self):
+        pf = self.portal["contacts"]["personnel-folder"]
+        self.assertEqual(person_usages_index(pf["dirg"])(), ["signer"])
+        self.assertEqual(person_usages_index(pf["chef"])(), ["approving"])
+        self.assertIs(person_usages_index(pf["agent"])(), common_marker)
+        pc = self.portal.portal_catalog
+        self.assertEqual(
+            sorted(b.id for b in pc.unrestrictedSearchResults(portal_type="person", usages="signer")),
+            ["bourgmestre", "dirg"],
+        )
+
+    def test_creating_group_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertIs(creating_group_index(imail)(), common_marker)
+        org_uid = self.pgof["direction-generale"].UID()
+        imail.creating_group = org_uid
+        self.assertEqual(creating_group_index(imail)(), org_uid)
+
+    def test_om_sender_email_index(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        omail.orig_sender_email = u'"Dexter Morgan" <dexter.morgan@mpd.am>'
+        omail.reindexObject(idxs=["email"])
+        pc = self.portal.portal_catalog
+        self.assertEqual(
+            [b.UID for b in pc.unrestrictedSearchResults(portal_type="dmsoutgoingmail", email="dexter.morgan@mpd.am")],
+            [omail.UID()],
+        )
+
+    def test_fancy_tree_folder_index(self):
+        om_folder = self.portal["templates"]["om"]
+        folder_uid = self.pgof["direction-generale"]["secretariat"].UID()
+        self.assertFalse(fancy_tree_folder_index(om_folder)())
+        self.assertTrue(fancy_tree_folder_index(om_folder[folder_uid])())
+        self.assertFalse(fancy_tree_folder_index(self.portal["Members"])())
+        pc = self.portal.portal_catalog
+        self.assertIn(
+            om_folder[folder_uid].UID(),
+            [b.UID for b in pc.unrestrictedSearchResults(path="/".join(om_folder.getPhysicalPath()), enabled=True)],
+        )
+
+    def test_get_full_title_index(self):
+        imail = sub_create(
+            self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id", title=u"Réponse à l'été"
+        )
+        value = get_full_title_index(imail)()
+        # a native string (utf8 bytes on Python 2), json serialized by the classification folder autocomplete
+        self.assertIsInstance(value, str)
+        self.assertEqual(safe_unicode(value), u"Réponse à l'été")
+        brain = self.portal.portal_catalog.unrestrictedSearchResults(UID=imail.UID())[0]
+        self.assertEqual(safe_unicode(brain.get_full_title), u"Réponse à l'été")
+        imail.title = u""
+        self.assertIs(get_full_title_index(imail)(), common_marker)
+
+    def test_get_obj_size(self):
+        imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
+        for i, (size, expected) in enumerate(
+            ((10, "1 KB"), (1024, "1.0 KB"), (5000, "4.9 KB"), (2 * 1048576 + 300000, "2.3 MB"))
+        ):
+            dfile = createContentInContainer(
+                imail, "dmsmainfile", id="f%d" % i, file=NamedBlobFile(b"x" * size, filename=u"f.bin")
+            )
+            self.assertEqual(get_obj_size(dfile), expected)
+
+    def test_get_obj_size_af_index(self):
+        request, files = create_sign_request(self.portal, oid="sr-size", nb_files=1)
+        self.assertEqual(get_obj_size_af_index(files[0])(), "108.4 KB")
+        brain = self.portal.portal_catalog.unrestrictedSearchResults(UID=files[0].UID())[0]
+        self.assertEqual(brain.getObjSize, "108.4 KB")
+
+    def test_get_obj_size_df_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        dfile = [obj for obj in imail.objectValues() if obj.portal_type == "dmsmainfile"][0]
+        self.assertEqual(get_obj_size_df_index(dfile)(), "275.4 KB")
+        brain = self.portal.portal_catalog.unrestrictedSearchResults(UID=dfile.UID())[0]
+        self.assertEqual(brain.getObjSize, "275.4 KB")
+
+    def test_in_out_date_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(in_out_date_index(imail)(), imail.reception_date)
+        imail.reception_date = None
+        self.assertEqual(in_out_date_index(imail)(), EMPTY_DATE)
+
+    def test_om_in_out_date_index(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.assertEqual(om_in_out_date_index(omail)(), EMPTY_DATE)
+        omail.outgoing_date = datetime(2024, 1, 2, 10, 20)
+        self.assertEqual(om_in_out_date_index(omail)(), datetime(2024, 1, 2, 10, 20))
+
+    def test_im_irn_no_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertTrue(imail.internal_reference_no)
+        self.assertIs(im_irn_no_index(imail)(), common_marker)
+
+    def test_om_irn_no_index(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.assertTrue(omail.internal_reference_no)
+        self.assertIs(om_irn_no_index(omail)(), common_marker)
+
+    def test_mail_date_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(mail_date_index(imail)(), EMPTY_DATE)
+        imail.original_mail_date = date(2024, 1, 2)
+        self.assertEqual(mail_date_index(imail)(), date(2024, 1, 2))
+
+    def test_om_mail_date_index(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.assertEqual(om_mail_date_index(omail)(), omail.mail_date)
+        self.assertTrue(omail.mail_date)
+        omail.mail_date = None
+        self.assertEqual(om_mail_date_index(omail)(), EMPTY_DATE)
+
+    def test_mail_type_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(mail_type_index(imail)(), "courrier")
+        self.assertIs(mail_type_index(self.portal["Members"])(), common_marker)
+        pc = self.portal.portal_catalog
+        brains = pc.unrestrictedSearchResults(portal_type="dmsincomingmail", mail_type="courrier")
+        self.assertIn(imail.UID(), [b.UID for b in brains])
+
+    def test_task_enquirer_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        task = imail["tache1"]
+        self.assertEqual(task_enquirer_index(task)(), imail.treating_groups)
+        task.enquirer = None
+        self.assertIs(task_enquirer_index(task)(), common_marker)
+
+    def test_im_markers(self):
+        intids = getUtility(IIntIds)
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(im_markers(imail), [])
+        self.assertEqual(IAnnotations(imail)["dmsmail.markers"], [])
+        # an incoming mail linked to it is not a response
+        imail2 = get_object(oid="courrier2", ptype="dmsincomingmail")
+        imail2.reply_to = [RelationValue(intids.getId(imail))]
+        modified(imail2)
+        self.assertEqual(im_markers(imail), [])
+        # an outgoing mail replying to it
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        omail.reply_to = [RelationValue(intids.getId(imail))]
+        modified(omail)
+        self.assertEqual(im_markers(imail), ["hasResponse"])
+        self.assertEqual(IAnnotations(imail)["dmsmail.markers"], ["hasResponse"])
+
+    def test_markers_im_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(markers_im_index(imail)(), [])
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        omail.reply_to = [RelationValue(getUtility(IIntIds).getId(imail))]
+        modified(omail)
+        self.assertEqual(markers_im_index(imail)(), ["hasResponse"])
+        pc = self.portal.portal_catalog
+        self.assertEqual([b.UID for b in pc.unrestrictedSearchResults(markers="hasResponse")], [imail.UID()])
+
+    def test_om_markers(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.assertEqual(om_markers(omail), ["lastDmsFileIsOdt"])
+        self.assertEqual(IAnnotations(omail)["dmsmail.markers"], ["lastDmsFileIsOdt"])
+        omail.email_status = u"sent"
+        self.assertEqual(om_markers(omail), ["lastDmsFileIsOdt", "emailSent"])
+        # the last main file is not an odt
+        createContentInContainer(omail, "dmsommainfile", id="2", file=NamedBlobFile(b"text", filename=u"scan.txt"))
+        self.assertEqual(om_markers(omail), ["emailSent"])
+        new_omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "my-id")
+        self.assertEqual(om_markers(new_omail), [])
+
+    def test_markers_om_index(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.assertEqual(markers_om_index(omail)(), ["lastDmsFileIsOdt"])
+        pc = self.portal.portal_catalog
+        self.assertIn(omail.UID(), [b.UID for b in pc.unrestrictedSearchResults(markers="lastDmsFileIsOdt")])
+
+    def test_markers_conversion_error(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        dfile = [obj for obj in imail.objectValues() if obj.portal_type == "dmsmainfile"][0]
+        self.assertEqual(markers_conversion_error(dfile), [])
+        self.assertEqual(IAnnotations(dfile)["dmsmail.markers"], [])
+        # documentviewer conversion error
+        IAnnotations(dfile)["collective.documentviewer"] = PersistentMapping({"last_updated": "2050-01-01T00:00:00"})
+        self.assertEqual(markers_conversion_error(dfile), ["dvConvError"])
+        self.assertEqual(IAnnotations(dfile)["dmsmail.markers"], ["dvConvError"])
+        # an eml file cannot be converted
+        eml = createContentInContainer(
+            imail, "dmsappendixfile", id="eml", file=NamedBlobFile(b"Subject: test", filename=u"message.eml")
+        )
+        self.assertEqual(markers_conversion_error(eml), ["dvConvError"])
+
+    def test_markers_dmf_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        dfile = [obj for obj in imail.objectValues() if obj.portal_type == "dmsmainfile"][0]
+        self.assertEqual(markers_dmf_index(dfile)(), [])
+        eml = createContentInContainer(
+            imail, "dmsmainfile", id="eml", file=NamedBlobFile(b"Subject: test", filename=u"message.eml")
+        )
+        self.assertEqual(markers_dmf_index(eml)(), ["dvConvError"])
+        pc = self.portal.portal_catalog
+        self.assertEqual([b.UID for b in pc.unrestrictedSearchResults(markers="dvConvError")], [eml.UID()])
+
+    def test_markers_dmaf_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        eml = createContentInContainer(
+            imail, "dmsappendixfile", id="eml", file=NamedBlobFile(b"Subject: test", filename=u"message.eml")
+        )
+        self.assertEqual(markers_dmaf_index(eml)(), ["dvConvError"])
+        pc = self.portal.portal_catalog
+        self.assertEqual([b.UID for b in pc.unrestrictedSearchResults(markers="dvConvError")], [eml.UID()])
+
+    def test_im_reception_date_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        imail.reception_date = datetime(2024, 1, 2, 10, 20)
+        self.assertEqual(im_reception_date_index(imail)(), int(time.mktime((2024, 1, 2, 10, 20, 0, 1, 2, -1))))
+        imail.reception_date = None
+        self.assertEqual(im_reception_date_index(imail)(), 0)
+
+    def test_om_outgoing_date_index(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.assertEqual(om_outgoing_date_index(omail)(), 0)
+        omail.outgoing_date = datetime(2024, 1, 2, 10, 20)
+        self.assertEqual(om_outgoing_date_index(omail)(), int(time.mktime((2024, 1, 2, 10, 20, 0, 1, 2, -1))))
+
+    def test_task_state_group_index(self):
+        task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]
+        pc = self.portal.portal_catalog
+        # task_state_group_index returns the state_group_index indexer, called by the catalog
+        self.assertEqual(len(pc.unrestrictedSearchResults(UID=task.UID(), state_group="created")), 1)
+        api.content.transition(obj=task, transition="do_to_assign")  # automatically to to_do
+        task.reindexObject(idxs=["state_group"])
+        self.assertEqual(len(pc.unrestrictedSearchResults(UID=task.UID(), state_group="to_do")), 1)
+        # validation at service level
+        dguid = self.pgof["direction-generale"].UID()
+        task.assigned_group = dguid
+        set_dms_config(
+            ["review_states", "task"], OrderedDict([("to_do", {"group": "_n_plus_1", "org": "assigned_group"})])
+        )
+        task.reindexObject(idxs=["state_group"])
+        self.assertEqual(len(pc.unrestrictedSearchResults(UID=task.UID(), state_group="to_do,%s" % dguid)), 1)
+
+    def test_send_modes_index(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(send_modes_index(imail)(), ["post"])
+        pc = self.portal.portal_catalog
+        self.assertIn(imail.UID(), [b.UID for b in pc.unrestrictedSearchResults(Subject="post")])
+        imail.send_modes = []
+        self.assertIs(send_modes_index(imail)(), common_marker)
+
+    def test_imio_contact_source(self):
+        pc = self.portal.portal_catalog
+        # the registered metadata indexer
+        indexer = getMultiAdapter((self.portal["contacts"]["electrabel"], pc), IIndexer, name="contact_source")
+        self.assertEqual(indexer(), u"Electrabel ⏺ 1, Rue de l'électron, 0020, E-ville ⏺ contak@electrabel.eb")
+        # empty address parts are cleaned
+        org = api.content.create(container=self.portal["contacts"], type="organization", id="org", title=u"Org")
+        self.assertEqual(imio_contact_source(org)(), u"Org ⏺  ⏺")
+        org.email = u"org@macommune.be"
+        self.assertEqual(imio_contact_source(org)(), u"Org ⏺  ⏺ org@macommune.be")
+
+    def test_labels(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        pc = self.portal.portal_catalog
+        indexer = getMultiAdapter((imail, pc), IIndexer, name="labels")
+        self.assertEqual(indexer(), ["_", EMPTY_STRING])
+        # a personal label
+        self.change_user("agent")
+        ILabeling(imail).pers_update(["lu"], True)
+        self.assertEqual(indexer(), ["lu", "agent:lu", EMPTY_STRING])
+        # a global label
+        ILabelJar(self.portal["incoming-mail"]).add("Urgent", "red", False)
+        ILabeling(imail).update(["urgent"])
+        self.assertEqual(sorted(indexer()), ["agent:lu", "lu", "urgent"])
+        imail.reindexObject(idxs=["labels"])
+        self.assertEqual([b.UID for b in pc.unrestrictedSearchResults(labels="agent:lu")], [imail.UID()])
+
+    def test_ContactAutocompleteValidator(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        # the contact widget checks the View permission of the selected contacts, as in a published request
+        newInteraction()
+        self.addCleanup(endInteraction)
+        view = imail.restrictedTraverse("@@edit")
+        view.update()
+        form = view.form_instance
+        widget = form.widgets["sender"]
+        validator = getMultiAdapter((imail, self.portal.REQUEST, form, widget.field, widget), IValidator)
+        self.assertIsInstance(validator, ContactAutocompleteValidator)
+        # a contact is accepted
+        self.assertIsNone(validator.validate([rel.to_object for rel in imail.sender]))
+        # an empty value is always validated: the required sender is enforced
+        self.assertRaises(RequiredMissing, validator.validate, None)
+        self.assertRaises(RequiredMissing, validator.validate, [])
+
+    def test_DateDataManager(self):
+        imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
+        dm = getMultiAdapter((imail, IImioDmsIncomingMail["reception_date"]), IDataManager)
+        self.assertIsInstance(dm, DateDataManager)
+        dm.set(None)
+        self.assertIsNone(imail.reception_date)
+        dm.set(datetime(2024, 1, 2, 10, 20, 33))
+        self.assertEqual(imail.reception_date, datetime(2024, 1, 2, 10, 20, 33))
+        # the form gives minutes: the stored value is kept if the minute is the same
+        dm.set(datetime(2024, 1, 2, 10, 20))
+        self.assertEqual(imail.reception_date, datetime(2024, 1, 2, 10, 20, 33))
+        # the stored seconds are kept on a new value
+        dm.set(datetime(2024, 1, 2, 11, 5))
+        self.assertEqual(imail.reception_date, datetime(2024, 1, 2, 11, 5, 33))
+
+    def test_AssignedUserDataManager(self):
+        imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
+        dm = getMultiAdapter((imail, ITask["assigned_user"]), IDataManager)
+        self.assertIsInstance(dm, AssignedUserDataManager)
+        self.assertIsNone(dm.query())
+        # the default assigned user given by the treating group master select
+        self.portal.REQUEST.set("_default_assigned_user_", "agent")
+        self.addCleanup(self.portal.REQUEST.other.pop, "_default_assigned_user_", None)
+        self.assertEqual(dm.query(), "agent")
+        imail.assigned_user = "chef"
+        self.assertEqual(dm.query(), "chef")
+
+    def test_ServiceInChargeAdapter(self):
+        adapter = IServiceInCharge(self.portal["folders"])
+        self.assertIsInstance(adapter, ServiceInChargeAdapter)
+        self.assertEqual(sorted(t.value for t in adapter()), sorted(get_registry_organizations()))
+
+    def test_ServiceInCopyAdapter(self):
+        adapter = IServiceInCopy(self.portal["folders"])
+        self.assertIsInstance(adapter, ServiceInCopyAdapter)
+        self.assertEqual(sorted(t.value for t in adapter()), sorted(get_registry_organizations()))
+
+    def test_SendableAnnexesToPMAdapter(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        dfile = [obj for obj in imail.objectValues() if obj.portal_type == "dmsmainfile"][0]
+        annex = createContentInContainer(
+            imail, "dmsappendixfile", id="annex", title=u"Annexe é", file=NamedBlobFile(b"text", filename=u"a.txt")
+        )
+        adapter = ISendableAnnexesToPM(imail)
+        self.assertIsInstance(adapter, SendableAnnexesToPMAdapter)
+        # tasks are not sent
+        self.assertEqual(
+            list(adapter.get()),
+            [{"title": dfile.title, "UID": dfile.UID()}, {"title": u"Annexe é", "UID": annex.UID()}],
+        )
+
+    def test_DmsCategorizedObjectInfoAdapter(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        dfile = [obj for obj in imail.objectValues() if obj.portal_type == "dmsmainfile"][0]
+        adapter = IIconifiedInfos(dfile)
+        self.assertIsInstance(adapter, DmsCategorizedObjectInfoAdapter)
+        infos = adapter.get_infos(get_category_object(dfile, dfile.content_category))
+        self.assertEqual(infos["scan_id"], "010999900000001")
+        self.assertIsNone(infos["conv_from_uid"])
+        self.assertFalse(infos["esigned"])
+        # infos stored on the mail, used by the files table
+        self.assertEqual(imail.categorized_elements[dfile.UID()]["scan_id"], "010999900000001")
+
 
 class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
 
@@ -603,6 +1207,61 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 "signers": [],
             },
         )
+
+    def test_files_uids(self):
+        self.assertEqual(self.approval.files_uids, [self.files[0].UID(), self.files[1].UID()])
+
+    def test_signers(self):
+        self.assertEqual(self.approval.signers, ["dirg", "bourgmestre"])
+
+    def test_signers_details(self):
+        self.assertEqual(
+            self.approval.signers_details, [(0, u"Maxime DG", u"Directeur Général"), (1, u"Paul BM", u"Bourgmestre")]
+        )
+
+    def test_approvers(self):
+        # built from a set: no order
+        self.assertEqual(sorted(self.approval.approvers), ["bourgmestre", "chef", "dirg"])
+
+    def test_calculate_current_nb(self):
+        # None, no approval session started
+        self.assertIsNone(self.approval.calculate_current_nb())
+        self.pw.doActionFor(self.omail, "propose_to_approve")
+        self.assertEqual(self.approval.calculate_current_nb(), 0)
+        self.approval.approve_file(self.files[0], "dirg")
+        self.approval.approve_file(self.files[1], "dirg")
+        self.assertEqual(self.approval.calculate_current_nb(), 1)
+        self.approval.approve_file(self.files[0], "bourgmestre")
+        self.approval.approve_file(self.files[1], "bourgmestre")
+        # -1, all approvers have approved
+        self.assertEqual(self.approval.calculate_current_nb(), -1)
+        # None, no file to approve
+        self.approval.reset()
+        self.assertIsNone(self.approval.calculate_current_nb())
+
+    def test_is_state_before_approve(self):
+        self.assertTrue(self.approval.is_state_before_approve())  # created
+        self.assertFalse(self.approval.is_state_before_approve("to_approve"))
+        self.assertFalse(self.approval.is_state_before_approve("to_print"))
+        self.assertFalse(self.approval.is_state_before_approve("sent"))
+
+    def test_is_state_before_or_approve(self):
+        self.assertTrue(self.approval.is_state_before_or_approve())  # created
+        self.assertTrue(self.approval.is_state_before_or_approve("to_approve"))
+        self.assertFalse(self.approval.is_state_before_or_approve("to_be_signed"))
+        self.assertFalse(self.approval.is_state_before_or_approve("sent"))
+
+    def test_is_state_after_approve(self):
+        self.assertFalse(self.approval.is_state_after_approve())  # created
+        self.assertFalse(self.approval.is_state_after_approve("to_approve"))
+        self.assertTrue(self.approval.is_state_after_approve("to_print"))
+        self.assertTrue(self.approval.is_state_after_approve("signed"))
+
+    def test_is_state_after_or_approve(self):
+        self.assertFalse(self.approval.is_state_after_or_approve())  # created
+        self.pw.doActionFor(self.omail, "propose_to_approve")
+        self.assertTrue(self.approval.is_state_after_or_approve())  # to_approve
+        self.assertTrue(self.approval.is_state_after_or_approve("sent"))
 
     def test_current_nb(self):
         # None, no approval session started
@@ -1722,3 +2381,71 @@ class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.approval.roles, {})
         self.pw.doActionFor(self.request, "propose_to_approve")
         self.assertEqual(self.approval.roles, {"dirg": ("Reader", "Reviewer", "Editor")})
+
+
+class TestApprovalRoleAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.pw = self.portal.portal_workflow
+        self.change_user("admin")
+        # sign_request with two signers (dirg then bourgmestre) and one file to approve
+        self.request, self.files = create_sign_request(self.portal, oid="sr", nb_files=1)
+        self.adapter = ApprovalRoleAdapter(self.request)
+
+    def test_getRoles(self):
+        self.assertEqual(self.adapter.getRoles("dirg"), ())
+        self.assertNotIn("Reviewer", api.user.get_roles(username="bourgmestre", obj=self.request))
+        self.pw.doActionFor(self.request, "propose_to_approve")
+        self.assertEqual(self.adapter.getRoles("dirg"), ("Reader", "Reviewer", "Editor"))
+        self.assertEqual(self.adapter.getRoles("bourgmestre"), ())
+        self.request.approval().approve_file(self.files[0], "dirg")
+        self.assertEqual(self.adapter.getRoles("dirg"), ("Reader",))
+        self.assertEqual(self.adapter.getRoles("bourgmestre"), ("Reader", "Reviewer"))
+        # the local roles the user gets
+        self.assertIn("Reviewer", api.user.get_roles(username="bourgmestre", obj=self.request))
+
+    def test_getAllRoles(self):
+        self.assertEqual(list(self.adapter.getAllRoles()), [("", ("",))])
+        self.pw.doActionFor(self.request, "propose_to_approve")
+        self.assertEqual(list(self.adapter.getAllRoles()), [("dirg", ("Reader", "Reviewer", "Editor"))])
+
+    def test_config(self):
+        self.assertEqual(self.adapter.config, {})
+        self.pw.doActionFor(self.request, "propose_to_approve")
+        self.assertEqual(self.adapter.config, {"dirg": ("Reader", "Reviewer", "Editor")})
+        self.assertEqual(self.adapter.config, self.request.approval().roles)
+
+
+class TestItemSignersAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+        pf = self.portal["contacts"]["personnel-folder"]
+        self.dg = pf["dirg"]["directeur-general"]
+        self.bm = pf["bourgmestre"]["bourgmestre"]
+        signers = [
+            {"number": 1, "signer": self.dg.UID(), "approvings": [u"_themself_"], "editor": True},
+            {"number": 2, "signer": u"_empty_", "approvings": [], "editor": False},
+            {"number": 3, "signer": self.bm.UID(), "approvings": [u"_themself_"], "editor": False},
+        ]
+        self.omail = sub_create(
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om", title=u"Test", signers=signers
+        )
+        self.adapter = ISignable(self.omail)
+
+    def test_get_signers(self):
+        self.assertIsInstance(self.adapter, ItemSignersAdapter)
+        self.assertEqual(
+            [(s["held_position"].UID(), s["name"], s["function"]) for s in self.adapter.get_signers()],
+            [(self.dg.UID(), u"Maxime DG", u"Directeur Général"), (self.bm.UID(), u"Paul BM", u"Bourgmestre")],
+        )
+
+    def test_get_files_uids(self):
+        # the files are added to the session by the approval mechanism
+        self.assertEqual(self.adapter.get_files_uids(), [])
