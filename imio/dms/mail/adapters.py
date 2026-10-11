@@ -2020,7 +2020,7 @@ class ApprovalAdapter(object):
             email = user.getProperty("email")
             signers.append((signer, email, name, label))
         watcher_users = api.user.get_users(groupname="esign_watchers")
-        watcher_emails = [user.getProperty("email") for user in watcher_users]
+        watcher_emails = [watcher.getProperty("email") for watcher in watcher_users]
         pdf_session_ids = set()
         type_label = translate(
             api.portal.get_tool("portal_types")[self.context.portal_type].Title(),

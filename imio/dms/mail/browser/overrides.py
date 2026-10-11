@@ -71,7 +71,6 @@ from zope.component import queryUtility
 from zope.interface.exceptions import Invalid
 
 import os
-import sys
 
 
 class IMRenderCategoryView(RenderCategoryView):

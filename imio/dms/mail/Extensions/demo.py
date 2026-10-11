@@ -690,7 +690,7 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
     if user_ids[0] in pf and pf[user_ids[0]].primary_organization:
         treating_groups_uid = pf[user_ids[0]].primary_organization
     else:
-        try :
+        try:
             secretariat = pgo["direction-generale"]["secretariat"]
         except KeyError:
             return "Organization 'direction-generale/secretariat' not found in plonegroup-organization"

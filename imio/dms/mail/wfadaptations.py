@@ -9,7 +9,6 @@ from dexterity.localroles.utils import fti_configuration
 from dexterity.localroles.utils import get_affected_portal_types
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
-from imio.dms.mail import _tr
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.utils import get_dms_config
@@ -908,7 +907,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         folder = portal["outgoing-mail"]["mail-searches"]
         for state_id, state_tit, next_col in (
             (new_state_id, parameters["state_title"], to_states[-1]),
-            (val_state_id, _tr(u"om_{}".format(val_state_id), domain="plone"), "to_be_signed"),
+            (val_state_id, _(u"om_{}".format(val_state_id), domain="plone"), "to_be_signed"),
         ):
             col_id = "searchfor_{}".format(state_id)
             col_title = _(u"searchfor: ${state}", mapping={"state": state_tit.lower()})

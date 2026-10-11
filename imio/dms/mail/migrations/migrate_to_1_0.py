@@ -48,11 +48,11 @@ class Migrate_To_1_0(Migrator):
         """Delete the defined portlet on obj"""
         ann = IAnnotations(obj)
         columnkey = "plone.leftcolumn"
-        if not "plone.portlets.contextassignments" in ann:
+        if "plone.portlets.contextassignments" not in ann:
             logger.error("No portlets defined in this context")
-        elif not columnkey in ann["plone.portlets.contextassignments"]:
+        elif columnkey not in ann["plone.portlets.contextassignments"]:
             logger.error("Column '%s' not found in portlets definition" % columnkey)
-        elif not portlet in ann["plone.portlets.contextassignments"][columnkey]:
+        elif portlet not in ann["plone.portlets.contextassignments"][columnkey]:
             logger.error("Portlet '%s' in '%s' not found in portlets definition" % (portlet, columnkey))
         else:
             fixing_up = contained.fixing_up

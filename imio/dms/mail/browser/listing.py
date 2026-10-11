@@ -43,7 +43,7 @@ class ListingView(BrowserView):
                 continue
             if obj.treating_groups:
                 tg = obj.treating_groups
-                if not tg in results:
+                if tg not in results:
                     results[tg] = {"mails": []}
                     title = tg
                     tgroup = uuidToObject(tg, unrestricted=True)

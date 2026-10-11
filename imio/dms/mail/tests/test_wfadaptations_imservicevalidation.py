@@ -226,7 +226,6 @@ class TestIMServiceValidation1(unittest.TestCase, ImioTestHelpers):
     def test_treating_groups_change_on_edit1(self):
         """Test only treating_groups change while the state is on a service validation level"""
         self.assertEqual(api.content.get_state(self.imail), "created")
-        view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
         adapted = self.imail.wf_conditions()
         edit_view = IMEdit(self.imail, self.imail.REQUEST)
         auv = AssignedUserValidator(self.imail, edit_view.request, edit_view, "fld", "widget")
@@ -522,7 +521,6 @@ class TestIMServiceValidation2(unittest.TestCase, ImioTestHelpers):
     def test_treating_groups_change_on_edit2(self):
         """Test only treating_groups change while the state is on a service validation level"""
         self.assertEqual(api.content.get_state(self.imail), "created")
-        view = IdmUtilsMethods(self.imail, self.imail.REQUEST)
         adapted = self.imail.wf_conditions()
         edit_view = IMEdit(self.imail, self.imail.REQUEST)
         auv = AssignedUserValidator(self.imail, edit_view.request, edit_view, "fld", "widget")

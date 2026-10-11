@@ -22,6 +22,7 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
+from mock import patch
 from plone import api
 from plone.app.testing import logout
 # from plone.app.testing import setRoles
@@ -34,8 +35,6 @@ from zope.component import getUtility
 from zope.interface import Invalid
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
-
-from mock import patch
 
 import unittest
 

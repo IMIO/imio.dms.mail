@@ -1180,8 +1180,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         )
         pm_item_data_vocabulary.__call__ = orig_call
         api.portal.set_registry_record("{}.user_mappings".format(prefix),
-                                       [{"local_userid": safe_unicode(u_id), "pm_userid": u"dgen"}
-                                        for u_id in user_ids])
+                                       [{"local_userid": safe_unicode(user_id), "pm_userid": u"dgen"}
+                                        for user_id in user_ids])
         from imio.pm.wsclient.browser.vocabularies import pm_meeting_config_id_vocabulary
 
         orig_call = pm_meeting_config_id_vocabulary.__call__

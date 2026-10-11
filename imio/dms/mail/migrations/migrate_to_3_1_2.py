@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from collective.wfadaptations.api import get_applied_adaptations
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
 from plone import api
 

@@ -2,11 +2,11 @@
 from collective.z3cform.datagridfield.datagridfield import DataGridField
 from collective.z3cform.datagridfield.datagridfield import DataGridFieldObject
 from z3c.form import interfaces
+from z3c.form.interfaces import IFormLayer
 from z3c.form.widget import FieldWidget
 from zope.component import adapter
 from zope.interface import implementer
 from zope.schema.interfaces import IField
-from z3c.form.interfaces import IFormLayer
 from zope.schema.interfaces import IObject
 
 
