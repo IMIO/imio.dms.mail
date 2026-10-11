@@ -272,35 +272,6 @@ class OrgaPrettyLinkWithAdditionalInfosColumn(opl_base):
     ai_extra_fields = []
 
 
-class CKTemplatesTable(Table):
-    """Table that displays templates listing."""
-
-    cssClassEven = u"even"
-    cssClassOdd = u"odd"
-    cssClasses = {"table": "listing nosort templates-listing icons-on"}
-
-    # ?table-batchSize=10&table-batchStart=30
-    batchSize = 200
-    startBatchingAt = 200
-    sortOn = None
-    results = []
-
-    def __init__(self, context, request):
-        super(CKTemplatesTable, self).__init__(context, request)
-        self.portal = api.portal.getSite()
-        self.context_path = self.context.absolute_url_path()
-        self.context_path_level = len(self.context_path.split("/"))
-        self.paths = {".": "-"}
-
-    @CachedProperty
-    def wtool(self):
-        return api.portal.get_tool("portal_workflow")
-
-    @CachedProperty
-    def values(self):
-        return self.results
-
-
 class FileNameColumn(Column):
     """Column displaying file name."""
 

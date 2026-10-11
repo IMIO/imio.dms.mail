@@ -1,6 +1,22 @@
 <registry xmlns:i18n="http://xml.zope.org/namespaces/i18n"
           i18n:domain="imio.dms.mail">
 
+    <!-- was the typesUseViewActionInListings site property (propertiestool.xml) -->
+    <record name="plone.types_use_view_action_in_listings">
+        <value purge="false">
+            <element>dmsmainfile</element>
+            <element>dmsommainfile</element>
+            <element>dmsappendixfile</element>
+        </value>
+    </record>
+
+    <!-- Plone 6 navigation lists only these types (Plone 4 navigation had a blacklist of types) -->
+    <record name="plone.displayed_types">
+        <value purge="false">
+            <element>ClassificationFolders</element>
+        </value>
+    </record>
+
     <records interface="imio.dms.mail.browser.settings.IImioDmsMailConfig">
     </records>
 
@@ -57,8 +73,6 @@
        <value key="sortable">True</value>
        <value key="operations">
            <element>plone.app.querystring.operation.string.is</element>
-           <element>plone.app.querystring.operation.int.lessThan</element>
-           <element>plone.app.querystring.operation.int.largerThan</element>
        </value>
        <value key="group" i18n:domain="plone" i18n:translate="">Dates</value>
     </records>

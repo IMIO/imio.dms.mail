@@ -2,7 +2,6 @@
 from collective.contact.core.browser.address import get_address
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
-from collective.eeafaceted.batchactions.browser.viewlets import BatchActionsViewlet
 from collective.eeafaceted.collectionwidget.interfaces import NotDashboardContextException
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from collective.iconifiedcategory.interfaces import ICategorizedApproved
@@ -52,12 +51,15 @@ class ContactContentBackrefsViewlet(ViewletBase):
         query = {"to_id": intids.getId(self.context)}
         if from_attribute is not None:
             query["from_attribute"] = from_attribute
-        if from_interfaces_flattened is not None:
-            query["from_interfaces_flattened"] = from_interfaces_flattened
         for relation in catalog.findRelations(query):
             # we skip relations between contacts (already shown)
             # nevertheless what about heldposition references for a person: subquery ?
             if IContactContent.providedBy(relation.from_object):
+                continue
+            # Plone 6 relation catalog has no more from_interfaces_flattened index
+            if from_interfaces_flattened is not None and not from_interfaces_flattened.providedBy(
+                relation.from_object
+            ):
                 continue
             # PERF TEST TODO: use directly objects or use the path as request in the portal_catalog to find brain
             ret.append(relation.from_path)
@@ -167,14 +169,6 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
         return ret
 
 
-class CKBatchActionsViewlet(BatchActionsViewlet):
-    """Made this specific viewlet only available on right view."""
-
-    def available(self):
-        """Global availability of the viewlet."""
-        return self.view.__name__ == "ck-templates-listing"
-
-
 class ImioFooterViewlet(FooterViewlet):
     def update(self):
         super(FooterViewlet, self).update()
@@ -182,7 +176,15 @@ class ImioFooterViewlet(FooterViewlet):
         self.dashversion = self.version.replace(".", "-")
 
 
-class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
+class PortalUrlMixin(object):
+    """imio.esign 1.0.3 session_info.pt uses view/portal_url: Plone 6 ViewletBase only sets site_url."""
+
+    @property
+    def portal_url(self):
+        return api.portal.get().absolute_url()
+
+
+class ImioFacetedSessionInfoViewlet(PortalUrlMixin, FacetedSessionInfoViewlet):
     sessions_listing_view = ImioSessionsListingView
 
     @property
@@ -214,7 +216,7 @@ class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
         return self.sessions_listing_view(self.context, self.request).render_table()
 
 
-class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):
+class ImioItemSessionInfoViewlet(PortalUrlMixin, ItemSessionInfoViewlet):
 
     def get_table_rows(self, column):
         """Get the table rows following the column"""

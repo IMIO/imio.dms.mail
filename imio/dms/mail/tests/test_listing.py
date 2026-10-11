@@ -54,7 +54,7 @@ class TestListingView(unittest.TestCase):
         self.assertIn(u"Direction générale - Secrétariat", rendered)
         self.assertIn(u"<td>E0001 - Courrier 1</td>", rendered)
         self.assertIn(u"Electrabel", rendered)
-        self.assertIn(u'src="http://nohost/plone/print_icon.png"', rendered)
+        self.assertIn(u'src="http://nohost/plone/++plone++bootstrap-icons/printer.svg"', rendered)
         # nothing to list
         self.view.request.form["start_date"] = "29991231"
         self.view.request["start_date"] = "29991231"

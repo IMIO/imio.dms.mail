@@ -2,11 +2,11 @@
 """
     collective.iconifiedcategory overrided views
 """
-from collective.documentgenerator.utils import need_mailing_value
 from collective.iconifiedcategory.browser.actionview import ApprovedChangeView as BaseApprovedChangeView
 from collective.iconifiedcategory.browser.actionview import SignedChangeView as BaseSignedChangeView
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
 from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSignedColumn
+from imio.dms.mail.dg_compat import need_mailing_value
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import logger  # noqa F401
 # from imio.esign.audit import audit as esign_audit

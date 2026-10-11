@@ -36,21 +36,17 @@
     <include package="collective.contact.importexport" />
     <include package="collective.contact.plonegroup" />
     <include package="collective.contact.contactlist" />
-    <include package="collective.ckeditortemplates" />
     <include package="collective.js.fancytree" />
+    <include package="collective.labels" />
     <include package="collective.relationhelpers" />
     <include package="collective.task" />
     <include package="collective.externaleditor"/>
-    <include package="collective.fontawesome"/>
     <!--include package="collective.schedulefield"/-->
     <include package="imio.pm.wsclient" />
     <include package="dexterity.localrolesfield"/>
     <include package="imio.esign"/>
     <include package="plone.app.lockingbehavior"/>
-    <include package="collective.dexteritytextindexer"/>
-    <include package="collective.z3cform.select2" file="minimal.zcml" />
     <include package="plone.app.versioningbehavior"/>
-    <include package="Products.cron4plone" />
     <include package=".browser" />
     <include package=".content" />
 
@@ -249,6 +245,7 @@
 
     <!-- sign_request internal reference auto-numbering -->
     <adapter factory=".dmssignrequest.InternalReferenceSignRequestValidator" />
+    <adapter factory=".dmssignrequest.InternalReferenceSignRequestDefault" name="default" />
     <adapter name="internal_reference_number"
              factory=".dmssignrequest.signrequest_internal_reference_number_indexer" />
     <subscriber
@@ -258,7 +255,7 @@
         />
 
     <!-- CLASS INTERFACES -->
-    <class class="plone.app.collection.collection.Collection">
+    <class class="plone.app.contenttypes.content.Collection">
         <implements interface="collective.behavior.talcondition.interfaces.ITALConditionable" />
     </class>
 
@@ -308,7 +305,7 @@
     <class class="imio.dms.mail.dmsfile.ImioDmsFile">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
-    <class class="imio.dashboard.content.dashboardcollection.DashboardCollection">
+    <class class="collective.eeafaceted.collectionwidget.content.dashboardcollection.DashboardCollection">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
     <class class="imio.annex.content.annex.Annex">
@@ -320,24 +317,21 @@
     <class class="collective.classification.tree.contents.container.ClassificationContainer">
         <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
     </class>
-    <class class="collective.ckeditortemplates.cktemplate.CKTemplate">
-        <implements interface="collective.querynextprev.interfaces.INextPrevNotNavigable" />
-    </class>
 
     <class class="imio.dms.mail.dmsmail.ImioDmsIncomingMail">
-        <implements interface="ftw.labels.interfaces.ILabelSupport" />
+        <implements interface="collective.labels.interfaces.ILabelSupport" />
     </class>
 
     <class class="imio.dms.mail.dmsmail.ImioDmsOutgoingMail">
-        <implements interface="ftw.labels.interfaces.ILabelSupport" />
+        <implements interface="collective.labels.interfaces.ILabelSupport" />
     </class>
 
     <class class="collective.classification.folder.content.classification_folder.ClassificationFolder">
-        <implements interface="ftw.labels.interfaces.ILabelSupport" />
+        <implements interface="collective.labels.interfaces.ILabelSupport" />
     </class>
 
     <class class="collective.classification.folder.content.classification_subfolder.ClassificationSubfolder">
-        <implements interface="ftw.labels.interfaces.ILabelSupport" />
+        <implements interface="collective.labels.interfaces.ILabelSupport" />
     </class>
 
     <!-- UTILS METHODS -->
@@ -351,8 +345,6 @@
             all_collection_uid
             check_scan_id
             cron_read_label_handling
-            dv_conv_error
-            dv_images_clean
             get_object_from_relation
             highest_scan_id
             initialize_service_folder
@@ -454,7 +446,6 @@
     <include file="adapters.zcml" />
     <include file="columns.zcml" />
     <include file="profiles.zcml" />
-    <include file="skins.zcml" />
     <include file="subscribers.zcml" />
     <include file="vocabularies.zcml" />
 

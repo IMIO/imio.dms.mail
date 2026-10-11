@@ -16,7 +16,7 @@
                  start_date request/start_date | nothing;
                  results python:view.findIncomingMails(mail_type=mail_type, start_date=start_date);">
   <a href="javascript:this.print();" class="documentActions">
-    <img id="document-action-print" tal:attributes="src string:$portal_url/print_icon.png"
+    <img id="document-action-print" tal:attributes="src python: context.restrictedTraverse('@@iconresolver').url('printer')"
          i18n:domain="plone" i18n:attributes="title; alt" title="Print this" alt="Print this"/>
   </a>
   <h1 class="documentFirstHeading" i18n:translate="">Incoming mail listing</h1>

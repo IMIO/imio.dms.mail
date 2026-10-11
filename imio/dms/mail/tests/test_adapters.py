@@ -8,12 +8,12 @@ from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefa
 from collective.iconifiedcategory.interfaces import IIconifiedInfos
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.iconifiedcategory.utils import get_category_object
+from collective.labels.interfaces import ILabeling
+from collective.labels.interfaces import ILabelJar
 from collective.task.behaviors import ITask
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import date
 from datetime import datetime
-from ftw.labels.interfaces import ILabeling
-from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import ActionsSubMenuItem
 from imio.dms.mail.adapters import ApprovalRoleAdapter
@@ -111,6 +111,7 @@ from plone.dexterity.utils import createContentInContainer
 from plone.indexer.interfaces import IIndexer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
+from Products.CMFCore.indexing import processQueue
 from Products.CMFPlone.utils import safe_unicode
 from z3c.form.interfaces import IDataManager
 from z3c.form.interfaces import IValidator
@@ -471,6 +472,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         )
         createContentInContainer(imail, "dmsmainfile", id="testid2", scan_id="010999900000700")
         self.assertEqual(ext(), u"010999900000690 IMIO010999900000690 690 010999900000700 IMIO010999900000700 700")
+        processQueue()  # deferred indexing, read below without a catalog query
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(
             index_value,
@@ -515,6 +517,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
             createContentInContainer(omail, "dmsommainfile", id="testid2", scan_id="011999900000700",
                                      file=NamedBlobFile(fo.read(), filename=filename))
         self.assertEqual(ext(), u"011999900000690 IMIO011999900000690 690 011999900000700 IMIO011999900000700 700")
+        processQueue()  # deferred indexing, read below without a catalog query
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(
             index_value,
@@ -563,7 +566,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         settings.mail_types = settings.mail_types[1:]
         view.updateWidgets()
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
-        self.assertIn("Missing", view.widgets["mail_type"].render())
+        self.assertIn("Valeur manquante", view.widgets["mail_type"].render())
 
     def test_OMMCTV(self):
         omail = sub_create(
@@ -591,7 +594,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         settings.omail_types = settings.omail_types[1:]
         view.updateWidgets()
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
-        self.assertIn("Missing", view.widgets["mail_type"].render())
+        self.assertIn("Valeur manquante", view.widgets["mail_type"].render())
 
     def test_IncomingMailInCopyGroupUnreadCriterion(self):
         crit = IncomingMailInCopyGroupUnreadCriterion(self.portal)
@@ -703,6 +706,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         omail.reply_to = [RelationValue(getUtility(IIntIds).getId(imail))]
         modified(omail)
+        processQueue()  # the markers indexer stores the hasResponse marker
         self.assertEqual(
             [icon for icon, title in adapter._leadingIcons()],
             ["++resource++imio.dms.mail/wf_back.png", "++resource++imio.dms.mail/replied_icon.png"],
@@ -958,15 +962,20 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
     def test_im_reception_date_index(self):
         imail = get_object(oid="courrier1", ptype="dmsincomingmail")
         imail.reception_date = datetime(2024, 1, 2, 10, 20)
-        self.assertEqual(im_reception_date_index(imail)(), int(time.mktime((2024, 1, 2, 10, 20, 0, 1, 2, -1))))
+        # strings: the index also stores organization types, Python 3 can't compare str and int keys
+        self.assertEqual(
+            im_reception_date_index(imail)(), "%010d" % time.mktime((2024, 1, 2, 10, 20, 0, 1, 2, -1))
+        )
         imail.reception_date = None
-        self.assertEqual(im_reception_date_index(imail)(), 0)
+        self.assertEqual(im_reception_date_index(imail)(), "0000000000")
 
     def test_om_outgoing_date_index(self):
         omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
-        self.assertEqual(om_outgoing_date_index(omail)(), 0)
+        self.assertEqual(om_outgoing_date_index(omail)(), "0000000000")
         omail.outgoing_date = datetime(2024, 1, 2, 10, 20)
-        self.assertEqual(om_outgoing_date_index(omail)(), int(time.mktime((2024, 1, 2, 10, 20, 0, 1, 2, -1))))
+        self.assertEqual(
+            om_outgoing_date_index(omail)(), "%010d" % time.mktime((2024, 1, 2, 10, 20, 0, 1, 2, -1))
+        )
 
     def test_task_state_group_index(self):
         task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]

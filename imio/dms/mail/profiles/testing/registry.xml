@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<registry>
+  <record name="plone.default_language">
+    <value>fr</value>
+  </record>
+</registry>

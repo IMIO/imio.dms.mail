@@ -9,6 +9,7 @@ from collective.contact.plonegroup.config import set_registry_organizations
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.contact.plonegroup.utils import get_suffixed_groups
 from collective.documentgenerator.utils import update_templates
+from collective.labels.interfaces import ILabeling
 from collective.wfadaptations.api import add_applied_adaptation
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
@@ -17,7 +18,6 @@ from copy import deepcopy
 from dexterity.localroles.utils import fti_configuration
 from dexterity.localroles.utils import update_roles_in_fti
 from eea.facetednavigation.criteria.interfaces import ICriteria
-from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import FIRST_LEVEL_TABS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
@@ -50,6 +50,7 @@ from imio.esign.config import set_esign_registry_seal_email
 from imio.esign.config import set_esign_registry_vat_number
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.content import richtextval
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.path import is_test_url
 from imio.helpers.security import get_user_from_criteria
@@ -62,6 +63,7 @@ from imio.pyutils.utils import safe_encode
 from persistent.list import PersistentList
 from plone import api
 from plone.app.portlets.storage import PortletAssignmentMapping
+from plone.base.utils import get_installer
 from plone.namedfile import NamedImage
 from plone.portlet.static.static import Assignment as StaticAssignment
 from plone.portlets.constants import CONTENT_TYPE_CATEGORY
@@ -104,8 +106,9 @@ def install_and_configure_esign(site):
     :return: a list of log messages.
     """
     log = []
-    if not site.portal_quickinstaller.isProductInstalled("imio.esign"):
-        site.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
+    installer = get_installer(site)
+    if not installer.is_product_installed("imio.esign"):
+        installer.install_product("imio.esign")
         # redo actions to add condition on installed actions
         site.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:default", "actions", run_dependencies=False
@@ -754,7 +757,7 @@ def configure_demo_site(context):
             title=u"Accueil démo de la gestion du courrier 3.1",
             id="demo-front-page",
             container=site,
-            text=u"""
+            text=richtextval(u"""
 <p>L'application contient actuellement les <strong>fonctionnalités suivantes</strong>:</p>
 <ul>
 <li>Création d'une fiche courrier entrant
@@ -805,14 +808,15 @@ services sélectionnables.</p>
 <p>&nbsp;</p>
 <p>La <a href="https://docs.imio.be/iadocs/" target="_blank">documentation complète</a> est disponible en ligne: elle
 comprend les nouveautés de la version 3.1.</p>
-""")
-        page.setPresentation(False)
-        page.setExcludeFromNav(True)
+"""))
+        page.exclude_from_nav = True
+        page.reindexObject()
         site.setDefaultPage("demo-front-page")
         do_transitions(page, ["publish_internally", "publish_externally"])
         # exclude front-page from nav
-        site["front-page"].setExcludeFromNav(True)
-        site["front-page"].reindexObject()
+        if "front-page" in site.objectIds():
+            site["front-page"].exclude_from_nav = True
+            site["front-page"].reindexObject()
 
     # Add an help document
     if "aide" not in site.objectIds():
@@ -821,7 +825,7 @@ comprend les nouveautés de la version 3.1.</p>
             title=u"AIDE",
             id="aide",
             container=site,
-            text=u"""
+            text=richtextval(u"""
 <p><strong>Connexion</strong></p>
 <p>Connectez-vous suivant le profil expliqué en page d'accueil</p>
 <p>&nbsp;</p>
@@ -867,9 +871,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
 <p>&nbsp;</p>
 <p><strong>Manuel d'utilisation</strong></p>
 <p>La <a href="https://docs.imio.be/iadocs" target="_blank">documentation complète</a> est disponible en ligne.</p>
-"""
+""")
         )
-        page.setPresentation(False)
         do_transitions(page, ["publish_internally", "publish_externally"])
 
     # Add a content type portlet on Document type (to display on demo-front-page
@@ -885,13 +888,13 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     if "aide" not in mapping:
         portlet = StaticAssignment(
             header=u"AIDE",
-            text=u"""
+            text=richtextval(u"""
 <p>&nbsp;</p>
 <p><strong>Connexion</strong></p>
 <p>Connectez-vous suivant le profil expliqué en page d'accueil</p>
 <p><strong>Explications sommaires</strong></p>
 <p>Ouvrir le <a href="./aide">document d'aide</a> pour avoir une ligne de conduite rapide dans le site de démo.</p>
-""",
+"""),
             omit_border=False
         )
         mapping["aide"] = portlet
@@ -1248,8 +1251,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     mailhost = get_mail_host(check=False)
     if not mailhost.smtp_host:
         mailhost.smtp_host = "localhost"
-        site.email_from_name = "Gestion courrier 3.1"
-        site.email_from_address = "support-docs@imio.be"
+        api.portal.set_registry_record("plone.email_from_name", u"Gestion courrier 3.1")
+        api.portal.set_registry_record("plone.email_from_address", "support-docs@imio.be")
 
     # Removed template edition for OM editor
     api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit",

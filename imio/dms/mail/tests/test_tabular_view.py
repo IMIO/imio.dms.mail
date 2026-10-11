@@ -49,12 +49,12 @@ class TestTabularView(unittest.TestCase):
             "<span>{}</span>".format(self.view.plone.toLocalizedTime(self.brain.CreationDate, long_format=1)),
         )
         self.assertEqual(self.view.render_field(("mail_type", u"Type"), self.item), "courrier")
-        # locked mail in the "created" search: skin lock icon
+        # locked mail in the "created" search: lock icon (Bootstrap icon)
         created = [b.getObject() for b in self.portal.portal_catalog(id="searchfor_created")][0]
         view = TabularView(created, self.portal.REQUEST)
         self.im1.restrictedTraverse("lock-unlock")()
-        self.assertEqual(
-            view.render_field(("Title", u"Title"), self.item),
-            '<img width="16" height="16" title="Locked" src="lock_icon.png">'
-            '<a href="{}" class="state-created">E0001 - Courrier 1</a>'.format(self.im1.absolute_url()),
-        )
+        rendered = view.render_field(("Title", u"Title"), self.item)
+        self.assertTrue(rendered.startswith('<svg '))
+        self.assertIn("bi-lock", rendered)
+        self.assertTrue(rendered.endswith(
+            '</svg><a href="{}" class="state-created">E0001 - Courrier 1</a>'.format(self.im1.absolute_url())))

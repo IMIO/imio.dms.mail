@@ -11,17 +11,10 @@
         category="Products"
         condition_expr=""
         url_expr="string:${portal_url}/@@imiodmsmail-settings"
-        icon_expr=""
+        icon_expr="string:envelope"
         visible="True"
         i18n:attributes="title">
         <permission>Plone Site Setup: Site</permission>
-    </configlet>
-
-    <configlet remove="true"
-            action_id="CKEditor templates"
-            appId="collective.ckeditortemplates"
-            category="Products"
-            visible="True">
     </configlet>
 
 </object>

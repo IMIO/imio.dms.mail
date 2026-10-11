@@ -10,8 +10,6 @@
 from Acquisition import aq_inner  # noqa
 from Acquisition import aq_parent
 from BTrees.IIBTree import IITreeSet
-from collective.ckeditortemplates.browser.cktemplatelisting import CKTemplateListingView
-from collective.ckeditortemplates.cktemplate import ICKTemplate
 from collective.classification.folder.content.classification_folder import IClassificationFolder
 from collective.classification.folder.content.classification_folders import IClassificationFolders
 from collective.classification.folder.content.classification_subfolder import IClassificationSubfolder
@@ -46,25 +44,22 @@ from imio.history.browser.views import IHDocumentBylineViewlet
 from imio.pyutils.system import read_dictcsv
 from logging import getLogger
 from plone import api
-from plone.app.controlpanel.usergroups import GroupsOverviewControlPanel
-from plone.app.controlpanel.usergroups import UsersGroupsControlPanelView
-from plone.app.controlpanel.usergroups import UsersOverviewControlPanel
-from plone.app.layout.navigation.root import getNavigationRoot
-from plone.app.layout.viewlets.common import ContentActionsViewlet as PALContentActionsViewlet
-from plone.locking.browser.info import LockInfoViewlet as PLLockInfoViewlet
+from plone.app.contenttypes.interfaces import IFolder
+from plone.app.layout.viewlets.locking import LockInfoViewlet as PLLockInfoViewlet
+from plone.base.defaultpage import check_default_page_via_view
+from plone.base.navigationroot import get_navigation_root
 from plone.locking.browser.locking import LockingOperations as PLLockingOperations
-from Products.ATContentTypes.interfaces.document import IATDocument
-from Products.ATContentTypes.interfaces.folder import IATBTreeFolder
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone import utils
 from Products.CMFPlone.browser.navigation import get_view_url
 from Products.CMFPlone.browser.navigation import PhysicalNavigationBreadcrumbs as PlonePhysicalNavigationBreadcrumbs
 from Products.CMFPlone.browser.ploneview import Plone as PloneView
+from Products.CMFPlone.controlpanel.browser.usergroups import UsersGroupsControlPanelView
+from Products.CMFPlone.controlpanel.browser.usergroups_groupsoverview import GroupsOverviewControlPanel
+from Products.CMFPlone.controlpanel.browser.usergroups_usersoverview import UsersOverviewControlPanel
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
-from Products.CMFPlone.interfaces.siteroot import IPloneSiteRoot
 from Products.Five import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
-from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.component import queryUtility
 from zope.interface.exceptions import Invalid
@@ -154,8 +149,8 @@ class LockingOperations(PLLockingOperations):
 
 
 class Plone(PloneView):
-    def showEditableBorder(self):
-        """Do not show editable border (green bar) for some contents"""
+    def showToolbar(self):
+        """Do not show the toolbar (Plone 4 editable border) for some contents"""
         context = aq_inner(self.context)
         interfaces = (
             ITask,
@@ -163,12 +158,11 @@ class Plone(PloneView):
             IClassificationFolders,
             IClassificationFolder,
             IClassificationSubfolder,
-            ICKTemplate,
             IContactList,
             IDmsAppendixFile,
             IDmsFile,
             IAnnex,
-            IATBTreeFolder,
+            IFolder,
             IPODTemplate,
             IStyleTemplate,
             IClassificationContainer,
@@ -180,7 +174,7 @@ class Plone(PloneView):
         for interface in interfaces:
             if interface.providedBy(context):
                 return False
-        return super(Plone, self).showEditableBorder()
+        return super(Plone, self).showToolbar()
 
 
 class PhysicalNavigationBreadcrumbs(PlonePhysicalNavigationBreadcrumbs):
@@ -208,11 +202,11 @@ class PhysicalNavigationBreadcrumbs(PlonePhysicalNavigationBreadcrumbs):
         if IHideFromBreadcrumbs.providedBy(context):
             return base
 
-        rootpath = getNavigationRoot(context)
+        rootpath = get_navigation_root(context)
         itempath = "/".join(context.getPhysicalPath())
 
         # don't show default pages in breadcrumbs or pages above the navigation root
-        if not utils.isDefaultPage(context, request) and not rootpath.startswith(itempath):
+        if not check_default_page_via_view(context, request) and not rootpath.startswith(itempath):
             base += (
                 {
                     "absolute_url": item_url,
@@ -220,17 +214,6 @@ class PhysicalNavigationBreadcrumbs(PlonePhysicalNavigationBreadcrumbs):
                 },
             )
         return base
-
-
-class ContentActionsViewlet(PALContentActionsViewlet):
-    """ """
-
-    def render(self):
-        context = aq_inner(self.context)
-        for interface in (IATDocument, IDmsAppendixFile, IPloneSiteRoot):
-            if interface.providedBy(context):
-                return ""
-        return self.index()
 
 
 class IDMUtilsMethods(UtilsMethods):
@@ -271,35 +254,6 @@ class DocsGroupsOverviewControlPanel(BaseOverviewControlPanel, GroupsOverviewCon
     @property
     def portal_roles(self):
         return ["Manager", "Member", "Site Administrator"]
-
-
-class DocsCKTemplateListingView(CKTemplateListingView):
-    """Change enabled_states variable class because we use another workflow to restrict access to cktemplate."""
-
-    enabled_states = ()
-    sort_on = "path"
-
-    def __init__(self, context, request):
-        super(DocsCKTemplateListingView, self).__init__(context, request)
-        # portal = api.portal.get()
-        # self.portal_path = '/'.join(portal.getPhysicalPath())
-
-    def get_templates(self):
-        """Sort templates by full title."""
-        templates = super(DocsCKTemplateListingView, self).get_templates()
-        return sorted(templates, key=lambda tup: IAnnotations(tup[0]).get("dmsmail.cke_tpl_tit", u""))
-
-    def render_template(self, template, path):
-        """Render each template as a javascript dic."""
-        # TODO do it in ckeditortemplates
-        base = u'{{title: "{title}", description: "", html: "{html}"}}'
-        # , image: "{image}"
-        # icon = u'{}/++resource++imio.dms.mail/arobase.svg'.format(self.portal_path)
-        title = template.title
-        annot = IAnnotations(template)
-        if "dmsmail.cke_tpl_tit" in annot and annot["dmsmail.cke_tpl_tit"]:
-            title = u"{} > {}".format(annot["dmsmail.cke_tpl_tit"], title)
-        return base.format(**{"title": title.replace('"', "&quot;"), "html": template.html()})
 
 
 class FacetedCollectionPortletRenderer(Renderer):

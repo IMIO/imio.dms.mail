@@ -52,8 +52,8 @@ class TestDmsPloneGroupContactChecksAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.content.transition, obj=self.informatique, transition="deactivate")
         self.assertEqual(api.content.get_state(self.informatique), "active")
         msgs = IStatusMessage(self.portal.REQUEST).show()
-        self.assertEqual(msgs[-2].message, u"You cannot deactivate this item !")
-        self.assertTrue(msgs[-1].message.startswith(u"This contact is used in following content: "))
+        self.assertEqual(msgs[-2].message, u"Vous ne pouvez pas désactiver cet élément !")
+        self.assertTrue(msgs[-1].message.startswith(u"Ce contact est utilisé dans le contenu suivant: "))
         self.assertIn(task.absolute_url(), msgs[-1].message)
 
 

@@ -34,7 +34,13 @@ from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 
+import re
 import unittest
+
+
+def no_token(rendered):
+    """CSRF tokens are built with a random key of the keyring"""
+    return re.sub(r"'_authenticator': '\w+'", "'_authenticator': 'TOKEN'", rendered)
 
 
 class TestActionspanel(unittest.TestCase):
@@ -101,8 +107,8 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.assertEqual(
             self.view.renderReplyButton(),
             '<td class="noPadding">\n  <a target="_parent" href="{}'
-            '/@@reply">\n     \n     <img title="Reply" src=" http://nohost/plone/'
-            '++resource++imio.dms.mail/reply_icon.png" />\n  </a>\n</td>'
+            '/@@reply">\n     \n     <img title="Répondre" src=" http://nohost/plone/'
+            '++resource++imio.dms.mail/reply_icon.png"/>\n  </a>\n</td>'
             "\n".format(self.im2.absolute_url()),
         )
         #                         '<td class="noPadding"></td>\n'.format(self.im2.absolute_url()))
@@ -110,7 +116,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.assertEqual(
             self.view.renderReplyButton(),
             '<td class="noPadding">\n  <a target="_parent" href="{}'
-            '/@@reply">\n     <input type="button" value="Reply" class="apButton apButtonAction '
+            '/@@reply">\n     <input type="button" value="Répondre" class="apButton apButtonAction '
             'apButtonAction_reply" />\n     \n  </a>\n</td>'
             "\n".format(self.im2.absolute_url()),
         )
@@ -122,27 +128,28 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.assertEqual(api.content.get_state(self.view.context), "created")
         self.assertEqual(self.view.renderAssignUser(), "")
         api.content.transition(self.view.context, "propose_to_manager")
-        # right state
+        # right state: the assignment is a GET ajax call with the CSRF token (random key of the keyring)
+        token = "TOKEN"
         self.assertEqual(
-            self.view.renderAssignUser(),
-            u'<td>\n    <form action="">\n      <select name="Assign" onchange="javascript:'
-            u"callViewAndReload(base_url='{}', view_name='@@update_item', params={{'assigned_user': "
-            u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign">\n'
-            u'        <option style="display:none" value="#">Assign</option>\n        \n        '
+            no_token(self.view.renderAssignUser()),
+            u"<td>\n    <form action=''>\n      <select name=\"Assign\" class=\"apButton apButtonSelect apButtonAction "
+            u'apButtonAction_assign" onchange="javascript:callViewAndReload(base_url=\'{}\', view_name=\'@@update_item\', '
+            u"params={{'assigned_user': this.value, '_authenticator': '{}'}})\">\n"
+            u'        <option style="display:none" value=#>Assigner</option>\n        \n        '
             u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
             u"</option>\n      </select>\n    </form>\n</td>"
-            u"\n".format(self.im2.absolute_url()),
+            u"\n".format(self.im2.absolute_url(), token),
         )
         self.view.useIcons = True
         self.assertEqual(
-            self.view.renderAssignUser(),
-            u'<td>\n    <form action="">\n      <select name="Assign" onchange="javascript:'
-            u"callViewAndReload(base_url='{}', view_name='@@update_item', params={{'assigned_user': "
-            u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign '
-            u'apUseIcons">\n        \n        <option style="display:none" value="#"></option>\n        '
+            no_token(self.view.renderAssignUser()),
+            u"<td>\n    <form action=''>\n      <select name=\"Assign\" class=\"apButton apButtonSelect apButtonAction "
+            u'apButtonAction_assign apUseIcons" onchange="javascript:callViewAndReload(base_url=\'{}\', '
+            u"view_name='@@update_item', params={{'assigned_user': this.value, '_authenticator': '{}'}})\">\n"
+            u'        \n        <option style="display:none" value=#></option>\n        '
             u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
             u"</option>\n      </select>\n    </form>\n</td>"
-            u"\n".format(self.im2.absolute_url()),
+            u"\n".format(self.im2.absolute_url(), token),
         )
         # without treating_groups
         new = api.content.create(self.portal["incoming-mail"], "dmsincomingmail", "c1")
@@ -172,7 +179,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.view.useIcons = False
         result = self.view.render_multiple_annexes_button()
         self.assertIn("quick_upload?typeupload=dmsappendixfile", result)
-        self.assertIn("Multiple annexes", result)
+        self.assertIn("Annexes multiples", result)
 
         # not shown when in faceted navigation
         self.view.request["URL"] = "http://nohost/plone/@@faceted_query"
@@ -224,9 +231,9 @@ class TestDmsOMActionsPanelView(unittest.TestCase):
     def test_render_create_from_template_button(self):
         rendered = self.view.render_create_from_template_button()
         self.assertIn(u'href="{}/@@create-from-template"'.format(self.om.absolute_url()), rendered)
-        # Plone 4 overlay
-        self.assertIn(u'class="overlay overlay-ajax overlay-template-selection"', rendered)
-        self.assertIn(u'value="Create from template"', rendered)
+        # modal (Plone 4 overlay)
+        self.assertIn(u'class="pat-plone-modal link-overlay-actionspanel overlay-template-selection"', rendered)
+        self.assertIn(u'value="Créer depuis modèle"', rendered)
         self.view.request["URL"] = "http://nohost/plone/@@faceted_query"
         self.assertEqual(self.view.render_create_from_template_button(), "")
 
@@ -256,11 +263,11 @@ class TestDmsOMActionsPanelView(unittest.TestCase):
         self.om.send_modes = [u"email"]
         self.om.email_subject = u"Subject"
         rendered = self.view.render_send_email()
-        # Plone 4: the email is sent by a GET ajax call
+        # the email is sent by a GET ajax call, with the CSRF token
         self.assertIn(
-            u"onclick=\"javascript:callViewAndReload(base_url='{}', view_name='@@send_email')\"".format(
-                self.om.absolute_url()),
-            rendered,
+            u"onclick=\"javascript:callViewAndReload(base_url='{}', view_name='@@send_email', "
+            u"params={{'_authenticator': 'TOKEN'}})\"".format(self.om.absolute_url()),
+            no_token(rendered),
         )
         self.assertIn(u'class="apButton apButtonAction apButtonAction_sendemail"', rendered)
 
@@ -276,7 +283,7 @@ class TestDmsOMActionsPanelView(unittest.TestCase):
         self.view.useIcons = False
         result = self.view.render_multiple_annexes_button()
         self.assertIn("quick_upload?typeupload=dmsappendixfile", result)
-        self.assertIn("Multiple annexes", result)
+        self.assertIn("Annexes multiples", result)
 
         # not shown when in faceted navigation
         self.view.request["URL"] = "http://nohost/plone/@@faceted_query"
@@ -305,7 +312,7 @@ class TestSigningFieldsetActionsPanelView(unittest.TestCase):
         self.view.useIcons = True
         rendered = self.view.renderEdit()
         self.assertIn(u'href="{}/edit#fieldsetlegend-signing"'.format(self.om.absolute_url()), rendered)
-        self.assertIn(u'src="http://nohost/plone/edit.png"', rendered)
+        self.assertIn(u'src="http://nohost/plone/++plone++bootstrap-icons/pencil.svg"', rendered)
         self.view.useIcons = False
         rendered = self.view.renderEdit()
         self.assertIn(u'action="{}/edit#fieldsetlegend-signing"'.format(self.om.absolute_url()), rendered)
@@ -410,9 +417,10 @@ class TestClassificationContainersActionsPanelView(unittest.TestCase):
             view = container.unrestrictedTraverse("@@actions_panel")
             self.assertIsInstance(view, ClassificationContainersActionsPanelView)
             rendered = view(useIcons=False)
-            self.assertIn(u'action="{}/@@import"'.format(container.absolute_url()), rendered)
-            self.assertIn(u'action="{}/@@refresh-cache"'.format(container.absolute_url()), rendered)
-        self.assertIn(u'action="http://nohost/plone/tree/add-ClassificationCategory"',
+            # actions with the CSRF token
+            self.assertIn(u'action="{}/@@import?_authenticator='.format(container.absolute_url()), rendered)
+            self.assertIn(u'action="{}/@@refresh-cache?_authenticator='.format(container.absolute_url()), rendered)
+        self.assertIn(u'action="http://nohost/plone/tree/add-ClassificationCategory?_authenticator=',
                       portal["tree"].unrestrictedTraverse("@@actions_panel")(useIcons=False))
 
 

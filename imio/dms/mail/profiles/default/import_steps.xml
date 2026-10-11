@@ -10,18 +10,14 @@
    <dependency step="catalog"/>
    <dependency step="componentregistry"/>
    <dependency step="controlpanel"/>
-   <dependency step="cssregistry"/>
-   <dependency step="jsregistry"/>
    <dependency step="portlets"/>
    <dependency step="plone.app.registry"/>
    <dependency step="repositorytool"/>
    <dependency step="rolemap"/>
    <dependency step="sharing"/>
-   <dependency step="skins"/>
    <dependency step="typeinfo"/>
    <dependency step="viewlets"/>
    <dependency step="workflow"/>
-   <dependency step="propertiestool"/>
    manual coded post-install for imio.dms.mail
  </import-step>
 

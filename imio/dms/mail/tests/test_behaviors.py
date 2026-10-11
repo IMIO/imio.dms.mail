@@ -109,7 +109,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"La ligne 1 des signataires a un doublon d'approbateur avec lui-même."
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
 
         # Test duplicate approvers between signers
         data = {
@@ -131,7 +131,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"L'utilisateur dirg existe déjà dans les approbateurs lignes 1 <=> 2"
-        self.assertEqual(_tr(errors[0].message, mapping={"userid": "dirg", "o": "1", "c": "2"}), error_msg)
+        self.assertEqual(_tr(errors[0].args[0], mapping={"userid": "dirg", "o": "1", "c": "2"}), error_msg)
 
         # Test duplicate signing persons
         params = {
@@ -162,7 +162,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"Vous ne pouvez pas avoir le m\xeame signataire plusieurs fois (Monsieur Maxime DG) !"
-        self.assertEqual(_tr(errors[0].message, mapping={"signer_title": dirg_hp.get_person_title()}), error_msg)
+        self.assertEqual(_tr(errors[0].args[0], mapping={"signer_title": dirg_hp.get_person_title()}), error_msg)
 
         # Test duplicate emails in signers
         api.user.get("bourgmestre").setMemberProperties({"email": "duplicate@belleville.eb"})
@@ -186,7 +186,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"Vous ne pouvez pas avoir le même email (duplicate@belleville.eb) pour plusieurs signataires !"
-        self.assertEqual(_tr(errors[0].message, mapping={"email": "duplicate@belleville.eb"}), error_msg)
+        self.assertEqual(_tr(errors[0].args[0], mapping={"email": "duplicate@belleville.eb"}), error_msg)
 
         # Test signer with no userid
         jeancourant_hp = self.portal["contacts"]["jeancourant"]["agent-electrabel"]
@@ -205,7 +205,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         error_msg = (
             u"Le signataire 'Monsieur Jean Courant' n'a pas d'utilisateur Plone s\xe9lectionn\xe9 sur sa personne !"
         )
-        self.assertEqual(_tr(errors[0].message, mapping={"signer_title": jeancourant_hp.get_person_title()}), error_msg)
+        self.assertEqual(_tr(errors[0].args[0], mapping={"signer_title": jeancourant_hp.get_person_title()}), error_msg)
 
         # Test signer with wrong uid
         data = {
@@ -223,7 +223,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         error_msg = (
             u"Le signataire avec la position occupée dont l'UID est wrong-uid n'existe pas !"
         )
-        self.assertEqual(_tr(errors[0].message, mapping={"uid": "wrong-uid"}), error_msg)
+        self.assertEqual(_tr(errors[0].args[0], mapping={"uid": "wrong-uid"}), error_msg)
 
         # Test approver with wrong uid
         data = {
@@ -241,7 +241,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         error_msg = (
             u"L'approbateur dont le UID de sa personne est wrong-uid n'existe pas !"
         )
-        self.assertEqual(_tr(errors[0].message, mapping={"uid": "wrong-uid"}), error_msg)
+        self.assertEqual(_tr(errors[0].args[0], mapping={"uid": "wrong-uid"}), error_msg)
 
         # Test duplicate numbers
         data = {
@@ -263,7 +263,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"Vous ne pouvez pas utiliser le même numéro pour plusieurs signataires !"
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
 
         # Test missing numbers in sequence
         bourgmestre = self.portal["contacts"]["personnel-folder"]["bourgmestre"]
@@ -287,7 +287,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"Un signataire est manquant aux positions 2 !"
-        self.assertEqual(_tr(errors[0].message, mapping={"positions": "2"}), error_msg)
+        self.assertEqual(_tr(errors[0].args[0], mapping={"positions": "2"}), error_msg)
 
         # Test no approvings with esign activated
         data = {
@@ -303,7 +303,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        self.assertEqual(_tr(errors[0].message), u"Vous devez définir des approbateurs pour chaque signataire si "
+        self.assertEqual(_tr(errors[0].args[0]), u"Vous devez définir des approbateurs pour chaque signataire si "
                                                  u"la signature électronique est utilisée !")
 
         # Test no approvings with esign deactivated
@@ -341,7 +341,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"Vous ne pouvez pas avoir des lignes avec des approbateurs parfois vides, parfois non !"
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
 
         # Test seal with no esign activated
         data = {
@@ -359,7 +359,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = u"Vous ne pouvez pas avoir de cachet et de signataire sans cocher 'Signature élec.' !"
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
 
         # Test edit signers
         data = {
@@ -388,7 +388,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = (u"Vous ne pouvez pas modifier les signataires une fois le processus d'approbation commencé ou "
                      u"terminé. Revenez dans un état précédent ou demandez à votre référent.")
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
 
         # Test template context: outgoing-mail-specific checks are skipped
         self.change_user("siteadmin")

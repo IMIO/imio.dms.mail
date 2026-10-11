@@ -65,4 +65,4 @@ class TestImport(unittest.TestCase):
             ]
         )
         orgs = sort_by_level(orgs_o)
-        self.assertListEqual(orgs_r.keys(), orgs.keys())
+        self.assertListEqual(list(orgs_r.keys()), list(orgs.keys()))

@@ -4,8 +4,8 @@ from collective.contact.plonegroup.config import FUNCTIONS_REGISTRY
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.utils import get_organizations
 from collective.contact.plonegroup.utils import get_person_from_userid
+from collective.labels.interfaces import ILabelJar
 from datetime import datetime
-from ftw.labels.interfaces import ILabelJar
 from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail.browser.settings import configure_group_encoder
@@ -38,6 +38,7 @@ from imio.helpers import EMPTY_TITLE
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
+from plone.app.testing import TEST_USER_ID
 from plone.registry.interfaces import IRegistry
 from Products.CMFPlone.utils import safe_unicode
 from zope.component import getUtility
@@ -84,12 +85,12 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                ("created", u"Created"),
-                ("to_assign", u"To assign"),
-                ("to_do", u"To do"),
-                ("in_progress", u"In progress"),
-                ("realized", u"Realized"),
-                ("closed", u"Closed"),
+                ("created", u"En création"),
+                ("to_assign", u"À assigner"),
+                ("to_do", u"À faire"),
+                ("in_progress", u"En cours"),
+                ("realized", u"Réalisé"),
+                ("closed", u"Clôturé"),
             ],
         )
 
@@ -109,13 +110,13 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
-                ("test-user", u"test-user (Désactivé)"),
+                (TEST_USER_ID, u"test_user_1_ (Désactivé)"),
             ],
         )
         # add inactive group and user in it
         guid = self.portal.contacts["plonegroup-organization"]["departement-culturel"].UID()
         new_group = api.group.create("{}_lecteur".format(guid))
-        api.group.add_user(group=new_group, username="test-user")
+        api.group.add_user(group=new_group, username=TEST_USER_ID)
         self.change_user("siteadmin")  # refresh getGroups
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertListEqual(
@@ -131,12 +132,12 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
-                ("test-user", u"test-user (Désactivé)"),
+                (TEST_USER_ID, u"test_user_1_ (Désactivé)"),
             ],
         )
         # add same user in active group
         guid = self.portal.contacts["plonegroup-organization"][u"direction-generale"].UID()
-        api.group.add_user(groupname="{}_lecteur".format(guid), username="test-user")
+        api.group.add_user(groupname="{}_lecteur".format(guid), username=TEST_USER_ID)
         self.change_user("siteadmin")  # refresh getGroups
         voc_list = [(t.value, t.title) for t in voc_inst(self.imail)]
         self.assertListEqual(
@@ -152,7 +153,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
-                ("test-user", u"test-user"),
+                (TEST_USER_ID, u"test_user_1_"),
             ],
         )
 
@@ -171,7 +172,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 ("bourgmestre", u"Paul BM"),
                 ("siteadmin", u"siteadmin"),
                 ("agent1", u"Stef Agent"),
-                ("test-user", u"test-user (Désactivé)"),
+                (TEST_USER_ID, u"test_user_1_ (Désactivé)"),
             ],
         )
 
@@ -253,7 +254,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         voc_inst = OMActiveSenderVocabulary()
         self.assertEqual(len(voc_inst(self.omail)), 23)
         # get first part, as unique value, keeping order
-        res = OrderedDict.fromkeys([" ".join(s.title.split()[:3]).strip(",") for s in voc_inst(self.omail)]).keys()
+        res = list(OrderedDict.fromkeys([" ".join(s.title.split()[:3]).strip(",") for s in voc_inst(self.omail)]))
         # res is sorted by firstname
         self.assertEqual(
             res, [u"Monsieur Fred Agent", u"Monsieur Jean Encodeur", u"Monsieur Michel Chef", u"Monsieur Stef Agent"]
@@ -262,7 +263,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_firstname_sorting", False
         )
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
-        res = OrderedDict.fromkeys([" ".join(s.title.split()[:3]).strip(",") for s in voc_inst(self.omail)]).keys()
+        res = list(OrderedDict.fromkeys([" ".join(s.title.split()[:3]).strip(",") for s in voc_inst(self.omail)]))
         # res is sorted by lastname
         self.assertEqual(
             res, [u"Monsieur Fred Agent", u"Monsieur Stef Agent", u"Monsieur Michel Chef", u"Monsieur Jean Encodeur"]
@@ -542,7 +543,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
     def test_ContactsReviewStatesVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.ContactsReviewStatesVocabulary")
         voc_list = [(t.value, t.title) for t in voc_inst(self.portal["contacts"])]
-        self.assertEqual(voc_list, [("active", u"Active"), ("deactivated", u"Deactivated")])
+        self.assertEqual(voc_list, [("active", u"Activé"), ("deactivated", u"Désactivé")])
 
     def test_FirstLevelTabsVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.FirstLevelTabsVocabulary")
@@ -638,7 +639,8 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
 
     def test_TreatingGroupsWithDeactivatedVocabulary(self):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.TreatingGroupsWithDeactivatedVocabulary")
-        # active organizations first, sorted by title
+        # active organizations first, sorted by title (Python 3 natsort without process locale: code point order,
+        # accented letters after the others)
         self.assertEqual(
             [t.title for t in voc_inst(self.imail)],
             [
@@ -655,16 +657,16 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
                 u"Direction technique / Voiries",
                 u"Événements",
                 u"Conseil communal (Désactivé)",
-                u"Département culturel (Désactivé)",
-                u"Département culturel / Culture-loisirs (Désactivé)",
-                u"Département culturel / Enseignement (Désactivé)",
-                u"Département population (Désactivé)",
-                u"Département population / État-civil (Désactivé)",
-                u"Département population / Population (Désactivé)",
                 u"Direction financière / Marchés publics (Désactivé)",
                 u"Direction financière / Taxes (Désactivé)",
                 u"Direction générale / Informatique (Désactivé)",
                 u"Direction technique / Urbanisme (Désactivé)",
+                u"Département culturel (Désactivé)",
+                u"Département culturel / Culture-loisirs (Désactivé)",
+                u"Département culturel / Enseignement (Désactivé)",
+                u"Département population (Désactivé)",
+                u"Département population / Population (Désactivé)",
+                u"Département population / État-civil (Désactivé)",
             ],
         )
         self.assertEqual(
@@ -731,9 +733,7 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             [t.value for t in voc_inst(self.portal)],
             [
-                "controlpanel",
                 "document_actions",
-                "folder_buttons",
                 "jqueryui_panels",
                 "object",
                 "object_buttons",

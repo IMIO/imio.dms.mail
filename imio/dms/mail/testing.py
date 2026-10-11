@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
+from Acquisition import aq_base
+from App.config import getConfiguration
 from collections import OrderedDict
+from collective.beaker.interfaces import ISessionConfig
+from collective.beaker.metaconfigure import defaultSessionConfig
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.iconifiedcategory.utils import calculate_category_id
+from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
+from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import setup_ram_cache
 from imio.helpers.content import get_object
 from imio.helpers.workflow import do_transitions
@@ -14,6 +20,7 @@ from itertools import cycle
 from pathlib import Path
 from plone import api
 from plone.api.validation import at_least_one_of
+from plone.app.dexterity.textindexer.indexer import dynamic_searchable_text_indexer
 from plone.app.robotframework.remote import RemoteLibrary
 from plone.app.robotframework.testing import REMOTE_LIBRARY_BUNDLE_FIXTURE
 from plone.app.testing import applyProfile
@@ -25,24 +32,34 @@ from plone.app.testing import setRoles
 from plone.app.testing import TEST_USER_ID
 from plone.app.testing.helpers import PloneWithPackageLayer
 from plone.app.testing.layers import PloneFixture
+from plone.base.utils import base_hasattr
+from plone.base.utils import unrestricted_construct_instance
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
-from plone.testing import z2
+from plone.testing import Layer
 from plone.testing import zca
-from Products.CMFPlone.utils import _createObjectByType
-from Products.CMFPlone.utils import base_hasattr
+from plone.testing.zope import WSGI_SERVER_FIXTURE
 from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 from Products.GenericSetup.utils import PropertyManagerHelpers
+from Products.MailHost.interfaces import IMailHost
 from profilehooks import timecall
-from Testing import ZopeTestCase as ztc
 # from z3c.relationfield import RelationValue
+from z3c.relationfield.event import removeRelations
+from z3c.relationfield.event import updateRelations
+from z3c.relationfield.interfaces import IHasOutgoingRelations
+from zope.component import getGlobalSiteManager
 from zope.component import getSiteManager
+from zope.component import getUtilitiesFor
 from zope.component import getUtility
+from zope.component import provideAdapter
 from zope.globalrequest.local import setLocal
-from zope.i18n import translate
 # from zope.intid import IIntIds
+from zope.lifecycleevent.interfaces import IObjectModifiedEvent
+from zope.lifecycleevent.interfaces import IObjectRemovedEvent
 from zope.ramcache.interfaces.ram import IRAMCache
+from zope.schema.interfaces import IVocabularyFactory
+from ZPublisher.interfaces import IPubStart
 
 import datetime
 import imio.dms.mail
@@ -58,11 +75,21 @@ except ImportError:
     imio_global_cache = None
 
 
+ZAMQP_CONFIG = {
+    "ws_url": "http://localhost:6543",
+    "ws_password": "test",
+    "ws_login": "testuser",
+    "routing_key": "019999",
+    "client_id": "019999",
+}
+
+
 class PloneDmsFixture(PloneFixture):
     def setUpZCML(self):
         """Include imio.dms.mail i18n locales before Plone to override plone messages."""
         pr = list(self.products)
-        pr.insert(-2, ("imio.dms.mail", {"loadZCML": True, "load_only": {"configure.zcml": "testing_locales.zcml"}}))
+        pr.insert(-2, ("imio.dms.mail", {"loadZCML": True, "install": False,
+                                         "load_only": {"configure.zcml": "testing_locales.zcml"}}))
         self.products = tuple(pr)
 
         # Create a new global registry
@@ -145,25 +172,19 @@ class DmsmailLayer(PloneWithPackageLayer):
         manage_addExternalMethod(portal, "robot_init", "", "imio.dms.mail.robot", "robot_init")
         manage_addExternalMethod(portal, "video_doc_init", "", "imio.dms.mail.robot", "video_doc_init")
 
-        sp = portal.portal_properties.site_properties
-        sp.default_language = "fr"
+        api.portal.set_registry_record("plone.available_languages", ["fr"])  # the language field vocabulary
+        api.portal.set_registry_record("plone.default_language", "fr")
         # we create a front-page document that will be modified in setup
-        _createObjectByType("Document", portal, id="front-page")
+        unrestricted_construct_instance("Document", portal, id="front-page")
         portal.setDefaultPage("front-page")
-        _createObjectByType("Folder", portal, id="Members", title="Users", description="Site Users")
-        members = getattr(portal, "Members")
-        members.setTitle(translate(u"members-title", target_language="fr", domain="plonefrontpage", default="Users"))
-        members.setDescription(
-            translate(u"members-description", target_language="fr", domain="plonefrontpage", default="Site Users")
-        )
-        members.unmarkCreationFlag()
-        members.setLanguage("fr")
-        members.reindexObject()
 
-        # install dmsmail (apply profile)
+        # install dmsmail (apply profile): the Members folder is created by the setup
         super(DmsmailLayer, self).setUpPloneSite(portal)
         applyProfile(portal, "collective.MockMailHost:default")
-        api.content.transition(obj=members, transition="show_internally")
+        # collective.MockMailHost 4.0.0 stores (and registers) an acquisition wrapper in the site: unwrap it
+        portal._tree["MailHost"] = aq_base(portal._tree["MailHost"])
+        getSiteManager(portal).registerUtility(portal._getOb("MailHost"), provided=IMailHost)
+        do_transitions(portal["Members"], ["show_internally"])
 
         # copy template
         setRoles(portal, TEST_USER_ID, ["Manager"])
@@ -181,29 +202,33 @@ class DmsmailLayer(PloneWithPackageLayer):
         if os.getenv("version"):
             api.portal.set_registry_record("imio.dms.mail.product_version", safe_unicode(os.getenv("version")))
 
+        warm_up_cache_keys(portal)
         caller = inspect.stack()[1][3]
         if caller == "setUp":
             end_setup(portal)
         setRoles(portal, TEST_USER_ID, ["Member"])
+        # the setup request (used by collective.fingerpointing subscribers) must not leak in the tests
+        setLocal("request", None)
 
     def setUpZope(self, app, configurationContext):
         # zope.conf's `default-zpublisher-encoding utf-8` isn't read in tests, so GenericSetup
         # re-encodes xml profile values in iso-8859-15 (Bad Parapheo action title)
         PropertyManagerHelpers._encoding = "utf-8"
-        ztc.utils.setupCoreSessions(app)
         super(DmsmailLayer, self).setUpZope(app, configurationContext)
+        # the text indexer is registered in a base layer registry where basecontent's SearchableText indexer of
+        # this layer wins whatever the behaviors: registered again here, as it wins in an instance (as mailcontent)
+        provideAdapter(dynamic_searchable_text_indexer, name="SearchableText")
+        # z3c.unconfigure (subscribers.zcml) only acts on this layer registry: the z3c.relationfield handlers are
+        # registered below (Plone 6 PLONE_FIXTURE loads them), unregistered there, as in an instance
+        registry = getGlobalSiteManager()
+        while registry.__bases__:
+            registry = registry.__bases__[0]
+            registry.unregisterHandler(removeRelations, (IHasOutgoingRelations, IObjectRemovedEvent))
+            registry.unregisterHandler(updateRelations, (IHasOutgoingRelations, IObjectModifiedEvent))
         from App.config import _config
 
         if not base_hasattr(_config, "product_config"):
-            _config.product_config = {
-                "imio.zamqp.core": {
-                    "ws_url": "http://localhost:6543",
-                    "ws_password": "test",
-                    "ws_login": "testuser",
-                    "routing_key": "019999",
-                    "client_id": "019999",
-                }
-            }
+            _config.product_config = {"imio.zamqp.core": ZAMQP_CONFIG}
         (stdout, stderr, st) = runCommand("%s/bin/soffice.sh restart" % os.getenv("PWD"))
 
     def tearDownZope(self, app):
@@ -215,6 +240,7 @@ class DmsmailLayer(PloneWithPackageLayer):
 class DmsmailLayerNP1(DmsmailLayer):
     def setUpPloneSite(self, portal):
         super(DmsmailLayerNP1, self).setUpPloneSite(portal)
+        setLocal("request", portal.REQUEST)
         setRoles(portal, TEST_USER_ID, ["Manager"])
         # Change some settings
         api.portal.set_registry_record(
@@ -253,7 +279,9 @@ class DmsmailLayerNP1(DmsmailLayer):
         )
 
         setRoles(portal, TEST_USER_ID, ["Member"])
+        warm_up_cache_keys(portal)
         end_setup(portal)
+        setLocal("request", None)
 
 
 class DmsmailRemote(RemoteLibrary):
@@ -268,7 +296,11 @@ class DmsmailRemote(RemoteLibrary):
 DMSMAIL_FIXTURE = DmsmailLayer(
     zcml_filename="testing.zcml",
     zcml_package=imio.dms.mail,
-    additional_z2_products=("Products.PythonScripts", "imio.dashboard", "imio.dms.mail", "Products.PasswordStrength"),
+    # Products.ExternalEditor: Folder.externalEditLink_ (a Zope instance imports every product, Plone 4 fixture did)
+    additional_z2_products=(
+        "Products.PythonScripts", "imio.dashboard", "imio.dms.mail", "Products.PasswordStrength",
+        "Products.ExternalEditor",
+    ),
     gs_profile_id="imio.dms.mail:testing",
     name="DMSMAIL_FIXTURE",
 )
@@ -276,7 +308,11 @@ DMSMAIL_FIXTURE = DmsmailLayer(
 DMSMAIL_NP1_FIXTURE = DmsmailLayerNP1(
     zcml_filename="testing.zcml",
     zcml_package=imio.dms.mail,
-    additional_z2_products=("Products.PythonScripts", "imio.dashboard", "imio.dms.mail", "Products.PasswordStrength"),
+    # Products.ExternalEditor: Folder.externalEditLink_ (a Zope instance imports every product, Plone 4 fixture did)
+    additional_z2_products=(
+        "Products.PythonScripts", "imio.dashboard", "imio.dms.mail", "Products.PasswordStrength",
+        "Products.ExternalEditor",
+    ),
     gs_profile_id="imio.dms.mail:testing",
     name="DMSMAIL_NP1_FIXTURE",
 )
@@ -294,16 +330,64 @@ DMSMAIL_ROBOT_TESTING = FunctionalTesting(
     bases=(
         DMSMAIL_NP1_FIXTURE,
         REMOTE_LIBRARY_BUNDLE_FIXTURE,
-        z2.ZSERVER_FIXTURE,
+        WSGI_SERVER_FIXTURE,
     ),
     name="DMSMAIL_ROBOT_TESTING",
 )
 
+
+def set_session(event):
+    # ponytail: a dict by request, a session data manager in the app would be written by every GET (CSRF)
+    event.request.set("SESSION", {})
+
+
+class DmsmailRobotLayer(Layer):
+    """What an instance has and the robot test app has not: Zope sessions (request.SESSION, read by @@quick_upload of
+    imio.annex), beaker sessions (zope.conf `product-config beaker`: collective.querynextprev records the faceted
+    queries in it) and the zope.conf product-config (scan ids)"""
+
+    defaultBases = (DMSMAIL_FIXTURE, WSGI_SERVER_FIXTURE)
+
+    def setUp(self):
+        # after the WSGI server layer, that replaces the zope configuration (without product-config)
+        getConfiguration().product_config = {"imio.zamqp.core": ZAMQP_CONFIG}
+        gsm = getGlobalSiteManager()
+        gsm.registerHandler(set_session, (IPubStart,))
+        gsm.registerUtility(dict(defaultSessionConfig, type="memory"), ISessionConfig)
+        # no redirection after the generation (see DmsmailLayer): a blank page, not a 204 the browser stays on
+        from imio.dms.mail.browser.documentgenerator import OMPDGenerationView
+
+        self.view, self.redirects = OMPDGenerationView, OMPDGenerationView.redirects
+        OMPDGenerationView.redirects = lambda view, doc: view.request.response.setHeader("Content-Type", "text/html")
+
+    def tearDown(self):
+        self.view.redirects = self.redirects
+        gsm = getGlobalSiteManager()
+        gsm.unregisterHandler(set_session, (IPubStart,))
+        gsm.unregisterUtility(provided=ISessionConfig)
+
+
+DMSMAIL_ROBOT_FIXTURE = DmsmailRobotLayer(name="DmsMailFixture:Robot")
+
 # version-independent robot suites (tests/robot/test_*.robot): default site with the example mails
 ACCEPTANCE = FunctionalTesting(
-    bases=(DMSMAIL_FIXTURE, REMOTE_LIBRARY_BUNDLE_FIXTURE, z2.ZSERVER_FIXTURE),
+    bases=(DMSMAIL_ROBOT_FIXTURE, REMOTE_LIBRARY_BUNDLE_FIXTURE, WSGI_SERVER_FIXTURE),
     name="DmsMailFixture:Acceptance",
 )
+
+
+def warm_up_cache_keys(portal):
+    """Create the imio.helpers volatile cache keys: written on first read, a GET would ask a CSRF confirmation."""
+    for ptype in ("dmsincomingmail", "dmsincoming_email", "dmsoutgoingmail", "sign_request", "task", "organization",
+                  "person", "held_position", "contact_list", "ClassificationFolder", "ClassificationSubfolder"):
+        list_wf_states(portal, ptype)
+    get_cachekey_volatile("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
+    for name, factory in getUtilitiesFor(IVocabularyFactory):
+        if name.startswith("imio.dms.mail."):
+            try:
+                factory(portal)
+            except Exception:  # some need another context: their key is created by the first form using them
+                pass
 
 
 def end_setup(portal):

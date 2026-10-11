@@ -6,8 +6,6 @@ from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.table import SignRequestVersionsTable
 from imio.dms.mail.columns import AssignedUserColumn
-from imio.dms.mail.columns import CKPathColumn
-from imio.dms.mail.columns import CKTemplatesTitleColumn
 from imio.dms.mail.columns import ContactsColumn
 from imio.dms.mail.columns import ContactTitleColumn
 from imio.dms.mail.columns import FilesizeColumn
@@ -43,7 +41,6 @@ from plone.app.testing import TEST_USER_ID
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from z3c.relationfield.relation import RelationValue
-from zope.annotation import IAnnotations
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 
@@ -79,8 +76,8 @@ class TestColumns(unittest.TestCase):
         self.assertEqual(
             column.renderCell(brain),
             u"<a href='http://nohost/plone/contacts/jeancourant/agent-electrabel' target='_blank' "
-            "class='pretty_link link-tooltip'><span class='pretty_link_icons'><img title='Held position' "
-            "src='http://nohost/plone/held_position_icon.png' /></span><span class='pretty_link_content'"
+            "class='pretty_link link-tooltip'><span class='pretty_link_icons'><img title='Fonction occupée' "
+            "src='http://nohost/plone/++plone++bootstrap-icons/person-badge.svg' /></span><span class='pretty_link_content'"
             ">Monsieur Jean Courant, Agent (Electrabel)</span></a>",
         )
         # multiple senders
@@ -126,7 +123,7 @@ class TestColumns(unittest.TestCase):
         # inline javascript in header (tooltipster)
         self.assertEqual(
             column.header_js,
-            '<script type="text/javascript">$(document).ready(function() {'
+            '<script type="text/javascript">jQuery(function($) {'
             '$(".tooltip-title").tooltipster({position: "right", theme: "tooltipster-shadow"});});</script>',
         )
         brain = self.brain(self.om1)
@@ -168,24 +165,24 @@ class TestColumns(unittest.TestCase):
     def test_OutgoingDateColumn(self):
         column = OutgoingDateColumn(self.portal, self.portal.REQUEST, self.om_table)
         self.assertEqual(column.attrName, u"in_out_date")
-        # plonelocales short format, the test request negotiates English
-        self.assertEqual(column.renderCell(self.brain(self.im1)), self.im1.reception_date.strftime("%b %d, %Y"))
+        # plonelocales short format (fr)
+        self.assertEqual(column.renderCell(self.brain(self.im1)), self.im1.reception_date.strftime("%d/%m/%Y"))
 
     def test_ContactsColumn(self):
-        # _icons: icon url built from the portal type icon_expr (skin images)
+        # _icons: icon url built from the portal type icon_expr (icon names)
         column = ContactsColumn(self.portal, self.portal.REQUEST, self.mail_table)
         ctct = self.portal["contacts"]
         self.assertEqual(
             column._icons(self.brain(ctct["electrabel"])),
-            u"<img title='Organization' src='http://nohost/plone/organization_icon.png' />",
+            u"<img title='Organisation' src='http://nohost/plone/++plone++bootstrap-icons/diagram-3-fill.svg' />",
         )
         self.assertEqual(
             column._icons(self.brain(ctct["jeancourant"])),
-            u"<img title='Person' src='http://nohost/plone/person_icon.png' />",
+            u"<img title='Personne' src='http://nohost/plone/++plone++bootstrap-icons/file-earmark-person-fill.svg' />",
         )
         self.assertEqual(
             column._icons(self.brain(ctct["jeancourant"]["agent-electrabel"])),
-            u"<img title='Held position' src='http://nohost/plone/held_position_icon.png' />",
+            u"<img title='Fonction occupée' src='http://nohost/plone/++plone++bootstrap-icons/person-badge.svg' />",
         )
 
     def test_RecipientsColumn(self):
@@ -193,8 +190,8 @@ class TestColumns(unittest.TestCase):
         self.assertEqual(
             column.renderCell(self.brain(self.om1)),
             u"<a href='http://nohost/plone/contacts/electrabel' target='_blank' class='pretty_link link-tooltip'>"
-            u"<span class='pretty_link_icons'><img title='Organization' "
-            u"src='http://nohost/plone/organization_icon.png' /></span><span class='pretty_link_content'>"
+            u"<span class='pretty_link_icons'><img title='Organisation' "
+            u"src='http://nohost/plone/++plone++bootstrap-icons/diagram-3-fill.svg' /></span><span class='pretty_link_content'>"
             u"Electrabel</span></a>",
         )
         # "all under" values (l:) are not displayed
@@ -205,9 +202,9 @@ class TestColumns(unittest.TestCase):
     def test_ReviewStateColumn(self):
         column = self.mail_table.nameColumn(ReviewStateColumn(self.portal, self.portal.REQUEST, self.mail_table),
                                             "review_state")
-        # plone domain state titles ("created", "om_created"), the test request negotiates English
-        self.assertEqual(column.renderCell(self.brain(self.im1)), u"Created")
-        self.assertEqual(column.renderCell(self.brain(self.om1)), u"Created")
+        # plone domain state titles ("created", "om_created")
+        self.assertEqual(column.renderCell(self.brain(self.im1)), u"En création")
+        self.assertEqual(column.renderCell(self.brain(self.om1)), u"En création")
 
     def test_ContactTitleColumn(self):
         column = ContactTitleColumn(self.portal, self.portal.REQUEST, self.mail_table)
@@ -227,20 +224,6 @@ class TestColumns(unittest.TestCase):
             column.renderCell(brain),
             u'<a href="{}" target="_blank">{}</a>'.format(clf["common"].absolute_url(), clf["common"].title),
         )
-
-    def test_CKTemplatesTitleColumn(self):
-        tpl = self.portal["templates"]["oem"]["emain"]
-        column = CKTemplatesTitleColumn(self.portal, self.portal.REQUEST, None)
-        self.assertEqual(column.getLinkCSS(tpl), ' class="state-{}"'.format(api.content.get_state(tpl)))
-        self.assertEqual(column.getLinkContent(tpl), tpl.title)
-
-    def test_CKPathColumn(self):
-        tpl = self.portal["templates"]["oem"]["emain"]
-        column = CKPathColumn(self.portal, self.portal.REQUEST, None)
-        self.assertEqual(column.getLinkURL(tpl), "http://nohost/plone/templates/oem")
-        self.assertEqual(column.getLinkContent(tpl), "-")
-        IAnnotations(tpl)["dmsmail.cke_tpl_tit"] = u"Service > Modèles"
-        self.assertEqual(column.getLinkContent(tpl), u"Service > Modèles")
 
     def test_PersonnelUseridFacetedColumn(self):
         pf = self.portal["contacts"]["personnel-folder"]
@@ -297,7 +280,7 @@ class TestColumns(unittest.TestCase):
         self.assertEqual(
             column.renderCell(brain),
             u"<a class='pretty_link' title='E0001 - Courrier 1' "
-            u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Incoming Mail' "
+            u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Courrier entrant' "
             u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' style="
             u"\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content state-created'>"
             u"E0001 - Courrier 1</span></a>".format(mail.absolute_url()),
@@ -306,7 +289,7 @@ class TestColumns(unittest.TestCase):
         self.assertEqual(
             column.renderCell(brain),
             u"<a class='pretty_link' title='E0001 - Courrier 1' "
-            u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Incoming Mail' "
+            u"href='{}' target='_blank'><span class='pretty_link_icons'><img title='Courrier entrant' "
             u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' style="
             u"\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content state-created'>"
             u"E0001 - Courrier 1</span></a>".format(mail.absolute_url()),
@@ -317,9 +300,9 @@ class TestColumns(unittest.TestCase):
         self.portal.REQUEST["AUTHENTICATED_USER"] = api.user.get(username=TEST_USER_ID)
         rendered = column.renderCell(self.ta1)
         self.assertIn("do_to_assign", rendered)
-        self.assertIn('title="Edit"', rendered)
-        self.assertIn('title="Delete"', rendered)
-        self.assertIn('"overlay-history"', rendered)
+        self.assertIn('title="Modifier"', rendered)
+        self.assertIn('title="Supprimer"', rendered)
+        self.assertIn('class="pat-plone-modal overlay-history"', rendered)
         column.view_name = ""
         self.assertRaises(KeyError, column.renderCell, self.ta1)
 
@@ -372,10 +355,10 @@ class TestSessionIdColumn(unittest.TestCase):
         self.column.table = self.table
 
     def test_renderHeadCell(self):
-        # relative image url (relies on <base>)
+        # absolute image url (no <base> on Plone 6)
         self.assertEqual(
             self.column.renderHeadCell(),
-            u'<img src="++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID',
+            u'<img src="http://nohost/plone/++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID',
         )
 
     def test_renderCell(self):

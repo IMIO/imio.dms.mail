@@ -22,7 +22,6 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
-from mock import patch
 from plone import api
 from plone.app.testing import logout
 # from plone.app.testing import setRoles
@@ -30,6 +29,7 @@ from plone.app.testing import logout
 from plone.dexterity.utils import createContentInContainer
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from plone.namedfile.file import NamedBlobFile
+from unittest.mock import patch
 from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog
 from zope.component import getUtility
@@ -240,14 +240,14 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         add = CustomAddForm(self.portal["incoming-mail"], self.request)
         add.portal_type = "dmsincomingmail"
         add.update()
-        self.assertEqual(add.widgets["ITask.due_date"].value, ("", "", ""))
+        self.assertIsNone(add.widgets["ITask.due_date"].value)  # Plone 6 date widget (was a 3-tuple)
         # set due_date_extension to 15
         api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.due_date_extension", 15)
         self.request = self.portal["incoming-mail"].REQUEST
         add = CustomAddForm(self.portal["incoming-mail"], self.request)
         add.portal_type = "dmsincomingmail"
         add.update()
-        self.assertNotEqual(add.widgets["ITask.due_date"].value, ("", "", ""))
+        self.assertIsNotNone(add.widgets["ITask.due_date"].value)
 
         # testing OM views: default parameters
         api.portal.set_registry_record(

@@ -7,7 +7,7 @@
      tal:attributes="href string:${context/absolute_url}/edit${view/fieldset};
                      class python: view.kwargs.get('edit_action_class', '');
                      target python: view.kwargs.get('edit_action_target', '_parent');">
-    <img src="edit.gif" tal:attributes="src string:${view/portal_url}/edit.png" title="Edit" i18n:attributes="title" />
+    <img src="edit.svg" tal:attributes="src python: view.iconUrl('toolbar-action/edit')" title="Edit" i18n:attributes="title" />
   </a>
   <tal:comment replace="nothing">Button</tal:comment>
   <form tal:condition="not: useIcons"

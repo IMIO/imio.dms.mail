@@ -53,9 +53,9 @@ class TabularView(BrowserView):
             if state:
                 klass = "state-%s" % state
             if self.context.getId() == "searchfor_created" and item.getObject().wl_isLocked():
-                return (
-                    '<img width="16" height="16" title="Locked" src="lock_icon.png">'
-                    '<a href="%s" class="%s">%s</a>' % (item.getURL(), klass, value)
+                icons = getMultiAdapter((self.context, self.request), name="iconresolver")
+                return '%s<a href="%s" class="%s">%s</a>' % (
+                    icons.tag("lock", tag_alt="Locked"), item.getURL(), klass, value
                 )
             return '<a href="%s" class="%s">%s</a>' % (item.getURL(), klass, value)
         elif field_name == "review_state":

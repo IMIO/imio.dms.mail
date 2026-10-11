@@ -35,9 +35,6 @@
   <type type_id="contact_list">
    <bound-workflow workflow_id="active_inactive_workflow"/>
   </type>
-  <type type_id="cktemplate">
-   <bound-workflow workflow_id="(Default)"/>
-  </type>
   <type type_id="ClassificationCategory">
    <bound-workflow workflow_id=""/>
   </type>

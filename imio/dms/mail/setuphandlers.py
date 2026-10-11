@@ -12,21 +12,20 @@ __author__ = """Gauthier BASTIEN <gbastien@imio.be>, Stephan GEULETTE
 __docformat__ = "plaintext"
 
 from collections import OrderedDict
-from collective.ckeditortemplates.setuphandlers import FOLDER as DEFAULT_CKE_TEMPL_FOLDER
 from collective.documentgenerator.interfaces import IBelowContentBodyBatchActionsMarker
-from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.collectionwidget.interfaces import ICollectionCategories
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.eeafaceted.dashboard.utils import enableFacetedDashboardFor
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.labels.interfaces import ILabelJar
+from collective.labels.interfaces import ILabelRoot
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.quickupload.browser.quickupload_settings import IQuickUploadControlPanel
 from dexterity.localroles.utils import add_fti_configuration
 from dexterity.localroles.utils import fti_configuration
-from ftw.labels.interfaces import ILabelJar
-from ftw.labels.interfaces import ILabelRoot
 from imio.dms.mail import _tr as _
+from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail import FIRST_LEVEL_TABS
 # from imio.dms.mail import CREATING_FIELD_ROLE
@@ -39,7 +38,6 @@ from imio.dms.mail.interfaces import IContactListsDashboardBatchActions
 from imio.dms.mail.interfaces import IHeldPositionsDashboardBatchActions
 from imio.dms.mail.interfaces import IIMDashboardBatchActions
 from imio.dms.mail.interfaces import IImioDmsMailLayer
-from imio.dms.mail.interfaces import IOMCKTemplatesFolder
 from imio.dms.mail.interfaces import IOMDashboardBatchActions
 from imio.dms.mail.interfaces import IOMTemplatesFolder
 from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
@@ -59,7 +57,9 @@ from imio.helpers.security import get_environment
 from imio.helpers.workflow import do_transitions
 from imio.pyutils.utils import safe_encode
 from plone import api
-from plone.app.controlpanel.markup import MarkupControlPanelAdapter
+from plone.app.contenttypes.setuphandlers import configure_members_folder
+from plone.base.interfaces.constrains import ISelectableConstrainTypes
+from plone.base.utils import base_hasattr
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.namedfile.file import NamedBlobImage
 from plone.portlets.constants import CONTEXT_CATEGORY
@@ -67,15 +67,10 @@ from plone.registry.interfaces import IRegistry
 from Products.CMFCore.ActionInformation import Action
 # from Products.CMFPlone import PloneMessageFactory as pmf
 from Products.CMFPlone.interfaces import INonInstallable
-from Products.CMFPlone.utils import base_hasattr
-from Products.CPUtils.Extensions.utils import configure_ckeditor
-from Products.cron4plone.browser.configlets.cron_configuration import ICronConfiguration
 from Products.MimetypesRegistry import MimeTypeException
-from zope.annotation.interfaces import IAnnotations
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.component import queryUtility
-from zope.i18n.interfaces import ITranslationDomain
 from zope.interface import alsoProvides
 from zope.interface import implementer
 
@@ -91,21 +86,15 @@ OM_PRINT_TO_SIGN_COLS = ("to_treat", "searchfor_created")
 OM_PRINT_SIGNED_COLS = ("om_treating", "om_to_email", "searchfor_signed")
 
 
-def _no_more_used(msgid, domain="imio.dms.mail"):  # TODO delete if no more necessary
-    translation_domain = queryUtility(ITranslationDomain, domain)
-    sp = api.portal.get().portal_properties.site_properties
-    return translation_domain.translate(msgid, target_language=sp.getProperty("default_language", "fr"))
-
-
 def add_db_col_folder(folder, cid, title, displayed=""):
     if base_hasattr(folder, cid):
         return folder[cid]
 
     folder.invokeFactory("Folder", id=cid, title=title, rights=displayed)
     col_folder = folder[cid]
-    col_folder.setConstrainTypesMode(1)
-    col_folder.setLocallyAllowedTypes(["DashboardCollection"])
-    col_folder.setImmediatelyAddableTypes(["DashboardCollection"])
+    ISelectableConstrainTypes(col_folder).setConstrainTypesMode(1)
+    ISelectableConstrainTypes(col_folder).setLocallyAllowedTypes(["DashboardCollection"])
+    ISelectableConstrainTypes(col_folder).setImmediatelyAddableTypes(["DashboardCollection"])
     do_transitions(col_folder, ["show_internally"])
     alsoProvides(col_folder, ICollectionCategories)
     alsoProvides(col_folder, IProtectedItem)
@@ -263,9 +252,9 @@ def postInstall(context):
             im_folder, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_mails"].UID()
         )
 
-        im_folder.setConstrainTypesMode(1)
-        im_folder.setLocallyAllowedTypes(["dmsincomingmail", "dmsincoming_email"])
-        im_folder.setImmediatelyAddableTypes(["dmsincomingmail", "dmsincoming_email"])
+        ISelectableConstrainTypes(im_folder).setConstrainTypesMode(1)
+        ISelectableConstrainTypes(im_folder).setLocallyAllowedTypes(["dmsincomingmail", "dmsincoming_email"])
+        ISelectableConstrainTypes(im_folder).setImmediatelyAddableTypes(["dmsincomingmail", "dmsincoming_email"])
         do_transitions(im_folder, ["show_internally"])
         logger.info("incoming-mail folder created")
 
@@ -290,18 +279,18 @@ def postInstall(context):
             om_folder, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_mails"].UID()
         )
 
-        om_folder.setConstrainTypesMode(1)
-        # om_folder.setLocallyAllowedTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
-        om_folder.setLocallyAllowedTypes(["dmsoutgoingmail"])
-        # om_folder.setImmediatelyAddableTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
-        om_folder.setImmediatelyAddableTypes(["dmsoutgoingmail"])
+        ISelectableConstrainTypes(om_folder).setConstrainTypesMode(1)
+        # ISelectableConstrainTypes(om_folder).setLocallyAllowedTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
+        ISelectableConstrainTypes(om_folder).setLocallyAllowedTypes(["dmsoutgoingmail"])
+        # ISelectableConstrainTypes(om_folder).setImmediatelyAddableTypes(['dmsoutgoingmail', 'dmsoutgoing_email'])
+        ISelectableConstrainTypes(om_folder).setImmediatelyAddableTypes(["dmsoutgoingmail"])
         do_transitions(om_folder, ["show_internally"])
         logger.info("outgoing-mail folder created")
 
     if not base_hasattr(site, "requests"):
         folderid = site.invokeFactory("Folder", id="requests", title=_(u"requests_tab"))
         req_folder = getattr(site, folderid)
-        req_folder.setExcludeFromNav(True)
+        req_folder.exclude_from_nav = True
         alsoProvides(req_folder, INextPrevNotNavigable)
         alsoProvides(req_folder, ILabelRoot)
         alsoProvides(req_folder, ICountableTab)
@@ -318,9 +307,9 @@ def postInstall(context):
             req_folder, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_requests"].UID()
         )
 
-        req_folder.setConstrainTypesMode(1)
-        req_folder.setLocallyAllowedTypes(["sign_request"])
-        req_folder.setImmediatelyAddableTypes(["sign_request"])
+        ISelectableConstrainTypes(req_folder).setConstrainTypesMode(1)
+        ISelectableConstrainTypes(req_folder).setLocallyAllowedTypes(["sign_request"])
+        ISelectableConstrainTypes(req_folder).setImmediatelyAddableTypes(["sign_request"])
         do_transitions(req_folder, ["show_internally"])
         logger.info("requests folder created")
 
@@ -343,9 +332,9 @@ def postInstall(context):
             tsk_folder, xml="default_dashboard_widgets.xml", default_UID=col_folder["all_tasks"].UID()
         )
 
-        tsk_folder.setConstrainTypesMode(1)
-        tsk_folder.setLocallyAllowedTypes(["task"])
-        tsk_folder.setImmediatelyAddableTypes(["task"])
+        ISelectableConstrainTypes(tsk_folder).setConstrainTypesMode(1)
+        ISelectableConstrainTypes(tsk_folder).setLocallyAllowedTypes(["task"])
+        ISelectableConstrainTypes(tsk_folder).setImmediatelyAddableTypes(["task"])
         do_transitions(tsk_folder, ["show_internally"])
         logger.info("tasks folder created")
 
@@ -442,21 +431,21 @@ def postInstall(context):
         )
         # add personnel searches dashboard
         create_personnel_dashboard(pf)
-        pf.setConstrainTypesMode(1)
-        pf.setLocallyAllowedTypes(["person"])
-        pf.setImmediatelyAddableTypes(["person"])
+        ISelectableConstrainTypes(pf).setConstrainTypesMode(1)
+        ISelectableConstrainTypes(pf).setLocallyAllowedTypes(["person"])
+        ISelectableConstrainTypes(pf).setImmediatelyAddableTypes(["person"])
         # add contact list folder
         contacts.invokeFactory("Folder", "contact-lists-folder", title=u"Listes de contact")
         contacts.moveObjectToPosition("contact-lists-folder", 5)
         clf = contacts["contact-lists-folder"]
-        clf.setLayout("folder_tabular_view")
+        clf.setLayout("tabular_view")
         api.content.transition(obj=clf, transition="show_internally")
         alsoProvides(clf, IActionsPanelFolder)
         alsoProvides(clf, INextPrevNotNavigable)
         alsoProvides(clf, IProtectedItem)
-        clf.setConstrainTypesMode(1)
-        clf.setLocallyAllowedTypes(["Folder", "contact_list"])
-        clf.setImmediatelyAddableTypes(["Folder", "contact_list"])
+        ISelectableConstrainTypes(clf).setConstrainTypesMode(1)
+        ISelectableConstrainTypes(clf).setLocallyAllowedTypes(["Folder", "contact_list"])
+        ISelectableConstrainTypes(clf).setImmediatelyAddableTypes(["Folder", "contact_list"])
         clf.__ac_local_roles_block__ = True
         # add plonegroup-organization
         params = {
@@ -491,20 +480,7 @@ def postInstall(context):
     pdiff.setDiffForPortalType("task", {"any": "Compound Diff for Dexterity types"})
     pdiff.setDiffForPortalType("dmsommainfile", {"any": "Compound Diff for Dexterity types"})
 
-    # reimport collective.contact.widget's registry step (disable jQueryUI's autocomplete)
-    site.portal_setup.runImportStepFromProfile("profile-collective.contact.widget:default", "plone.app.registry")
-
     configure_actions_panel(site)
-
-    configure_ckeditor(site, custom="ged", filtering="disabled")
-    # add autolink plugin to ckeditor
-    ckprops = site.portal_properties.ckeditor_properties
-    if ckprops.hasProperty("plugins"):
-        plugins_list = list(ckprops.getProperty("plugins"))
-        autolink_plugin = "autolink;/++resource++ckeditor/plugins/autolink/plugin.js"
-        if autolink_plugin not in plugins_list:
-            plugins_list.append(autolink_plugin)
-            ckprops.manage_changeProperties(plugins=plugins_list)
 
     # create iconified categories folders
     setup_iconified_categories(site)
@@ -513,11 +489,9 @@ def postInstall(context):
     if api.portal.get_registry_record(key):
         api.portal.set_registry_record(key, False)
 
-    configure_documentviewer(site)  # before templates to avoid auto-layout default config
     configure_fpaudit(site)
 
     add_templates(site)
-    add_oem_templates(site)
     site.templates.exclude_from_nav = True
     site.templates.reindexObject()
 
@@ -542,7 +516,8 @@ def postInstall(context):
 
     add_transforms(site)
 
-    set_portlet(site)
+    if ARCHIVE_SITE:
+        api.portal.set_registry_record("plone.bundles/imio-dms-mail-archives.enabled", True)
 
     order_1st_level(site)
 
@@ -571,11 +546,7 @@ def postInstall(context):
     )
 
     # set sim_upload_limit to 1 to prevent ZODB conflicts on concurrent uploads
-    IQuickUploadControlPanel(site).set_sim_upload_limit(1)
-
-    # remove collective.ckeditortemplates folder
-    if DEFAULT_CKE_TEMPL_FOLDER in site:
-        api.content.delete(obj=site[DEFAULT_CKE_TEMPL_FOLDER])
+    getUtility(IRegistry).forInterface(IQuickUploadControlPanel).sim_upload_limit = 1
 
     # hide plone.portalheader message viewlet
     site.portal_setup.runImportStepFromProfile("profile-plonetheme.imioapps:default", "viewlets")
@@ -2135,8 +2106,6 @@ def adaptDefaultPortal(context):
     """
     site = context.getSite()
 
-    # deactivate tabs auto generation in navtree_properties
-    # site.portal_properties.site_properties.disable_folder_sections = True
     # remove default created objects like events, news, ...
     for obj, ids in {site: ("events", "news"), site.portal_actions.user: ("contact-contactlist-mylists",)}.items():
         for oid in ids:
@@ -2146,45 +2115,36 @@ def adaptDefaultPortal(context):
             except AttributeError:
                 continue
 
-    # set member area type
+    # set member area type (user folders are not created at login: plone.enable_user_folders stays False)
     site.portal_membership.setMemberAreaType("member_area")
     site.portal_membership.memberareaCreationFlag = 0
-    site.Members.setExcludeFromNav(True)
-    site.Members.setConstrainTypesMode(1)
-    site.Members.setLocallyAllowedTypes([])
-    site.Members.setImmediatelyAddableTypes([])
+    # Plone 6 creates the Members folder only with the example content
+    configure_members_folder(site, api.portal.get_default_language())
+    site.Members.exclude_from_nav = True
+    ISelectableConstrainTypes(site.Members).setConstrainTypesMode(1)
+    ISelectableConstrainTypes(site.Members).setLocallyAllowedTypes([])
+    ISelectableConstrainTypes(site.Members).setImmediatelyAddableTypes([])
 
-    # change the content of the front-page
-    try:
-        frontpage = getattr(site, "front-page")
-        if not base_hasattr(site, "incoming-mail"):
-            frontpage.setTitle(_("front_page_title"))
-            frontpage.setDescription(_("front_page_descr"))
-            frontpage.setText(_("front_page_text"), mimetype="text/html")
-            # remove the presentation mode
-            frontpage.setPresentation(False)
+    # change the content of the front page (Plone 6: the site root, or a front-page document of the example content)
+    frontpage = site.get("front-page", None)
+    if not base_hasattr(site, "incoming-mail"):
+        if frontpage is not None:
+            frontpage.title = _("front_page_title")
+            frontpage.description = _("front_page_descr")
+            frontpage.text = richtextval(_("front_page_text"))
             do_transitions(frontpage, ["show_internally"])
             frontpage.reindexObject()
-            logger.info("front page adapted")
-        # set front-page folder as not next/prev navigable
-        if not INextPrevNotNavigable.providedBy(frontpage):
-            alsoProvides(frontpage, INextPrevNotNavigable)
-
-    except AttributeError:
-        # the 'front-page' object does not exist...
-        pass
-
-    # reactivate old Topic
-    site.portal_types.Topic.manage_changeProperties(global_allow=True)
-    for action in site.portal_controlpanel.listActions():
-        if action.id == "portal_atct":
-            action.visible = True
+        else:
+            site.text = richtextval(_("front_page_text"))
+        logger.info("front page adapted")
+    # set front-page folder as not next/prev navigable
+    if frontpage is not None and not INextPrevNotNavigable.providedBy(frontpage):
+        alsoProvides(frontpage, INextPrevNotNavigable)
 
     # change default_page_types property
-    if "Folder" not in site.portal_properties.site_properties.default_page_types:
-        new_list = list(site.portal_properties.site_properties.default_page_types)
-        new_list.append("Folder")
-        site.portal_properties.site_properties.manage_changeProperties(default_page_types=new_list)
+    default_page_types = list(api.portal.get_registry_record("plone.default_page_types", default=[]))
+    if "Folder" not in default_page_types:
+        api.portal.set_registry_record("plone.default_page_types", default_page_types + ["Folder"])
 
     # permissions
     # Removing owner to 'hide' sharing tab
@@ -2226,22 +2186,22 @@ def adaptDefaultPortal(context):
     # site.manage_permission('imio.dms.mail: Write creating group field', ('Manager', 'Site Administrator'),
     #                       acquire=0)
 
-    # Default roles for ftw labels
-    site.manage_permission("ftw.labels: Manage Labels Jar", ("Manager", "Site Administrator"), acquire=0)
-    site.manage_permission("ftw.labels: Change Labels", ("Manager", "Site Administrator"), acquire=0)
-    site.manage_permission("ftw.labels: Change Personal Labels", ("Manager", "Site Administrator", "Member"), acquire=0)
+    # Default roles for labels
+    site.manage_permission("collective.labels: Manage Labels Jar", ("Manager", "Site Administrator"), acquire=0)
+    site.manage_permission("collective.labels: Change Labels", ("Manager", "Site Administrator"), acquire=0)
+    site.manage_permission(
+        "collective.labels: Change Personal Labels", ("Manager", "Site Administrator", "Member"), acquire=0
+    )
     site.manage_permission("Portlets: Manage own portlets", ("Manager", "Site Administrator"), acquire=0)
 
     # Set markup allowed types: for RichText field, don't display anymore types listbox
-    adapter = MarkupControlPanelAdapter(site)
-    adapter.set_allowed_types(["text/html"])
+    api.portal.set_registry_record("plone.allowed_types", ("text/html",))
 
     # Activate browser message
     msg = site["messages-config"]["browser-warning"]
     api.content.transition(obj=msg, to_state="activated")
 
     # we need external edition so make sure it is activated
-    # site.portal_properties.site_properties.manage_changeProperties(ext_editor=True)  # sans effet
     site.portal_memberdata.manage_changeProperties(ext_editor=True)  # par défaut pour les nouveaux utilisateurs
 
     # for collective.externaleditor
@@ -2261,10 +2221,10 @@ def adaptDefaultPortal(context):
 
     # registry
     api.portal.set_registry_record(
-        name="Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.allowed", value=False
+        name="plone.base.interfaces.syndication.ISiteSyndicationSettings.allowed", value=False
     )
     api.portal.set_registry_record(
-        name="Products.CMFPlone.interfaces.syndication.ISiteSyndicationSettings.search_rss_enabled", value=False
+        name="plone.base.interfaces.syndication.ISiteSyndicationSettings.search_rss_enabled", value=False
     )
     api.portal.set_registry_record(
         "collective.contact.core.interfaces.IContactCoreParameters.contact_source_metadata_content",
@@ -2302,14 +2262,6 @@ def adaptDefaultPortal(context):
     set_dms_config(["review_states", "task"], OrderedDict())
     set_dms_config(["review_states", "dmsoutgoingmail"], OrderedDict())
 
-    # cron4plone settings
-    cron_configlet = queryUtility(ICronConfiguration, "cron4plone_config")
-    if not cron_configlet.cronjobs:
-        # Syntax: m h dom mon command.
-        cron_configlet.cronjobs = [
-            u"59 3 * * portal/@@various-utils/cron_read_label_handling",
-        ]
-
     # configure MailHost
     if get_environment() == "prod":
         mail_host = get_mail_host()
@@ -2342,7 +2294,6 @@ def changeSearchedTypes(site):
         "PodTemplate",
         "StyleTemplate",
         "SubTemplate",
-        "Topic",
         "directory",
         "dmsdocument",
         "held_position",
@@ -2351,14 +2302,14 @@ def changeSearchedTypes(site):
         "position",
         "task",
     ]
-    not_searched = list(site.portal_properties.site_properties.types_not_searched)
+    not_searched = list(api.portal.get_registry_record("plone.types_not_searched", default=[]))
     for typ in to_show:
         if typ in not_searched:
             not_searched.remove(typ)
     for typ in to_hide:
-        if typ not in not_searched:
+        if typ not in not_searched and typ in site.portal_types:  # the record only accepts existing types
             not_searched.append(typ)
-    site.portal_properties.site_properties.manage_changeProperties(types_not_searched=not_searched)
+    api.portal.set_registry_record("plone.types_not_searched", tuple(not_searched))
 
 
 def configure_rolefields(context):
@@ -2551,7 +2502,7 @@ def configure_om_rolefields(context):
             logger.warning(msg)
         # msg = add_fti_configuration('dmsoutgoing_email', roles_config[keyname], keyname=keyname)
         # if msg:
-        #     logger.warn(msg)
+        #     logger.warning(msg)
 
 
 def configure_signrequest_rolefields(context):
@@ -2725,23 +2676,6 @@ def configure_task_config(context):
     registry["collective.task.parents_fields"] = PARENTS_FIELDS_CONFIG
 
 
-def configure_documentviewer(site):
-    """
-    Set the settings of document viewer product
-    """
-    gsettings = GlobalSettings(site)
-    gsettings.storage_location = os.path.join(os.getcwd(), "var", "dv_files")
-    gsettings.storage_type = "Blob"
-    gsettings.pdf_image_format = "jpg"
-    gsettings.auto_select_layout = False
-    if "excel" not in gsettings.auto_layout_file_types:
-        gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + ["excel", "image"]
-    # gsettings.auto_convert = False
-    gsettings.show_search = True
-    # set preservation days
-    api.portal.set_registry_record("imio.dms.mail.dv_clean_days", 180)
-
-
 def configure_fpaudit(site):
     """Set fpaudit registry"""
     registry = getUtility(IRegistry)
@@ -2801,6 +2735,10 @@ def configure_actions_panel(portal):
 
 def configure_faceted_folder(folder, xml=None, default_UID=None, show_left_column=True):
     """Configure faceted navigation on folder."""
+    # eea.facetednavigation 16: only the types with this behavior can be faceted
+    fti = getUtility(IDexterityFTI, name=folder.portal_type)
+    if "eea.faceted.navigable" not in fti.behaviors:
+        fti.manage_changeProperties(behaviors=tuple(fti.behaviors) + ("eea.faceted.navigable",))
     enableFacetedDashboardFor(
         folder,
         xml and os.path.dirname(__file__) + "/faceted_conf/%s" % xml or None,
@@ -2826,12 +2764,12 @@ def list_templates():
     # (cid, plone_path, os_path, position in parent folder: subfolders are not moved, so 'templates/om'
     #  stays first in 'templates', as 'templates/om/common' in 'templates/om')
     return [
-        (10, "templates/d-im-listing", os.path.join(dpath, "d-im-listing.odt"), 2),
-        (12, "templates/d-im-listing-tab", os.path.join(dpath, "d-im-listing.ods"), 3),
-        (13, "templates/d-im-listing-tab-details", os.path.join(dpath, "d-im-listing-details.ods"), 4),
-        (20, "templates/all-contacts-export", os.path.join(dpath, "contacts-export.ods"), 5),
-        (30, "templates/export-users-groups", os.path.join(dpath, "export-users-groups.ods"), 6),
-        (40, "templates/audit-contacts", os.path.join(dpath, "audit-contacts.ods"), 7),
+        (10, "templates/d-im-listing", os.path.join(dpath, "d-im-listing.odt"), 1),
+        (12, "templates/d-im-listing-tab", os.path.join(dpath, "d-im-listing.ods"), 2),
+        (13, "templates/d-im-listing-tab-details", os.path.join(dpath, "d-im-listing-details.ods"), 3),
+        (20, "templates/all-contacts-export", os.path.join(dpath, "contacts-export.ods"), 4),
+        (30, "templates/export-users-groups", os.path.join(dpath, "export-users-groups.ods"), 5),
+        (40, "templates/audit-contacts", os.path.join(dpath, "audit-contacts.ods"), 6),
         (90, "templates/om/style", os.path.join(dpath, "om-styles.odt"), 0),
         (100, "templates/om/header", os.path.join(dpath, "om-header.odt"), 1),
         (105, "templates/om/footer", os.path.join(dpath, "om-footer.odt"), 2),
@@ -2862,10 +2800,10 @@ def add_templates(site):
         if not base_hasattr(parent, tid):
             folderid = parent.invokeFactory("Folder", id=tid, title=title)
             tplt_fld = getattr(parent, folderid)
-            tplt_fld.setLocallyAllowedTypes(template_types)
-            tplt_fld.setImmediatelyAddableTypes(template_types)
-            tplt_fld.setConstrainTypesMode(1)
-            tplt_fld.setExcludeFromNav(False)
+            ISelectableConstrainTypes(tplt_fld).setLocallyAllowedTypes(template_types)
+            ISelectableConstrainTypes(tplt_fld).setImmediatelyAddableTypes(template_types)
+            ISelectableConstrainTypes(tplt_fld).setConstrainTypesMode(1)
+            tplt_fld.exclude_from_nav = False
             api.content.transition(obj=tplt_fld, transition="show_internally")
             alsoProvides(tplt_fld, INextPrevNotNavigable)
             alsoProvides(tplt_fld, IProtectedItem)
@@ -3154,55 +3092,6 @@ def add_transforms(site):
                 logger.info("Added '%s' transform" % name)
             except MimeTypeException as err:
                 logger.info("CANNOT ADD '{}' transform: {}".format(name, err))
-
-
-def add_oem_templates(site):
-    """Create email templates."""
-    folder_id = "oem"
-    if folder_id in site.templates:
-        return
-    site.templates.invokeFactory("Folder", id=folder_id, title=_("Outgoing email"))
-    tplt_fld = site.templates[folder_id]
-    tplt_fld.setLocallyAllowedTypes(["Folder", "cktemplate"])
-    tplt_fld.setImmediatelyAddableTypes(["Folder", "cktemplate"])
-    tplt_fld.setConstrainTypesMode(1)
-    tplt_fld.setExcludeFromNav(False)
-    api.content.transition(obj=tplt_fld, transition="show_internally")
-    for itf in [IActionsPanelFolderAll, INextPrevNotNavigable, IProtectedItem]:
-        alsoProvides(tplt_fld, itf)
-    logger.info("'templates/{}' folder created".format(folder_id))
-    site.templates.moveObjectToPosition(folder_id, 1)
-    site.templates.oem.layout = "ck-templates-listing"
-    alsoProvides(site.templates.oem, IOMCKTemplatesFolder)
-
-    templates = [
-        {
-            "cid": 10,
-            "cont": "templates/oem",
-            "type": "cktemplate",
-            "id": "emain",
-            "title": _(u"Email general template"),
-            "trans": ["show_internally"],
-            "attrs": {
-                "content": richtextval(
-                    u"<p>Bonjour,</p><p>en réponse à votre email, vous trouverez ci-dessous les "
-                    u"infos demandées.</p><p>Cordialement</p><p>&nbsp;</p><p>Administration "
-                    u"communale</p><p>...</p>"
-                )
-            },
-        },
-    ]
-    create(templates, pos=False)
-
-
-def set_portlet(portal):
-    ann = IAnnotations(portal)
-    portlet = ann["plone.portlets.contextassignments"]["plone.leftcolumn"]["portlet_actions"]
-    portlet.ptitle = u"Liens divers"
-    portlet.category = u"object_portlet"
-    portlet.show_icons = False
-    portlet.default_icon = None
-    portlet._p_changed = True
 
 
 def update_task_workflow(portal):

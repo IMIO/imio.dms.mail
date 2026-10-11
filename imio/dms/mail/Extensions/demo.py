@@ -10,11 +10,11 @@ from collective.dms.batchimport.utils import createDocument
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import mailDateDefaultValue
-from collective.documentgenerator.utils import need_mailing_value
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail.dg_compat import need_mailing_value
 from imio.dms.mail.dmsmail import ImioDmsOutgoingMail
 from imio.dms.mail.dmssignrequest import internalReferenceSignRequestDefaultValue
 from imio.dms.mail.examples import add_special_model_mail
@@ -410,7 +410,7 @@ def clean_examples(self, doit="1"):
     out = []
     portal = api.portal.getSite()
     if doit:
-        portal.portal_properties.site_properties.enable_link_integrity_checks = False
+        api.portal.set_registry_record("plone.enable_link_integrity_checks", False)
     registry = getUtility(IRegistry)
 
     # Delete om
@@ -558,7 +558,7 @@ def clean_examples(self, doit="1"):
             api.content.delete(objects=[category])
     if doit:
         caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree_data", portal["tree"].UID())
-        portal.portal_properties.site_properties.enable_link_integrity_checks = True
+        api.portal.set_registry_record("plone.enable_link_integrity_checks", True)
     # Create test om
     if doit:
         add_special_model_mail(portal)
@@ -603,13 +603,7 @@ def activate_signing(self):
 
 
 def disable_resources_debug_mode(self):
-    portal = self
-    css_tool = portal.portal_css
-    js_tool = portal.portal_javascripts
-    if getattr(css_tool, 'getDebugMode', None):
-        css_tool.setDebugMode(False)
-    if getattr(js_tool, 'getDebugMode', None):
-        js_tool.setDebugMode(False)
+    api.portal.set_registry_record("plone.resources.development", False)
 
 
 def approval_annot(self):

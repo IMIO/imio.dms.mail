@@ -28,11 +28,11 @@ from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import DexteritySchemaPolicy
-from plone.directives.form.value import default_value
 from plone.indexer import indexer
 from plone.registry.interfaces import IRegistry
-from Products.PluginIndexes.common.UnIndex import _marker
+from Products.PluginIndexes.unindex import _marker
 from z3c.form import validator
+from z3c.form.widget import ComputedWidgetAttribute
 from zope import schema
 from zope.component import adapter
 from zope.component import getUtility
@@ -259,7 +259,6 @@ class SignRequestView(DmsDocumentView):
 ###################################################################
 
 
-@default_value(field=IImioDmsSignRequest["internal_reference_no"])
 def internalReferenceSignRequestDefaultValue(data):
     """Default value of internal_reference_no for a signing request."""
     return six.ensure_text(evaluateInternalReference(
@@ -268,6 +267,11 @@ def internalReferenceSignRequestDefaultValue(data):
         SIGNREQUEST_NUMBER_RECORD,
         SIGNREQUEST_TALEXPRESSION_RECORD,
     ))
+
+
+InternalReferenceSignRequestDefault = ComputedWidgetAttribute(
+    internalReferenceSignRequestDefaultValue, field=IImioDmsSignRequest["internal_reference_no"]
+)
 
 
 class InternalReferenceSignRequestValidator(InternalReferenceBaseValidator):

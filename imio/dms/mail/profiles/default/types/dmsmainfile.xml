@@ -1,15 +1,14 @@
 <?xml version="1.0"?>
 <object name="dmsmainfile" meta_type="Dexterity FTI">
  <property name="behaviors" purge="False">
-  <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
+  <element value="plone.textindexer" />
   <element value="collective.dms.scanbehavior.behaviors.IScanFields" />
   <element value="plone.app.content.interfaces.INameFromTitle" />
-  <element value="plone.app.lockingbehavior.behaviors.ILocking" />
+  <element value="plone.locking" />
  </property>
- <property name="default_view">documentviewer</property>
+ <property name="default_view">view</property>
  <property name="view_methods">
   <element value="view"/>
-  <element value="documentviewer"/>
  </property>
  <action title="View element" action_id="view_element" category="object_buttons" condition_expr=""
     description="" icon_expr="string:${portal_url}/++resource++imio.annex/view_element.png" link_target="_blank"

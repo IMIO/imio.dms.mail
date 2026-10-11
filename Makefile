@@ -69,8 +69,7 @@ robot: oneof-plone bin/buildout  ## run robot tests in headless firefox
 robot-server:  ## Starts robot server (layer=<layer name in testing.py>, default ACCEPTANCE)
 	# run a robot file against it with: bin/robot -v PLONE_MAJOR:$(firstword $(subst ., ,$(plone))) -v ZOPE_PORT:$(ZSERVER_PORT) imio/dms/mail/tests/robot/test_<feature>.robot
 	# OO_PORT: LibreOffice of the documentgenerator templates (bin/test reads it from [testenv], robot-server doesn't)
-	# --no-reload: the reload watchdog restarts the server when a template is read
-	env ZSERVER_HOST=localhost ZSERVER_PORT=$(ZSERVER_PORT) LISTENER_PORT=$(LISTENER_PORT) OO_PORT=55012 PYTHON_UNO=/usr/bin/python3 bin/robot-server --no-reload -v imio.dms.mail.testing.$(or $(layer),ACCEPTANCE)
+	env ZSERVER_HOST=localhost ZSERVER_PORT=$(ZSERVER_PORT) LISTENER_PORT=$(LISTENER_PORT) OO_PORT=55012 PYTHON_UNO=/usr/bin/python3 bin/robot-server -v imio.dms.mail.testing.$(or $(layer),ACCEPTANCE)
 
 .PHONY: cleanall
 cleanall:  ## Cleans all installed buildout files

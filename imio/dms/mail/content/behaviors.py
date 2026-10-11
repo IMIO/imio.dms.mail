@@ -9,6 +9,7 @@ from imio.dms.mail.browser.settings import ExpandableDataGridFieldFactory
 from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
+from imio.dms.mail.browser.widgets import with_inherited_fields
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -22,10 +23,10 @@ from operator import itemgetter
 from plone import api
 from plone.autoform import directives as form
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.base.utils import base_hasattr
 from plone.namedfile.utils import get_contenttype
 from plone.supermodel import directives
 from plone.supermodel import model
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
@@ -125,7 +126,7 @@ class ISignerSchema(Interface):
     signer = schema.Choice(
         title=_(u"Signer"),
         description=_(u"Related userid will be the signer. Position name of the held position will be used."),
-        source=signing_signers,
+        vocabulary=u"imio.dms.mail.SigningSignersVocabulary",
         required=True,
     )
 
@@ -338,7 +339,7 @@ class ISignRequestSignerSchema(ISignerSchema):
     signer = schema.Choice(
         title=_(u"Signer"),
         description=_(u"Related userid will be the signer. Position name of the held position will be used."),
-        source=signing_request_signers,
+        vocabulary=u"imio.dms.mail.SigningRequestSignersVocabulary",
         required=True,
     )
 
@@ -357,6 +358,7 @@ class ISignRequestSignerSchema(ISignerSchema):
 # (the DataGridField orders columns by field.order, not by plone.autoform order directives)
 ISignRequestSignerSchema["signer"].order = ISignerSchema["signer"].order
 ISignRequestSignerSchema["approvings"].order = ISignerSchema["approvings"].order
+ISignRequestSignerSchema = with_inherited_fields(ISignRequestSignerSchema)
 
 
 @provider(IFormFieldProvider)

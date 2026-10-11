@@ -1,0 +1,17 @@
+/* imio.dms.mail: bundle plone.bundles/imio-dms-mail-archives, disabled by default, enabled on archive sites */
+
+/* header of plonetheme.imioapps */
+body {
+  --imioapps-header-bg: maroon;
+}
+
+#portal-header {
+  background-color: maroon;
+}
+
+#portal-logo::after {
+  font-weight: bold;
+  color: white;
+  content: " ARCHIVES";
+  vertical-align: super;
+}

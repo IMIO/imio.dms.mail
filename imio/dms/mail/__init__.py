@@ -1,11 +1,9 @@
 from AccessControl import allow_module
 from AccessControl.Permissions import delete_objects
+from App.config import getConfiguration
 from collective.dms.basecontent import dmsfile
-from Globals import DevelopmentMode
 from plone import api
 from plone.dexterity.content import Container
-from Products.Archetypes.BaseFolder import BaseFolder
-from Products.CMFPlone.PloneFolder import BasePloneFolder
 from zope.component import queryUtility
 from zope.i18n.interfaces import ITranslationDomain
 from zope.i18nmessageid import MessageFactory
@@ -106,7 +104,7 @@ def get_empty_signers_value():
 # Normally to delete an item, user must have the delete permission on the item and on the parent container
 # Now container 'manage_delObjects' method is protected by roles (Member)
 # Based on what is done in AccessControl.class_init
-for klass in (BaseFolder, BasePloneFolder, Container):
+for klass in (Container,):
     new = []
     for perm in klass.__ac_permissions__:
         if perm[0] == delete_objects:
@@ -123,7 +121,7 @@ for klass in (BaseFolder, BasePloneFolder, Container):
 
 pmh = os.environ.get("ENABLE_PRINTING_MAILHOST", None)
 PMH_ENABLED = False
-if (pmh is not None and pmh.lower() in ("yes", "y", "true", "on")) or (pmh is None and DevelopmentMode is True):
+if (pmh is not None and pmh.lower() in ("yes", "y", "true", "on")) or (pmh is None and getattr(getConfiguration(), "debug_mode", False)):
     PMH_ENABLED = True
 
 ARCHIVE_SITE = False

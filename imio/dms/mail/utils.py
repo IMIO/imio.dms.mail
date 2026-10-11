@@ -1,22 +1,16 @@
 # encoding: utf-8
+from App.config import getConfiguration
 from BTrees.OOBTree import OOBTree  # noqa
 from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.utils import organizations_with_suffixes
-from collective.documentviewer.convert import Converter
-from collective.documentviewer.convert import saveFileToBlob
-from collective.documentviewer.settings import GlobalSettings
-from collective.documentviewer.settings import Settings
-from collective.documentviewer.utils import allowedDocumentType
-from collective.documentviewer.utils import getPortal
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
+from collective.labels.interfaces import ILabeling
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
-from DateTime import DateTime
-from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _tr as _
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import AUC_RECORD
@@ -27,19 +21,11 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
-from imio.helpers.batching import batch_delete_files
-from imio.helpers.batching import batch_get_keys
-from imio.helpers.batching import batch_handle_key
-from imio.helpers.batching import batch_hashed_filename
-from imio.helpers.batching import batch_loop_else
-from imio.helpers.batching import batch_skip_key
-from imio.helpers.batching import can_delete_batch_files
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import obj_modified
-from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
 from imio.helpers.security import separate_fullname
@@ -51,17 +37,17 @@ from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
 from plone.api.exc import GroupNotFoundError
+from plone.base.interfaces.constrains import ISelectableConstrainTypes
+from plone.base.utils import base_hasattr
 from plone.dexterity.utils import addContentToContainer
 from plone.i18n.normalizer import IIDNormalizer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from plone.z3cform.fieldsets.utils import add
 from plone.z3cform.fieldsets.utils import remove
+from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
-from Products.CMFPlone.utils import base_hasattr
-from Products.CMFPlone.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from Products.CPUtils.Extensions.utils import fileSize
 from Products.CPUtils.Extensions.utils import log_list
 from Products.Five import BrowserView
 from unidecode import unidecode
@@ -512,113 +498,6 @@ def reimport_faceted_config(folder, xml, default_UID=None):  # noqa
         _updateDefaultCollectionFor(folder, default_UID)
 
 
-def dv_clean(portal, days_back="365", date_back=None):
-    """Remove document viewer annotation on old mails.
-
-    * days_back: default behavior: we take closed items not modified from this range
-    * date_back: if present (YYYYMMDD), we take items not modified from this date (whatever the state)
-    """
-    if not check_zope_admin():
-        return "You must be a zope manager to run this script"
-    start = datetime.now()
-    out = [
-        "call the script followed by needed parameters:",
-        "-> days_back=nb of days to keep (default '365') (not used if date_back is used)",
-        "-> date_back=fixed date to consider (default None) (format YYYYMMDD)",
-    ]
-    # logger.info("Starting dv_clean at {}".format(start))
-    log_list(out, "Starting dv_clean at {}".format(start), logger)
-    from Products.CPUtils.Extensions.utils import dv_images_size
-
-    normal_blob = saveFileToBlob(os.path.join(PREVIEW_DIR, "previsualisation_supprimee_normal.jpg"))
-    blobs = {
-        "large": normal_blob,
-        "normal": normal_blob,
-        "small": saveFileToBlob(os.path.join(PREVIEW_DIR, "previsualisation_supprimee_small.jpg")),
-    }
-    criterias = [
-        {"portal_type": ["dmsincomingmail", "dmsincoming_email"]},
-        {"portal_type": ["dmsoutgoingmail"]},
-    ]
-    state_criterias = [
-        {"review_state": "closed"},
-        {"review_state": "sent"},
-    ]
-    if date_back:
-        if len(date_back) != 8:
-            log_list(out, "Bad date_back length '{}'".format(date_back), logger)
-            return
-        mod_date = datetime.strptime(date_back, "%Y%m%d")
-        # mod_date = add_timezone(mod_date, force=True)
-    else:
-        mod_date = start - timedelta(days=int(days_back))
-    already_done = DateTime("2010/01/01").ISO8601()  # when using image saying preview has been deleted
-    already_eml = DateTime("2011/01/01").ISO8601()  # when using image saying eml cannot be converted
-    get_same_blob = True  # we will get previously blobs
-    pc = portal.portal_catalog
-    brains = []
-    for j, criteria in enumerate(criterias):
-        if not date_back:
-            criteria.update(state_criterias[j])  # noqa
-        criteria.update({"modified": {"query": mod_date, "range": "max"}, "sort_on": "created"})  # noqa
-        brains.extend(pc(**criteria))
-
-    bl = len(brains)
-    pklfile = batch_hashed_filename('idm.dv_clean.pkl')
-    batch_keys, batch_config = batch_get_keys(pklfile, loop_length=bl)
-    total = {"obj": bl, "pages": 0, "files": 0, "size": 0}
-    for brain in brains:
-        if batch_skip_key(brain.UID, batch_keys, batch_config):
-            continue
-        mail = brain.getObject()
-        for fobj in object_values(mail, ["DmsFile", "DmsAppendixFile", "ImioDmsFile"]):
-            annot = IAnnotations(fobj).get("collective.documentviewer", "")
-            if not annot or not annot.get("successfully_converted"):
-                continue
-            if annot["last_updated"] == already_done:
-                if get_same_blob:
-                    for name in ("large", "normal", "small"):
-                        blobs[name] = annot["blob_files"]["{}/dump_1.jpg".format(name)]
-                    get_same_blob = False
-                continue
-            if annot["last_updated"] == already_eml:
-                continue
-            get_same_blob = False
-            total["files"] += 1
-            sizes = dv_images_size(fobj)
-            total["pages"] += sizes["pages"]
-            total["size"] += sizes["large"] + sizes["normal"] + sizes["small"] + sizes["text"]
-            # clean annotation
-            files = OOBTree()
-            for name in ["large", "normal", "small"]:
-                files["{}/dump_1.jpg".format(name)] = blobs[name]
-            annot["blob_files"] = files
-            annot["num_pages"] = 1
-            annot["pdf_image_format"] = "jpg"
-            annot["last_updated"] = already_done
-        if batch_handle_key(brain.UID, batch_keys, batch_config):
-            break
-    else:
-        batch_loop_else(batch_keys, batch_config)
-
-    end = datetime.now()
-    delta = end - start
-    # logger.info("Finishing dv_clean, duration {}".format(delta))
-    log_list(out, "Finishing dv_clean, duration {}".format(delta), logger)
-    total["deleted"] = total["pages"] * 4
-    total["size"] = fileSize(total["size"])
-    # logger.info("Objects: '{obj}', Files: '{files}', Pages: '{pages}', Deleted: '{deleted}', "
-    #             "Size: '{size}'".format(**total))
-    log_list(
-        out,
-        "Objects: '{obj}', Files: '{files}', Pages: '{pages}', Deleted: '{deleted}', " "Size: '{size}'".format(**total),
-        logger
-    )
-    if can_delete_batch_files(batch_keys, batch_config):
-        batch_delete_files(batch_keys, batch_config)
-    return "\n".join(out)
-
-
 def current_user_groups(user):
     """Return current user groups."""
     # no more used in code but kept if necessary
@@ -661,44 +540,6 @@ def is_in_user_groups(groups=(), admin=True, test="any", suffixes=(), org_uid=""
     elif test == "all":
         return all(x in u_groups for x in groups) and all(sfx in u_suffixes for sfx in suffixes)
     return False
-
-
-def eml_preview(obj):
-    """Adds jpeg documentviewer previews for eml file"""
-    blobs = {}
-    pc = api.portal.get_tool("portal_catalog")
-    brains = pc.unrestrictedSearchResults(portal_type="dmsmainfile", markers="dvConvError")
-    # search an existing main file with eml previews
-    for brain in brains:
-        o_annot = IAnnotations(brain._unrestrictedGetObject()).get("collective.documentviewer", "")
-        if o_annot and "blob_files" in o_annot:
-            for name in ("large", "normal", "small"):
-                blobs[name] = o_annot["blob_files"]["{}/dump_1.jpg".format(name)]
-            break
-    # otherwise create previews
-    if not blobs:
-        normal_blob = saveFileToBlob(os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
-        blobs = {
-            "large": normal_blob,
-            "normal": normal_blob,
-            "small": saveFileToBlob(os.path.join(PREVIEW_DIR, "previsualisation_eml_small.jpg")),
-        }
-    converter = Converter(obj)
-    annot = IAnnotations(obj).get("collective.documentviewer", "")
-    already_done = DateTime("2011/01/01").ISO8601()
-    files = OOBTree()
-    for name in ["large", "normal", "small"]:
-        files["{}/dump_1.jpg".format(name)] = blobs[name]
-    annot["blob_files"] = files
-    annot["num_pages"] = 1
-    annot["pdf_image_format"] = "jpg"
-    annot["storage_type"] = converter.gsettings.storage_type
-    annot["last_updated"] = already_done
-    annot["catalog"] = None
-    converter.initialize_filehash()  # get md5
-    annot["filehash"] = converter.filehash
-    annot["converting"] = False
-    annot["successfully_converted"] = True
 
 
 def is_dv_conv_in_error(obj):
@@ -843,47 +684,6 @@ class VariousUtilsMethods(UtilsMethods):
                 count += 1
             del dic[userid]
         logger.info("End of cron_read_label_handling, %d items labeled" % count)
-
-    def dv_conv_error(self):
-        """When a conversion problem occurs, made the context no more convertible."""
-        if not check_zope_admin():
-            return "You must be zope admin to run this"
-        if self.context.portal_type not in ("dmsmainfile", "dmsommainfile", "dmsappendixfile"):
-            return "Portal type not considered: {}".format(self.context.portal_type)
-        eml_preview(self.context)
-        annot = IAnnotations(self.context)
-        # so it cannot be converted anymore
-        annot["collective.documentviewer"]["last_updated"] = DateTime("2050/01/01").ISO8601()
-        if "exception_msg" in annot["collective.documentviewer"]:
-            del annot["collective.documentviewer"]["exception_msg"]
-        if "exception_traceback" in annot["collective.documentviewer"]:
-            del annot["collective.documentviewer"]["exception_traceback"]
-        self.context.reindexObject(idxs=["markers"])
-        return self.context.REQUEST["RESPONSE"].redirect("{}/view".format(self.context.absolute_url()))
-
-    def dv_images_clean(self):
-        """Call dv_clean to remove old images following configuration"""
-        # admin check is done in called dv_clean function
-        params = {
-            "days_back": api.portal.get_registry_record("imio.dms.mail.dv_clean_days", default=None),
-            "date_back": api.portal.get_registry_record("imio.dms.mail.dv_clean_date", default=None),
-        }
-        for k, v in list(params.items()):
-            if not params[k]:
-                del params[k]
-        if not params:
-            logger.error("No preservation parameters configured")
-            return
-        logger.info("Cleaning dv files with params {} on {}".format(params, self.context.absolute_url_path()))
-        try:
-            from datetime import datetime
-
-            if params.get("date_back"):
-                datetime.strftime(params["date_back"], "%Y%m%d")
-        except Exception as msg:
-            logger.error("Bad date value '{}': '{}'".format(params["date_back"], msg))
-            return
-        dv_clean(self.context, **params)
 
     def initialize_service_folder(self):
         """ """
@@ -1171,16 +971,6 @@ class VariousUtilsMethods(UtilsMethods):
             log_list(out, u"<p>none</p>")
         return u"\n".join(out)
 
-    def dv_conv_enabled(self):
-        if not base_hasattr(self.context, "file"):
-            return False
-        if is_dv_conv_in_error(self.context):
-            return False
-        if not allowedDocumentType(self.context, GlobalSettings(getPortal(self.context)).auto_layout_file_types):
-            return False
-        settings = Settings(self.context)
-        return not settings.successfully_converted
-
 
 class IdmUtilsMethods(UtilsMethods):
     """View containing incoming mail utils methods"""
@@ -1302,9 +1092,9 @@ def create_period_folder(main_dir, dte, subfolder=""):
         dte_str = dte.strftime(PERIODS[period])
     if dte_str not in main_dir:
         with api.env.adopt_user(username="admin"):
-            main_dir.setConstrainTypesMode(0)
+            ISelectableConstrainTypes(main_dir).setConstrainTypesMode(0)
             subfolder = api.content.create(main_dir, "Folder", dte_str, six.ensure_text(dte_str))
-            main_dir.setConstrainTypesMode(1)
+            ISelectableConstrainTypes(main_dir).setConstrainTypesMode(1)
             alsoProvides(subfolder, INextPrevNotNavigable)
             alsoProvides(subfolder, IHideFromBreadcrumbs)
             do_transitions(subfolder, ["show_internally"])
@@ -1737,3 +1527,32 @@ def is_hp_used_in_signer_rules(hp_obj, remaining_usages):
                 if person_uid in (rule.get("approvings") or []):
                     return True
     return False
+
+
+def get_scan_config(key):
+    """Return a value of the scan configuration (zope.conf `product-config imio.zamqp.core`, e.g. client_id).
+
+    Was imio.zamqp.core.base.get_config (imio.zamqp.core is not ported to Plone 6)."""
+    package_config = getattr(getConfiguration(), "product_config", {}).get("imio.zamqp.core")
+    if package_config is None:
+        raise ValueError("The config for the package is missing")
+    return package_config.get(key, "")
+
+
+def next_scan_id(file_portal_types=("dmsmainfile",), client_id_var="client_id", scan_type="3"):
+    """Return the scan id following the highest one found on the given types.
+
+    Was imio.zamqp.core.utils.next_scan_id."""
+    catalog = api.portal.get_tool("portal_catalog")
+    brains = catalog.unrestrictedSearchResults(
+        portal_type=list(file_portal_types), sort_on="scan_id", sort_order="descending", sort_limit=1
+    )
+    highest_id = brains and catalog.getIndexDataForRID(brains[0].getRID())["scan_id"] or None
+    client_id = get_scan_config(client_id_var)
+    prefix = "{}{}{}".format(client_id[0:2], scan_type, client_id[2:6])
+    # limitation: doesn't check if the generated id already exists in catalog
+    if not highest_id:
+        highest_id = "{}00000000".format(prefix)
+    elif not highest_id.startswith(prefix):
+        raise ValueError(u"highest_id '{}' doesn't start with prefix '{}'".format(highest_id, prefix))
+    return prefix + "{:08d}".format(int(highest_id[7:15]) + 1)

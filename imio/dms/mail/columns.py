@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Custom columns."""
 from collective.contact.plonegroup.interfaces import IPloneGroupContact
-from collective.documentgenerator.browser.table import ActionsColumn as DGActionsColumn
 from collective.eeafaceted.z3ctable import _ as _cez
 from collective.eeafaceted.z3ctable.columns import ActionsColumn
 from collective.eeafaceted.z3ctable.columns import BaseColumn
@@ -18,15 +17,12 @@ from collective.task.interfaces import ITaskMethods
 from html import escape
 from imio.annex.columns import ActionsColumn as AnnexActionsColumn
 from imio.annex.columns import FilesizeColumn as AnnexFilesizeColumn
-from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.helpers.content import uuidToCatalogBrain
 from plone import api
-from Products.CMFPlone import PloneMessageFactory as PMF
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table import column
 from z3c.table.column import LinkColumn
-from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.i18n import translate
 
@@ -47,7 +43,7 @@ class OMColorColumn(ColorColumn):
     sort_index = -1  # not sortable
     header = u"&nbsp;&nbsp;"
     header_js = (
-        '<script type="text/javascript">$(document).ready(function() {'
+        '<script type="text/javascript">jQuery(function($) {'
         '$(".tooltip-title").tooltipster({position: "right", theme: "tooltipster-shadow"});});</script>'
     )
 
@@ -141,10 +137,15 @@ class ContactsColumn(PrettyLinkColumn):
             icon_link = ""
             purl = api.portal.get_tool("portal_url")()
             typeInfo = api.portal.get_tool("portal_types")[c_brain.portal_type]
-            if typeInfo.icon_expr:
-                # we assume that stored icon_expr is like string:${portal_url}/myContentIcon.png
-                # or like string:${portal_url}/++resource++imio.dashboard/dashboardpodtemplate.png
-                contentIcon = "/".join(typeInfo.icon_expr.split("/")[1:])
+            icon_expr = typeInfo.icon_expr
+            if icon_expr:
+                if "portal_url" in icon_expr:
+                    # like string:${portal_url}/++resource++imio.dashboard/dashboardpodtemplate.png
+                    contentIcon = "/".join(icon_expr.split("/")[1:])
+                else:
+                    # Plone 6 iconresolver name like string:contenttype/organization
+                    iconresolver = getMultiAdapter((self.context, self.request), name="iconresolver")
+                    contentIcon = iconresolver.lookup(icon_expr.split(":", 1)[-1])
                 title = translate(typeInfo.title, domain=typeInfo.i18n_domain, context=self.request)
                 icon_link = u"<img title='%s' src='%s/%s' />" % (safe_unicode(escape(title)), purl, contentIcon)
             self.i_cache[c_brain.portal_type] = icon_link
@@ -251,7 +252,11 @@ class SessionIdColumn(BaseColumn):
     escape = False
 
     def renderHeadCell(self):
-        return u'<img src="++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID'
+        return (
+            u'<img src="{}/++resource++imio.esign/parapheo.svg" style="height:1em;vertical-align:middle"> ID'.format(
+                api.portal.get().absolute_url()
+            )
+        )
 
     def renderCell(self, content):
         if len(self.table.approval.session_ids) <= 1:
@@ -413,58 +418,6 @@ class PathColumn(LinkColumn, BaseColumn):
         if rel_path not in self.paths:
             self.rel_path_title(rel_path)
         return escape(self.paths[rel_path])
-
-
-# ck-templates-listing columns
-
-
-class CKTemplatesTitleColumn(LinkColumn):
-    """CKTemplates table. xss ok"""
-
-    header = PMF("Title")
-    weight = 10
-    cssClasses = {"td": "title-column"}
-
-    def getLinkCSS(self, item):
-        return ' class="state-%s"' % (api.content.get_state(obj=item))
-
-    def getLinkContent(self, item):
-        return item.title
-
-
-class CKPathColumn(LinkColumn):
-    """CKTemplates table. xss ok"""
-
-    header = _("Relative path")
-    weight = 20
-    cssClasses = {"td": "path-column"}
-    linkTarget = "_blank"
-
-    def getLinkURL(self, item):
-        """Setup link url."""
-        return item.__parent__.absolute_url()
-
-    def getLinkContent(self, item):
-        annot = IAnnotations(item)
-        return annot.get("dmsmail.cke_tpl_tit", "-") or "-"
-
-
-class CKTemplatesActionsColumn(DGActionsColumn):
-    """CKTemplates table. xss ok"""
-
-    #    header = _("Actions")
-    weight = 70
-    params = {
-        "useIcons": True,
-        "showHistory": False,
-        "showActions": True,
-        "showOwnDelete": False,
-        "showArrows": False,
-        "showTransitions": False,
-        "edit_action_class": "dg_edit_action",
-        "edit_action_target": "_blank",
-    }
-    cssClasses = {"td": "actions-column"}
 
 
 class PersonnelPrimaryOrganisationFacetedColumn(VocabularyColumn):

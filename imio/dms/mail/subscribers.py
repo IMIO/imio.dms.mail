@@ -14,7 +14,6 @@ from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
-from collective.documentviewer.subscribers import handle_file_creation
 from collective.iconifiedcategory.content.events import categorized_content_created
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
@@ -26,7 +25,6 @@ from imio.dms.mail import _
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import CREATING_GROUP_SUFFIX
-from imio.dms.mail import DV_AVOIDED_TYPES
 from imio.dms.mail import GE_CONFIG
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
@@ -44,12 +42,10 @@ from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
-from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import invalidate_users_groups
-from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import update_approvers_settings
 from imio.dms.mail.utils import update_transitions_auc_config
@@ -71,17 +67,16 @@ from imio.pm.wsclient.browser.settings import notify_configuration_changed
 from OFS.interfaces import IObjectWillBeRemovedEvent
 from operator import itemgetter
 from plone import api
-from plone.app.controlpanel.interfaces import IConfigurationChangedEvent
-from plone.app.linkintegrity.handlers import referencedObjectRemoved
-from plone.app.linkintegrity.interfaces import ILinkIntegrityInfo
-from plone.app.users.browser.personalpreferences import UserDataConfiglet
+from plone.app.users.browser.userdatapanel import UserDataConfiglet
+from plone.base.interfaces import IConfigurationChangedEvent
+from plone.base.interfaces.constrains import ISelectableConstrainTypes
+from plone.base.utils import base_hasattr
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRecordModifiedEvent
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield.event import removeRelations as orig_removeRelations
 from z3c.relationfield.event import updateRelations as orig_updateRelations
@@ -89,7 +84,6 @@ from z3c.relationfield.relation import RelationValue
 from zc.relation.interfaces import ICatalog  # noqa
 from zExceptions import Redirect
 # from zope.component.interfaces import ComponentLookupError
-from zope.annotation import IAnnotations
 from zope.component import getAdapter
 from zope.component import getMultiAdapter
 from zope.component import getSiteManager
@@ -120,15 +114,6 @@ try:
     from imio.helpers.ram import IMIORAMCache
 except ImportError:
     imio_global_cache = None
-
-try:
-    from plone.app.referenceablebehavior.referenceable import IReferenceable
-except ImportError:
-    from zope.interface import Interface
-
-    class IReferenceable(Interface):
-        pass
-
 
 logger = logging.getLogger("imio.dms.mail: events")
 
@@ -226,14 +211,15 @@ def _get_replied_ids(obj, from_obj=False):
                 return objs
             rels = catalog.findRelations({"from_id": intids.queryId(obj), "from_attribute": "reply_to"})
         for rel in rels:
-            if not rel.isBroken() and rel.to_object.portal_type != "dmsoutgoingmail":
+            if not rel.isBroken() and rel.to_object is not None and rel.to_object.portal_type != "dmsoutgoingmail":
                 objs.append(intids.getObject(rel.to_id))
     return objs
 
 
 def remove_relations(obj, event):
     """Overrides of z3c.relationfield.event.removeRelations to know removed linked ims."""
-    ims = _get_replied_ids(obj)
+    # from the object: its intid can already be removed (subscribers order), the relation catalog wouldn't find it
+    ims = _get_replied_ids(obj, from_obj=True)
     orig_removeRelations(obj, event)
     reindex_replied(ims)
 
@@ -694,46 +680,6 @@ def sign_request_added(request, event):
             request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers")))
 
 
-def dv_handle_file_creation(obj, event):
-    """Intermediate function to avoid converting some files in documentviewer"""
-    if obj.portal_type in DV_AVOIDED_TYPES:
-        return
-    # Can be yet improved by rejecting a specific marker interfaces
-    handle_file_creation(obj, event)
-
-
-def reference_document_removed(obj, event):
-    """
-    Check if there is a relation with another Document.
-    Like collective.contact.core.subscribers.referenceRemoved.
-    Where referenceObjectRemoved is also used
-    """
-    request = aq_get(obj, "REQUEST", None)
-    if not request:
-        return
-    # if '_link_integrity_check_' not in request:
-    #     request.set('_link_integrity_check_', True)
-    storage = ILinkIntegrityInfo(request)
-    # confirmed = request.get('HTTP_REFERER').endswith('delete_confirmation?')
-
-    catalog = queryUtility(ICatalog)
-    intids = queryUtility(IIntIds)
-    if catalog is None or intids is None:
-        return
-
-    obj_id = intids.queryId(obj)
-
-    # find all relations that point to us
-    for rel in catalog.findRelations({"to_id": obj_id, "from_attribute": "reply_to"}):
-        storage.addBreach(rel.from_object, rel.to_object)
-    # find relations we point
-    for rel in catalog.findRelations({"from_id": obj_id, "from_attribute": "reply_to"}):
-        storage.addBreach(rel.to_object, rel.from_object)
-
-
-# VARIOUS
-
-
 def task_transition(task, event):
     """
     update indexes after a transition
@@ -837,7 +783,7 @@ def _correct_to_print(file_obj):
     else:
         return
     try:
-        category = get_category_object(file_obj, getattr(file_obj, "content_category", "_none"))
+        category = get_category_object(file_obj, getattr(file_obj, "content_category", None) or "_none")
     except KeyError:
         return
     if new_value:
@@ -860,8 +806,6 @@ def i_annex_added(obj, event):
         obj.manage_permission(
             "Modify portal content", ("DmsFile Contributor", "Manager", "Site Administrator"), acquire=0
         )
-        if obj.file and (obj.file.filename.endswith(".eml") or obj.file.contentType == "message/rfc822"):
-            eml_preview(obj)
     elif obj.portal_type == "dmsommainfile":
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
@@ -898,8 +842,7 @@ def i_annex_will_be_removed(obj, event):
         "sign_request",
     ):
         try:
-            portal = api.portal.get()
-            pp = portal.portal_properties
+            api.portal.get()
         except api.portal.CannotGetPortalError:
             # When deleting site, the portal is no more found...
             return
@@ -926,9 +869,7 @@ def i_annex_will_be_removed(obj, event):
                 )
                 obj.REQUEST.RESPONSE.redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for delete_confirmation
                 raise Redirect(obj.REQUEST.get("HTTP_REFERER"))  # needed for "normal" delete
-            if pp.site_properties.enable_link_integrity_checks:
-                storage = ILinkIntegrityInfo(aq_get(obj, "REQUEST", None))
-                storage.addBreach(*breach)
+            # the link integrity breach is shown by browser.linkintegrity.DmsDeleteConfirmationInfo
 
 
 def i_annex_removed(obj, event):
@@ -936,11 +877,6 @@ def i_annex_removed(obj, event):
     # if IObjectRemovedEvent.providedBy(event):
     if event.object.portal_type == "Plone Site":
         return
-    if not IReferenceable.providedBy(obj):
-        try:
-            referencedObjectRemoved(obj, event)
-        except TypeError:
-            pass
     if obj.portal_type in ("dmsommainfile", "dmsappendixfile") and obj.__parent__.portal_type in (
         "dmsoutgoingmail",
         "sign_request",
@@ -1009,7 +945,6 @@ def dmsmainfile_modified(dmf, event):
                 break
             if desc.interface == IDmsFile and "file" in desc.attributes:
                 if dmf.file.filename.endswith(".eml") or dmf.file.contentType == "message/rfc822":
-                    eml_preview(dmf)
                     if u"." in dmf.title and dmf.title != dmf.file.filename:
                         dmf.title = dmf.file.filename
                         dmf.reindexObject()
@@ -1111,7 +1046,7 @@ def contact_plonegroup_change(event):
             req_folder._p_changed = True
         # we add a directory by organization in templates/om
         om_folder = portal.templates.om
-        oem_folder = portal.templates.oem
+        oem_folder = portal.templates.get("oem")  # email templates (collective.ckeditortemplates) dropped on Plone 6
         # base_model = om_folder.get("main", None)
         cl_folder = portal.contacts["contact-lists-folder"]
         for uid in s_orgs:
@@ -1137,7 +1072,7 @@ def contact_plonegroup_change(event):
                 #                          (base_model, '/'.join(folder.getPhysicalPath()), exc))
                 #         else:
                 #             raise exc
-            if uid not in oem_folder:
+            if oem_folder is not None and uid not in oem_folder:
                 folder = api.content.create(container=oem_folder, type="Folder", id=uid, title=full_title)
                 roles = ["Reader"]
                 if registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.org_email_templates_encoder_can_edit"]:
@@ -1149,7 +1084,7 @@ def contact_plonegroup_change(event):
                 #    api.content.copy(source=base_model, target=folder)
             if uid not in cl_folder:
                 folder = api.content.create(container=cl_folder, type="Folder", id=uid, title=full_title)
-                folder.setLayout("folder_tabular_view")
+                folder.setLayout("tabular_view")
                 roles = ["Reader", "Contributor", "Editor"]
                 api.group.grant_roles(groupname="%s_encodeur" % uid, roles=roles, obj=folder)
                 api.group.grant_roles(groupname="%s_editeur" % uid, roles=roles, obj=folder)
@@ -1619,83 +1554,15 @@ def contact_modified(obj, event):
 
 
 def personnel_contact_removed(del_obj, event):
-    """
-    Check if a personnel held_position is used as sender.
+    """Invalidate the sender vocabularies when a personnel held_position is removed.
+
+    The link integrity breaches (sender, signer rules) are shown by browser.linkintegrity.DmsDeleteConfirmationInfo.
     """
     # only interested by held_position user
     if del_obj.portal_type == "person":
         return
-    try:
-        portal = api.portal.get()
-        pp = portal.portal_properties
-        catalog = portal.portal_catalog
-    except api.portal.CannotGetPortalError:
-        # When deleting site, the portal is no more found...
-        return
-    if pp.site_properties.enable_link_integrity_checks:
-        storage = ILinkIntegrityInfo(aq_get(del_obj, "REQUEST", None))
-        for brain in catalog.unrestrictedSearchResults(portal_type=["dmsoutgoingmail"], sender_index=[del_obj.UID()]):
-            storage.addBreach(brain._unrestrictedGetObject(), del_obj)
-        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
-        invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
-
-
-def personnel_contact_will_be_removed(del_obj, event):
-    """
-    Check if a personnel held_position is used in omail_signer_rules or omail_signer_substitutes.
-    """
-    if del_obj.portal_type == "person":
-        return
-    try:
-        portal = api.portal.get()
-        pp = portal.portal_properties
-    except api.portal.CannotGetPortalError:
-        # When deleting site, the portal is no more found...
-        return
-    if pp.site_properties.enable_link_integrity_checks:
-        if is_hp_used_in_signer_rules(del_obj, []):
-            storage = ILinkIntegrityInfo(aq_get(del_obj, "REQUEST", None))
-            storage.addBreach(portal["outgoing-mail"], del_obj)
-
-
-def cktemplate_moved(obj, event):
-    """Managed the annotation for the Service template.
-
-    Linked to creation, move, rename, delete and copy.
-    """
-    # TODO move it to ckeditortemplates
-    if IObjectRemovedEvent.providedBy(event):
-        return
-    path = "/".join(obj.getPhysicalPath()[:-1])
-    # skip rename or inplace copy
-    if event.oldParent == event.newParent or (event.oldParent and path == "/".join(event.oldParent.getPhysicalPath())):
-        return
-    if "/templates/oem" not in path:
-        return  # oem has been renamed
-    index = path.index("/templates/oem") + 14
-    subpath = path[index + 1 :]  # noqa: E203
-    parts = subpath and subpath.split("/") or []
-    value = u""
-    if parts:
-        pcat = obj.portal_catalog
-        brains = pcat.unrestrictedSearchResults(
-            path="{}/{}".format(path[:index], parts[0]),
-            sort_on="path",
-        )
-        titles = {br.getPath(): br.Title for br in brains}
-        values = []
-        current_path = path[:index]
-        for part in parts:
-            current_path += "/{}".format(part)
-            values.append(safe_unicode(titles[current_path]))
-        value = u" - ".join(values)
-    annot = IAnnotations(obj)
-    annot["dmsmail.cke_tpl_tit"] = value
-
-
-def conversion_finished(obj, event):
-    # put a flag on the File to know that its conversion is finished
-    obj.conversion_finished = True
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMActiveSenderVocabulary")
+    invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.OMSenderVocabulary")
 
 
 def wsclient_configuration_changed(event):
@@ -1720,9 +1587,6 @@ def wsclient_configuration_changed(event):
 
 
 def member_area_added(obj, event):
-    obj.setConstrainTypesMode(1)
-    obj.setLocallyAllowedTypes([])
-    obj.setImmediatelyAddableTypes([])
     if "contact-lists" not in obj:
         folder = api.content.create(
             container=obj,
@@ -1730,10 +1594,14 @@ def member_area_added(obj, event):
             id="contact-lists",
             title=translate("Contact lists", domain="imio.dms.mail", context=obj.REQUEST),
         )
-        folder.setConstrainTypesMode(1)
-        folder.setLocallyAllowedTypes(["contact_list"])
-        folder.setImmediatelyAddableTypes(["contact_list"])
+        ISelectableConstrainTypes(folder).setConstrainTypesMode(1)
+        ISelectableConstrainTypes(folder).setLocallyAllowedTypes(["contact_list"])
+        ISelectableConstrainTypes(folder).setImmediatelyAddableTypes(["contact_list"])
         folder.manage_setLocalRoles(obj.getId(), ["Reader", "Contributor", "Editor"])
+    # after the folder creation: Plone 6 api.content.create checks the constraints
+    ISelectableConstrainTypes(obj).setConstrainTypesMode(1)
+    ISelectableConstrainTypes(obj).setLocallyAllowedTypes([])
+    ISelectableConstrainTypes(obj).setImmediatelyAddableTypes([])
 
 
 def folder_added(folder, event):

@@ -8,17 +8,14 @@ from collective.documentgenerator import _ as _dg
 from collective.documentgenerator import utils
 from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
-from collective.documentgenerator.browser.overrides import DGDXDocumentViewerView
 from collective.documentgenerator.browser.table import TemplatesTable
 from collective.documentgenerator.browser.views import EditConfigurablePodTemplate
 from collective.documentgenerator.browser.views import TemplatesListing
+from collective.documentgenerator.browser.views import ViewConfigurablePodTemplate
 from collective.documentgenerator.content.pod_template import ConfigurablePODTemplate
-from collective.documentgenerator.helper.archetypes import ATDocumentGenerationHelperView
 from collective.documentgenerator.helper.dexterity import DXDocumentGenerationHelperView
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentgenerator.viewlets.generationlinks import DocumentGeneratorLinksViewlet
-from collective.documentviewer.convert import Converter
-from collective.documentviewer.views import DXDocumentViewerView
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
 from collective.iconifiedcategory.utils import get_categorized_elements
 from imio.dms.mail import _
@@ -28,17 +25,18 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.subscribers import apply_signer_rules
 from imio.dms.mail.subscribers import apply_substitutes_to_signers
+from imio.dms.mail.utils import get_scan_config
+from imio.dms.mail.utils import next_scan_id
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
-from imio.zamqp.core import base
-from imio.zamqp.core.utils import next_scan_id
 from plone import api
+from plone.base.utils import base_hasattr
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.browser.edit import DefaultEditForm
+from plone.dexterity.browser.view import DefaultView
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.table.column import Column
 from zope.annotation.interfaces import IAnnotations
@@ -49,7 +47,10 @@ from zope.lifecycleevent import ObjectModifiedEvent
 from zope.schema.interfaces import IVocabularyFactory
 
 import copy
+import io
 import operator
+import re
+import zipfile
 import zope.event
 
 
@@ -296,7 +297,7 @@ class DashboardDGBaseHelper:  # noqa
         return False
 
 
-class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):
+class DocumentGenerationDocsDashboardHelper(DXDocumentGenerationHelperView, DashboardDGBaseHelper):
     """
     Methods used for listing
     """
@@ -448,6 +449,16 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         return self.print_page_count(afile) % 2 == 1
 
     def get_num_pages(self, obj):
+        """Page count: LibreOffice statistic of an odt (collective.documentviewer is not on Plone 6),
+        the collective.documentviewer preview otherwise."""
+        if base_hasattr(obj, "file") and self.is_odt(obj):
+            # ponytail: statistic written by LibreOffice at save (documentgenerator always calls it), 0 if missing
+            try:
+                with zipfile.ZipFile(io.BytesIO(obj.file.data)) as zfile:
+                    match = re.search(br'meta:page-count="(\d+)"', zfile.read("meta.xml"))
+            except (zipfile.BadZipFile, KeyError):
+                return 0
+            return match and int(match.group(1)) or 0
         annot = IAnnotations(obj).get("collective.documentviewer", "")
         if not annot or not annot["successfully_converted"] or not annot.get("num_pages", None):
             return 0
@@ -475,11 +486,8 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         """
         if self.is_odt(afile) or self.is_image(afile):
             return []
+        # previews were made by collective.documentviewer (no Plone 6 viewer yet)
         annot = IAnnotations(afile).get("collective.documentviewer", "")
-        if annot and annot.get("last_updated") == "2010-01-01T00:00:00":
-            # preview was removed by dv_clean: regenerate it before printing
-            Converter(afile)()
-            annot = IAnnotations(afile).get("collective.documentviewer", "")
         if (not annot or not annot.get("successfully_converted") or not annot.get("num_pages")
                 or not annot.get("blob_files")):
             api.portal.show_message(
@@ -502,13 +510,13 @@ class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper)
         return pages
 
 
-class DocumentGenerationCategoriesHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):
+class DocumentGenerationCategoriesHelper(DXDocumentGenerationHelperView, DashboardDGBaseHelper):
     """
     Helper for categories folder
     """
 
 
-class DocumentGenerationDirectoryHelper(ATDocumentGenerationHelperView, DashboardDGBaseHelper):
+class DocumentGenerationDirectoryHelper(DXDocumentGenerationHelperView, DashboardDGBaseHelper):
     """
     Helper for collective.contact.core directory
     """
@@ -742,7 +750,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
             # Mailing ! We use the same scan_id
             scan_id = self.document.scan_id
         elif helper_view.real_context.id == "test_creation_modele":
-            client_id = base.get_config("client_id")
+            client_id = get_scan_config("client_id")
             scan_id = "%s2%s00000000" % (client_id[0:2], client_id[2:6])
         else:
             scan_id = next_scan_id(file_portal_types=["dmsommainfile", "dmsappendixfile"], scan_type="2")
@@ -796,7 +804,7 @@ class DmsEditConfigurablePodTemplate(EditConfigurablePodTemplate):
         _filter_signing_fieldset(self)
 
 
-class DmsViewConfigurablePodTemplate(DGDXDocumentViewerView):
+class DmsViewConfigurablePodTemplate(ViewConfigurablePodTemplate):
 
     def update(self):
         super(DmsViewConfigurablePodTemplate, self).update()
@@ -878,7 +886,7 @@ class DmsEditSubTemplate(DefaultEditForm):
         _filter_signing_fieldset(self)
 
 
-class DmsViewSubTemplate(DXDocumentViewerView):
+class DmsViewSubTemplate(DefaultView):
 
     def update(self):
         super(DmsViewSubTemplate, self).update()

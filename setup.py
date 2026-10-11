@@ -4,7 +4,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-version = "3.1.7.dev0"
+version = "4.0.0.dev0"
 
 long_description = (
     open("README.rst").read() + "\n" + "Contributors\n"
@@ -37,7 +37,6 @@ setup(
     download_url="https://devpi.imio.be/root/imio/imio.dms.mail",
     license="GPL",
     packages=find_packages(exclude=["ez_setup"]),
-    namespace_packages=["imio", "imio.dms"],
     include_package_data=True,
     zip_safe=False,
     install_requires=[

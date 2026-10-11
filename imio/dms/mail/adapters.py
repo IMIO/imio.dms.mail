@@ -1,5 +1,6 @@
 # encoding: utf-8
 from AccessControl import getSecurityManager
+from Acquisition import aq_base
 from borg.localrole.interfaces import ILocalRoleProvider
 from collective.classification.folder.interfaces import IServiceInCharge
 from collective.classification.folder.interfaces import IServiceInCopy
@@ -9,23 +10,18 @@ from collective.contact.core.indexers import contact_source
 from collective.contact.core.interfaces import IContactContent
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.widget.interfaces import IContactAutocompleteWidget
-from collective.dexteritytextindexer.interfaces import IDynamicTextIndexExtender
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator import _ as _dg
-from collective.documentgenerator.utils import convert_and_save_file
-from collective.documentgenerator.utils import convert_file
-from collective.documentgenerator.utils import convert_odt
-from collective.documentgenerator.utils import get_original_template
-from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
-from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
+from collective.labels.indexer import labels as labels_base_index
+from collective.labels.interfaces import ILabelSupport
 from collective.task.interfaces import ITaskContent
 from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
@@ -33,6 +29,11 @@ from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import REQUEST_TREATING_SERVICE_FUNCTIONS
 from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
+from imio.dms.mail.dg_compat import convert_and_save_file
+from imio.dms.mail.dg_compat import convert_file
+from imio.dms.mail.dg_compat import convert_odt
+from imio.dms.mail.dg_compat import get_original_template
+from imio.dms.mail.dg_compat import odfsplit
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
@@ -46,12 +47,14 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
+from imio.dms.mail.utils import next_scan_id
 from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
 from imio.esign.utils import get_max_download_date
 from imio.helpers import EMPTY_DATE
+from imio.helpers import EMPTY_STRING
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import get_relations
@@ -63,7 +66,6 @@ from imio.helpers.pdf import merge_pdf
 from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
-from imio.zamqp.core.utils import next_scan_id
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
 from plone import api
@@ -71,17 +73,18 @@ from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuI
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
+from plone.app.contenttypes.interfaces import IFolder
+from plone.app.dexterity.textindexer.interfaces import IDynamicTextIndexExtender
+from plone.base.utils import base_hasattr
 from plone.indexer import indexer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
 from plone.rfc822.interfaces import IPrimaryFieldInfo
-from Products.ATContentTypes.interfaces.folder import IATFolder
 from Products.CMFCore.interfaces import IContentish
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.CatalogTool import sortable_title
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
-from Products.PluginIndexes.common.UnIndex import _marker as common_marker
+from Products.PluginIndexes.unindex import _marker as common_marker
 from z3c.form.datamanager import AttributeField
 from z3c.form.interfaces import IContextAware
 from z3c.form.interfaces import IDataManager
@@ -584,8 +587,10 @@ def ready_for_email_index(obj):
     return False
 
 
-@indexer(IATFolder)
+@indexer(IFolder)
 def fancy_tree_folder_index(obj):
+    if obj.portal_type != "Folder":  # IFolder is also provided by other folderish types (categories...)
+        return getattr(aq_base(obj), "enabled", common_marker)
     if "/templates/om/" in "/".join(obj.getPhysicalPath()):
         return True
     return False
@@ -707,7 +712,7 @@ def im_markers(obj):
     # Set hasResponse
     rels = get_relations(obj, "reply_to", backrefs=True)  # get only "normal" response
     for relation in rels:
-        if not relation.isBroken() and relation.from_object.portal_type == "dmsoutgoingmail":
+        if not relation.isBroken() and getattr(relation.from_object, "portal_type", None) == "dmsoutgoingmail":
             markers.append("hasResponse")
             break
     # Stores on obj
@@ -771,14 +776,21 @@ def markers_dmaf_index(obj):
     return markers_conversion_error(obj)
 
 
+def date_seconds_key(dte):
+    """Date in seconds as a sortable string: the 'organization_type' index also stores the organizations types
+    (strings) and Python 3 cannot compare str and int keys."""
+    # ponytail: 10 digits sort right until 2286, a dedicated index if range queries are needed
+    return "%010d" % (dte and int(time.mktime(dte.timetuple())) or 0)
+
+
 @indexer(IImioDmsIncomingMail)
 def im_reception_date_index(obj):
     """Indexer of 'organization_type' for IImioDmsIncomingMail. Stores reception_date (in seconds) !"""
     # No acquisition pb because organization_type isn't an attr
     if obj.reception_date:
-        return int(time.mktime(obj.reception_date.timetuple()))
+        return date_seconds_key(obj.reception_date)
     # there is by default a reception_date, but a user can empty it
-    return 0
+    return date_seconds_key(None)
 
 
 @indexer(IImioDmsOutgoingMail)
@@ -786,8 +798,8 @@ def om_outgoing_date_index(obj):
     """Indexer of 'organization_type' for IImioDmsOutgoingMail. Stores outgoing_date (in seconds) !"""
     # No acquisition pb because organization_type isn't an attr
     if obj.outgoing_date:
-        return int(time.mktime(obj.outgoing_date.timetuple()))
-    return 0
+        return date_seconds_key(obj.outgoing_date)
+    return date_seconds_key(None)
 
 
 @indexer(IImioDmsOutgoingMail)
@@ -1943,7 +1955,6 @@ class ApprovalAdapter(object):
             if download_page:
                 merged = merge_pdf(pdf_file_content, download_page)
                 pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
-                Converter(pdf_file)()  # Refresh pdf preview
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
@@ -2066,3 +2077,14 @@ class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
         base_infos["conv_from_uid"] = getattr(self.obj, "conv_from_uid", None)
         base_infos["esigned"] = getattr(self.obj, "esigned", False)
         return base_infos
+
+
+@indexer(ILabelSupport)
+def labels_index(obj):
+    """collective.labels index, with EMPTY_STRING when no global label is selected (was imio.helpers.labels)."""
+    labels = labels_base_index(obj)()
+    # personal labels are indexed as ["pers-label", "username:pers-label"]
+    pers_labels = [lab.split(":")[1] for lab in labels if ":" in lab]
+    if labels == ["_"] or not [lab for lab in labels if ":" not in lab and lab not in pers_labels]:
+        labels.append(EMPTY_STRING)
+    return labels

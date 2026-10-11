@@ -2,11 +2,11 @@ from collective.contact.plonegroup.utils import voc_selected_org_suffix_userids
 from collective.task import _ as _t
 from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from plone import api
+from plone.base.utils import base_hasattr
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.browser.edit import DefaultEditForm
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
-from Products.CMFPlone.utils import base_hasattr
 
 import copy
 

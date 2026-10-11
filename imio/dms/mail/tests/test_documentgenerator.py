@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """ documentgenerator.py tests for this package."""
-from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from imio.dms.mail import PRODUCT_DIR
@@ -18,12 +17,13 @@ from imio.dms.mail.interfaces import IImioDmsMailLayer
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
-from mock import Mock
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from Products.statusmessages.interfaces import IStatusMessage
+from unittest.mock import Mock
 from z3c.relationfield.relation import RelationValue
+from ZODB.blob import Blob
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.interface import alsoProvides
@@ -263,10 +263,11 @@ class TestDocumentGenerator(unittest.TestCase):
         brains[1].treating_groups = None
         res = {
             tg1.UID(): {"mails": [view.objs[0]], "title": u"Direction générale"},
-            "1_no_group": {"mails": [view.objs[1]], "title": u"No treating group"},
+            "1_no_group": {"mails": [view.objs[1]], "title": u"Courrier sans service traitant"},
         }
         self.assertDictEqual(view.group_by_tg(brains[:2]), res)
-        res = [[u"Direction générale", view.objs[0]], [u"No treating group", view.objs[1]]]
+        # sorted by title
+        res = [[u"Courrier sans service traitant", view.objs[1]], [u"Direction générale", view.objs[0]]]
         self.assertListEqual(view.flatten_group_by_tg(view.group_by_tg(brains[:2])), res)
         brains[1].treating_groups = backup
         brains2 = self.pc(portal_type="dmsoutgoingmail", sort_on="id")
@@ -309,6 +310,8 @@ class TestDocumentGenerator(unittest.TestCase):
                 file=NamedBlobFile(fo.read(), filename=u"in-courrier2.pdf"),
                 content_category=m0["1"].content_category,
             )
+        # non-odt files are printed from their preview (collective.documentviewer, not on Plone 6)
+        IAnnotations(appendix)["collective.documentviewer"] = {"successfully_converted": True, "num_pages": 1}
         # mark to_print on m0 main + its appendix and m1 main; m2 main stays False
         set_to_print(m0["1"], True)
         set_to_print(appendix, True)
@@ -330,6 +333,7 @@ class TestDocumentGenerator(unittest.TestCase):
                 file=NamedBlobFile(fo.read(), filename=u"converted.pdf"),
                 content_category=m0["1"].content_category, conv_from_uid=m0["1"].UID(),
             )
+        IAnnotations(pdf)["collective.documentviewer"] = {"successfully_converted": True, "num_pages": 1}
         set_to_print(pdf, True)
         pdf.esigned = True
         self.assertListEqual(view.get_dms_files(), [(pdf, 1), (appendix, 1), (m1["1"], 2)])
@@ -341,6 +345,7 @@ class TestDocumentGenerator(unittest.TestCase):
                 file=NamedBlobFile(fo.read(), filename=u"mailed.pdf"),
                 content_category=m1["1"].content_category,
             )
+        IAnnotations(mailed)["collective.documentviewer"] = {"successfully_converted": True, "num_pages": 1}
         set_to_print(mailed, True)
         IAnnotations(mailed)["documentgenerator"] = {"mailed": True, "from_doc_uid": m1["1"].UID()}
         self.assertListEqual(view.get_dms_files(), [(pdf, 1), (appendix, 1), (mailed, 1)])
@@ -355,11 +360,8 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(view.get_num_pages(view.objs[2]["1"]), 1)
         self.assertEqual(view.get_num_pages(self.portal["incoming-mail"]), 0)
 
-        # Test get_dv_images
-        images = view.get_dv_images(view.objs[0]["1"])
-        self.assertEqual(len(images), 1)
-        self.assertTrue(hasattr(images[0], "read"))
-        images[0].close()
+        # Test get_dv_images: no collective.documentviewer preview on Plone 6
+        self.assertEqual(view.get_dv_images(view.objs[0]["1"]), [])
 
         # Test is_odt
         self.assertTrue(view.is_odt(m0["1"]))
@@ -387,36 +389,20 @@ class TestDocumentGenerator(unittest.TestCase):
         # Test get_print_pages
         self.assertListEqual(view.get_print_pages(m0["1"]), [])
         self.assertListEqual(view.get_print_pages(img_appendix), [])
-        # borrow a real (converted) documentviewer annotation for the pdf appendix
-        dv_annot = IAnnotations(m0["1"])["collective.documentviewer"]
+        # a pdf is printed from its collective.documentviewer preview images (no viewer on Plone 6)
+        blob = Blob()
+        with blob.open("w") as fo:
+            fo.write(png)
+        dv_annot = {"successfully_converted": True, "num_pages": 1, "pdf_image_format": "png",
+                    "blob_files": {"large/dump_1.png": blob}}
         IAnnotations(appendix)["collective.documentviewer"] = dv_annot
-        pages = view.get_print_pages(appendix)
-        self.assertEqual(len(pages), dv_annot["num_pages"])
-        self.assertEqual(sorted(pages[0].keys()), ["data", "format"])
-        self.assertTrue(isinstance(pages[0]["data"], (bytes, str)))
-
-        # get_print_pages regenerates an expired (dv_clean) preview before printing.
-        del IAnnotations(appendix)["collective.documentviewer"]
-        Converter(appendix)()
-        appendix_annot = IAnnotations(appendix)["collective.documentviewer"]
-        real_num_pages = appendix_annot["num_pages"]
-        self.assertGreaterEqual(real_num_pages, 1)
-        # simulate the dv_clean placeholder (single page, old sentinel date)
-        appendix_annot["num_pages"] = 1
-        appendix_annot["last_updated"] = "2010-01-01T00:00:00"
-        pages = view.get_print_pages(appendix)
-        # the real preview was regenerated: full page count restored and sentinel cleared
-        self.assertEqual(len(pages), real_num_pages)
-        self.assertNotEqual(
-            IAnnotations(appendix)["collective.documentviewer"]["last_updated"], "2010-01-01T00:00:00"
-        )
+        self.assertListEqual(view.get_print_pages(appendix), [{"data": png, "format": "png"}])
         # no usable preview -> warning message and the file is left out of the printing
         IAnnotations(appendix)["collective.documentviewer"] = {"successfully_converted": False}
         self.assertListEqual(view.get_print_pages(appendix), [])
         msgs = IStatusMessage(view.request).show()
         self.assertEqual(len(msgs), 1)
-        self.assertIn(u"no preview image found", msgs[0].message)
-        # restore the borrowed annotation for the following assertions
+        self.assertIn(u"aucune prévisualisation pour le document", msgs[0].message)
         IAnnotations(appendix)["collective.documentviewer"] = dv_annot
 
         # Test print_page_count / needs_blank_after

@@ -10,7 +10,7 @@
   <viewlet name="pretty-link-title" insertbefore="*"/>
   <viewlet name="imio.history.documentbyline" insertafter="pretty-link-title"/>
   <viewlet name="plone.belowcontenttitle.workflowstate" insertafter="imio.history.documentbyline"/>
-  <viewlet name="ftw.labels.labeling" insertafter="plone.belowcontenttitle.workflowstate"/>
+  <viewlet name="collective.labels.labeling" insertafter="plone.belowcontenttitle.workflowstate"/>
  </order>
  <!-- force hidden because plone.app.layout reshow it -->
  <hidden manager="plone.belowcontenttitle" skinname="*">

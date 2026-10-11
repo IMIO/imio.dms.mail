@@ -77,7 +77,7 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = (u"Onglet « Courrier sortant »: le champ « Formes d'envoi » doit uniquement contenir des "
                      u"« valeurs stockées » commencant par « post », « email » ou « other »")
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
         # test imail_group_encoder
         rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder"
         api.portal.set_registry_record(rec, True)
@@ -89,7 +89,7 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
             u"est pas prévu !"
         )
         self.assertEqual(
-            _tr(errors[0].message, mapping={"tab": _tr("Incoming mail"), "field": _tr("Activate group encoder")}),
+            _tr(errors[0].args[0], mapping={"tab": _tr("Incoming mail"), "field": _tr("Activate group encoder")}),
             error_msg,
         )
 
@@ -283,9 +283,9 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         data["imail_fields"] = [{"field_name": fld} for fld in im_flds]
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        self.assertIn(u"Champs obligatoires manquants: ", errors[0].message)
-        self.assertIn(u"courrier entrant", errors[0].message)
-        self.assertIn(u"Référence interne", errors[0].message)
+        self.assertIn(u"Champs obligatoires manquants: ", errors[0].args[0])
+        self.assertIn(u"courrier entrant", errors[0].args[0])
+        self.assertIn(u"Référence interne", errors[0].args[0])
         # test positions
         im_flds.append(removed)
         # we change required position
@@ -294,9 +294,9 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         data["imail_fields"] = [{"field_name": fld} for fld in im_flds]
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        self.assertIn(u"Position obligatoire pour les champs: ", errors[0].message)
-        self.assertIn(u"courrier entrant", errors[0].message)
-        self.assertIn(u"'Description': position 2.", errors[0].message)
+        self.assertIn(u"Position obligatoire pour les champs: ", errors[0].args[0])
+        self.assertIn(u"courrier entrant", errors[0].args[0])
+        self.assertIn(u"'Description': position 2.", errors[0].args[0])
 
     def test_settings_translations(self):
         # not needed anymore but kept as example
@@ -339,15 +339,15 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
         self.assertListEqual([t["id"] for t in tabs if t["id"] != "index_html"],
                              ["incoming-mail", "outgoing-mail", "folders", "tasks", "plus"])
-        self.assertTrue(self.portal["requests"].getExcludeFromNav())
+        self.assertTrue(self.portal["requests"].exclude_from_nav)
         all_tabs = FIRST_LEVEL_TABS
         api.portal.set_registry_record(key, all_tabs)
-        self.assertFalse(self.portal["requests"].getExcludeFromNav())
+        self.assertFalse(self.portal["requests"].exclude_from_nav)
         tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
         self.assertIn("requests", [t["id"] for t in tabs])
         # hide requests again
         api.portal.set_registry_record(key, DEFAULT_DISPLAYED_TABS)
-        self.assertTrue(self.portal["requests"].getExcludeFromNav())
+        self.assertTrue(self.portal["requests"].exclude_from_nav)
         tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
         self.assertNotIn("requests", [t["id"] for t in tabs])
         self.assertIn("incoming-mail", [t["id"] for t in tabs])
@@ -505,8 +505,8 @@ class TestSettingsEditForm(unittest.TestCase):
         self.assertIn(u"<span class='unconfigured-fields'>Les champs non configurés et donc non affichés sont: ",
                       description)
         self.assertIn(u'"{}"'.format(title), description)
-        # outgoing mail signing fields are added by activate_om_signing
-        self.assertIn(u'sont: "Sceau", "Signataires", "Signature élec."</span>',
+        # outgoing mail signing fields are added by activate_om_signing; Plone 6 versioning behavior field
+        self.assertIn(u'sont: "Contrôle de version activé", "Sceau", "Signataires", "Signature élec."</span>',
                       groups["outgoingmail"].widgets["omail_fields"].field.description)
         self.assertIn(u'id="form-widgets-imail_fields"', rendered)
         self.assertIn(u"unconfigured-fields", rendered)

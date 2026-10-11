@@ -7,7 +7,7 @@ from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.utils import get_person_from_userid
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.wfadaptations.api import get_applied_adaptations
-from collective.z3cform.datagridfield import DataGridFieldFactory
+from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localroles.utils import add_fti_configuration
 from imio.dms.mail import _
@@ -19,6 +19,7 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail import TOP_NAV_TABS
 from imio.dms.mail.browser.widgets import ExpandableDataGridFieldFactory
+from imio.dms.mail.browser.widgets import with_inherited_fields
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
@@ -35,7 +36,6 @@ from operator import attrgetter
 from plone import api
 from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
-from plone.app.z3cform.wysiwyg import WysiwygFieldWidget
 from plone.autoform.directives import widget
 from plone.dexterity.fti import DexterityFTIModificationDescription
 from plone.dexterity.fti import ftiModified
@@ -386,6 +386,10 @@ class IStateSetSchema(IBaseRoutingRuleSchema):
     )
 
 
+IRoutingSchema = with_inherited_fields(IRoutingSchema)
+IStateSetSchema = with_inherited_fields(IStateSetSchema)
+
+
 class ISignerRuleBaseSchema(Interface):
     """Common signer rule fields shared by outgoing mail and signing request."""
 
@@ -399,7 +403,7 @@ class ISignerRuleBaseSchema(Interface):
     signer = schema.Choice(
         title=_(u"Signer"),
         description=_(u"Related userid will be the signer. Position name of the held position will be used."),
-        source=signing_signers_with_seal,
+        vocabulary=u"imio.dms.mail.SigningSignersWithSealVocabulary",
         required=True,
         default=None,
     )
@@ -469,7 +473,7 @@ class IRequestSignerRuleSchema(ISignerRuleBaseSchema):
     signer = schema.Choice(
         title=_(u"Signer"),
         description=_(u"Related userid will be the signer. Position name of the held position will be used."),
-        source=signing_request_signers,
+        vocabulary=u"imio.dms.mail.SettingsSigningRequestSignersVocabulary",
         required=True,
         default=None,
     )
@@ -497,6 +501,8 @@ class IRequestSignerRuleSchema(ISignerRuleBaseSchema):
 # (the DataGridField orders columns by field.order, not by plone.autoform order directives)
 IRequestSignerRuleSchema["signer"].order = ISignerRuleBaseSchema["signer"].order
 IRequestSignerRuleSchema["approvings"].order = ISignerRuleBaseSchema["approvings"].order
+ISignerRuleSchema = with_inherited_fields(ISignerRuleSchema)
+IRequestSignerRuleSchema = with_inherited_fields(IRequestSignerRuleSchema)
 
 
 class ISignerSubstituteSchema(Interface):
@@ -505,7 +511,7 @@ class ISignerSubstituteSchema(Interface):
     absent_signer = schema.Choice(
         title=_(u"Absent signer"),
         description=_(u"The signer who is absent."),
-        source=signing_signers_substitute,
+        vocabulary=u"imio.dms.mail.SigningSignersSubstituteVocabulary",
         required=True,
         default=None,
     )
@@ -513,7 +519,7 @@ class ISignerSubstituteSchema(Interface):
     substitute_signer = schema.Choice(
         title=_(u"Substitute signer"),
         description=_(u"The signer to use instead. (eg. DG ff)"),
-        source=signing_signers_substitute,
+        vocabulary=u"imio.dms.mail.SigningSignersSubstituteVocabulary",
         required=True,
         default=None,
     )
@@ -897,8 +903,7 @@ class IImioDmsMailConfig(model.Schema):
     )
     widget("omail_bcc_email_default", CheckBoxFieldWidget, multiple="multiple", size=5)
 
-    widget("omail_email_signature", WysiwygFieldWidget)
-    # widget('omail_email_signature', klass='pat-tinymce') in plone 5 ?
+    widget("omail_email_signature", klass="pat-tinymce")  # Plone 6: TinyMCE on the textarea of a Text field
     omail_email_signature = schema.Text(
         title=_(u"Email signature model"),
         description=_(u"TAL compliant with variables: view, context, user, dghv, sender, request and modules."),
@@ -1519,10 +1524,11 @@ class SettingsEditForm(RegistryEditForm):
             wdg = grp.widgets[filt_groups[grp.__name__]]
             if wdg.value is None:
                 continue
-            def_values = [row["field_name"] for row in wdg.value]
+            # select widget values are lists of tokens
+            def_tokens = [token for row in wdg.value for token in row["field_name"]]
             voc_name = wdg.field.value_type.schema["field_name"].vocabularyName
             voc = getUtility(IVocabularyFactory, voc_name)(self.context)
-            unconfigured = [u'"{}"'.format(t.title) for t in voc._terms if t.value not in def_values]
+            unconfigured = [u'"{}"'.format(t.title) for t in voc._terms if t.token not in def_tokens]
             if unconfigured:
                 wdg.field = copy.copy(wdg.field)
                 wdg.field.description = u"{}<br />{}".format(
@@ -1586,7 +1592,9 @@ def imiodmsmail_settings_changed(event):
     if event.record.fieldName in ("org_templates_encoder_can_edit", "org_email_templates_encoder_can_edit"):
         folder_id = ("email" in event.record.fieldName) and "oem" or "om"
         portal = api.portal.get()
-        main_folder = portal.templates[folder_id]
+        main_folder = portal.templates.get(folder_id)
+        if main_folder is None:  # oem: email templates (collective.ckeditortemplates) dropped on Plone 6
+            return
         s_orgs = get_registry_organizations()
         roles = ["Reader"]
         all_roles = ["Reader", "Contributor", "Editor"]

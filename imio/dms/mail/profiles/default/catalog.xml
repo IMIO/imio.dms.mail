@@ -33,6 +33,11 @@
  </index>
  <column value="markers"/>
 
+ <!-- collective.labels 3.0.0a1 doesn't add it (its profile marker file is still named ftw.labels.setuphandlers.txt) -->
+ <index name="labels" meta_type="KeywordIndex">
+  <indexed_attr value="labels"/>
+ </index>
+
  <index name="usages" meta_type="KeywordIndex">
   <indexed_attr value="usages"/>
  </index>

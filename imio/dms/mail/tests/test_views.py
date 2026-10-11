@@ -5,7 +5,7 @@ from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefa
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.MockMailHost.MockMailHost import MockMailHost
 from datetime import datetime
-from HTMLParser import HTMLParser
+from html import unescape
 from imio.dms.mail import _
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
@@ -64,10 +64,10 @@ class TestCreateFromTemplateForm(unittest.TestCase):
 
     def test_label(self):
         self.assertIsInstance(self.view, CreateFromTemplateForm)
-        self.assertEqual(self.view.label(), u"S0001 - Réponse 1: create from template")
+        self.assertEqual(self.view.label(), u"S0001 - Réponse 1: créer à partir d'un modèle")
 
     def test_get_action_name(self):
-        self.assertEqual(self.view.get_action_name(), u"Choose this template")
+        self.assertEqual(self.view.get_action_name(), u"Choisir ce modèle")
 
     def test_get_query(self):
         self.assertDictEqual(
@@ -91,31 +91,34 @@ class TestCreateFromTemplateForm(unittest.TestCase):
         self.assertNotIn(main.UID(), [node["key"] for node in data])
 
     def test_redirect_url(self):
-        self.assertEqual(
+        # with a CSRF token: the generation writes on this GET
+        self.assertRegex(
             self.view.redirect_url("abc"),
-            "{}/persistent-document-generation?template_uid=abc&output_format=odt".format(self.omail.absolute_url()),
+            r"^{}/persistent-document-generation\?template_uid=abc&output_format=odt&_authenticator=\w+$".format(
+                self.omail.absolute_url()),
         )
 
     def test_call(self):
         # GET: the fancytree form
         self.request["REQUEST_METHOD"] = "GET"
         rendered = self.view()
-        self.assertIn(u"<h1>S0001 - Réponse 1: create from template</h1>", rendered)
+        self.assertIn(u"<h1>S0001 - Réponse 1: créer à partir d'un modèle</h1>", rendered)
         self.assertIn(u'<form id="tree-form" method="post"', rendered)
-        self.assertIn(u'<div id="tree" data-nodes="[{&quot;folder&quot;: false', rendered)
+        self.assertIn(u'<div id="tree" data-nodes="[{&quot;title&quot;: ', rendered)
         self.assertIn(u'<input name="uid" type="hidden" value="" />', rendered)
-        self.assertIn(u'<input type="submit" value="Choose this template" />', rendered)
+        self.assertIn(u'<input type="submit" value="Choisir ce modèle" />', rendered)
         # POST: redirect to the generation view
         main = self.portal["templates"]["om"]["main"]
         self.request.method = "POST"
         self.request.form["uid"] = main.UID()
         self.request["uid"] = main.UID()
         self.assertEqual(self.view(), "")
-        self.assertEqual(
-            self.request.response.getHeader("Location"),
-            "{}/persistent-document-generation?template_uid={}&output_format=odt".format(
-                self.omail.absolute_url(), main.UID()
-            ),
+        self.assertTrue(
+            self.request.response.getHeader("Location").startswith(
+                "{}/persistent-document-generation?template_uid={}&output_format=odt&_authenticator=".format(
+                    self.omail.absolute_url(), main.UID()
+                )
+            )
         )
 
 
@@ -242,11 +245,11 @@ class TestServerSentEvents(unittest.TestCase):
         eee_vw = omf.restrictedTraverse("@@externalEditorEnabled")
 
         # a dmsommainfile has been added manually and we go back on the dmsoutgoingmail
-        self.assertEqual(omf.conversion_finished, True)
+        omf.conversion_finished = True  # set by the collective.documentviewer conversion (dropped on Plone 6)
         self.assertFalse(hasattr(omf, "generated"))
         self.assertEqual(sse_vw(), u"")  # no refresh
         response = sse_vw.request.response
-        self.assertEqual(response.getHeader("Content-Type"), "text/event-stream")
+        self.assertEqual(response.getHeader("Content-Type"), "text/event-stream; charset=utf-8")
         self.assertEqual(response.getHeader("Cache-Control"), "no-cache")
 
         # a dmsommainfile has been generated
@@ -265,8 +268,9 @@ class TestServerSentEvents(unittest.TestCase):
         omf.restrictedTraverse("lock-unlock")(unlock=1)
         self.assertFalse(eee_vw.isObjectLocked())
         res = sse_vw()
-        # u'data: {"path": "/plone/outgoing-mail/reponse1/1", "id": "1", "refresh": true}\n\n'
-        self.assertIn('"id": "1", "refresh": true', res)  # we refresh
+        # u'data: {"id": "1", "path": "/plone/outgoing-mail/reponse1/1", "refresh": true}\n\n'
+        self.assertIn('data: {"id": "1", ', res)
+        self.assertIn('"refresh": true}', res)  # we refresh
 
         # a dmsommainfile is edited with zopeedit
         self.assertFalse(hasattr(omf, "generated"))
@@ -284,8 +288,9 @@ class TestServerSentEvents(unittest.TestCase):
         omf.restrictedTraverse("lock-unlock")(unlock=1)
         self.assertFalse(eee_vw.isObjectLocked())
         res = sse_vw()
-        # u'data: {"path": "/plone/outgoing-mail/reponse1/1", "id": "1", "refresh": true}\n\n'
-        self.assertIn('"id": "1", "refresh": true', res)  # we refresh
+        # u'data: {"id": "1", "path": "/plone/outgoing-mail/reponse1/1", "refresh": true}\n\n'
+        self.assertIn('data: {"id": "1", ', res)
+        self.assertIn('"refresh": true}', res)  # we refresh
 
 
 class TestUpdateItem(unittest.TestCase):
@@ -341,14 +346,14 @@ class TestSendEmail(unittest.TestCase):
         mail_host.reset()
         # view call
         view()
-        # self.assertIn("Subject: =?utf-8?q?Email_subject?=\n", mail_host.messages[0])
-        self.assertIn("Subject: Email subject\n", mail_host.messages[0])
-        self.assertIn("My email content.", mail_host.messages[0])
-        self.assertIn("From: sender@mio.be", mail_host.messages[0])
+        message = safe_unicode(mail_host.messages[0])
+        self.assertIn("Subject: =?utf-8?q?Email_subject?=\r\n", message)
+        self.assertIn("My email content.", message)
+        self.assertIn("From: sender@mio.be", message)
         self.assertEqual(api.content.get_state(omail1), "sent")
         self.assertIsNotNone(omail1.email_status)
         messages = IStatusMessage(self.portal.REQUEST).show()
-        self.assertIn(u"Your email has been sent.", [msg.message for msg in messages])
+        self.assertIn(u"Votre email a été envoyé", [msg.message for msg in messages])
         # second sending (GET, without CSRF token), with reply-to option and without closing
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send", True
@@ -356,13 +361,14 @@ class TestSendEmail(unittest.TestCase):
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_close_on_email_send", False
         )
-        self.portal.manage_changeProperties(email_from_address="noreply@macommune.be")
+        api.portal.set_registry_record("plone.email_from_address", "noreply@macommune.be")
         first_status = omail1.email_status
         self.portal.REQUEST["REQUEST_METHOD"] = "GET"
         mail_host.reset()
         omail1.unrestrictedTraverse("@@send_email")()
-        self.assertIn("reply-to: sender@mio.be", mail_host.messages[0])
-        self.assertIn("From: noreply@macommune.be", mail_host.messages[0])
+        message = safe_unicode(mail_host.messages[0])
+        self.assertIn("reply-to: sender@mio.be", message)
+        self.assertIn("From: noreply@macommune.be", message)
         self.assertTrue(omail1.email_status.startswith(first_status + u" "))
         self.assertEqual(omail1.email_status.count(u"Email envoyé le"), 2)
 
@@ -495,7 +501,7 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
 
         # approval annot html
         self.assertEqual(
-            HTMLParser().unescape(view.approval_annot_html),
+            unescape(view.approval_annot_html),
             u"""{{
   "approval": [
     [
@@ -586,7 +592,7 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         # esign session html
         # self.maxDiff = None
         self.assertEqual(
-            HTMLParser().unescape(view.esign_session_html(esign_session[1])),
+            unescape(view.esign_session_html(esign_session[1])),
             u"""{{
   "acroform": True,
   "client_id": "0129999",
@@ -973,7 +979,7 @@ class TestImioExternalSessionCreateView(unittest.TestCase):
         self.assertTrue(view.may_create_external_sessions())
         # no session id: back to the sessions listing with an error
         self.assertEqual(view(), "http://nohost/plone/@@parapheo")
-        self.assertIn(u"No session ID provided!", [msg.message for msg in IStatusMessage(self.request).show()])
+        self.assertIn(u"Aucun identifiant de session fourni !", [msg.message for msg in IStatusMessage(self.request).show()])
         change_user(self.portal, "dirg")
         self.assertTrue(view.may_create_external_sessions())
         change_user(self.portal, "agent1")
@@ -1065,10 +1071,10 @@ class TestApprovalTableView(unittest.TestCase):
         self.assertIn(u'action="{}/@@approvals"'.format(sreq.absolute_url()), rendered)
         self.assertIn(u'<input type="checkbox" name="approvals.{}.dirg"  />'.format(files[0].UID()), rendered)
         self.assertIn(u'name="form.button.Save"', rendered)
-        # Plone 4: no CSRF token in the form
+        # CSRF token in the form (Plone 6)
         action = u'action="{}/@@approvals"'.format(sreq.absolute_url())
         form_html = rendered[rendered.index(action):rendered.index(u'name="form.button.Cancel"')]
-        self.assertNotIn(u"_authenticator", form_html)
+        self.assertIn(u'name="_authenticator"', form_html)
         # cancel
         self.request.form["form.button.Cancel"] = "Cancel"
         sreq.unrestrictedTraverse("@@approvals")()

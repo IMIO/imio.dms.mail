@@ -33,8 +33,8 @@ class TestReplyForm(unittest.TestCase):
         view = self.imail1.unrestrictedTraverse("@@reply")
         view.updateFields()
         form = self.portal.REQUEST.form
-        expected_linked_mails = ("/".join(self.imail1.getPhysicalPath()),)
-        self.assertEqual(form["form.widgets.reply_to"], expected_linked_mails)
+        # relation widget value: uids separated by ";" (Plone 6)
+        self.assertEqual(form["form.widgets.reply_to"], self.imail1.UID())
         self.assertEqual(translate(view.label), u"Reply to E0001 - Courrier 1")
         expected_recipients = ("/plone/contacts/electrabel",)
         self.assertEqual(form["form.widgets.recipients"], expected_recipients)
@@ -52,7 +52,7 @@ class TestReplyForm(unittest.TestCase):
         self.assertEqual(view.widgets["ITask.assigned_user"].value, ["agent"])
         self.assertEqual(view.widgets["send_modes"].value, [u"post"])
         self.assertEqual(view.widgets["treating_groups"].value, self.imail1.treating_groups)
-        self.assertEqual(view.widgets["reply_to"].value, ("/".join(self.imail1.getPhysicalPath()),))
+        self.assertEqual(view.widgets["reply_to"].value, self.imail1.UID())
         # no original sender email on a paper mail: field hidden
         self.assertEqual(view.widgets["orig_sender_email"].mode, HIDDEN_MODE)
         # the rendered form contains the prefilled title
@@ -128,17 +128,14 @@ class TestMultipleReplyForm(unittest.TestCase):
 
     def test_label(self):
         view = self._view()
-        self.assertEqual(translate(view.label, context=self.request), u"Reply to 2 incoming mails")
+        self.assertEqual(translate(view.label, context=self.request), u"Répondre à 2 courriers entrants")
 
     def test_updateFields(self):
         view = self._view()
         view.updateFields()
         form = self.request.form
-        # Plone 4: reply_to and recipients are prefilled with paths
-        self.assertEqual(
-            form["form.widgets.reply_to"],
-            ("/".join(self.im1.getPhysicalPath()), "/".join(self.im2.getPhysicalPath())),
-        )
+        # reply_to is prefilled with uids separated by ";" (Plone 6 relation widget), recipients with paths
+        self.assertEqual(form["form.widgets.reply_to"], "{};{}".format(self.im1.UID(), self.im2.UID()))
         self.assertListEqual(
             sorted(form["form.widgets.recipients"]), ["/plone/contacts/electrabel", "/plone/contacts/swde"]
         )
@@ -163,10 +160,7 @@ class TestMultipleReplyForm(unittest.TestCase):
         view.update()
         self.assertEqual(view.widgets["IDublinCore.title"].value, u"Re: Courrier 1")
         self.assertEqual(view.widgets["treating_groups"].value, self.im1.treating_groups)
-        self.assertEqual(
-            view.widgets["reply_to"].value,
-            ("/".join(self.im1.getPhysicalPath()), "/".join(self.im2.getPhysicalPath())),
-        )
+        self.assertEqual(view.widgets["reply_to"].value, "{};{}".format(self.im1.UID(), self.im2.UID()))
         self.assertSetEqual(
             set(view.widgets["recipient_groups"].value),
             {self.pgof["direction-generale"]["grh"].UID(), self.pgof["direction-financiere"].UID()},

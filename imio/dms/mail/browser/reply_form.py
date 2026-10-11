@@ -94,6 +94,8 @@ class MultipleReplyForm(BaseReplyForm):
 
     """Form to reply to multiple incoming mails."""
 
+    allow_prefill_from_GET_request = True  # the form is filled from the request (uids)
+
     def __init__(self, context, request):
         super(MultipleReplyForm, self).__init__(context, request)
         self.uids = self.request.get("uids", "")
@@ -115,7 +117,7 @@ class MultipleReplyForm(BaseReplyForm):
         if self.uids:  # view is called a 2d time by MS. uids is empty. We don't want to change request form values
             form = self.request.form
             if "form.widgets.reply_to" not in form:
-                form["form.widgets.reply_to"] = tuple([b.getPath() for b in self.brains])
+                form["form.widgets.reply_to"] = ";".join([b.UID for b in self.brains])  # relation widget: uids
             if "form.widgets.recipients" not in form:
                 sender_uids = set(
                     [sender for b in self.brains for sender in b.sender_index if not sender.startswith("l:")]

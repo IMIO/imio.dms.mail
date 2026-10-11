@@ -3,7 +3,6 @@
 from collective.iconifiedcategory.interfaces import ICategorizedApproved
 from collective.iconifiedcategory.interfaces import ICategorizedSigned
 from collective.messagesviewlet.message import PseudoMessage
-from imio.dms.mail.browser.viewlets import CKBatchActionsViewlet
 from imio.dms.mail.browser.viewlets import ContactContentBackrefsViewlet
 from imio.dms.mail.browser.viewlets import ContextInformationViewlet
 from imio.dms.mail.browser.viewlets import DMSTaskParentViewlet
@@ -153,7 +152,7 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         msgs = org_v.getAllMessages()
         self.assertEqual(len(msgs), 1)
         self.assertTrue(isinstance(msgs[0], PseudoMessage))
-        self.assertIn("missing address fields: street", msgs[0].text.output)
+        self.assertIn("a des champs d'adresse vides: Rue", msgs[0].text.output)
         self.assertEqual(len(sorg_v.getAllMessages()), 1)  # suborganization has missing street too
         self.assertEqual(len(hp_v.getAllMessages()), 1)  # held position has missing street too
         self.assertEqual(len(om_v.getAllMessages()), 1)  # outgoing mail has missing street too
@@ -186,14 +185,14 @@ class TestVersionsViewlets(unittest.TestCase):
         viewlet = get_viewlet(im1, "dms.files", "dms.abovecontent")
         self.assertIsInstance(viewlet, IMVersionsViewlet)
         rendered = viewlet.render()
-        self.assertIn(u"<legend>Versions</legend>", rendered)
+        self.assertIn(u"<legend>Fichiers ged</legend>", rendered)
         self.assertIn(u'<a class="version-link" href="{}"'.format(im1.objectValues()[0].absolute_url()), rendered)
         self.assertIn(u'<th class="th_header_filesize-column">', rendered)
         om1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         viewlet = get_viewlet(om1, "dms.files", "dms.abovecontent")
         self.assertIsInstance(viewlet, OMVersionsViewlet)
         rendered = viewlet.render()
-        self.assertIn(u"<th>To be printed</th>", rendered)
+        self.assertIn(u"<th>À imp.?</th>", rendered)
         self.assertIn(u'<a class="version-link" href="{}"'.format(om1["1"].absolute_url()), rendered)
 
     def test__prepare_table_render(self):
@@ -223,7 +222,7 @@ class TestPrettyLinkTitleViewlet(unittest.TestCase):
         self.assertFalse(plo.isViewable)
         self.assertEqual(
             plo.getLink(),
-            u"<div class='pretty_link'><span class='pretty_link_icons'><img title='Incoming Mail' "
+            u"<div class='pretty_link'><span class='pretty_link_icons'><img title='Courrier entrant' "
             u"src='http://nohost/plone/++resource++imio.dms.mail/dmsincomingmail_icon.png' "
             u"style=\"width: 16px; height: 16px;\" /></span><span class='pretty_link_content'>E0001 - Courrier 1 "
             u"</span></div>",
@@ -238,23 +237,6 @@ class TestPrettyLinkTitleViewlet(unittest.TestCase):
         task = self.im1["tache1"]
         rendered = get_viewlet(task, "pretty-link-title", "plone.belowcontenttitle").render()
         self.assertIn(u"Tâche 1", rendered)
-
-
-class TestCKBatchActionsViewlet(unittest.TestCase):
-
-    layer = DMSMAIL_INTEGRATION_TESTING
-
-    def test_available(self):
-        portal = self.layer["portal"]
-        change_user(portal)
-        oem = portal["templates"]["oem"]
-        viewlet = get_viewlet(oem, "collective.eeafaceted.batchactions", "plone.belowcontentbody",
-                              view_name="ck-templates-listing")
-        self.assertIsInstance(viewlet, CKBatchActionsViewlet)
-        self.assertTrue(viewlet.available())
-        viewlet = get_viewlet(oem, "collective.eeafaceted.batchactions", "plone.belowcontentbody",
-                              view_name="view")
-        self.assertFalse(viewlet.available())
 
 
 class TestImioFooterViewlet(unittest.TestCase):
@@ -287,12 +269,14 @@ class TestGlobalSectionsViewlet(unittest.TestCase):
         change_user(portal)
         imf = portal["incoming-mail"]
         imf.REQUEST["URL"] = imf.absolute_url()
-        rendered = get_viewlet(imf, "plone.global_sections", "plone.portalheader").render()
-        self.assertIn(u'<li id="portaltab-incoming-mail" class="selected">', rendered)
-        self.assertIn(u'<a href="http://nohost/plone/incoming-mail" title="">Entrant</a>', rendered)
-        self.assertIn(u'<li id="portaltab-plus" class="plain">', rendered)
-        # Font Awesome refresh icon and read mode toggle
-        self.assertIn(u'<span class="fa fa-sync-alt" id="collections-count-refresh"', rendered)
+        rendered = get_viewlet(imf, "plone.global_sections", "plone.mainnavigation").render()
+        # the current tab is marked client side (pat-navigationmarker of the theme)
+        self.assertIn(u'<li id="portaltab-incoming-mail" class="incoming-mail nav-item">', rendered)
+        self.assertIn(u'<a href="http://nohost/plone/incoming-mail" class="nav-link" title="">Entrant</a>', rendered)
+        self.assertIn(u'<li id="portaltab-plus" class="plus nav-item">', rendered)
+        # refresh icon (Bootstrap icon) and read mode toggle
+        self.assertIn(u'<span id="collections-count-refresh"', rendered)
+        self.assertIn(u'bi-arrow-repeat', rendered)
         self.assertIn(u'<li id="read_mode_icon"', rendered)
         self.assertIn(u'onclick="toggle_dms_document_view(this);"', rendered)
         # the plus tab is the last one
@@ -300,7 +284,7 @@ class TestGlobalSectionsViewlet(unittest.TestCase):
         # no read mode toggle outside documents sections
         ctf = portal["contacts"]
         ctf.REQUEST["URL"] = ctf.absolute_url()
-        rendered = get_viewlet(ctf, "plone.global_sections", "plone.portalheader").render()
+        rendered = get_viewlet(ctf, "plone.global_sections", "plone.mainnavigation").render()
         self.assertNotIn(u'id="read_mode_icon"', rendered)
 
 

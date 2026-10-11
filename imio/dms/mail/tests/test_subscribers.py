@@ -45,23 +45,24 @@ from imio.helpers.content import get_object
 from imio.helpers.content import uuidToObject
 from imio.helpers.ram import IMIORAMCache
 from imio.helpers.test_helpers import ImioTestHelpers
-from mock import Mock
-from mock import patch
 from plone import api
-from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.linkintegrity.exceptions import LinkIntegrityNotificationException
 from plone.app.testing import TEST_USER_ID
-from plone.app.users.browser.personalpreferences import UserDataConfiglet
+from plone.app.users.browser.userdatapanel import UserDataConfiglet
+from plone.base.interfaces.constrains import ISelectableConstrainTypes
 from plone.dexterity.events import EditFinishedEvent
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.events import RecordModifiedEvent
 from plone.registry.interfaces import IRegistry
+from Products.CMFCore.indexing import processQueue
+from Products.CMFPlone.controlpanel.events import ConfigurationChangedEvent
 from Products.statusmessages.interfaces import IStatusMessage
+from unittest.mock import Mock
+from unittest.mock import patch
 from z3c.relationfield import RelationValue
 from zExceptions import Redirect
-from zope.annotation import IAnnotations
 from zope.component import getSiteManager
 from zope.component import getUtility
 from zope.i18n import translate
@@ -982,7 +983,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.args[0], u"The chef already exists in the approvings with another order 1 <=> 2"
+            cm.exception.args[0], u"L'utilisateur chef existe déjà dans les approbateurs lignes 1 <=> 2"
         )
 
         # Test signers have same email
@@ -1018,8 +1019,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.args[0], u"You cannot have the same email (duplicate@belleville.eb) "
-                                               u"for multiple signers !")
+        self.assertEqual(cm.exception.args[0], u"Vous ne pouvez pas avoir le même email (duplicate@belleville.eb) "
+                                               u"pour plusieurs signataires !")
         api.user.get("dirg").setMemberProperties({"email": "deduplicate@belleville.eb"})
 
         # Test mail in sent or to_be_signed states
@@ -1536,11 +1537,13 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(index_value, ["e0010", "title"])
         # after mainfile creation
         f1 = createContentInContainer(self.imail, "dmsmainfile", id="f1", scan_id="010999900000690")
+        processQueue()  # deferred indexing, read below without a catalog query
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(index_value, ["e0010", "title", u"010999900000690", "imio010999900000690", u"690"])
         # after mainfile modification
         f1.scan_id = "010999900000691"
         zope.event.notify(ObjectModifiedEvent(f1, Attributes(IScanFields, "IScanFields.scan_id")))
+        processQueue()
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
         self.assertListEqual(index_value, ["e0010", "title", u"010999900000691", "imio010999900000691", u"691"])
         # event without scan_id attribute
@@ -1562,7 +1565,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
-                ("test-user", u"test-user (Désactivé)"),
+                (TEST_USER_ID, u"test_user_1_ (Désactivé)"),
             ],
         )
         # we change a user property
@@ -1584,7 +1587,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 ("siteadmin", u"siteadmin"),
                 ("scanner", u"Scanner"),
                 ("agent1", u"Stef Agent"),
-                ("test-user", u"test-user (Désactivé)"),
+                (TEST_USER_ID, u"test_user_1_ (Désactivé)"),
             ],
         )
         # we change the activated services
@@ -1604,7 +1607,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 ("agent", u"Fred Agent (Désactivé)"),
                 ("lecteur", u"Jef Lecteur (Désactivé)"),
                 ("agent1", u"Stef Agent (Désactivé)"),
-                ("test-user", u"test-user (Désactivé)"),
+                (TEST_USER_ID, u"test_user_1_ (Désactivé)"),
             ],
         )
         # wrong configuration change
@@ -1616,15 +1619,15 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.user.delete, username="scanner")
         smi = IStatusMessage(request)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'scanner'.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'scanner'.")
         # having group
         self.assertRaises(Redirect, api.user.delete, "lecteur")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'lecteur', used in following groups.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'lecteur', utilisé dans les groupes.")
         # is used in content
         self.assertRaises(Redirect, api.user.delete, username=TEST_USER_ID)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'test_user_1_', used in 'Creator' index.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'test_user_1_', utilisé dans l'index 'Auteur'.")
         # is used as person user_id
         api.user.create("test@test.be", "testuser", "Password#1")
         agent = self.portal.contacts["personnel-folder"]["agent"]
@@ -1632,7 +1635,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         agent.reindexObject()
         self.assertRaises(Redirect, api.user.delete, username="testuser")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'testuser', used in 'userid' index.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'testuser', utilisé dans l'index 'userid'.")
 
     def test_group_deleted(self):
         request = self.portal.REQUEST
@@ -1640,14 +1643,14 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.group.delete, groupname="expedition")
         smi = IStatusMessage(request)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group 'expedition'.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer le groupe 'expedition'.")
         # is used in content
         group = "%s_editeur" % get_registry_organizations()[0]
         # we remove this organization to escape plonegroup subscriber
         set_registry_organizations(get_registry_organizations()[1:])
         self.assertRaises(Redirect, api.group.delete, groupname=group)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index." % group)
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer le groupe '%s', utilisé dans l'index 'Groupe assigné'." % group)
 
     def test_group_assignment(self):
         self.portal.ok = True
@@ -1662,6 +1665,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(index_value, "electrabel|travaux 0001|")
         self.elec.title = "Electrabel 1"
         zope.event.notify(ObjectModifiedEvent(self.elec, Attributes(IBasic, "IBasic.title")))
+        processQueue()  # deferred indexing, read below without a catalog query
         index_value = pc._catalog.getIndex("sortable_title").getEntryForObject(rid, default=[])
         self.assertEqual(index_value, "electrabel 0001|travaux 0001|")
         rid = pc(id="electrabel")[0].getRID()
@@ -1678,30 +1682,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         set_registry_organizations(get_registry_organizations()[:3])
         self.assertEqual(len(self.omf.get_local_roles()), 6)
         # TODO tests other changes !!
-
-    def test_cktemplate_moved(self):
-        oemf = self.portal["templates"]["oem"]
-        srvf = self.portal["contacts"]["plonegroup-organization"]
-        org1 = srvf["direction-generale"]
-        org2 = srvf["direction-generale"]["secretariat"]
-        self.assertIn(org1.UID(), oemf)
-        self.assertIn(org2.UID(), oemf)
-        mod1 = api.content.create(container=oemf, type="cktemplate", id="mod1", title="Modèle 1")
-        annot = IAnnotations(mod1)
-        self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"")
-        mod1 = api.content.move(mod1, oemf[org1.UID()])
-        annot = IAnnotations(mod1)
-        self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"Direction générale")
-        mod2 = api.content.copy(mod1, oemf[org2.UID()], id="mod2")
-        annot = IAnnotations(mod2)
-        self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"Direction générale - Secrétariat")
-        folder = api.content.create(container=oemf, type="Folder", id="fold1", title="héhéhé")
-        mod2 = api.content.move(mod2, folder)
-        annot = IAnnotations(mod2)
-        self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"héhéhé")
-        mod2 = api.content.rename(mod2, "mod-nextgen")
-        annot = IAnnotations(mod2)
-        self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"héhéhé")
 
     def _person_usages(self, person):
         """Return the value stored in the 'usages' catalog index for the given person."""
@@ -1812,7 +1792,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(msgs[-1].type, u"warning")
         self.assertEqual(
             msgs[-1].message,
-            u"You have been redirected here because you do not have access anymore to the element you just edited.",
+            u"Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier.",
         )
 
     def test_dexterity_transition(self):
@@ -1973,21 +1953,22 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         area = self.portal["Members"]["agent"]
         self.assertEqual(area.portal_type, "member_area")
         # nothing can be added directly in the personal folder
-        self.assertEqual(area.getConstrainTypesMode(), 1)
-        self.assertEqual(list(area.getLocallyAllowedTypes()), [])
+        constraints = ISelectableConstrainTypes(area)
+        self.assertEqual(constraints.getConstrainTypesMode(), 1)
+        self.assertEqual(list(constraints.getLocallyAllowedTypes()), [])
         # a personal contact lists folder is created, owned by the user
         self.assertIn("contact-lists", area)
         folder = area["contact-lists"]
-        self.assertEqual(folder.getConstrainTypesMode(), 1)
-        self.assertEqual(list(folder.getLocallyAllowedTypes()), ["contact_list"])
-        self.assertEqual(list(folder.getImmediatelyAddableTypes()), ["contact_list"])
+        constraints = ISelectableConstrainTypes(folder)
+        self.assertEqual(constraints.getConstrainTypesMode(), 1)
+        self.assertEqual(list(constraints.getLocallyAllowedTypes()), ["contact_list"])
+        self.assertEqual(list(constraints.getImmediatelyAddableTypes()), ["contact_list"])
         self.assertEqual(sorted(folder.get_local_roles_for_userid("agent")), ["Contributor", "Editor", "Reader"])
 
     def test_folder_added(self):
-        # folders added in om templates, email templates or contact lists are only "add" folders
+        # folders added in om templates or contact lists are only "add" folders
         for container in (
             self.portal["templates"]["om"],
-            self.portal["templates"]["oem"],
             self.portal["contacts"]["contact-lists-folder"],
         ):
             folder = api.content.create(container=container, type="Folder", id="new-folder", title=u"Nouveau")

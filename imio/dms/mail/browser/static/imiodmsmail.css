@@ -1,15 +1,8 @@
-/*
- *  This is the file where you put your CSS changes.
- *  You should preferrably use this and override the
- *  relevant properties you want to change here instead
- *  of customizing plone.css to survive upgrades. Writing
- *  your own plone.css only makes sense for very heavy
- *  customizations. Useful variables from Plone are
- *  documented at the bottom of this file.
+/* imio.dms.mail: bundle plone.bundles/imio-dms-mail (converted from the Plone 4 imiodmsmail.css.dtml).
+ * Urls: the bundle is served at portal_url/++webresource++<hash>/++resource++imio.dms.mail/, so a bare
+ * name is a file of the static folder and "../" is the portal root (++plone++bootstrap-icons, ++resource++...).
+ * Font Awesome is gone: its glyphs are Bootstrap icons used as css masks (as collective.iconifiedcategory).
  */
-
-/* <dtml-with base_properties> (do not remove this :) */
-/* <dtml-call "REQUEST.set('portal_url', portal_url())"> (not this either :) */
 
 /* Read mode icon to enlarge dv view */
 
@@ -84,7 +77,7 @@ body.template-view.portaltype-sign_request #form-widgets-ISignRequestSigningBeha
     display: inline-block;
     vertical-align: top;
     margin-right: 6px;
-    background-image: url("&dtml-portal_url;/++resource++imio.esign/seal.png");
+    background-image: url("../++resource++imio.esign/seal.png");
     background-size: contain;
     background-repeat: no-repeat;
     width: 16px;
@@ -97,7 +90,7 @@ body.template-view.portaltype-sign_request #form-widgets-ISignRequestSigningBeha
     display: inline-block;
     vertical-align: top;
     margin-right: 2px;
-    background-image: url("&dtml-portal_url;/++resource++imio.esign/parapheo.svg");
+    background-image: url("../++resource++imio.esign/parapheo.svg");
     background-size: contain;
     background-repeat: no-repeat;
     width: 16px;
@@ -129,7 +122,6 @@ body.template-view.portaltype-sign_request #form-widgets-ISignRequestSigningBeha
 .template-view.portaltype-dmsincomingmail.read-mode div#portal-column-content,
 .template-view.portaltype-dmsincoming_email.read-mode div#portal-column-content,
 .template-view.portaltype-sign_request.read-mode div#portal-column-content {
-    margin-left: -100% !important;
     width: 100% !important;
 }
 
@@ -201,20 +193,9 @@ body.template-view.portaltype-sign_request #form-widgets-ISignRequestSigningBeha
     white-space: normal;
 }  /* to keep width right */
 
-.template-dmsdocument-edit #form-widgets-sender-autocomplete .querySelectSearchInput,
-.template-dmsdocument-edit #form-widgets-recipients-autocomplete .querySelectSearchInput {
-    width: 100%;
-}
-
 .template-dmsdocument-edit #form-widgets-IDublinCore-description,
-.template-dmsdocument-edit #form-widgets-sender-widgets-query,
-.template-dmsdocument-edit #form-widgets-recipients-widgets-query,
-.template-dmsdocument-edit #form-widgets-reply_to-widgets-query,
 .template-dmsdocument-edit #form-widgets-external_reference_no,
-.template-dmsdocument-edit #form-widgets-IClassificationFolder-classification_categories-widgets-query,
-.template-dmsdocument-edit #form-widgets-IClassificationFolder-classification_folders-widgets-query,
-.template-dmsdocument-edit #form-widgets-internal_reference_no,
-.template-edit #form-widgets-classification_categories-widgets-query {
+.template-dmsdocument-edit #form-widgets-internal_reference_no {
     width: -moz-available;
 }
 
@@ -233,6 +214,15 @@ body.template-view.portaltype-sign_request #form-widgets-ISignRequestSigningBeha
 .datagridwidget-expandable tr.datagridwidget-row-expanded .datagridwidget-cell-content {
     max-height: none;
     overflow: visible;
+}
+
+/* the expand button shows the icon of the next state */
+.datagridwidget-expandable .expand-row-btn .collapse-icon,
+.datagridwidget-expandable tr.datagridwidget-row-expanded .expand-row-btn .expand-icon {
+    display: none;
+}
+.datagridwidget-expandable tr.datagridwidget-row-expanded .expand-row-btn .collapse-icon {
+    display: inline;
 }
 
 .template-dmsdocument-edit .select2-container .select2-choices {
@@ -255,28 +245,13 @@ body.template-view.portaltype-sign_request #form-widgets-ISignRequestSigningBeha
     padding: 4px 2px;
 }
 
-.overlay.overlay-ajax.overlay-contact-addnew {
-    left: 5px !important;
-    width: 35% !important;
-}
-
-.template-dmsdocument-edit #visual-portal-wrapper #content-core #fieldset-default .field {
-    clear: none;
-}
-
 .template-dmsdocument-edit #DV-container {
     width: 100% !important;
     margin-top: 0;
 }
 
-.template-dmsdocument-edit #content-core > p.discreet,
-.template-dmsdocument-edit #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs {
+.template-dmsdocument-edit #content-core > p.discreet {
     display: None;
-}
-
-.template-dmsdocument-edit.portaltype-dmsoutgoingmail #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs,
-.template-dmsdocument-edit.portaltype-sign_request #content-core form.kssattr-formname-dmsdocument-edit ul.formTabs {
-    display: block;
 }
 
 /* Title 100% */
@@ -292,12 +267,6 @@ body.template-view.portaltype-sign_request #form-widgets-ISignRequestSigningBeha
 }
 
 /* edit mode of OMdmsmail */
-
-/*#content li.formTab a.required span::after, */
-#content-core li.formTab a#fieldsetlegend-signing.required span::after {
-    content: none !important;
-    padding-left: 0;
-}
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
 body.template-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers span[id$="widgets-approvings"],
@@ -347,10 +316,6 @@ body.template-reply.portaltype-dmsincoming_email #formfield-form-widgets-ISignin
     display: none;
 }
 
-.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-email_body div.richTextWidget  #cke_2_contents {
-    height: 20em;
-}
-
 /* Display None */
 
 body.section-outgoing-mail .mail-searches-in_esign_sessions,
@@ -368,9 +333,9 @@ body.section-requests .requests-searches-in_esign_sessions {
 }
 
 #formfield-oform-widgets-position,
-.template-dmsdocument-edit .overlay-contact-addnew div.field[id$="_date"],
-.template-dmsoutgoingmail .overlay-contact-addnew div.field[id$="_date"],
-.portaltype-folder .overlay-contact-addnew div.field[id$="_date"]{
+.template-dmsdocument-edit .modal div.field[id$="_date"],
+.template-dmsoutgoingmail .modal div.field[id$="_date"],
+.portaltype-folder .modal div.field[id$="_date"]{
     display: none !important;
 }
 
@@ -410,13 +375,6 @@ body.section-requests .requests-searches-in_esign_sessions {
     display: None;
 }
 
-.template-dmsmainfile #content-core ul.formTabs li:nth-child(2),
-.template-dmsommainfile #content-core ul.formTabs li:nth-child(2),
-.template-dmsappendixfile #content-core ul.formTabs li:nth-child(2)
-{
-    display: None;
-}
-
 #download_vcard {
     display: None;
 }
@@ -425,25 +383,12 @@ body.section-requests .requests-searches-in_esign_sessions {
     display: None;
 }
 
-#formfield-form-widgets-reply_to input.searchButton {
-    display: none;
-}
-
 .section-contacts.subsection-personnel-folder .addnew-block { /*Remove add-organization link in widget*/
     display: none !important;
 }
 
-body.portaltype-contact_list #content-core fieldset#folder-listing,
-#form-widgets-sender-input-fields div.tooltip.pb-ajax fieldset#folder-listing,
-#form-widgets-recipients-input-fields div.tooltip.pb-ajax fieldset#folder-listing,
-table.faceted-table-results a.contact-list + div.tooltip.pb-ajax fieldset#folder-listing {
+body.portaltype-contact_list #content-core fieldset#folder-listing {
     display: none;
-}
-
-#form-widgets-sender-input-fields div.tooltip.pb-ajax,
-#form-widgets-recipients-input-fields div.tooltip.pb-ajax,
-table.faceted-table-results a.contact-list + div.tooltip.pb-ajax {
-    padding: 1em 1em 0em;
 }
 
 .template-search #rss-subscription {
@@ -457,16 +402,24 @@ table.faceted-table-results a.contact-list + div.tooltip.pb-ajax {
     display: None;
 }
 
-body.template-view.portaltype-dmsincomingmail h1#parent-fieldname-title:not(.keep-it),
-body.template-view.portaltype-dmsincoming_email h1#parent-fieldname-title:not(.keep-it),
-body.template-view.portaltype-dmsoutgoingmail h1#parent-fieldname-title:not(.keep-it),
-body.template-view.portaltype-sign_request h1#parent-fieldname-title:not(.keep-it),
-body.template-item_view.portaltype-task h1#parent-fieldname-title:not(.keep-it),
+body.template-view.portaltype-dmsincomingmail #viewlet-above-content-title ~ h1:not(.keep-it),
+body.template-view.portaltype-dmsincoming_email #viewlet-above-content-title ~ h1:not(.keep-it),
+body.template-view.portaltype-dmsoutgoingmail #viewlet-above-content-title ~ h1:not(.keep-it),
+body.template-view.portaltype-sign_request #viewlet-above-content-title ~ h1:not(.keep-it),
+body.template-view.portaltype-task #viewlet-above-content-title ~ h1:not(.keep-it),
+body.template-item_view.portaltype-task #viewlet-above-content-title ~ h1:not(.keep-it),
 body.portaltype-classificationfolders h1.documentFirstHeading:not(.keep-it),
 body.portaltype-classificationfolder h1.documentFirstHeading:not(.keep-it),
 body.portaltype-classificationsubfolder h1.documentFirstHeading:not(.keep-it) {
     display: none;
 }  /* Hide original title */
+
+/* plone.formwidget.masterselect adds its input class (form-select) in display mode too */
+span.form-select {
+    background-image: none;
+    border: 0;
+    padding: 0;
+}
 
 body.template-view h1 .pretty_link_icons img,
 body.template-item_view h1 .pretty_link_icons img{
@@ -532,10 +485,6 @@ body.template-imiodmsmail-settings #formfield-form-widgets-groups_hidden_in_dash
     display: None;
 }
 
-#portal-searchbox div.LSBox div.searchSection {
-    display: None;
-}
-
 /* Other */
 
 #formfield-form-widgets-IDmsMailDataTransfer-data_transfer span {
@@ -589,118 +538,138 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     text-align: center;
 }
 
+/* Bootstrap icons used as masks (Font Awesome is gone), the base of the a::before is in
+   collective.iconifiedcategory; "table.iconified-listing" wins over its rules */
+#content table.iconified-listing td.iconified-print span::before,
+#content table.iconified-listing td.iconified-signed span::before,
+#content table.iconified-listing td.iconified-approved span::before,
+body.section-contacts.subsection-personnel-folder table.faceted-table-results td.td_cell_hps li span.signer-icon::before,
+body.section-contacts.subsection-personnel-folder table.faceted-table-results td.td_cell_hps li span.approving-icon::before,
+.templates-listing .signers-column span.pt_self_signers::before,
+.templates-listing .signers-column span.pt_sub_signers::before {
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    background-color: currentColor;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+
 /* original css with span replacing a in edit mode */
-#content .iconified-listing td.iconified-print span,
-#content .iconified-listing td.iconified-signed span,
-#content .iconified-listing td.iconified-approved span {
-    font-family: 'Font Awesome 5 Free';
+#content table.iconified-listing td.iconified-print span,
+#content table.iconified-listing td.iconified-signed span,
+#content table.iconified-listing td.iconified-approved span {
     font-size: 110%;
-    font-weight: bold;
 }
-#content .iconified-listing td.iconified-print span::before {
-    content: "\f02f";
+#content table.iconified-listing td.iconified-print span::before {
+    -webkit-mask-image: url("../++plone++bootstrap-icons/printer.svg");
+    mask-image: url("../++plone++bootstrap-icons/printer.svg");
 }
-#content .iconified-listing td.iconified-approved span::before {
-    content: "\f00c";
+#content table.iconified-listing td.iconified-approved span::before {
+    -webkit-mask-image: url("../++plone++bootstrap-icons/check-lg.svg");
+    mask-image: url("../++plone++bootstrap-icons/check-lg.svg");
 }
-#content .iconified-listing td.iconified-print span,
-#content .iconified-listing td.iconified-signed span,
-#content .iconified-listing td.iconified-approved span {
+#content table.iconified-listing td.iconified-print span,
+#content table.iconified-listing td.iconified-signed span,
+#content table.iconified-listing td.iconified-approved span {
     color: #EA0000;
 }
-#content .iconified-listing td.iconified-print span.active,
-#content .iconified-listing td.iconified-signed span.active,
-#content .iconified-listing td.iconified-approved span.active {
+#content table.iconified-listing td.iconified-print span.active,
+#content table.iconified-listing td.iconified-signed span.active,
+#content table.iconified-listing td.iconified-approved span.active {
     color: #75ad0a;
 }
-#content .iconified-listing td.iconified-print span.deactivated,
-#content .iconified-listing td.iconified-approved span.deactivated {
+#content table.iconified-listing td.iconified-print span.deactivated,
+#content table.iconified-listing td.iconified-approved span.deactivated {
     color: silver;
 }
 /* end */
 
-#content .iconified-listing td.iconified-approved a.to-approve::before,
-#content .iconified-listing td.iconified-approved span.to-approve::before,
-#content .iconified-listing td.iconified-signed a.deactivated::before,
-#content .iconified-listing td.iconified-signed span.deactivated::before {
-    content: "\f204";  /* toggle-off */
-    font-weight: bold !important;
+#content table.iconified-listing td.iconified-approved a.to-approve::before,
+#content table.iconified-listing td.iconified-approved span.to-approve::before,
+#content table.iconified-listing td.iconified-signed a.deactivated::before,
+#content table.iconified-listing td.iconified-signed span.deactivated::before {
+    -webkit-mask-image: url("../++plone++bootstrap-icons/toggle-off.svg");
+    mask-image: url("../++plone++bootstrap-icons/toggle-off.svg");
 }
-#content .iconified-listing td.iconified-approved a.to-approve,
-#content .iconified-listing td.iconified-approved span.to-approve,
-#content .iconified-listing td.iconified-signed a.deactivated,
-#content .iconified-listing td.iconified-signed span.deactivated {
+#content table.iconified-listing td.iconified-approved a.to-approve,
+#content table.iconified-listing td.iconified-approved span.to-approve,
+#content table.iconified-listing td.iconified-signed a.deactivated,
+#content table.iconified-listing td.iconified-signed span.deactivated {
     color: #999;
 }
-#content .iconified-listing td.iconified-approved a.to-approve:hover,
-#content .iconified-listing td.iconified-signed a.deactivated:hover {
+#content table.iconified-listing td.iconified-approved a.to-approve:hover,
+#content table.iconified-listing td.iconified-signed a.deactivated:hover {
     color: #666 !important;
 }
 
-#content .iconified-listing td.iconified-approved a.active.to-approve::before,
-#content .iconified-listing td.iconified-approved span.active.to-approve::before,
-#content .iconified-listing td.iconified-signed a::before,
-#content .iconified-listing td.iconified-signed span::before {
-    content: "\f205";  /* toggle-on */
-    font-weight: bold !important;
+#content table.iconified-listing td.iconified-approved a.active.to-approve::before,
+#content table.iconified-listing td.iconified-approved span.active.to-approve::before,
+#content table.iconified-listing td.iconified-signed a::before,
+#content table.iconified-listing td.iconified-signed span::before {
+    -webkit-mask-image: url("../++plone++bootstrap-icons/toggle-on.svg");
+    mask-image: url("../++plone++bootstrap-icons/toggle-on.svg");
 }
-#content .iconified-listing td.iconified-approved a.active.to-approve,
-#content .iconified-listing td.iconified-approved span.active.to-approve {
+#content table.iconified-listing td.iconified-approved a.active.to-approve,
+#content table.iconified-listing td.iconified-approved span.active.to-approve {
     color: #EA0000;
 }
-#content .iconified-listing td.iconified-approved a.active.to-approve:hover {
+#content table.iconified-listing td.iconified-approved a.active.to-approve:hover {
     color: #B50000 !important;
 }
 
-#content .iconified-listing td.iconified-signed a.active::before,
-#content .iconified-listing td.iconified-signed span.active::before {
-    content: "\f044";  /* pen-to-square */
-    font-weight: bold !important;
+#content table.iconified-listing td.iconified-signed a.active::before,
+#content table.iconified-listing td.iconified-signed span.active::before {
+    -webkit-mask-image: url("../++plone++bootstrap-icons/pencil-square.svg");
+    mask-image: url("../++plone++bootstrap-icons/pencil-square.svg");
 }
 
-#content .iconified-listing td.iconified-approved a.cant-approve::before,
-#content .iconified-listing td.iconified-approved span.cant-approve::before
-{
-  content: "\f254";  /* hourglass */
-  color: black;
-  font-weight: initial;
+#content table.iconified-listing td.iconified-approved a.cant-approve::before,
+#content table.iconified-listing td.iconified-approved span.cant-approve::before {
+    -webkit-mask-image: url("../++plone++bootstrap-icons/hourglass.svg");
+    mask-image: url("../++plone++bootstrap-icons/hourglass.svg");
+    color: black;
 }
 
-#content .iconified-listing td.iconified-approved a.waiting::before,
-#content .iconified-listing td.iconified-approved span.waiting::before
-{
-  /*content: "\f251";  /* hourglass-start */
-  content: "\f254";  /* hourglass */
-  color: #EA0000;
-  font-weight: initial;
+#content table.iconified-listing td.iconified-approved a.waiting::before,
+#content table.iconified-listing td.iconified-approved span.waiting::before {
+    -webkit-mask-image: url("../++plone++bootstrap-icons/hourglass.svg");
+    mask-image: url("../++plone++bootstrap-icons/hourglass.svg");
+    color: #EA0000;
 }
 
-#content .iconified-listing td.iconified-approved a.partially-approved::before,
-#content .iconified-listing td.iconified-approved span.partially-approved::before {
-  content: "\f252";  /* hourglass-half */
-  color: #FFB627;
+#content table.iconified-listing td.iconified-approved a.partially-approved::before,
+#content table.iconified-listing td.iconified-approved span.partially-approved::before {
+    -webkit-mask-image: url("../++plone++bootstrap-icons/hourglass-split.svg");
+    mask-image: url("../++plone++bootstrap-icons/hourglass-split.svg");
+    color: #FFB627;
 }
 
-#content .iconified-listing td.iconified-approved a.totally-approved::before,
-#content .iconified-listing td.iconified-approved span.totally-approved::before {
-  content: "\f560";  /* check-double */
-  color: #75ad0a;
+#content table.iconified-listing td.iconified-approved a.totally-approved::before,
+#content table.iconified-listing td.iconified-approved span.totally-approved::before {
+    -webkit-mask-image: url("../++plone++bootstrap-icons/check-all.svg");
+    mask-image: url("../++plone++bootstrap-icons/check-all.svg");
+    color: #75ad0a;
 }
 
 body.section-contacts.subsection-personnel-folder table.faceted-table-results td.td_cell_hps li span.signer-icon::before {
-    content: "\f044";
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
+    -webkit-mask-image: url("../++plone++bootstrap-icons/pencil-square.svg");
+    mask-image: url("../++plone++bootstrap-icons/pencil-square.svg");
     color: #75ad0a;
-    padding-left: 3px;
+    margin-left: 3px;
 }
 
 body.section-contacts.subsection-personnel-folder table.faceted-table-results td.td_cell_hps li span.approving-icon::before {
-    content: "\f00c";
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
+    -webkit-mask-image: url("../++plone++bootstrap-icons/check-lg.svg");
+    mask-image: url("../++plone++bootstrap-icons/check-lg.svg");
     color: #75ad0a;
-    padding-left: 3px;
+    margin-left: 3px;
 }
 
 /* esign PDF-generated version child rows - tree indentation */
@@ -765,10 +734,6 @@ dl.portletActionsPortlet dd.portletItem span {
     line-height: 1.5em;
 }
 
-div.ac_results {
-    width: auto !important;
-}
-
 #faceted-results td.pretty_link a.link-tooltip .pretty_link_content {
     border-bottom: 1px dotted;
 }
@@ -831,7 +796,8 @@ dl.portletWidgetCollection div.portlet_add_icons a {
 }
 
 .apButtonAction_assign {
-    background-image: url('&dtml-portal_url;/user.png');
+    background-image: url('../++plone++bootstrap-icons/person.svg');
+    background-size: 16px;
 }
 
 .apButtonAction_assign.apUseIcons {
@@ -839,39 +805,39 @@ dl.portletWidgetCollection div.portlet_add_icons a {
 }
 
 .apButtonAction_create-from-template {
-    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/models_icon.png');
+    background-image: url('models_icon.png');
 }
 
 .apButtonAction_sendemail {
-    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/send_email.svg');
+    background-image: url('send_email.svg');
     background-size: 18px 18px;
 }
 
 .apButtonAction_sendemail_ok {
-    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/send_email_3dcc5e.svg');
+    background-image: url('send_email_3dcc5e.svg');
     background-size: 18px 18px;
 }
 
 .apButtonAction_wemail {
-    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/arobase.svg');
+    background-image: url('arobase.svg');
     background-size: 18px 18px;
 }
 
 .apButtonAction_wemail_ok {
-    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/arobase_3dcc5e.svg');
+    background-image: url('arobase_3dcc5e.svg');
     background-size: 18px 18px;
 }
 
 .apButtonAction_annexes {
-    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/new_multiple.png');
+    background-image: url('new_multiple.png');
 }
 
 .apButtonAction_reply {
-    background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/reply_icon.png');
+    background-image: url('reply_icon.png');
 }
 
 .apButtonAction_approvals {
-   background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/check-all.svg');
+   background-image: url('check-all.svg');
 }
 
 /* Configure autocomplete widget */
@@ -952,35 +918,23 @@ body.template-folder_factories #content-core dt label img {
 /* templates listing */
 .templates-listing .signers-column {
     text-align: center;
-    font-family: 'Font Awesome 5 Free';
     font-size: 110%;
-    font-weight: bold;
 }
 .templates-listing .signers-column span.pt_self_signers::before {
-    content: "\f4ff";
+    -webkit-mask-image: url("../++plone++bootstrap-icons/person-gear.svg");
+    mask-image: url("../++plone++bootstrap-icons/person-gear.svg");
     color: #75ad0a;
 }
 .templates-listing .signers-column span.pt_sub_signers::before {
-    content: "\f4ff";
-    color:#FFB627;
+    -webkit-mask-image: url("../++plone++bootstrap-icons/person-gear.svg");
+    mask-image: url("../++plone++bootstrap-icons/person-gear.svg");
+    color: #FFB627;
 }
 
 /* org logo in listing */
 body.template-view.subsection-plonegroup-organization table.suborganizations-listing div.additional-infos img {
     width: auto;
     max-height: 50px;
-}
-
-/* ckeditor templates cktemplate */
-div.cke_tpl_item {
-    padding: 2px;
-}
-table.cke_tpl_preview td {
-    padding: 0px;
-}
-td.cke_tpl_preview_img img {
-    width: 20px;
-    height: 20px;
 }
 
 /* .template-view.portaltype-cktemplate #form-widgets-content, .template-view.portaltype-dmsoutgoingmail #form-widgets-email_body, */
@@ -1057,7 +1011,7 @@ td.cke_tpl_preview_img img {
 #recipientgroup-batchaction-form #formfield-form-widgets-removed_values {
     margin-right: 30px;
 }
-.pb-ajax #recipientgroup-batchaction-form .formControls {
+#recipientgroup-batchaction-form .formControls {
     clear: both;
 }
 
@@ -1076,8 +1030,7 @@ body.template-imiodmsmail-settings #portal-column-one {
     display: none;
 }
 body.template-imiodmsmail-settings #portal-column-content {
-    margin-left: -99.8%;
-    width: 99.6%;
+    width: 100%;
 }
 
 body.template-imiodmsmail-settings .unconfigured-fields {
@@ -1448,4 +1401,23 @@ div.faceted-session-info {
     width: 100%;
 }
 
-/* </dtml-with> */
+/* was imiodmsmail_print.css (media print) */
+@media print {
+    .template-im-listing h1 {
+        display: none;
+    }
+
+    .template-im-listing h2:nth-of-type(n+2){
+        page-break-before: always !important;
+    }
+
+    .template-im-listing #content table {
+        border-collapse: collapse;
+    }
+
+    .template-im-listing #content td, .template-im-listing #content th {
+        border: 1px solid;
+        padding: 3px 15px 3px 3px;
+        border-collapse: collapse;
+    }
+}

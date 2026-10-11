@@ -4,27 +4,27 @@
   <property name="title" i18n:translate="">Member Area</property>
   <property name="description"
     i18n:translate="Member area folder."></property>
-  <property name="icon_expr">string:${portal_url}/folder_icon.png</property>
+  <property name="icon_expr">string:contenttype/folder</property>
   <property name="factory">member_area</property>
   <property name="add_view_expr">string:${folder_url}/++add++member_area</property>
   <property name="link_target"></property>
-  <property name="immediate_view">folder_listing</property>
+  <property name="immediate_view">listing_view</property>
   <property name="global_allow">False</property>
   <property name="filter_content_types">True</property>
   <property name="allowed_content_types">
     <element value="Folder" />
   </property>
   <property name="allow_discussion">False</property>
-  <property name="default_view">folder_listing</property>
+  <property name="default_view">listing_view</property>
   <property name="view_methods">
-    <element value="folder_listing"/>
+    <element value="listing_view"/>
   </property>
   <property name="default_view_fallback">False</property>
   <property name="add_permission">cmf.AddPortalContent</property>
   <property name="klass">imio.dms.mail.content.member_area.MemberArea</property>
   <property name="behaviors">
     <element value="plone.app.dexterity.behaviors.metadata.IBasic"/>
-    <element value="Products.CMFPlone.interfaces.constrains.ISelectableConstrainTypes"/>
+    <element value="plone.constraintypes"/>
   </property>
   <property name="schema"></property>
   <property name="model_source">&lt;model xmlns="http://namespaces.plone.org/supermodel/schema"&gt;

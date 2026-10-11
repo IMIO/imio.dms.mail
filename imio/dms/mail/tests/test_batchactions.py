@@ -240,12 +240,10 @@ class BatchActions(unittest.TestCase):
         rendered = view()
         # the multiple-reply form is rendered in place
         self.assertEqual(view.request["URL"], "{}/multiple-reply".format(self.msf.absolute_url()))
-        self.assertIn(u"Reply to 2 incoming mails", rendered)
+        self.assertIn(u"Répondre à 2 courriers entrants", rendered)
         self.assertIn(u'name="form.widgets.IDublinCore.title"', rendered)
-        self.assertEqual(
-            view.request.form["form.widgets.reply_to"],
-            ("/".join(self.im1.getPhysicalPath()), "/".join(self.im2.getPhysicalPath())),
-        )
+        # uids separated by ";" (Plone 6 relation widget)
+        self.assertEqual(view.request.form["form.widgets.reply_to"], "{};{}".format(self.im1.UID(), self.im2.UID()))
 
     def test_IMSenderBatchActionForm(self):
         self.assertListEqual([rel.to_object for rel in self.im1.sender], [self.elec])

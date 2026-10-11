@@ -49,6 +49,5 @@
         name="imio.dms.mail.hiddenprofiles"
       />
 
-    <include file="migrations/upgrades.zcml" />
 
 </configure>

@@ -27,10 +27,8 @@ from collective.dms.mailcontent.dmsmail import IDmsIncomingMail
 from collective.dms.mailcontent.dmsmail import IDmsOutgoingMail
 from collective.dms.mailcontent.dmsmail import IFieldsetOutgoingEmail
 from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
-from collective.documentgenerator.utils import need_mailing_value
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
-from collective.z3cform.select2.widget.widget import SingleSelect2FieldWidget
 from datetime import datetime
 from datetime import timedelta
 from dexterity.localrolesfield.field import LocalRolesField
@@ -44,6 +42,7 @@ from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.task import TaskEdit
+from imio.dms.mail.dg_compat import need_mailing_value
 from imio.dms.mail.interfaces import IImioDmsIncomingMailWfConditions
 from imio.dms.mail.interfaces import IImioDmsOutgoingMailWfConditions
 from imio.dms.mail.interfaces import IOMApproval
@@ -65,6 +64,7 @@ from imio.helpers.emailer import validate_email_address
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
+from plone.app.z3cform.widgets.select import SelectFieldWidget
 from plone.autoform import directives
 # from plone.autoform.interfaces import IFormFieldProvider
 from plone.dexterity.browser.add import DefaultAddForm
@@ -72,7 +72,6 @@ from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import DexteritySchemaPolicy
 # from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
-from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
@@ -453,13 +452,13 @@ def imio_dmsincomingmail_updatewidgets(the_form):
 
     if "original_mail_date" in the_form.fields:
         if the_form.widgets["original_mail_date"].field.required:
-            if the_form.widgets["original_mail_date"].value == ("", "", ""):  # field value is None
+            if not the_form.widgets["original_mail_date"].value:  # field value is None
                 date = originalMailDateDefaultValue(None)
-                the_form.widgets["original_mail_date"].value = (date.year, date.month, date.day)
+                the_form.widgets["original_mail_date"].value = date.isoformat()
         else:
             # if the context original_mail_date is already set, the widget value is good and must be kept
             if not is_dim or the_form.context.original_mail_date is None:
-                the_form.widgets["original_mail_date"].value = ("", "", "")
+                the_form.widgets["original_mail_date"].value = ""
 
     if is_dim and the_form.context.treating_groups and the_form.context.assigned_user is None:
         updatewidgets_assigned_user_description(the_form)
@@ -682,7 +681,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         required=True,
         vocabulary=u"imio.dms.mail.OMActiveSenderVocabulary",
     )
-    directives.widget("sender", SingleSelect2FieldWidget)
+    directives.widget("sender", SelectFieldWidget)
 
     orig_sender_email = schema.TextLine(
         title=_(u"Original sender email"),
@@ -724,7 +723,6 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
         min=datetime(1990, 1, 1),
         max=datetime(now.year + 1, 12, 31),
     )
-    directives.widget("outgoing_date", DatetimeFieldWidget, show_today_link=True, show_time=True)
 
     directives.omitted("related_docs", "notes")
 

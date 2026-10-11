@@ -8,7 +8,6 @@ from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.browser.table import AssignedGroupColumn
-from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.browser.table import EnquirerColumn
 from imio.dms.mail.browser.table import IMVersionsTable
 from imio.dms.mail.browser.table import IMVersionsTitleColumn
@@ -113,15 +112,6 @@ class TestTable(unittest.TestCase):
         names = [col.__name__ for col in table.setUpColumns()]
         self.assertNotIn("filesize-column", names)
         self.assertNotIn("action-column", names)
-
-    def test_CKTemplatesTable(self):
-        oem = self.portal["templates"]["oem"]
-        table = CKTemplatesTable(oem, self.portal.REQUEST)
-        self.assertEqual(table.context_path, "/plone/templates/oem")
-        self.assertEqual(table.context_path_level, 4)
-        table.results = [oem["emain"]]
-        self.assertListEqual(table.values, [oem["emain"]])
-        self.assertEqual(table.wtool, self.portal.portal_workflow)
 
     def test_SignRequestVersionsTable(self):
         activate_signing(self.portal)

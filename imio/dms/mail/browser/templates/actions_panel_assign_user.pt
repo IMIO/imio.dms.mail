@@ -2,12 +2,13 @@
     tal:define="users_voc view/assignable_users;"
     tal:condition="users_voc/_terms">
     <form action='' tal:define="current_url string:${context/absolute_url};
+                                token context/@@authenticator/token;
                                 useIcons view/useIcons;
                                 dummy view/saveHasActions;
                                 select_class python:'apButton apButtonSelect apButtonAction apButtonAction_assign'">
       <select name="Assign"
           tal:attributes="class python:useIcons and select_class + ' apUseIcons' or select_class;
-                          onchange string:javascript:callViewAndReload(base_url='${current_url}', view_name='@@update_item', params={'assigned_user': this.value});">
+                          onchange string:javascript:callViewAndReload(base_url='${current_url}', view_name='@@update_item', params={'assigned_user': this.value, '_authenticator': '${token}'});">
         <option tal:condition="not: useIcons" style="display:none" value=# i18n:translate="">Assign</option>
         <option tal:condition="useIcons" style="display:none" value=#></option>
         <option tal:repeat="term users_voc"

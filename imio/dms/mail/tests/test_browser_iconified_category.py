@@ -23,6 +23,7 @@ from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 
+import json
 import unittest
 
 
@@ -119,8 +120,8 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.get_url(file1_cc), "%s/@@iconified-approved" % self.file1.absolute_url())
         # FIXME This raises Unauthorized but still passes
         self.assertEqual(
-            col.get_action_view(file1_cc)(),
-            u'{"msg":"En attente de votre approbation (cliquer pour approuver)","status":1,"reload": true}',
+            json.loads(col.get_action_view(file1_cc)()),
+            {"msg": u"En attente de votre approbation (cliquer pour approuver)", "status": 1, "reload": True},
         )
         # TODO "to_print"
         # "to_be_signed"
@@ -295,8 +296,8 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         ApprovedChangeView(file3, self.portal.REQUEST)()  # Set file3 not to_approve
         self.assertEqual(col.css_class(file3_cc), " editable")
         self.assertEqual(
-            col.get_action_view(file3_cc)(),
-            u'{"msg":"Cet élément ne doit pas être signé","status":-1,"reload": true}',
+            json.loads(col.get_action_view(file3_cc)()),
+            {"msg": u"Cet élément ne doit pas être signé", "status": -1, "reload": True},
         )  # Set file3 not to_sign
         self.assertEqual(col.css_class(file3_cc), " deactivated editable")
         self.change_user("dirg")
@@ -323,7 +324,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.css_class(file2_cc), "")
         self.assertEqual(col.css_class(file3_cc), " deactivated")
         self.assertEqual(
-            col.get_action_view(file2_cc)(), u'{"msg":"Cet élément est signé","status":1}'
+            json.loads(col.get_action_view(file2_cc)()), {"msg": u"Cet élément est signé", "status": 1}
         )  # Set file2 as signed
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
         self.assertEqual(col.css_class(file2_cc), " active")

@@ -1,17 +1,17 @@
 <tal:sections tal:define="portal_tabs view/portal_tabs;
-                          plone_view context/@@plone;"
+                          icons nocall:context/@@iconresolver;"
    tal:condition="portal_tabs"
    i18n:domain="plone">
    <p class="hiddenStructure" i18n:translate="heading_sections">Navigation</p>
 
-   <ul id="portal-globalnav"
-      tal:define="selected_tab python:view.selected_portal_tab;
-                    isAnon context/@@plone_portal_state/anonymous;">
+   <tal:comment replace="nothing">Plone 6 markup (nav-item, nav-link), the current tab is marked by pat-navigationmarker</tal:comment>
+   <ul id="portal-globalnav" class="navbar-nav"
+      tal:define="isAnon context/@@plone_portal_state/anonymous;">
       <tal:tabs tal:repeat="tab portal_tabs">
          <li tal:define="tid tab/id"
             tal:attributes="id string:portaltab-${tid};
-                            class python:selected_tab==tid and 'selected' or 'plain'">
-            <a href=""
+                            class string:${tid} nav-item">
+            <a href="" class="nav-link"
                tal:content="tab/name"
                tal:attributes="href tab/url;
                                title tab/description|nothing;
@@ -21,15 +21,16 @@
          </li>
       </tal:tabs>
 
-      <li tal:condition="not:isAnon">
-         <span class="fa fa-sync-alt" id="collections-count-refresh" alt="Refresh tab count"
-            title="Refresh tab count"
-            i18n:domain="imio.dms.mail" i18n:attributes="title; alt" />
+      <li tal:condition="not:isAnon" class="nav-item">
+         <span id="collections-count-refresh" title="Refresh tab count"
+            i18n:domain="imio.dms.mail" i18n:attributes="title"
+            tal:content="structure python: icons.tag('arrow-repeat')" />
       </li>
 
       <li id="read_mode_icon"
-          tal:define="body_class python:plone_view.bodyClass(template, view);"
-          tal:condition="python: any([sec in body_class for sec in ('section-incoming-mail', 'section-outgoing-mail', 'section-requests')])"
+          tal:define="portal_url context/@@plone_portal_state/portal_url;
+                      context_url string:${context/absolute_url}/;"
+          tal:condition="python: any([context_url.startswith('%s/%s/' % (portal_url, sec)) for sec in ('incoming-mail', 'outgoing-mail', 'requests')])"
           title="Toggle preview read mode"
           i18n:domain="imio.dms.mail" i18n:attributes="title"
           onclick="toggle_dms_document_view(this);">

@@ -13,16 +13,19 @@
    <include package="collective.dms.basecontent"/>
    <include package="collective.iconifiedcategory"/>
    <include package="collective.task"/>
-   <include package="ftw.labels"/>
+   <include package="collective.labels"/>
 
    <include file="configure.zcml"/>
-   <includeDependencies package="." />
+   <!-- dependencies not included by configure.zcml (was includeDependencies) -->
+   <include package="Products.CPUtils"/>
+   <include package="collective.js.tooltipster"/>
+   <include package="collective.wfadaptations"/>
+   <include package="imio.helpers"/>
+   <include package="imio.migrator"/>
 
    <include package="Products.CMFPlone"/>
    <include package="plone.app.event"/>
    <!--include package="imio.dms.mail"/-->
-   <include package="collective.ckeditor"/>
-   <include package="collective.iconifieddocumentactions"/>
    <include package="imio.annex"/>
    <include package="imio.fpaudit"/>
    <include package="collective.messagesviewlet"/>

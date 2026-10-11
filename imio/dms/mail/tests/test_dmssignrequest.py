@@ -26,7 +26,7 @@ from plone import api
 from plone.autoform.interfaces import OMITTED_KEY
 from plone.dexterity.utils import createContent
 from Products.CMFPlone.utils import safe_unicode
-from Products.PluginIndexes.common.UnIndex import _marker
+from Products.PluginIndexes.unindex import _marker
 from z3c.form.field import Fields
 from zope.interface import Invalid
 

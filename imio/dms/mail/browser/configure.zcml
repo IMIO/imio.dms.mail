@@ -188,14 +188,6 @@
             class="imio.dms.mail.browser.actionspanel.ContactActionsPanelViewlet"
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
-        <browser:viewlet
-            name="imio.actionspanel"
-            for="collective.ckeditortemplates.cktemplate.ICKTemplate"
-            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
-            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
-            class="imio.dms.mail.browser.actionspanel.ContactActionsPanelViewlet"
-            template="browser/actions_panel_viewlet.pt"
-            permission="zope2.View" />
         <!-- views -->
         <browser:page
             for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
@@ -253,13 +245,6 @@
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             template="browser/actions_panel.pt"
             permission="zope2.View" />
-        <browser:page
-            for="collective.ckeditortemplates.cktemplate.ICKTemplate"
-            name="actions_panel"
-            class="imio.dms.mail.browser.actionspanel.BasicActionsPanelView"
-            layer="imio.actionspanel.interfaces.IActionsPanelLayer"
-            template="browser/actions_panel.pt"
-            permission="zope2.View" />
         <!-- Annex -->
         <browser:viewlet
             name="imio.actionspanel"
@@ -279,7 +264,7 @@
         <!-- Folder -->
         <browser:viewlet
             name="imio.actionspanel"
-            for="Products.ATContentTypes.interfaces.folder.IATBTreeFolder"
+            for="plone.app.contenttypes.interfaces.IFolder"
             manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
             class="imio.dms.mail.browser.actionspanel.ActionsPanelViewletAllButTransitions"
@@ -318,7 +303,7 @@
             template="browser/actions_panel_viewlet.pt"
             permission="zope2.View" />
         <browser:page
-            for="Products.Archetypes.interfaces.base.IBaseFolder"
+            for="plone.app.contenttypes.interfaces.IFolder"
             name="actions_panel"
             class="imio.dms.mail.browser.actionspanel.BasicActionsPanelView"
             layer="imio.actionspanel.interfaces.IActionsPanelLayer"
@@ -639,12 +624,6 @@
         class=".batchactions.CopyToBatchActionForm"
         permission="zope2.View" />
 
-    <browser:page
-        for="imio.dms.mail.interfaces.IOMCKTemplatesFolder"
-        name="copy-to-batch-action"
-        class=".batchactions.CopyToBatchActionForm"
-        permission="zope2.View" />
-
     <!-- ADD / EDIT FORMS -->
     <browser:page
         for="collective.task.interfaces.ITaskContent"
@@ -764,6 +743,26 @@
             />
     </class>
 
+    <!-- POD templates views (was the collective.documentviewer "documentviewer" view on Plone 4) -->
+    <configure package="plone.app.dexterity.browser">
+        <browser:page
+            for="collective.documentgenerator.content.pod_template.IConfigurablePODTemplate"
+            name="view"
+            class="imio.dms.mail.browser.documentgenerator.DmsViewConfigurablePodTemplate"
+            template="item.pt"
+            permission="zope2.View"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            />
+        <browser:page
+            for="collective.documentgenerator.content.pod_template.ISubTemplate"
+            name="view"
+            class="imio.dms.mail.browser.documentgenerator.DmsViewSubTemplate"
+            template="item.pt"
+            permission="zope2.View"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            />
+    </configure>
+
     <!-- SubTemplate form overrides -->
     <browser:page
         for="collective.documentgenerator.content.pod_template.ISubTemplate"
@@ -811,16 +810,10 @@
         class="plonetheme.imioapps.browser.viewlets.WorkflowState"
         permission="zope2.View" />
 
-    <browser:viewlet
-        name="plone.belowcontenttitle.workflowstate"
-        for="collective.ckeditortemplates.cktemplate.ICKTemplate"
-        manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
-        class="plonetheme.imioapps.browser.viewlets.WorkflowState"
-        permission="zope2.View" />
 
     <browser:viewlet
         name="plone.belowcontenttitle.workflowstate"
-        for="Products.ATContentTypes.interfaces.folder.IATBTreeFolder"
+        for="plone.app.contenttypes.interfaces.IFolder"
         manager="plone.app.layout.viewlets.interfaces.IBelowContentTitle"
         class="plonetheme.imioapps.browser.viewlets.WorkflowState"
         permission="zope2.View" />
@@ -940,7 +933,7 @@
 
     <browser:viewlet
         name="plone.global_sections"
-        manager="plone.app.layout.viewlets.interfaces.IPortalHeader"
+        manager="plone.app.layout.viewlets.interfaces.IMainNavigation"
         class="plone.app.layout.viewlets.common.GlobalSectionsViewlet"
         permission="zope2.View"
         template="templates/sections.pt"
@@ -1014,17 +1007,10 @@
             />
     </configure>
 
-    <browser:viewlet
-        name="collective.eeafaceted.batchactions"
-        for="imio.dms.mail.interfaces.IOMCKTemplatesFolder"
-        manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
-        class="imio.dms.mail.browser.viewlets.CKBatchActionsViewlet"
-        permission="zope2.View" />
-
     <!-- vocabulary for the sender autocomplete faceted widget -->
     <browser:view
         for="*"
-        provides="eea.faceted.vocabularies.autocomplete.IAutocompleteSuggest"
+        provides="eea.facetednavigation.vocabularies.autocomplete.IAutocompleteSuggest"
         name="contact-autocomplete-suggest"
         class=".views.ContactSuggest"
         permission="zope2.View"
@@ -1032,7 +1018,7 @@
 
     <browser:view
         for="*"
-        provides="eea.faceted.vocabularies.autocomplete.IAutocompleteSuggest"
+        provides="eea.facetednavigation.vocabularies.autocomplete.IAutocompleteSuggest"
         name="sender-autocomplete-suggest"
         class=".views.SenderSuggest"
         permission="zope2.View"
@@ -1061,7 +1047,7 @@
     </unconfigure>
 
     <!-- Override @@usergroup-userprefs -->
-    <configure package="plone.app.controlpanel">
+    <configure package="Products.CMFPlone.controlpanel.browser">
         <browser:page
             name="usergroup-userprefs"
             for="Products.CMFPlone.interfaces.IPloneSiteRoot"
@@ -1072,7 +1058,7 @@
     </configure>
 
     <!-- Override @@usergroup-groupprefs -->
-    <configure package="plone.app.controlpanel">
+    <configure package="Products.CMFPlone.controlpanel.browser">
         <browser:page
             name="usergroup-groupprefs"
             for="Products.CMFPlone.interfaces.IPloneSiteRoot"
@@ -1081,23 +1067,6 @@
             template="usergroups_groupsoverview.pt"
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer" />
     </configure>
-
-    <!-- ckeditortemplates related -->
-    <browser:page
-        for="Products.CMFPlone.interfaces.siteroot.IPloneSiteRoot"
-        name="cktemplate-listing.js"
-        class="imio.dms.mail.browser.overrides.DocsCKTemplateListingView"
-        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
-        permission="zope2.View"
-        />
-
-    <browser:page
-        for="*"
-        name="ck-templates-listing"
-        class=".views.CKTemplatesListing"
-        template="templates/ck_templates_listing.pt"
-        permission="zope2.View"
-        />
 
     <!-- override dg-templates-listing to add a signers column (hidden when signers come from rules only) -->
     <configure package="collective.documentgenerator.browser">
@@ -1139,7 +1108,7 @@
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
     <browser:page
-        for="plone.app.layout.navigation.interfaces.INavigationRoot"
+        for="plone.base.interfaces.INavigationRoot"
         name="breadcrumbs_view"
         class="Products.CMFPlone.browser.navigation.RootPhysicalNavigationBreadcrumbs"
         permission="zope.Public"

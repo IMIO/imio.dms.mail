@@ -7,14 +7,13 @@ from imio.dms.mail.interfaces import IPersonnelDashboard
 from imio.dms.mail.setuphandlers import add_transforms
 from imio.dms.mail.setuphandlers import HiddenProfiles
 from imio.dms.mail.setuphandlers import list_templates
-from imio.dms.mail.setuphandlers import set_portlet
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from plone import api
 from plone.app.testing import login
 from plone.app.testing import SITE_OWNER_NAME
+from plone.base.interfaces.constrains import ISelectableConstrainTypes
 from Products.CMFPlone.utils import safe_unicode
-from zope.annotation.interfaces import IAnnotations
 
 import unittest
 
@@ -35,7 +34,7 @@ class TestSetuphandlers(unittest.TestCase):
 
     def test_add_templates_order(self):
         self.assertEqual([o.getId() for o in self.portal["templates"].objectValues()],
-                         ['om', 'oem', 'd-im-listing', 'd-im-listing-tab', 'd-im-listing-tab-details',
+                         ['om', 'd-im-listing', 'd-im-listing-tab', 'd-im-listing-tab-details',
                           'all-contacts-export', 'export-users-groups', 'audit-contacts'])
         for tup in list_templates():
             parts = tup[1].split("/")
@@ -63,21 +62,14 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertTrue(IFacetedNavigable.providedBy(pf))
         self.assertTrue(IPersonnelDashboard.providedBy(pf))
         self.assertFalse(pf.hasProperty("default_page"))
-        self.assertEqual(pf.__browser_default__(pf.REQUEST)[1], ["facetednavigation_view"])
-        self.assertEqual(list(pf.getLocallyAllowedTypes()), ["person"])
+        self.assertEqual(pf.getLayout(), "facetednavigation_view")
+        self.assertEqual(list(ISelectableConstrainTypes(pf).getLocallyAllowedTypes()), ["person"])
 
     def test_adaptDefaultPortal(self):
-        # ltool = self.portal.portal_languages
-        # defaultLanguage = 'fr'
-        # supportedLanguages = ['en','fr']
-        # ltool.manage_setLanguageSettings(defaultLanguage, supportedLanguages, setUseCombinedLanguageCodes=False)
-        # ltool.setLanguageBindings()
         self.assertFalse(hasattr(self.portal, "news"))
         self.assertFalse(hasattr(self.portal, "events"))
         # check front-page modification
         self.assertIn("Gestion du courrier", self.portal["front-page"].Title())
-        # check old Topic activation
-        self.assertTrue("Collection (old-style)" in [pt.title for pt in self.portal.allowedContentTypes()])
 
     def test_setup_iconified_categories(self):
         brains = self.portal.portal_catalog.unrestrictedSearchResults(
@@ -99,19 +91,6 @@ class TestSetuphandlers(unittest.TestCase):
         self.assertTrue(
             safe_unicode(data.getData()).startswith(u"IMIO012999800000012\nAgent traitant : Michel Chef\n")
         )
-
-    def test_set_portlet(self):
-        portlet = IAnnotations(self.portal)["plone.portlets.contextassignments"]["plone.leftcolumn"][
-            "portlet_actions"
-        ]
-        portlet.ptitle = u"Actions"
-        portlet.show_icons = True
-        set_portlet(self.portal)
-        # the left actions portlet shows the object_portlet actions without icons
-        self.assertEqual(portlet.ptitle, u"Liens divers")
-        self.assertEqual(portlet.category, u"object_portlet")
-        self.assertFalse(portlet.show_icons)
-        self.assertIsNone(portlet.default_icon)
 
     def test_clean_examples_step(self):
         pc = self.portal.portal_catalog

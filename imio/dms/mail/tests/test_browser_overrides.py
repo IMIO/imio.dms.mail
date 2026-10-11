@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 """Test browser overrides."""
 from imio.dms.mail.browser.overrides import ClassificationJSONCollectionsCount
-from imio.dms.mail.browser.overrides import ContentActionsViewlet
-from imio.dms.mail.browser.overrides import DocsCKTemplateListingView
 from imio.dms.mail.browser.overrides import DocsGroupsOverviewControlPanel
 from imio.dms.mail.browser.overrides import DocsUsersOverviewControlPanel
 from imio.dms.mail.browser.overrides import DocumentBylineViewlet
@@ -11,20 +9,16 @@ from imio.dms.mail.browser.overrides import IMRenderCategoryView
 from imio.dms.mail.browser.overrides import LockInfoViewlet
 from imio.dms.mail.browser.overrides import LockingOperations
 from imio.dms.mail.testing import change_user
-from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
+from OFS.LockItem import LockItem
 from plone import api
 from plone.app.testing import login
 from plone.browserlayer.utils import registered_layers
 from Products.CMFPlone.utils import safe_unicode
-from Products.Five import BrowserView
-from webdav.LockItem import LockItem
 from zope.annotation import IAnnotations
 from zope.component import getMultiAdapter
 from zope.interface import alsoProvides
-from zope.security.management import endInteraction
-from zope.security.management import newInteraction
 
 import json
 import unittest
@@ -70,20 +64,20 @@ class TestIMRenderCategoryView(unittest.TestCase):
         rendered = self.render("folders/folder-searches")
         self.assertIn(u'href="http://nohost/plone/folders/++add++ClassificationFolder?no_redirect=1"', rendered)
         self.assertIn(u'href="http://nohost/plone/folders/@@import?no_redirect=1"', rendered)
-        # contacts dashboards: skin images and overlays
+        # contacts dashboards: contact.core resource images and modals
         rendered = self.render("contacts/orgs-searches")
         self.assertIn(u'href="http://nohost/plone/contacts/++add++organization"', rendered)
-        self.assertIn(u'class="overlay"', rendered)
-        self.assertIn(u'src="http://nohost/plone/organization_icon.png"', rendered)
+        self.assertIn(u'class="pat-plone-modal"', rendered)
+        self.assertIn(u'src="http://nohost/plone/++resource++collective.contact.core/organization_icon.png"', rendered)
         rendered = self.render("contacts/hps-searches")
         self.assertIn(u'href="http://nohost/plone/contacts/@@add-contact"', rendered)
-        self.assertIn(u'src="http://nohost/plone/create_contact.png"', rendered)
+        self.assertIn(u'src="http://nohost/plone/++resource++collective.contact.core/create_contact.png"', rendered)
         rendered = self.render("contacts/persons-searches")
-        self.assertIn(u'src="http://nohost/plone/person_icon.png"', rendered)
+        self.assertIn(u'src="http://nohost/plone/++resource++collective.contact.core/person_icon.png"', rendered)
         rendered = self.render("contacts/cls-searches")
         self.assertIn(u'href="http://nohost/plone/contacts/contact-lists-folder"', rendered)
-        self.assertIn(u'src="http://nohost/plone/directory_icon.png"', rendered)
-        self.assertNotIn(u'class="overlay"', rendered)
+        self.assertIn(u'src="http://nohost/plone/++resource++collective.contact.core/directory_icon.png"', rendered)
+        self.assertNotIn(u'class="pat-plone-modal"', rendered)
         # other dashboard: only the category title
         rendered = self.render("tasks/task-searches")
         self.assertNotIn(u"portlet_add_icons", rendered)
@@ -166,11 +160,12 @@ class TestPloneView(unittest.TestCase):
     def setUp(self):
         self.portal = self.layer["portal"]
 
-    def test_showEditableBorder(self):
+    def test_showToolbar(self):
+        # content views and actions menu (Plone 4 editable border)
         view = get_object(oid="courrier1", ptype="dmsincomingmail").unrestrictedTraverse("@@plone")
-        self.assertEqual(view.showEditableBorder(), False)
+        self.assertEqual(view.showToolbar(), False)
         view = self.portal["front-page"].unrestrictedTraverse("@@plone")
-        self.assertEqual(view.showEditableBorder(), True)
+        self.assertEqual(view.showToolbar(), True)
 
 
 class TestPhysicalNavigationBreadcrumbs(unittest.TestCase):
@@ -196,34 +191,6 @@ class TestPhysicalNavigationBreadcrumbs(unittest.TestCase):
                 (u"Tâche 1", im1["tache1"].absolute_url()),
             ],
         )
-
-
-class TestContentActionsViewlet(unittest.TestCase):
-
-    layer = DMSMAIL_INTEGRATION_TESTING
-
-    def setUp(self):
-        self.portal = self.layer["portal"]
-        change_user(self.portal)
-
-    def viewlet(self, context):
-        view = BrowserView(context, self.portal.REQUEST)
-        viewlet = ContentActionsViewlet(context, self.portal.REQUEST, view, None)
-        viewlet.update()
-        return viewlet
-
-    def test_render(self):
-        self.assertEqual(self.viewlet(self.portal).render(), "")
-        self.assertEqual(self.viewlet(self.portal["front-page"]).render(), "")
-        sreq, files = create_sign_request(self.portal, oid="sr-ca", nb_files=1)
-        self.assertEqual(self.viewlet(files[0]).render(), "")
-        # rendered elsewhere (as in a published request, with a security interaction)
-        newInteraction()
-        try:
-            rendered = self.viewlet(self.portal["contacts"]).render()
-        finally:
-            endInteraction()
-        self.assertIn(u'id="contentActionMenus"', rendered)
 
 
 class TestIDMUtilsMethods(unittest.TestCase):
@@ -269,33 +236,6 @@ class TestBaseOverviewControlPanel(unittest.TestCase):
         view = DocsUsersOverviewControlPanel(self.portal, self.request)
         results = view.doSearch("agent")
         self.assertTrue(all([res["roles"]["Member"]["canAssign"] for res in results]))
-
-
-class TestDocsCKTemplateListingView(unittest.TestCase):
-
-    layer = DMSMAIL_INTEGRATION_TESTING
-
-    def setUp(self):
-        self.portal = self.layer["portal"]
-        change_user(self.portal)
-        self.view = DocsCKTemplateListingView(self.portal, self.portal.REQUEST)
-        self.tpl = self.portal["templates"]["oem"]["emain"]
-
-    def test_get_templates(self):
-        templates = self.view.get_templates()
-        self.assertIn((self.tpl, "/".join(self.tpl.getPhysicalPath())), templates)
-
-    def test_render_template(self):
-        self.tpl.title = u'Mon "modèle"'
-        rendered = self.view.render_template(self.tpl, "")
-        self.assertTrue(rendered.startswith(u'{title: "Mon &quot;modèle&quot;", description: "", html: "'))
-        IAnnotations(self.tpl)["dmsmail.cke_tpl_tit"] = u"Service"
-        rendered = self.view.render_template(self.tpl, "")
-        self.assertTrue(rendered.startswith(u'{title: "Service > Mon &quot;modèle&quot;"'))
-        # whole javascript
-        js = self.view()
-        self.assertTrue(js.startswith("CKEDITOR.addTemplates('default',"))
-        self.assertIn(u'title: "Service > Mon &quot;modèle&quot;"', js)
 
 
 class TestFacetedCollectionPortletRenderer(unittest.TestCase):

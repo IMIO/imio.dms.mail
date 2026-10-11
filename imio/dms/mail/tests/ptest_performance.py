@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
+
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.plonegroup.utils import voc_selected_org_suffix_users
 from imio.dms.mail.testing import add_user_in_groups

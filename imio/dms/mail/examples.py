@@ -21,6 +21,7 @@ from imio.dms.mail.dmssignrequest import internalReferenceSignRequestDefaultValu
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
+from imio.dms.mail.utils import get_scan_config
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from imio.helpers.security import generate_password
@@ -28,16 +29,15 @@ from imio.helpers.security import get_environment
 from imio.helpers.security import is_develop_environment
 from imio.helpers.workflow import do_transitions
 from imio.pyutils.system import get_git_tag
-from imio.zamqp.core import base
 from itertools import cycle
 from pathlib import Path
 from plone import api
+from plone.base.utils import base_hasattr
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
 from plone.namedfile.file import NamedBlobImage
 from plone.registry.interfaces import IRegistry
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
@@ -92,7 +92,7 @@ def add_special_model_mail(portal):
                 content_category=calculate_category_id(portal["annexes_types"]["outgoing_dms_files"]
                                                        ["outgoing-dms-file"]),
             )
-            client_id = base.get_config("client_id")
+            client_id = get_scan_config("client_id")
             filo.scan_id = "%s2%s00000000" % (client_id[0:2], client_id[2:6])
             if not IProtectedItem.providedBy(filo):
                 alsoProvides(filo, IProtectedItem)
@@ -152,7 +152,7 @@ def add_test_contact_lists(context):
 
     # set common
     clf.invokeFactory("Folder", id="common", title=u"Listes communes")
-    clf["common"].setLayout("folder_tabular_view")
+    clf["common"].setLayout("tabular_view")
     alsoProvides(clf["common"], IProtectedItem)
     do_transitions(clf["common"], ["show_internally"])
     intids = getUtility(IIntIds)
@@ -179,7 +179,7 @@ def add_test_directory(context):
     logger.info("Adding test directory")
     contacts = site["contacts"]
     # if base_hasattr(contacts, 'plonegroup-organization'):
-    #     logger.warn('Nothing done: directory contacts already exists. You must first delete it to reimport!')
+    #     logger.warning('Nothing done: directory contacts already exists. You must first delete it to reimport!')
     #     return
 
     # Add not encoded person (in directory)
@@ -433,7 +433,7 @@ def add_test_mails(context):
     selected_orgs = [org for i, org in enumerate(get_registry_organizations()) if i in (0, 1, 2, 4, 5, 6)]
     orgas_cycle = cycle(selected_orgs)
 
-    client_id = base.get_config("client_id")
+    client_id = get_scan_config("client_id")
 
     # incoming mails
     ifld = site["incoming-mail"]

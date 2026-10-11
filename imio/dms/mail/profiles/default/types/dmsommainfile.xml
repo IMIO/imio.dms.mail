@@ -10,10 +10,9 @@
  <property name="immediate_view">view</property>
  <property name="global_allow">False</property>
  <property name="allow_discussion">False</property>
- <property name="default_view">documentviewer</property>
+ <property name="default_view">view</property>
  <property name="view_methods">
   <element value="view"/>
-  <element value="documentviewer"/>
  </property>
  <property name="default_view_fallback">False</property>
  <property name="add_permission">collective.dms.basecontent.dmsfile.add</property>
@@ -21,9 +20,9 @@
  <property name="behaviors" purge="False">
   <element value="plone.app.content.interfaces.INameFromTitle"/>
   <element value="plone.app.dexterity.behaviors.metadata.IOwnership"/>
-  <element value="plone.app.lockingbehavior.behaviors.ILocking" />
+  <element value="plone.locking" />
   <element value="collective.dms.scanbehavior.behaviors.IScanFields"/>
-  <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
+  <element value="plone.textindexer" />
   <element value="collective.iconifiedcategory.behaviors.iconifiedcategorization.IIconifiedCategorization" />
  </property>
  <property name="schema" />
@@ -50,7 +49,7 @@
   <permission value="Modify portal content"/>
  </action>
  <action title="Download" action_id="download" category="object_buttons" condition_expr="python:object.show_download()"
-    description="" icon_expr="string:${portal_url}/download_icon.png" link_target="_blank"
+    description="" icon_expr="string:download" link_target="_blank"
     url_expr="string:${object/absolute_url}/@@download" visible="True">
   <permission value="View"/>
  </action>

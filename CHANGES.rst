@@ -1,6 +1,26 @@
 Changelog
 =========
 
+4.0.0 (unreleased)
+------------------
+
+- Migrated to Plone 6.2 (Python 3.13), Plone 4 support dropped.
+  [chris-adam]
+- Dropped the upgrade steps (``migrations``): sites are rebuilt and data imported.
+  [chris-adam]
+- Dropped the collective.documentviewer features (preview conversion action, ``dv_clean``, eml previews).
+  [chris-adam]
+- Dropped the email templates (collective.ckeditortemplates, ``templates/oem`` folder, ``ck-templates-listing``).
+  [chris-adam]
+- Dropped the cron4plone scheduling of ``cron_read_label_handling``.
+  [chris-adam]
+- Dropped the "Liens divers" actions portlet (collective.portlet.actions).
+  [chris-adam]
+- Replaced ftw.labels by collective.labels.
+  [chris-adam]
+- Dropped imio.dms.soap2pm and collective.iconifieddocumentactions.
+  [chris-adam]
+
 3.1.7 (unreleased)
 ------------------
 

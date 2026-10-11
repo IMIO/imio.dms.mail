@@ -11,7 +11,7 @@ from collective.contact.plonegroup.utils import get_selected_org_suffix_principa
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.iconifiedcategory.vocabularies import CategoryVocabulary
-from ftw.labels.interfaces import ILabelJar
+from collective.labels.interfaces import ILabelJar
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
@@ -26,14 +26,15 @@ from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import get_plone_groups_for_user
+from imio.helpers.vocabularies import get_users_voc
 from imio.helpers.vocabularies import voc_cache_key as users_groups_cache_key
 from natsort import humansorted
 from operator import attrgetter
 from plone import api
+from plone.base.utils import base_hasattr
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import ram
 from Products.CMFPlone import PloneMessageFactory as pmf
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
 from z3c.formwidget.query.interfaces import IQuerySource
@@ -66,7 +67,7 @@ class BaseReviewStatesVocabulary(object):
 
     def __call__(self, context):
         if self.site_language:
-            tl = api.portal.get().portal_properties.site_properties.getProperty("default_language", "fr")
+            tl = api.portal.get_registry_record("plone.default_language", default="fr")
             kwargs = {"target_language": tl}
         else:
             kwargs = {"context": context.REQUEST}
@@ -143,8 +144,7 @@ class AssignedUsersWithDeactivatedVocabulary(object):
 
     @ram.cache(users_groups_cache_key)
     def AssignedUsersWithDeactivatedVocabulary__call__(self, context):
-        factory = getUtility(IVocabularyFactory, "plone.principalsource.Users")
-        vocab = factory(context)  # terms as username, userid, fullname
+        vocab = get_users_voc(False)  # terms as userid, userid, fullname (was plone.principalsource.Users)
         a_terms = []
         d_terms = []
         active_orgs = get_registry_organizations()
