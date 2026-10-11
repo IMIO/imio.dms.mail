@@ -15,13 +15,13 @@ concurrency:
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         include:
-          - python: 2.7.18
-            plone: 4.3
+          - python: 3.13.1
+            plone: "6.2"
     services:
       libreoffice:
         image: harbor.imio.be/library/libreoffice:25.8
@@ -38,25 +38,12 @@ jobs:
           mkdir -p -m 777 /tmp/appy/
           sudo add-apt-repository ppa:libreoffice/ppa -y
           sudo apt-get update -qq -y
-          sudo apt-get install -qq -y libreoffice libreoffice-script-provider-python g++ gcc make cmake build-essential libreadline6-dev zlib1g-dev libbz2-dev libjpeg62-dev libpng-dev git libpq-dev libxml2-dev libxslt1-dev libssl-dev pkg-config graphviz graphviz-dev odt2txt graphicsmagick wv poppler-utils
+          sudo apt-get install -qq -y libreoffice libreoffice-script-provider-python g++ gcc make cmake build-essential libreadline-dev zlib1g-dev libbz2-dev libjpeg-dev libpng-dev git libpq-dev libxml2-dev libxslt1-dev libssl-dev pkg-config graphviz libgraphviz-dev odt2txt graphicsmagick wv poppler-utils
       - name: Setup Zint
         run: |
           wget -q https://sourceforge.net/projects/zint/files/zint/2.10.0/zint-2.10.0-src.tar.gz
           tar -xf zint-2.10.0-src.tar.gz
           cd zint-2.10.0-src && mkdir build && cd build && sudo cmake .. && sudo make install
-      - name: Setup Docsplit
-        run: |
-          sudo apt-get install -qq -y gnupg2
-          gpg2 --keyserver hkp://keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
-          curl -sSL https://get.rvm.io | bash -s stable
-          source $HOME/.rvm/scripts/rvm
-          rvm pkg install openssl
-          rvm install ruby-2.7.6 --with-openssl-dir=$HOME/.rvm/usr
-          sudo ln -s $HOME/.rvm/rubies/ruby-2.7.6/bin/ruby /usr/bin/ruby2.7
-          sudo rm -f /usr/bin/ruby
-          sudo ln -s ruby2.7 /usr/bin/ruby
-          gem install docsplit
-          echo "$HOME/.rvm/gems/ruby-2.7.6/gems/docsplit-0.7.6/bin" >> $GITHUB_PATH
       - name: Set up pyenv and Python
         uses: "gabrielfalcao/pyenv-action@v18"
         with:
@@ -81,13 +68,13 @@ jobs:
         run: |
           bin/test -t !robot
   coverage:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
         include:
-          - python: 2.7.18
-            plone: 4.3
+          - python: 3.13.1
+            plone: "6.2"
     services:
       libreoffice:
         image: harbor.imio.be/library/libreoffice:25.8
@@ -104,25 +91,12 @@ jobs:
           mkdir -p -m 777 /tmp/appy/
           sudo add-apt-repository ppa:libreoffice/ppa -y
           sudo apt-get update -qq -y
-          sudo apt-get install -qq -y libreoffice libreoffice-script-provider-python g++ gcc make cmake build-essential libreadline6-dev zlib1g-dev libbz2-dev libjpeg62-dev libpng-dev git libpq-dev libxml2-dev libxslt1-dev libssl-dev pkg-config graphviz graphviz-dev odt2txt graphicsmagick wv poppler-utils
+          sudo apt-get install -qq -y libreoffice libreoffice-script-provider-python g++ gcc make cmake build-essential libreadline-dev zlib1g-dev libbz2-dev libjpeg-dev libpng-dev git libpq-dev libxml2-dev libxslt1-dev libssl-dev pkg-config graphviz libgraphviz-dev odt2txt graphicsmagick wv poppler-utils
       - name: Setup Zint
         run: |
           wget -q https://sourceforge.net/projects/zint/files/zint/2.10.0/zint-2.10.0-src.tar.gz
           tar -xf zint-2.10.0-src.tar.gz
           cd zint-2.10.0-src && mkdir build && cd build && sudo cmake .. && sudo make install
-      - name: Setup Docsplit
-        run: |
-          sudo apt-get install -qq -y gnupg2
-          gpg2 --keyserver hkp://keyserver.ubuntu.com --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
-          curl -sSL https://get.rvm.io | bash -s stable
-          source $HOME/.rvm/scripts/rvm
-          rvm pkg install openssl
-          rvm install ruby-2.7.6 --with-openssl-dir=$HOME/.rvm/usr
-          sudo ln -s $HOME/.rvm/rubies/ruby-2.7.6/bin/ruby /usr/bin/ruby2.7
-          sudo rm -f /usr/bin/ruby
-          sudo ln -s ruby2.7 /usr/bin/ruby
-          gem install docsplit
-          echo "$HOME/.rvm/gems/ruby-2.7.6/gems/docsplit-0.7.6/bin" >> $GITHUB_PATH
       - name: Set up pyenv and Python
         uses: "gabrielfalcao/pyenv-action@v18"
         with:
@@ -131,7 +105,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -r requirements-${{matrix.plone}}.txt
-          pip install coverage==5.3.1
+          pip install -U coveralls coverage
       - name: Cache eggs
         uses: actions/cache@v4
         env:
@@ -149,13 +123,8 @@ jobs:
       - name: test coverage
         run: |
           coverage run bin/test -t !robot
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
       - name: Publish to Coveralls
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pip3 install -U "coveralls>=3.0.0,<4" "coverage>=5.3.1,<6" --no-cache-dir
           coveralls --service=github

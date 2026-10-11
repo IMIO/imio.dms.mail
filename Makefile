@@ -1,12 +1,14 @@
 #!/usr/bin/make
-# pyenv is a requirement, with the 2.7 python version, and virtualenv installed in it
-# plone parameter must be passed to create environment 'make setup plone=4.3' or after a make cleanall
+# pyenv is a requirement, with the 3.13 python version, and virtualenv installed in it
+# plone parameter must be passed to create environment 'make setup plone=6.2' or after a make cleanall
 # The original Makefile can be found on https://github.com/IMIO/scripts-buildout
 
 SHELL=/bin/bash
-plones=4.3
+plones=6.2
 b_o=
 old_plone=$(shell [ -e .plone-version ] && cat .plone-version)
+ZSERVER_PORT ?= 55011
+LISTENER_PORT ?= 55013
 
 ifeq (, $(shell which pyenv))
   $(error "pyenv command not found! Aborting")
@@ -23,20 +25,8 @@ ifneq ($(wildcard bin/instance),)
 endif
 
 ifndef python
-ifeq ($(plone),4.3)
-  python=2.7
-endif
-ifeq ($(plone),5.2)
-  python=3.8
-endif
-ifeq ($(plone),6.0)
-  python=3.10
-endif
-ifeq ($(plone),6.1)
-  python=3.13
-endif
 ifeq ($(plone),6.2)
-  python=3.14
+  python=3.13
 endif
 endif
 
@@ -73,13 +63,14 @@ test: oneof-plone bin/buildout  ## run bin/test without robot
 .PHONY: robot
 robot: oneof-plone bin/buildout  ## run robot tests in headless firefox
 	# can be run by example with: make robot opt='-t "Reply*"'
-	MOZ_HEADLESS=1 bin/test --all -t robot ${opt}
+	MOZ_HEADLESS=1 ZSERVER_HOST=localhost ZSERVER_PORT=$(ZSERVER_PORT) LISTENER_PORT=$(LISTENER_PORT) bin/test --all -t robot ${opt}
 
 .PHONY: robot-server
 robot-server:  ## Starts robot server (layer=<layer name in testing.py>, default ACCEPTANCE)
-	# run a robot file against it with: bin/robot -v PLONE_MAJOR:$(firstword $(subst ., ,$(plone))) -v ZOPE_PORT:55013 imio/dms/mail/tests/robot/test_<feature>.robot
+	# run a robot file against it with: bin/robot -v PLONE_MAJOR:$(firstword $(subst ., ,$(plone))) -v ZOPE_PORT:$(ZSERVER_PORT) imio/dms/mail/tests/robot/test_<feature>.robot
 	# OO_PORT: LibreOffice of the documentgenerator templates (bin/test reads it from [testenv], robot-server doesn't)
-	env ZSERVER_HOST=localhost ZSERVER_PORT=55013 OO_PORT=55012 PYTHON_UNO=/usr/bin/python3 bin/robot-server -v imio.dms.mail.testing.$(or $(layer),ACCEPTANCE)
+	# --no-reload: the reload watchdog restarts the server when a template is read
+	env ZSERVER_HOST=localhost ZSERVER_PORT=$(ZSERVER_PORT) LISTENER_PORT=$(LISTENER_PORT) OO_PORT=55012 PYTHON_UNO=/usr/bin/python3 bin/robot-server --no-reload -v imio.dms.mail.testing.$(or $(layer),ACCEPTANCE)
 
 .PHONY: cleanall
 cleanall:  ## Cleans all installed buildout files
