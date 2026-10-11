@@ -1955,6 +1955,14 @@ class ApprovalAdapter(object):
             if download_page:
                 merged = merge_pdf(pdf_file_content, download_page)
                 pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
+                # file replaced in place: refresh its filesize and contentType (documentviewer did it on Plone 4)
+                update_categorized_elements(
+                    self.context,
+                    pdf_file,
+                    get_category_object(self.context, pdf_file.content_category),
+                    sort=False,
+                    logging=True,
+                )
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
