@@ -24,11 +24,15 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
+from imio.esign.config import get_esign_registry_signers_order
 from imio.esign.config import set_esign_registry_file_url
+from imio.esign.config import set_esign_registry_signers_order
 from imio.esign.utils import get_session_annotation
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
+from imio.helpers.content import get_vocab
+from imio.helpers.content import get_vocab_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.test_helpers import ImioTestHelpers
 from mock import Mock
@@ -1681,6 +1685,12 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         annot = IAnnotations(mod2)
         self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"héhéhé")
 
+    def _install_esign_registry(self):
+        """Install the esign registry records: esign is not activated in this layer."""
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.esign:default", "plone.app.registry", run_dependencies=False
+        )
+
     def _person_usages(self, person):
         """Return the value stored in the 'usages' catalog index for the given person."""
         pc = self.portal.portal_catalog
@@ -1704,6 +1714,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         # a fresh person without held positions is not present in the 'usages' index
         person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
         self.assertListEqual(self._person_usages(person), [])
+        self.assertEqual(len(get_vocab_values(self.portal, "imio.esign.signers")), 2)
         # adding a held position with a usage reindexes the person (held_position_added subscriber)
         person.invokeFactory(
             "held_position",
@@ -1712,8 +1723,11 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             usages=["signer"],
         )
         self.assertListEqual(self._person_usages(person), ["signer"])
+        # and refreshes the cached signers vocabulary
+        self.assertIn(person["hp1"].UID(), get_vocab_values(self.portal, "imio.esign.signers", attr_name="value"))
 
     def test_held_position_modified(self):
+        self._install_esign_registry()
         person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
         person.invokeFactory(
             "held_position",
@@ -1730,8 +1744,15 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         hp.usages = ["signer"]
         modified(hp, Attributes(IBasic, "IBasic.title"))
         self.assertListEqual(self._person_usages(person), ["approving"])
+        # dropping the signer usage removes him from the esign signers order
+        dirg_hp_uid = self.pf["dirg"]["directeur-general"].UID()
+        set_esign_registry_signers_order([hp.UID(), dirg_hp_uid])
+        hp.usages = []
+        modified(hp, Attributes(IUsagesBehavior, "IUsagesBehavior.usages"))
+        self.assertListEqual(get_esign_registry_signers_order(), [dirg_hp_uid])
 
     def test_held_position_removed(self):
+        self._install_esign_registry()
         person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
         person.invokeFactory(
             "held_position",
@@ -1740,9 +1761,21 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             usages=["signer"],
         )
         self.assertListEqual(self._person_usages(person), ["signer"])
+        dirg_hp_uid = self.pf["dirg"]["directeur-general"].UID()
+        set_esign_registry_signers_order([person["hp1"].UID(), dirg_hp_uid])
         # removing the held position reindexes the person (held_position_removed subscriber)
         api.content.delete(person["hp1"])
         self.assertListEqual(self._person_usages(person), [])
+        # and removes it from the esign signers order
+        self.assertListEqual(get_esign_registry_signers_order(), [dirg_hp_uid])
+
+    def test_contact_modified(self):
+        hp = self.pf["bourgmestre"]["bourgmestre"]
+        self.assertNotIn(u"Renamed", get_vocab(self.portal, "imio.esign.signers").getTerm(hp.UID()).title)
+        # renaming a person refreshes the cached signers vocabulary
+        hp.get_person().lastname = u"Renamed"
+        modified(hp.get_person())
+        self.assertIn(u"Renamed", get_vocab(self.portal, "imio.esign.signers").getTerm(hp.UID()).title)
 
 
 class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):

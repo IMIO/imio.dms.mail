@@ -20,7 +20,9 @@ from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
+from imio.esign.config import set_esign_registry_enforce_signers_order
 from imio.esign.config import set_esign_registry_file_url
+from imio.esign.config import set_esign_registry_signers_order
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import get_object
@@ -741,7 +743,17 @@ class TestImioRecreateSessionView(unittest.TestCase):
         self.assertIsNone(view._new_session_id)
         self.assertEqual(list(approval.session_ids), before)
 
-        # --- Successful recreation: new id appended, mail reindexed ---
+        # --- Successful recreation: new id appended, mail reindexed, signers sorted on the current order ---
+        bourg_hp = self.pf["bourgmestre"]["bourgmestre"].UID()
+        omail.signers = list(omail.signers) + [
+            {"number": 2, "signer": bourg_hp, "approvings": [u"_themself_"], "editor": False},
+        ]
+        get_session_annotation()["sessions"][old_id]["signers"].append(
+            {"userid": "bourgmestre", "email": "bourgmestre@macommune.be", "fullname": u"Paul BM",
+             "position": u"Bourgmestre", "status": ""}
+        )
+        set_esign_registry_signers_order([bourg_hp])
+        set_esign_registry_enforce_signers_order(True)
         self.portal.REQUEST.form["esign_session_id"] = str(old_id)
         view = ImioRecreateSessionView(self.portal, self.portal.REQUEST)
         view()
@@ -757,3 +769,4 @@ class TestImioRecreateSessionView(unittest.TestCase):
         # the old session is consumed by the recreation, the new one gets a title with the new sign_id
         self.assertNotIn(old_id, annot["sessions"])
         self.assertEqual(annot["sessions"][new_id]["title"], u"[iA.Docs] Courrier sortant - 012999900001")
+        self.assertEqual([sig["userid"] for sig in annot["sessions"][new_id]["signers"]], ["bourgmestre", "dirg"])

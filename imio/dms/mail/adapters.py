@@ -48,6 +48,8 @@ from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
 from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
+from imio.esign.config import get_esign_registry_enforce_signers_order
+from imio.esign.config import get_esign_registry_signers_order
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
 from imio.esign.utils import get_max_download_date
@@ -1147,7 +1149,7 @@ class SendableAnnexesToPMAdapter(object):
 class ItemSignersAdapter(SignableAdapter):
     """Adapter to get signers of a given item.
 
-    Signers are set by the approval mechanism: only the session recreation uses this adapter."""
+    Signers are set by the approval mechanism: only the session creation and recreation use this adapter."""
 
     def get_signers(self):
         """Return the list of signers for the item."""
@@ -1173,6 +1175,20 @@ class ItemSignersAdapter(SignableAdapter):
         # for sub_content in self.context.values():
         #     if sub_content.portal_type in ("dmsommainfile", "dmsappendixfile"):
         #         yield sub_content.UID()
+
+    def sort_signers(self, signers):
+        """Sort on the esign signers order of their held position, then their number."""
+        if not get_esign_registry_enforce_signers_order():
+            return signers
+        order = list(get_esign_registry_signers_order())
+        keys = {}
+        for row in self.context.signers or []:
+            hp = uuidToObject(row["signer"], unrestricted=True)  # None for _empty_ and _seal_
+            if hp is not None:
+                rank = order.index(row["signer"]) if row["signer"] in order else len(order)
+                keys[hp.get_person().userid] = (rank, row["number"])
+        # signers not found on the item last
+        return sorted(signers, key=lambda sig: keys.get(sig[0], (len(order) + 1, 0)))
 
 
 @implementer(ILocalRoleProvider)

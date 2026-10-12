@@ -13,6 +13,8 @@ Changelog
   [chris-adam,sgeulette]
 - Updated the incoming email routing and state set descriptions (DMS-1215).
   [chris-adam]
+- Ordered imio.esign signers by held position, removed ones dropped from the order (PARAF-527).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
