@@ -254,6 +254,11 @@
         provides="imio.esign.adapters.ISignable"/>
 
     <adapter
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+        factory="imio.dms.mail.adapters.ItemSignersAdapter"
+        provides="imio.esign.adapters.ISignable"/>
+
+    <adapter
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         factory="imio.dms.mail.adapters.ApprovalRoleAdapter"
         provides="borg.localrole.interfaces.ILocalRoleProvider"

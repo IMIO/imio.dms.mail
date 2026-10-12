@@ -12,6 +12,7 @@ from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
 from imio.dms.mail.adapters import IncomingMailInCopyGroupCriterion
 from imio.dms.mail.adapters import IncomingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import IncomingMailValidationCriterion
+from imio.dms.mail.adapters import ItemSignersAdapter
 from imio.dms.mail.adapters import OdmSearchableExtender
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.adapters import org_sortable_title_index
@@ -36,6 +37,7 @@ from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
+from imio.esign.adapters import ISignable
 from imio.esign.config import set_esign_registry_enforce_signers_order
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.config import set_esign_registry_signers_order
@@ -497,6 +499,46 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         view.updateWidgets()
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
         self.assertIn("Missing", view.widgets["mail_type"].render())
+
+
+class TestItemSignersAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.esign:default", "plone.app.registry", run_dependencies=False
+        )
+        self.pf = self.portal["contacts"]["personnel-folder"]
+
+    def test_sort_signers(self):
+        dirg_hp = self.pf["dirg"]["directeur-general"].UID()
+        bourg_hp = self.pf["bourgmestre"]["bourgmestre"].UID()
+        request, _files = create_sign_request(
+            self.portal,
+            signers=[
+                {"number": 1, "signer": dirg_hp, "approvings": [u"_themself_"], "editor": True},
+                {"number": 2, "signer": bourg_hp, "approvings": [u"_themself_"], "editor": False},
+            ],
+            nb_files=0,
+        )
+        adapter = ISignable(request)
+        self.assertIsInstance(adapter, ItemSignersAdapter)
+        dirg = ("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")
+        bourg = ("bourgmestre", "bourgmestre@macommune.be", u"Paul BM", u"Bourgmestre")
+        other = ("agent", "agent@macommune.be", u"Fred Agent", u"")
+        set_esign_registry_signers_order([bourg_hp])
+        # order not enforced: unchanged
+        self.assertEqual(adapter.sort_signers([other, dirg, bourg]), [other, dirg, bourg])
+        # enforced: ordered held positions first, then signer number, signers not on the request last
+        set_esign_registry_enforce_signers_order(True)
+        self.assertEqual(adapter.sort_signers([other, dirg, bourg]), [bourg, dirg, other])
+        self.assertEqual(adapter.sort_signers([bourg, other, dirg]), [bourg, dirg, other])
+        # nothing ordered: signer number
+        set_esign_registry_signers_order([])
+        self.assertEqual(adapter.sort_signers([bourg, dirg]), [dirg, bourg])
 
 
 class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
@@ -1388,21 +1430,6 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             },
         )
         self.assertEqual(self.approval.current_nb, 0)
-
-    def test_sort_esign_signers(self):
-        dirg = ("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")
-        bourg = ("bourgmestre", "bourgmestre@macommune.be", u"Paul BM", u"Bourgmestre")
-        other = ("agent", "agent@macommune.be", u"Fred Agent", u"")
-        set_esign_registry_signers_order([self.pf["bourgmestre"]["bourgmestre"].UID()])
-        # order not enforced: unchanged
-        self.assertEqual(self.approval.sort_esign_signers([other, dirg, bourg]), [other, dirg, bourg])
-        # enforced: ordered held positions first, then signer number, signers not on the mail last
-        set_esign_registry_enforce_signers_order(True)
-        self.assertEqual(self.approval.sort_esign_signers([other, dirg, bourg]), [bourg, dirg, other])
-        self.assertEqual(self.approval.sort_esign_signers([bourg, other, dirg]), [bourg, dirg, other])
-        # nothing ordered: signer number
-        set_esign_registry_signers_order([])
-        self.assertEqual(self.approval.sort_esign_signers([bourg, dirg]), [dirg, bourg])
 
     def test_add_mail_files_to_session(self):
         # No files

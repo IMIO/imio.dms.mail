@@ -728,28 +728,6 @@ class TestImioRecreateSessionView(unittest.TestCase):
         approval.annot["session_ids"].append(old_id)
         return omail, old_id
 
-    def test_get_signers(self):
-        """The signers order is re-evaluated on the mail, the old session order is not kept."""
-        omail, old_id = self._make_omail_with_session()
-        omail.signers = list(omail.signers) + [
-            {"number": 2, "signer": self.pf["bourgmestre"]["bourgmestre"].UID(), "approvings": [u"_themself_"],
-             "editor": False},
-        ]
-        old = dict(get_session_annotation()["sessions"][old_id])
-        old["signers"] = [
-            {"userid": "bourgmestre", "email": "bourgmestre@macommune.be", "fullname": u"Paul BM",
-             "position": u"Bourgmestre", "status": ""},
-        ] + list(old["signers"])
-        view = ImioRecreateSessionView(self.portal, self.portal.REQUEST)
-        # not enforced: old session order
-        self.assertEqual([sig[0] for sig in view.get_signers(old, old_id)], ["bourgmestre", "dirg"])
-        # enforced, nothing ordered: signer number
-        set_esign_registry_enforce_signers_order(True)
-        self.assertEqual([sig[0] for sig in view.get_signers(old, old_id)], ["dirg", "bourgmestre"])
-        # current order
-        set_esign_registry_signers_order([self.pf["bourgmestre"]["bourgmestre"].UID()])
-        self.assertEqual([sig[0] for sig in view.get_signers(old, old_id)], ["bourgmestre", "dirg"])
-
     def test_call(self):
         """Recreation appends new session id to approval.session_ids and reindexes the mail;
         a failed recreation (bad session id) leaves session_ids unchanged."""
@@ -765,7 +743,17 @@ class TestImioRecreateSessionView(unittest.TestCase):
         self.assertIsNone(view._new_session_id)
         self.assertEqual(list(approval.session_ids), before)
 
-        # --- Successful recreation: new id appended, mail reindexed ---
+        # --- Successful recreation: new id appended, mail reindexed, signers sorted on the current order ---
+        bourg_hp = self.pf["bourgmestre"]["bourgmestre"].UID()
+        omail.signers = list(omail.signers) + [
+            {"number": 2, "signer": bourg_hp, "approvings": [u"_themself_"], "editor": False},
+        ]
+        get_session_annotation()["sessions"][old_id]["signers"].append(
+            {"userid": "bourgmestre", "email": "bourgmestre@macommune.be", "fullname": u"Paul BM",
+             "position": u"Bourgmestre", "status": ""}
+        )
+        set_esign_registry_signers_order([bourg_hp])
+        set_esign_registry_enforce_signers_order(True)
         self.portal.REQUEST.form["esign_session_id"] = str(old_id)
         view = ImioRecreateSessionView(self.portal, self.portal.REQUEST)
         view()
@@ -781,3 +769,4 @@ class TestImioRecreateSessionView(unittest.TestCase):
         # the old session is consumed by the recreation, the new one gets a title with the new sign_id
         self.assertNotIn(old_id, annot["sessions"])
         self.assertEqual(annot["sessions"][new_id]["title"], u"[iA.Docs] Courrier sortant - 012999900001")
+        self.assertEqual([sig["userid"] for sig in annot["sessions"][new_id]["signers"]], ["bourgmestre", "dirg"])
