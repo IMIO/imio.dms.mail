@@ -12,7 +12,6 @@ from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
-from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
@@ -550,12 +549,6 @@ class ImioRecreateSessionView(RecreateSessionView):
                 approval.annot["session_ids"].append(new_id)
             pc.reindexObject(obj, idxs=("approvings",), update_metadata=0)
         return result
-
-    def get_signers(self, old, old_session_id):
-        """Re-evaluate the signers order, it may have changed since the old session creation."""
-        signers = super(ImioRecreateSessionView, self).get_signers(old, old_session_id)
-        obj = uuidToObject(old["files"][0]["context_uid"])
-        return obj.approval().sort_esign_signers(signers)
 
     def get_new_session_title(self, old, old_session_id):
         obj = uuidToObject(old["files"][0]["context_uid"])
