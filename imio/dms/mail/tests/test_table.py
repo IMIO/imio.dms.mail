@@ -3,8 +3,10 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.dms.basecontent.browser.listing import CategorizedContent
 from collective.dms.basecontent.browser.listing import VersionsTable
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.iconifiedcategory.utils import _modified
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
+from datetime import timedelta
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.browser.table import AssignedGroupColumn
@@ -104,6 +106,17 @@ class TestTable(unittest.TestCase):
         # SessionIdColumn is removed when eSignature is disabled
         set_esign_registry_enabled(False)
         self.assertNotIn("session-id-column", [col.__name__ for col in table.setUpColumns()])
+
+    def test_values(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        files = [obj for obj in omail.objectValues() if hasattr(obj, "content_category")]
+        self.assertTrue(files)
+        uid = files[0].UID()
+        # the stored infos are out of date: reading the table repairs the container
+        omail.categorized_elements[uid]["last_updated"] = _modified(files[0]) - timedelta(days=1)
+        table = OMVersionsTable(omail, omail.REQUEST, None)
+        self.assertTrue(table.values)
+        self.assertEqual(omail.categorized_elements[uid]["last_updated"], _modified(files[0]))
 
     def test_OMVersionsTable(self):
         activate_signing(self.portal)

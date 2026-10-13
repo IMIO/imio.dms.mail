@@ -13,6 +13,8 @@ Changelog
   [chris-adam,sgeulette]
 - Updated the incoming email routing and state set descriptions (DMS-1215).
   [chris-adam]
+- Rebuilt outdated categorized elements when rendering a mail, fixing wrong annex icons (PARAF-547).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
