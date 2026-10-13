@@ -38,6 +38,7 @@ from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.z3cform.wysiwyg import WysiwygFieldWidget
 from plone.autoform.directives import widget
+from plone.autoform.directives import write_permission
 from plone.dexterity.fti import DexterityFTIModificationDescription
 from plone.dexterity.fti import ftiModified
 from plone.dexterity.interfaces import IDexterityFTI
@@ -1017,6 +1018,7 @@ class IImioDmsMailConfig(model.Schema):
             "groups_hidden_in_dashboard_filter",
             "users_hidden_in_dashboard_filter",
             "batch_approval_limit",
+            "collabora_edit"
         ],
     )
 
@@ -1043,6 +1045,13 @@ class IImioDmsMailConfig(model.Schema):
         default=10,
         min=0,
     )
+
+    collabora_edit = schema.Bool(
+        title=_(u"Edit with Collabora"),
+        description=_(u"Switch it when nobody is editing a file."),
+        default=False,
+    )
+    write_permission(collabora_edit="cmf.ManagePortal")
 
     @invariant
     def validate_settings(data):  # noqa

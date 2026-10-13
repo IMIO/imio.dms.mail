@@ -14,6 +14,10 @@ class Migrate_To_3_1_8(Migrate_To_3_1):  # noqa
     def run_parts(self):
 
         if self.is_in_part("c"):
+            # add collabora
+            self.add_collabora()
+            # update settings
+            self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry"])
             # Correct external method names
             self.rename_external_methods()
             # Add new external method

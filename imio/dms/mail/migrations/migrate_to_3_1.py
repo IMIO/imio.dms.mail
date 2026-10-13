@@ -25,6 +25,7 @@ from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.interfaces import IReqDashboardBatchActions
 from imio.dms.mail.setuphandlers import add_db_col_folder
+from imio.dms.mail.setuphandlers import configure_collabora
 from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
 from imio.dms.mail.setuphandlers import create_personnel_dashboard
@@ -107,6 +108,8 @@ class Migrate_To_3_1(Migrator):  # noqa
                 self.runProfileSteps("imio.dms.mail", steps=["catalog"])
                 self.setup_personnel_dashboard()
                 self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
+                # add collabora
+                self.add_collabora()
                 # Correct compound criterin values in collections
                 self.normalize_compound_criterion_values()
                 # Update d-print model
@@ -778,6 +781,11 @@ class Migrate_To_3_1(Migrator):  # noqa
             if changed:
                 col.query = query
                 logger.info("Normalized CompoundCriterion value in %s" % col.absolute_url_path())
+
+    def add_collabora(self):
+        """Install collective.collabora and set its server url. Collabora edit stays disabled."""
+        self.install(["collective.collabora"])
+        configure_collabora()
 
 
 def migrate(context):  # noqa
