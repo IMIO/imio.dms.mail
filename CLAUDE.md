@@ -20,7 +20,7 @@ Schemas are extended via behaviors in `content/behaviors.py` (signing, local rol
 
 | Module | Purpose |
 |---|---|
-| `setuphandlers.py` | GenericSetup install/upgrade steps and migration orchestration |
+| `setuphandlers.py` | GenericSetup setup handlers (install and import steps) |
 | `adapters.py` | Schema adapters, catalog indexers, local role providers |
 | `subscribers.py` | Event handlers (object added/modified, workflow transitions) |
 | `wfadaptations.py` | Workflow variant definitions (service validation, approval chains) |
@@ -34,7 +34,7 @@ Schemas are extended via behaviors in `content/behaviors.py` (signing, local rol
 ### Browser Layer (`browser/`)
 
 - `views.py` — main view classes (autocomplete, SSE, email sending, REST client)
-- `actionspanel.py` — actions/transitions panel (the largest file, ~21K lines)
+- `actionspanel.py` — actions/transitions panel
 - `batchactions.py` — bulk operations on document sets
 - `table.py` — filterable table rendering
 - `settings.py` — control panel (`IImioDmsMailConfig` registry interface)
@@ -50,9 +50,10 @@ Schemas are extended via behaviors in `content/behaviors.py` (signing, local rol
 
 ### Workflows
 
-4 workflows in `profiles/default/workflows/`:
+Workflows in `profiles/default/workflows/`:
 - `incomingmail_workflow` — main workflow for incoming mail processing
 - `outgoingmail_workflow` — main workflow for outgoing mail lifecycle
+- `sign_request_workflow` — bound to the `sign_request` type
 - `active_inactive_workflow` and `internal_application_workflow` — rarely used, applied to auxiliary types
 
 Workflow variants (additional states/transitions grafted onto the base workflows) are registered via `wfadaptations.py` using `collective.wfadaptations`.
@@ -67,7 +68,7 @@ Local roles are provided dynamically by adapters in `adapters.py` using `borg.lo
 
 ### Migrations
 
-Upgrade steps live in `migrations/` (one module per version: `migrate_to_1_0.py` … `migrate_to_3_1_2.py`). They are registered as GenericSetup upgrade steps in `profiles.zcml` and called by `setuphandlers.py`.
+Upgrade steps live in `migrations/` (one `migrate_to_<version>.py` module per version) and are registered in `migrations/upgrades.zcml`, which `profiles.zcml` includes.
 
 ### Testing
 
