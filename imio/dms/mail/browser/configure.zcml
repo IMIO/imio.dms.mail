@@ -821,6 +821,15 @@
             permission="zope2.View"
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
             />
+
+        <browser:page
+            name="external_edit"
+            for="collective.documentgenerator.content.style_template.IStyleTemplate"
+            class="imio.dms.mail.browser.views.CollaboraOrZopeEditView"
+            template="templates/edit.pt"
+            permission="zope2.View"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            />
     </configure>
 
     <browser:page
@@ -831,8 +840,21 @@
         layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
+    <browser:page
+        name="collabora-wopi"
+        for="collective.documentgenerator.content.style_template.IStyleTemplate"
+        class="collective.collabora.browser.wopi.CollaboraWOPIView"
+        permission="zope2.View"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
     <adapter factory="imio.dms.mail.adapters.StoredPodTemplate"
         for="collective.documentgenerator.content.pod_template.IPODTemplate"
+        provides="collective.collabora.interfaces.IStoredFile"
+        />
+
+    <adapter factory="imio.dms.mail.adapters.StoredPodTemplate"
+        for="collective.documentgenerator.content.style_template.IStyleTemplate"
         provides="collective.collabora.interfaces.IStoredFile"
         />
 

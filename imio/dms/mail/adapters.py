@@ -2078,7 +2078,7 @@ class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
 @adapter(IPODTemplate)
 @implementer(IStoredFile)
 class StoredPodTemplate(object):
-    """Access the file storage on a PODTemplate content object.
+    """Access the file storage on a POD or style template content object.
 
     i.e. the file attribute on the content object.
     """

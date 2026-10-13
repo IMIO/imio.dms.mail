@@ -778,7 +778,8 @@ class TestCollaboraOrZopeEditView(unittest.TestCase):
     def test_call(self):
         omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
         template = self.portal["templates"]["om"]["main"]
-        for obj in (omf, template):
+        style = self.portal["templates"]["om"]["style"]
+        for obj in (omf, template, style):
             # collabora edit disabled: zopeedit
             obj.restrictedTraverse("external_edit")()
             self.assertEqual(self.request.response.getHeader("location"),
