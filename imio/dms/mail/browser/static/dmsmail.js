@@ -209,7 +209,7 @@ $(document).ready(function(){
               // clic sur Apply → clic auto sur Cancel pour fermer l'overlay
               $("input#form-buttons-apply_export_pdf").click(function(e){ $('input#form-buttons-cancel').click(); });
               // le form est soumis dans un nouvel onglet (téléchargement)
-              $("form#form").attr('target', 'blank');
+              $("form#form").attr('target', '_blank');
               return true; } },
       });
     }

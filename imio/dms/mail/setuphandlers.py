@@ -88,8 +88,7 @@ import pkg_resources
 logger = logging.getLogger("imio.dms.mail: setuphandlers")
 
 # to_treat = "Qui m'est assigné", om_treating = "Que je traite"
-OM_PRINT_TO_SIGN_COLS = ("to_treat", "searchfor_created", "searchfor_validated", "searchfor_to_print",
-                         "searchfor_sent")
+OM_PRINT_TO_SIGN_COLS = ("to_treat", "searchfor_created", "searchfor_validated", "searchfor_to_print")
 OM_PRINT_SIGNED_COLS = ("om_treating", "om_to_email", "searchfor_signed", "searchfor_sent")
 
 

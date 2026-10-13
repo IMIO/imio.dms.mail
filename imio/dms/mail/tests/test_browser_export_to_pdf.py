@@ -210,6 +210,7 @@ class TestExportToPDFForm(ExportToPdfTestCase):
         self.assertEqual(form.widgets["elements"].value,
                          [self.a_odt.getId(), self.b_pdf.getId(), self.appendix.getId()])
         self.assertTrue(form.widgets["elements"].sortable)
+        self.assertEqual(form.widgets["two_sided"].value, ["true"])
         # after signature, the ged odt cannot be concatenated anymore
         self._clean_cache()
         form = self.omail.restrictedTraverse("@@export-to-pdf-after-signature")

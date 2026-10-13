@@ -78,7 +78,9 @@ class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
             filters={}):
 
         return super(ExportToPDFElementsVocabulary, self).__call__(
-            context, portal_type=None, include_portal_type=True)
+            context, portal_type=portal_type, token_value=token_value, include_portal_type=include_portal_type,
+            include_parent_title=include_parent_title, filters=filters
+        )
 
     def _prepare_annex_infos(self, context, annex_infos):
         mailed = superseded_uids(context)[0]
@@ -133,6 +135,10 @@ class ExportToPDFAfterSignatureVocabulary(ExportToPDFElementsVocabulary):
 
 class ExportToPDFForm(ExportPDFForm):
     """Concatenate the selected files of an outgoing mail or a signing request."""
+
+    def __init__(self, context, request):
+        super(ExportToPDFForm, self).__init__(context, request)
+        self.fields["two_sided"].field.default = True
 
     def updateWidgets(self):
         super(ExportToPDFForm, self).updateWidgets()
