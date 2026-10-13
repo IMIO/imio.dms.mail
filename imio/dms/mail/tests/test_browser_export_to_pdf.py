@@ -337,6 +337,39 @@ class TestExportToPDFBatchActionForm(ExportToPdfTestCase):
         self.assertEqual(form._get_annexes({}), [self.a_odt])
         self.assertNotIn("portalMessage", form.description)
 
+    def test__element_annexes(self):
+        """With mailing_appendices, the appendix files follow each mailed version."""
+        intids = getUtility(IIntIds)
+        self.omail.recipients.append(RelationValue(intids.getId(self.portal["contacts"]["electrabel"])))
+        IAnnotations(self.a_odt)["documentgenerator"] = {"mailed": True}
+        self.request["uids"] = self.omail.UID()
+        form = self._form("export-to-pdf-before-signature-batch-action")
+        form.update()
+        self.assertEqual(form.widgets["mailing_appendices"].value, ["false"])
+        self.assertEqual(form._element_annexes(self.omail), [self.a_odt, self.b_pdf, self.appendix])
+        # before signature, the appendix files are repeated by recipient after the mailed odt
+        self.assertEqual(form._element_annexes(self.omail, {"mailing_appendices": True}),
+                         [self.a_odt, self.appendix, self.appendix, self.b_pdf])
+        # after signature, the appendix files follow each pdf split from the mailed odt
+        c_pdf = self._add_file(u"c pdf", PDF_PATH)
+        for obj in (self.b_pdf, c_pdf):
+            self._set_infos(obj, to_print=True, conv_from_uid=self.a_odt.UID())
+        self._clean_cache()
+        form = self._form("export-to-pdf-after-signature-batch-action")
+        form.update()
+        self.assertEqual(form.widgets["mailing_appendices"].value, ["true"])
+        self.assertEqual(form._element_annexes(self.omail, {"mailing_appendices": True}),
+                         [self.b_pdf, self.appendix, c_pdf, self.appendix])
+        # no mailing: unchanged
+        del IAnnotations(self.a_odt)["documentgenerator"]
+        self.assertEqual(form._element_annexes(self.omail, {"mailing_appendices": True}),
+                         [self.b_pdf, c_pdf, self.appendix])
+        # not on the requests dashboard
+        form = self.portal["requests"]["requests-searches"].restrictedTraverse(
+            "@@export-to-pdf-after-signature-batch-action")
+        form.update()
+        self.assertNotIn("mailing_appendices", form.fields)
+
     def test_req_dashboard(self):
         """Only the after signature export is on the requests dashboard, whatever the collection."""
         searches = self.portal["requests"]["requests-searches"]

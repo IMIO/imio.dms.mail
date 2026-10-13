@@ -14,7 +14,11 @@ from imio.dms.mail import _
 from imio.dms.mail.setuphandlers import OM_PRINT_SIGNED_COLS
 from imio.dms.mail.setuphandlers import OM_PRINT_TO_SIGN_COLS
 from plone import api
+from plone.app.uuid.utils import uuidToObject
 from Products.CMFPlone.utils import safe_unicode
+from z3c.form.browser.radio import RadioFieldWidget
+from z3c.form.field import Fields
+from zope import schema
 from zope.annotation import IAnnotations
 from zope.i18n import translate
 
@@ -185,6 +189,7 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
     vocabulary = None  # vocabulary class listing the files of a mail
     condition = None  # name of the element method telling if the element export is possible
     condition_msg = None  # exclusion reason when the condition is not met
+    mailing_appendices = None  # default of the field repeating the appendix files by mailed version, None to omit it
     button_with_icon = False
     CHECK_ELEMENTS = True
 
@@ -204,10 +209,38 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
         super(ExportToPDFBatchActionForm, self)._update()
         self.fields = self.fields.omit("annex_types")
         self.fields["two_sided"].field.default = True
+        if self.mailing_appendices is not None:
+            self.fields += Fields(schema.Bool(
+                __name__="mailing_appendices",
+                title=_(u"Appendix files for each mailed version?"),
+                description=_(u"mailing_appendices description after signature") if self.mailing_appendices
+                else _(u"mailing_appendices description before signature"),
+                default=self.mailing_appendices,
+                required=False))
+            self.fields["mailing_appendices"].widgetFactory = RadioFieldWidget
 
     def _element_annexes(self, obj, data=None):
-        """The files the vocabulary allows to export, data is not used."""
-        return [obj[term.token] for term in self.vocabulary()(obj) if not getattr(term, "disabled", False)]
+        """The files the vocabulary allows to export, ged files first.
+
+        With mailing_appendices, the appendix files follow each mailed version of a ged file instead.
+        """
+        files = [obj[term.token] for term in self.vocabulary()(obj) if not getattr(term, "disabled", False)]
+        if not (data or {}).get("mailing_appendices"):
+            return files
+        appendices = [afile for afile in files if afile.portal_type != GED]
+        result, repeated = [], False
+        for ged in [afile for afile in files if afile.portal_type == GED]:
+            versions = self._mailed_versions(obj, ged)
+            result += [ged] + appendices * versions
+            repeated = repeated or versions
+        return result if repeated else files
+
+    def _mailed_versions(self, obj, ged):
+        """Number of mailed versions in p_ged: one by recipient in the mailed odt, one in each pdf split from it."""
+        if IAnnotations(ged).get("documentgenerator", {}).get("mailed"):
+            return len(api.content.get_view("document_generation_helper_view", obj, self.request).mailing_list())
+        source = getattr(ged, "conv_from_uid", None) and uuidToObject(ged.conv_from_uid)
+        return int(bool(source and IAnnotations(source).get("documentgenerator", {}).get("mailed")))
 
     def _check_element(self, obj):
         if not getattr(obj, self.condition)():
@@ -227,6 +260,7 @@ class ExportToPDFBeforeSignatureBatchActionForm(ExportToPDFBatchActionForm):
     vocabulary = ExportToPDFBeforeSignatureVocabulary
     condition = "can_do_export_to_pdf_before_signature"
     condition_msg = _(u"E-signature or seal set, or already signed")
+    mailing_appendices = False  # the mailed odt holds every version
 
 
 class ExportToPDFAfterSignatureBatchActionForm(ExportToPDFBatchActionForm):
@@ -236,6 +270,7 @@ class ExportToPDFAfterSignatureBatchActionForm(ExportToPDFBatchActionForm):
     vocabulary = ExportToPDFAfterSignatureVocabulary
     condition = "can_do_export_to_pdf_after_signature"
     condition_msg = _(u"Not signed")
+    mailing_appendices = True  # each mailed version is a separate pdf
 
     def _check_element(self, obj):
         # a mail only sent by email has nothing to print
@@ -247,6 +282,7 @@ class ExportToPDFAfterSignatureBatchActionForm(ExportToPDFBatchActionForm):
 class ExportToPDFReqAfterSignatureBatchActionForm(ExportToPDFAfterSignatureBatchActionForm):
 
     collections = None
+    mailing_appendices = None  # sign requests are not mailed
 
     def _check_element(self, obj):
         """Sign requests have no send modes."""
