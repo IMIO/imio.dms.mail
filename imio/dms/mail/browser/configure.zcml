@@ -134,6 +134,20 @@
         />
 
     <browser:page
+        for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
+        name="approve-batch-action"
+        class=".batchactions.ApproveBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IReqDashboardBatchActions"
+        name="approve-batch-action"
+        class=".batchactions.ApproveBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
         name="render_email_signature"
         class=".views.RenderEmailSignature"

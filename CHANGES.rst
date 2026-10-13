@@ -25,6 +25,8 @@ Changelog
   [chris-adam,sgeulette]
 - Updated the incoming email routing and state set descriptions (DMS-1215).
   [chris-adam]
+- Added a batch approval action on outgoing mail and requests "to approve" dashboards, enabled per signer (PARAF-565).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------

@@ -49,6 +49,8 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                     obj = brain.getObject()
                     if u"select_row" not in obj.customViewFields:
                         obj.customViewFields = (u"select_row",) + tuple(obj.customViewFields)
+            # batch approval settings
+            self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry"])
 
         if self.is_in_part("t"):  # final steps
             if self.old_version != self.new_version:
