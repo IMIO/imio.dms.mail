@@ -110,6 +110,12 @@ class MailTypeColumn(VocabularyColumn):
     vocabulary = u"imio.dms.mail.IMMailTypesVocabulary"
 
 
+class OMMailTypeColumn(MailTypeColumn):
+    """OM dashboard. xss ok"""
+
+    vocabulary = u"imio.dms.mail.OMMailTypesVocabulary"
+
+
 class Sender2Column(DxWidgetRenderColumn):  # pragma: no cover
     # 3 à 4 fois plus lent que Sender3Column
 
