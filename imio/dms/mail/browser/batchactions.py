@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Batch actions views."""
 from Acquisition import aq_parent
+from cgi import escape
 from collective.classification.folder.content.classification_folder import IClassificationFolder
 from collective.contact.core.content.directory import IDirectory
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
@@ -13,6 +14,8 @@ from collective.eeafaceted.batchactions.browser.views import ContactBaseBatchAct
 from collective.eeafaceted.batchactions.utils import cannot_modify_field_msg
 from collective.eeafaceted.batchactions.utils import filter_on_permission
 from collective.eeafaceted.batchactions.utils import is_permitted
+from collective.eeafaceted.collectionwidget.interfaces import NotDashboardContextException
+from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from collective.task.browser.batchactions import AssignedGroupBatchActionForm as agbaf
 from collective.task.browser.batchactions import AssignedUserBatchActionForm as aubaf
 from imio.dms.mail import _
@@ -20,19 +23,33 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.dmsmail import DmsContactSourceBinder
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.utils import is_in_user_groups
+from imio.esign.audit import audit as esign_audit
 from imio.helpers import EMPTY_STRING
 from imio.helpers.content import uuidsToObjects
+from imio.helpers.content import uuidToObject
 from plone import api
+from Products.CMFPlone.utils import safe_unicode
+from Products.statusmessages import STATUSMESSAGEKEY
+from Products.statusmessages.interfaces import IStatusMessage
 from z3c.form.browser.select import SelectFieldWidget
 from z3c.form.field import Fields
+from ZODB.POSException import ConflictError
 from zope import schema
 from zope.component import getMultiAdapter
+from zope.i18n import translate
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import modified
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import datetime
+import logging
+import transaction
+
+
+logger = logging.getLogger("imio.dms.mail: batchactions")
+BATCH_APPROVAL_LIMIT_RECORD = "imio.dms.mail.browser.settings.IImioDmsMailConfig.batch_approval_limit"
+BATCH_APPROVAL_SIGNERS_RECORD = "imio.dms.mail.browser.settings.IImioDmsMailConfig.batch_approval_signers"
 
 
 # IM and OM batch actions
@@ -307,3 +324,124 @@ class FoldersTreatingGroupBatchActionForm(BaseBatchActionForm):
                 obj = brain.getObject()
                 obj.treating_groups = data["treating_group"]
                 modified(obj, Attributes(IClassificationFolder, "treating_groups"))
+
+
+class ApproveBatchActionForm(BaseBatchActionForm):
+    """Approve the files of the selected elements, for the signers enabled in the settings."""
+
+    label = _(u"Batch files approval")
+    weight = 15
+
+    def available(self):
+        if not api.portal.get_registry_record(BATCH_APPROVAL_SIGNERS_RECORD, default=None):
+            return False
+        if self.request.get("uids") or "form.widgets.uids" in self.request.form:
+            # ponytail: the form itself is not checked against the collection, the button is only shown where needed
+            return True
+        try:
+            collection = getCurrentCollection(self.context)
+        except NotDashboardContextException:
+            return False
+        return collection is not None and collection.getId() == "to_approve"
+
+    def _update(self):
+        self.limit = api.portal.get_registry_record(BATCH_APPROVAL_LIMIT_RECORD, default=0)
+        self.excluded = self._excluded_mails()
+        nb_mails = len(self.brains) - len(self.excluded)
+        self.over_limit = bool(self.limit) and nb_mails > self.limit
+        self.do_apply = not self.over_limit and nb_mails > 0
+
+    def _excluded_mails(self):
+        """The selected mails the current user cannot batch approve now."""
+        userid = api.user.get_current().getId()
+        signers = api.portal.get_registry_record(BATCH_APPROVAL_SIGNERS_RECORD, default=None) or []
+        objs = [brain.getObject() for brain in self.brains]
+        return [obj for obj in objs if not self._files_to_approve(obj, userid, signers)]
+
+    def _message(self, msg_type, msg, mails=()):
+        """A portal message, listing mails, to append to the description."""
+        items = u"".join(u'<li><a href="{}" target="_blank">{}</a></li>'.format(
+            obj.absolute_url(), escape(safe_unicode(obj.Title()))) for obj in mails)
+        return u'<div class="portalMessage {}"><p>{}</p>{}</div>'.format(
+            msg_type, translate(msg, context=self.request), items and u"<ul>{}</ul>".format(items))
+
+    @property
+    def description(self):
+        descr = translate(super(ApproveBatchActionForm, self).description, context=self.request)
+        if self.over_limit:
+            return descr + self._message("error", _(
+                u"You can approve at most ${limit} element(s) at once: select fewer elements.",
+                mapping={"limit": self.limit}))
+        if not self.do_apply:
+            return descr + self._message("error", _(
+                u"None of the selected mails can be batch approved due to site settings."))
+        if not self.limit:
+            descr += self._message("warning", _(u"Approving too many files at once may take a long time"))
+        if self.excluded:
+            descr += self._message("warning", _(u"These mails will be skipped due to site settings:"), self.excluded)
+        return descr
+
+    def _files_to_approve(self, obj, userid, signers):
+        """The files of obj that userid can approve now, for a signer in signers."""
+        approval = obj.approval()
+        nb = approval.get_approver_nb(userid)
+        if api.content.get_state(obj) not in approval.approval_states or nb is None or nb != approval.current_nb:
+            return []
+        # same order as the approval levels
+        obj_signers = [s["signer"] for s in sorted(obj.signers, key=lambda s: s["number"]) if s["signer"] != "_empty_"]
+        if obj_signers[nb] not in signers:
+            return []
+        return [uuidToObject(f_uid, unrestricted=True) for f_uid in approval.files_uids
+                if not approval.is_file_approved(f_uid, nb=nb)]
+
+    def _approve(self, obj, userid, signers):
+        """Approve the files of obj as the approval icon does. Return the number of approved files."""
+        afiles = self._files_to_approve(obj, userid, signers)
+        views = [getMultiAdapter((afile, self.request), name="iconified-approved") for afile in afiles]
+        # status 0 when the signing session cannot be created, the reason is in the error messages
+        if not all([view.set_values(None)[0] for view in views]):
+            raise ValueError(u", ".join(msg.message for msg in IStatusMessage(self.request).show()
+                                        if msg.type == u"error"))
+        return len(afiles)
+
+    def _apply(self, **data):
+        userid = api.user.get_current().getId()
+        signers = api.portal.get_registry_record(BATCH_APPROVAL_SIGNERS_RECORD, default=None) or []
+        nb_files = nb_mails = skipped = 0
+        failed = []
+        for brain in self.brains:
+            obj = brain.getObject()
+            savepoint = transaction.savepoint()
+            try:
+                approved = self._approve(obj, userid, signers)
+            except ConflictError:
+                raise
+            except Exception as exc:
+                logger.exception("Batch approval of %s failed", obj.absolute_url())
+                savepoint.rollback()
+                reason = translate(safe_unicode(exc.args[0] if exc.args else repr(exc)), context=self.request)
+                esign_audit(
+                    "batch_approval_rolled_back", u"mail={} approver={} reason={}".format(obj.UID(), userid, reason)
+                )
+                failed.append(u"{} ({})".format(safe_unicode(obj.Title()), reason))
+                continue
+            nb_files += approved
+            nb_mails += bool(approved)
+            skipped += not approved
+        # the messages of each approval are replaced by a summary
+        IStatusMessage(self.request).show()
+        # show() expires the messages cookie and a later setCookie keeps that expiry: start a new one
+        self.request.response.cookies.pop(STATUSMESSAGEKEY, None)
+        mapping = {"files": nb_files, "elements": nb_mails, "skipped": skipped}
+        if skipped:
+            summary = _(u"${files} file(s) approved on ${elements} element(s). ${skipped} element(s) skipped due to "
+                        u"site settings.", mapping=mapping)
+        else:
+            summary = _(u"${files} file(s) approved on ${elements} element(s).", mapping=mapping)
+        api.portal.show_message(summary, request=self.request)
+        if failed:
+            api.portal.show_message(
+                _(u"Approval cancelled for: ${elements}", mapping={"elements": u", ".join(failed)}),
+                request=self.request,
+                type="error",
+            )
