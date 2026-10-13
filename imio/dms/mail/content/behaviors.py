@@ -191,8 +191,9 @@ class ISigningBehavior(model.Schema):
             is_user_admin = api.user.has_permission("Manage portal")
             approval = context.approval()
             if not is_user_admin and (approval.is_state_after_or_approve() or approval.current_nb == -1):
-                fields_have_changed = (context.esign != data.esign or context.seal != data.seal
-                                       or context.signers != data.signers)
+                fields_have_changed = (bool(context.esign) != bool(data.esign)
+                                       or bool(context.seal) != bool(data.seal)
+                                       or (context.signers or []) != (data.signers or []))
                 if fields_have_changed:
                     raise Invalid(_(u"You cannot modify signers once the approval process has started or is done. "
                                     u"You may go back to a previous state or ask your admin."))

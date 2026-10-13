@@ -382,7 +382,18 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.change_user("siteadmin")
         self.pw.doActionFor(omail, "propose_to_approve")
         self.change_user("dirg")
+        # unchanged form: stored seal is None, submitted one is False
+        self.assertIsNone(omail.seal)
         errors = invariants.validate(data)
+        self.assertEqual(errors, ())
+
+        # same with esign and signers never set on the mail
+        omail.esign = omail.seal = omail.signers = None
+        errors = invariants.validate({"signers": [], "esign": False, "seal": False})
+        self.assertEqual(errors, ())
+
+        # a real modification is still refused
+        errors = invariants.validate({"signers": [], "esign": True, "seal": False})
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = (u"Vous ne pouvez pas modifier les signataires une fois le processus d'approbation commencé ou "
                      u"terminé. Revenez dans un état précédent ou demandez à votre référent.")
