@@ -17,6 +17,7 @@ from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.subscribers import dmsoutgoingmail_transition
+from imio.dms.mail.subscribers import fill_categories_from_folders
 from imio.dms.mail.subscribers import i_annex_removed
 from imio.dms.mail.subscribers import reindex_person_usages
 from imio.dms.mail.testing import create_sign_request
@@ -151,6 +152,15 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.change_user("chef")
         imail4 = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "id4")
         self.assertEqual(imail4.creating_group, orgs[0])
+        # classification categories are filled from the folder when option is activated
+        self.change_user("siteadmin")
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.classification_categories_from_folders", True
+        )
+        folder = api.content.find(portal_type="ClassificationFolder", sort_on="getObjPositionInParent")[0].getObject()
+        imail5 = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "id5",
+                            **{"classification_folders": [folder.UID()]})
+        self.assertListEqual(imail5.classification_categories, folder.classification_categories)
 
     def test_dmsdocument_modified(self):
         # owner changing test
@@ -191,6 +201,58 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(task1.parents_assigned_groups, [orgs[4]])
         self.assertListEqual(task2.parents_assigned_groups, [orgs[4], orgs[1]])
         # treating_groups change on service validation state is tested in test_wfadaptations_imservicevalidation...
+        # classification categories are filled from the folder when option is activated
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.classification_categories_from_folders", True
+        )
+        folder = api.content.find(portal_type="ClassificationFolder", sort_on="getObjPositionInParent")[0].getObject()
+        imail.classification_folders = [folder.UID()]
+        zope.event.notify(ObjectModifiedEvent(imail))
+        self.assertListEqual(imail.classification_categories, folder.classification_categories)
+
+    def test_fill_categories_from_folders(self):
+        folders = [b.getObject() for b in api.content.find(portal_type="ClassificationFolder",
+                                                              sort_on="getObjPositionInParent")]
+        cat1 = folders[0].classification_categories[0]
+        cat2 = folders[2].classification_categories[0]
+        self.assertNotEqual(cat1, cat2)
+        self.imail.classification_folders = [folders[0].UID()]
+        # option deactivated by default: nothing is done
+        fill_categories_from_folders(self.imail)
+        self.assertIsNone(getattr(self.imail, "classification_categories", None))
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.classification_categories_from_folders", True
+        )
+        # no folder: nothing is done
+        self.imail.classification_folders = None
+        fill_categories_from_folders(self.imail)
+        self.assertIsNone(getattr(self.imail, "classification_categories", None))
+        # folder categories are set and indexed
+        self.imail.classification_folders = [folders[0].UID()]
+        fill_categories_from_folders(self.imail)
+        self.assertListEqual(self.imail.classification_categories, [cat1])
+        self.assertEqual(len(api.content.find(UID=self.imail.UID(), classification_categories=cat1)), 1)
+        # existing categories are kept
+        self.imail.classification_folders = [folders[2].UID()]
+        fill_categories_from_folders(self.imail)
+        self.assertListEqual(self.imail.classification_categories, [cat1])
+        # multiple folders: categories are merged without duplicates
+        self.imail.classification_categories = []
+        self.imail.classification_folders = [folders[0].UID(), folders[1].UID(), folders[2].UID()]
+        fill_categories_from_folders(self.imail)
+        self.assertListEqual(self.imail.classification_categories, [cat1, cat2])
+        # subfolder own categories are used, not its parent ones
+        subfolder = folders[0].objectValues()[0]
+        subfolder.classification_categories = [cat2]
+        self.imail.classification_categories = []
+        self.imail.classification_folders = [subfolder.UID()]
+        fill_categories_from_folders(self.imail)
+        self.assertListEqual(self.imail.classification_categories, [cat2])
+        # subfolder without categories: parent ones are used
+        subfolder.classification_categories = []
+        self.imail.classification_categories = []
+        fill_categories_from_folders(self.imail)
+        self.assertListEqual(self.imail.classification_categories, [cat1])
 
     def test_dmsincomingmail_transition(self):
         self.assertEqual(api.content.get_state(self.imail), "created")

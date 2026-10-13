@@ -13,6 +13,8 @@ Changelog
   [chris-adam,sgeulette]
 - Updated the incoming email routing and state set descriptions (DMS-1215).
   [chris-adam]
+- Added an option to fill empty mail classification categories from the classification folders (DMS-1001).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
