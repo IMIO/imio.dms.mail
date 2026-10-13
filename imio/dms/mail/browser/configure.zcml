@@ -145,14 +145,6 @@
         />
 
     <browser:page
-        for="imio.dms.mail.interfaces.IPersonnelFolder"
-        name="personnel-listing"
-        class=".views.PersonnelListing"
-        template="templates/personnel_listing.pt"
-        permission="zope2.View"
-        />
-
-    <browser:page
         for="*"
         name="plus-portaltab-content"
         class=".views.PlusPortaltabContent"
@@ -535,6 +527,12 @@
 
     <browser:page
         for="imio.dms.mail.interfaces.IHeldPositionsDashboardBatchActions"
+        name="duplicated-batch-action"
+        class=".batchactions.DuplicatedBatchActionForm"
+        permission="zope2.View" />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IPersonnelDashboardBatchActions"
         name="duplicated-batch-action"
         class=".batchactions.DuplicatedBatchActionForm"
         permission="zope2.View" />
@@ -1252,6 +1250,15 @@
             for="Products.CMFPlone.interfaces.IPloneSiteRoot"
             class="imio.dms.mail.browser.views.ImioExternalSessionCreateView"
             permission="zope2.View"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
+
+        <browser:page
+            name="esign-session-recreate"
+            for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+            class="imio.dms.mail.browser.views.ImioRecreateSessionView"
+            permission="zope2.View"
+            allowed_attributes="may_recreate_session"
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 

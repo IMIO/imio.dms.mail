@@ -788,6 +788,22 @@ class DmsPrimaryOrganizationsVocabulary(PrimaryOrganizationsVocabulary):
         )
 
 
+# @implementer(IVocabularyFactory)
+# class PersonnelPrimaryOrganizationsFacetedVocabulary(object):
+#     """Primary organizations for the personnel dashboard faceted filter.
+
+#     Prepends imio.helpers EMPTY_STRING value so persons without a primary organization
+#     can be filtered (matches the empty value emitted by person_primary_organization_index).
+#     """
+
+#     def __call__(self, context):
+#         factory = getUtility(IVocabularyFactory, "imio.dms.mail.TreatingGroupsForFacetedFilterVocabulary")
+#         vocab = factory(context)
+#         return SimpleVocabulary(
+#             [SimpleTerm(EMPTY_STRING, EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers"))] + list(vocab._terms)
+#         )
+
+
 @implementer(IVocabularyFactory)
 class ActiveInactiveStatesVocabulary(object):
     """States of active_inactive_workflow"""

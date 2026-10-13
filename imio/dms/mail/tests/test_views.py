@@ -6,8 +6,11 @@ from collective.iconifiedcategory.utils import calculate_category_id
 from collective.MockMailHost.MockMailHost import MockMailHost
 from datetime import datetime
 from HTMLParser import HTMLParser
+from imio.dms.mail import _
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.browser.views import ImioRecreateSessionView
 from imio.dms.mail.browser.views import parse_query
 from imio.dms.mail.browser.views import SessionAnnotationInfoView
 from imio.dms.mail.interfaces import IOMApproval
@@ -18,11 +21,13 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
+from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import get_object
 from imio.helpers.content import richtextval
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.test_helpers import ImioTestHelpers
+from persistent.list import PersistentList
 from plone import api
 from plone.app.testing import login
 from plone.dexterity.utils import createContentInContainer
@@ -400,6 +405,10 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
 
     def test_annot_html(self):
         """Test approval_annot_html and esign_session_html."""
+        def fmt_dt(dte):
+            """Format a datetime like the view does."""
+            return u"datetime({})".format(dte.strftime("%d/%m/%Y %H:%M:%S"))
+
         omail, files, approval = self._setup_esign_omail()
         self._approve_all_files(omail, files, approval)
 
@@ -409,50 +418,50 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             HTMLParser().unescape(view.approval_annot_html),
             u"""{{
-  'approval': [
+  "approval": [
     [
       {{
-        'approved_by': 'dirg',
-        'approved_on': {},
-        'status': 'a',
+        "approved_by": "dirg",
+        "approved_on": {},
+        "status": "a",
       }},
       {{
-        'approved_by': 'dirg',
-        'approved_on': {},
-        'status': 'a',
-      }},
-    ],
-    [
-      {{
-        'approved_by': 'bourgmestre',
-        'approved_on': {},
-        'status': 'a',
-      }},
-      {{
-        'approved_by': 'bourgmestre',
-        'approved_on': {},
-        'status': 'a',
+        "approved_by": "dirg",
+        "approved_on": {},
+        "status": "a",
       }},
     ],
-  ],
-  'approvers': [
     [
-      'dirg',
-    ],
-    [
-      'bourgmestre',
+      {{
+        "approved_by": "bourgmestre",
+        "approved_on": {},
+        "status": "a",
+      }},
+      {{
+        "approved_by": "bourgmestre",
+        "approved_on": {},
+        "status": "a",
+      }},
     ],
   ],
-  'current_nb': -1,
-  'editors': [
+  "approvers": [
+    [
+      "dirg",
+    ],
+    [
+      "bourgmestre",
+    ],
+  ],
+  "current_nb": -1,
+  "editors": [
     True,
     False,
   ],
-  'files': [
+  "files": [
     <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({uid1}),
     <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/012999900000602/view' title='/plone/outgoing-mail/{folder_name}/om-esign/012999900000602'>Modèle de base</a> ({uid2}),
   ],
-  'pdf_files': [
+  "pdf_files": [
     [
       <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({puid1}),
     ],
@@ -460,26 +469,26 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
       <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a> ({puid2}),
     ],
   ],
-  'session_ids': [
+  "session_ids": [
     0,
   ],
-  'signers': [
+  "signers": [
     [
-      'dirg',
-      u'Maxime DG',
-      u'Directeur G\\xe9n\\xe9ral',
+      "dirg",
+      "Maxime DG",
+      "Directeur Général",
     ],
     [
-      'bourgmestre',
-      u'Paul BM',
-      u'Bourgmestre',
+      "bourgmestre",
+      "Paul BM",
+      "Bourgmestre",
     ],
   ],
 }}""".format(  # noqa E501
-                repr(approval.annot["approval"][0][0]["approved_on"]),
-                repr(approval.annot["approval"][0][1]["approved_on"]),
-                repr(approval.annot["approval"][1][0]["approved_on"]),
-                repr(approval.annot["approval"][1][1]["approved_on"]),
+                fmt_dt(approval.annot["approval"][0][0]["approved_on"]),
+                fmt_dt(approval.annot["approval"][0][1]["approved_on"]),
+                fmt_dt(approval.annot["approval"][1][0]["approved_on"]),
+                fmt_dt(approval.annot["approval"][1][1]["approved_on"]),
                 folder_name=omail.__parent__.__name__,
                 uid1=approval.files_uids[0],
                 uid2=approval.files_uids[1],
@@ -500,61 +509,61 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             HTMLParser().unescape(view.esign_session_html(esign_session[1])),
             u"""{{
-  'acroform': True,
-  'client_id': '0129999',
-  'discriminators': [
-    'dmsoutgoingmail',
+  "acroform": True,
+  "client_id": "0129999",
+  "discriminators": [
+    "dmsoutgoingmail",
   ],
-  'files': [
+  "files": [
     {{
-      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
-      'filename': u'R\\xe9ponse salle__{pdf1_uid}.pdf',
-      'scan_id': '012999900000601',
-      'status': '',
-      'title': u'R\\xe9ponse salle.odt',
-      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({pdf1_uid}),
+      "context_uid": <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
+      "filename": "Réponse salle__{pdf1_uid}.pdf",
+      "scan_id": "012999900000601",
+      "status": "",
+      "title": "Réponse salle.odt",
+      "uid": <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({pdf1_uid}),
     }},
     {{
-      'context_uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
-      'filename': u'Modele de base S0010 Courrier test esign__{pdf2_uid}.pdf',
-      'scan_id': '012999900000602',
-      'status': '',
-      'title': u'Modele de base S0010 Courrier test esign.pdf',
-      'uid': <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a> ({pdf2_uid}),
-    }},
-  ],
-  'last_update': {last_update},
-  'returns': [],
-  'seal': False,
-  'sign_id': '012999900000',
-  'sign_url': None,
-  'signers': [
-    {{
-      'email': 'dirg@macommune.be',
-      'fullname': u'Maxime DG',
-      'position': u'Directeur G\\xe9n\\xe9ral',
-      'status': '',
-      'userid': 'dirg',
-    }},
-    {{
-      'email': 'bourgmestre@macommune.be',
-      'fullname': u'Paul BM',
-      'position': u'Bourgmestre',
-      'status': '',
-      'userid': 'bourgmestre',
+      "context_uid": <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/view' title='/plone/outgoing-mail/{folder_name}/om-esign'>Courrier test esign</a> ({c_uid}),
+      "filename": "Modele de base S0010 Courrier test esign__{pdf2_uid}.pdf",
+      "scan_id": "012999900000602",
+      "status": "",
+      "title": "Modele de base S0010 Courrier test esign.pdf",
+      "uid": <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a> ({pdf2_uid}),
     }},
   ],
-  'size': {size},
-  'state': 'draft',
-  'title': u'[ia.docs] Courrier sortant - 012999900000',
-  'watchers': [],
+  "last_update": {last_update},
+  "returns": [],
+  "seal": False,
+  "sign_id": "012999900000",
+  "sign_url": None,
+  "signers": [
+    {{
+      "email": "dirg@macommune.be",
+      "fullname": "Maxime DG",
+      "position": "Directeur Général",
+      "status": "",
+      "userid": "dirg",
+    }},
+    {{
+      "email": "bourgmestre@macommune.be",
+      "fullname": "Paul BM",
+      "position": "Bourgmestre",
+      "status": "",
+      "userid": "bourgmestre",
+    }},
+  ],
+  "size": {size},
+  "state": "draft",
+  "title": "[iA.Docs] Courrier sortant - 012999900000",
+  "watchers": [],
 }}""".format(  # noqa E501
                 c_uid=omail.UID(),
                 pdf1_uid=api.content.get(omail.absolute_url_path() + "/file0").UID(),
                 pdf2_uid=api.content.get(omail.absolute_url_path()
                                          + "/modele-de-base-s0010-courrier-test-esign.pdf").UID(),
                 folder_name=omail.__parent__.__name__,
-                last_update=repr(get_session_annotation()["sessions"][0]["last_update"]),
+                last_update=fmt_dt(get_session_annotation()["sessions"][0]["last_update"]),
                 size=api.content.get(omail.absolute_url_path() + "/file0").file.size
                 + api.content.get(omail.absolute_url_path()
                                   + "/modele-de-base-s0010-courrier-test-esign.pdf").file.size,
@@ -644,3 +653,107 @@ class TestObjectRenameTitleView(unittest.TestCase):
         self.assertEqual(request.response.getHeader("Location"), omail.absolute_url())
         brain = api.content.find(UID=omf.UID())[0]
         self.assertEqual(safe_unicode(brain.Title), new_title)
+
+
+class TestImioRecreateSessionView(unittest.TestCase):
+    """Tests for the dms.mail override ImioRecreateSessionView."""
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.pf = self.portal["contacts"]["personnel-folder"]
+        self.pgof = self.portal["contacts"]["plonegroup-organization"]
+        login(self.layer["app"], "admin")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
+        )
+        set_esign_registry_file_url("https://downloads.files.com")
+        self.portal.REQUEST.form.clear()
+
+    def _make_omail_with_session(self):
+        """Create an outgoing mail, directly build an esign session for one of its files, and
+        put the session in the refused state.  Also registers the session_id in the approval
+        annotation, mirroring what add_mail_files_to_session does during a real workflow."""
+        intids = getUtility(IIntIds)
+        params = {
+            "title": u"Courrier recreate test",
+            "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
+                DummyView(self.portal, self.portal.REQUEST)
+            ),
+            "mail_type": "courrier",
+            "treating_groups": self.pgof["direction-generale"]["grh"].UID(),
+            "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
+            "assigned_user": "agent",
+            "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
+            "send_modes": u"post",
+            "signers": [
+                {
+                    "number": 1,
+                    "signer": self.pf["dirg"]["directeur-general"].UID(),
+                    "approvings": [u"_themself_"],
+                    "editor": True,
+                },
+            ],
+            "esign": True,
+        }
+        omail = sub_create(
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-recreate", **params
+        )
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        filename = u"Réponse salle.odt"
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            file_obj = createContentInContainer(
+                omail,
+                "dmsommainfile",
+                id="file0",
+                scan_id="012999900000603",
+                file=NamedBlobFile(fo.read(), filename=filename),
+                content_category=calculate_category_id(ct),
+            )
+
+        signers = [("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")]
+        old_id, _session = add_files_to_session(
+            signers, [file_obj.UID()], title=_("[iA.Docs] Session {sign_id}")
+        )[-1]
+        # Flip to refused
+        annot = get_session_annotation()
+        annot["sessions"][old_id]["state"] = "refused"
+        # Mirror what the approval adapter does: register session_id
+        approval = OMApprovalAdapter(omail)
+        if "session_ids" not in approval.annot:
+            approval.annot["session_ids"] = PersistentList()
+        approval.annot["session_ids"].append(old_id)
+        return omail, old_id
+
+    def test_call(self):
+        """Recreation appends new session id to approval.session_ids and reindexes the mail;
+        a failed recreation (bad session id) leaves session_ids unchanged."""
+        omail, old_id = self._make_omail_with_session()
+        approval = OMApprovalAdapter(omail)
+        pc = api.portal.get_tool("portal_catalog")
+
+        # --- Failed recreation: bad session id — session_ids unchanged ---
+        before = list(approval.session_ids)
+        self.portal.REQUEST.form["esign_session_id"] = "9999"
+        view = ImioRecreateSessionView(self.portal, self.portal.REQUEST)
+        view()
+        self.assertIsNone(view._new_session_id)
+        self.assertEqual(list(approval.session_ids), before)
+
+        # --- Successful recreation: new id appended, mail reindexed ---
+        self.portal.REQUEST.form["esign_session_id"] = str(old_id)
+        view = ImioRecreateSessionView(self.portal, self.portal.REQUEST)
+        view()
+        new_id = view._new_session_id
+        self.assertIsNotNone(new_id)
+        self.assertNotEqual(new_id, old_id)
+        self.assertIn(old_id, approval.session_ids)
+        self.assertIn(new_id, approval.session_ids)
+        brains = pc(UID=omail.UID())
+        self.assertEqual(len(brains), 1)
+        self.assertEqual(brains[0].UID, omail.UID())
+        annot = get_session_annotation()
+        # the old session is consumed by the recreation, the new one gets a title with the new sign_id
+        self.assertNotIn(old_id, annot["sessions"])
+        self.assertEqual(annot["sessions"][new_id]["title"], u"[iA.Docs] Courrier sortant - 012999900001")

@@ -1588,11 +1588,11 @@ Ajouter une annexe
     # Vue d'ajout
     GO to  ${PLONE_URL}/${im_path}/++add++dmsappendixfile
 
-    ${note1}  Add pointy note  css=#form-widgets-IBasic-title  Ajoutez le titre de l'annexe  position=left  color=blue
+    ${note1}  Add pointy note  css=#form-widgets-title  Ajoutez le titre de l'annexe  position=left  color=blue
     sleep  ${S_S}
     Remove element  id=${note1}
 
-    Input text  id=form-widgets-IBasic-title  CV de Marc Leduc
+    Input text  id=form-widgets-title  CV de Marc Leduc
 
     ${note1}  Add pointy note  css=#form-widgets-file-input  Ajoutez votre fichier à annexer  position=left  color=blue
     sleep  ${S_S}

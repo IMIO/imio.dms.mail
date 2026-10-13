@@ -1,7 +1,22 @@
 Changelog
 =========
 
-3.1.6 (unreleased)
+3.1.7 (unreleased)
+------------------
+
+- Added items count on the ``requests`` tab, like on other tabs (``ICountableTab``).
+  [sgeulette]
+- Updated robotframework tests to include electronic signature (PARAF-166).
+  [chris-adam]
+- Fixed ``ConnectionStateError`` crash when rendering datagrid fields
+  in settings through robotframework tests (DMS-434).
+  [chris-adam,sgeulette]
+- Updated the incoming email routing and state set descriptions (DMS-1215).
+  [chris-adam]
+- Replace ZopeEdit by Collabora. (DMS-1106)
+  [chris-adam]
+
+3.1.6 (2026-08-14)
 ------------------
 
 - Added icon colum to show if signers are defined on sub/templates.
@@ -13,13 +28,31 @@ Changelog
   [chris-adam]
 - Considered seal when checking if a signer is defined on a sub/template.
   [sgeulette]
+- Converted personnel-folder from z3c.table listing to faceted dashboard.
+  [chris-adam, sgeulette]
+- Fixed JSON quoting in localroles configuration (DMS-1218).
+  [chris-adam]
 - Added sign_request content to handle external documents to be signed.
   [sgeulette]
 - Redirected to container after an annex is added.
   [sgeulette]
 - Replaced implements by implementer
   [sgeulette]
-- Replace ZopeEdit by Collabora. (DMS-1106)
+- Document generation "d-print-to-sign" now takes into account "to_print" attribute of files. (PARAF-220)
+  [chris-adam]
+- Added "d-print-signed" template to bulk print signed files
+  [sgeulette]
+- Removed download barcode paragraph at first generation when not esigned related
+  [sgeulette]
+- Automatically set the "to print" flag on outgoing mail files. (PARAF-220)
+  [chris-adam]
+- Added action RecreateSession.
+  [chris-adam,sgeulette]
+- Set max_objects to 0 for some templates
+  [sgeulette]
+- Removed the default predefined title on annexes categories (DMS-1217).
+  [chris-adam]
+- An annex left without a title now takes the file name (DMS-605).
   [chris-adam]
 
 3.1.5 (2026-06-19)

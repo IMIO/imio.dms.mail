@@ -91,7 +91,8 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
     docs = {
         "dmsincomingmail": {  # i_e ok
             "59.PDF": {
-                "c": {"mail_type": "courrier", "file_title": "010500000000001.pdf", "recipient_groups": []},
+                "c": {"mail_type": "courrier", "file_title": "010500000000001.pdf", "recipient_groups": [],
+                      "send_modes": ["post"]},
                 "f": {
                     "scan_id": "010500000000001",
                     "pages_number": 1,
@@ -103,7 +104,8 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                 },
             },
             "60.PDF": {
-                "c": {"mail_type": "courrier", "file_title": "010500000000002.pdf", "recipient_groups": []},
+                "c": {"mail_type": "courrier", "file_title": "010500000000002.pdf", "recipient_groups": [],
+                      "send_modes": ["post"]},
                 "f": {
                     "scan_id": "010500000000002",
                     "pages_number": 1,
@@ -128,6 +130,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "orig_sender_email": u"josiane@gmail.com",
                             "tg": ["evenements"],
                             "user": "agent",
+                            "send_modes": ["email"],
                         },
                         "f": {
                             "scan_id": "",
@@ -150,6 +153,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "file_title": u"email.pdf",
                             "recipient_groups": [],
                             "orig_sender_email": u"facturation@3p.be",
+                            "send_modes": ["email"],
                         },
                         "f": {
                             "scan_id": "",
@@ -174,6 +178,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "orig_sender_email": u"s.geul@mail.com",
                             "tg": ["direction-generale", "secretariat"],
                             "user": "agent",
+                            "send_modes": ["email"],
                         },
                         "f": {
                             "scan_id": "",
@@ -196,6 +201,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "file_title": u"email.pdf",
                             "recipient_groups": [],
                             "orig_sender_email": u"m.bou@rw.be",
+                            "send_modes": ["email"],
                         },
                         "f": {
                             "scan_id": "",

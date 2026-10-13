@@ -13,10 +13,12 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
+from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.subscribers import i_annex_removed
+from imio.dms.mail.subscribers import reindex_person_usages
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
@@ -77,6 +79,23 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.omf = self.portal["outgoing-mail"]
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
         self.pf = self.portal["contacts"]["personnel-folder"]
+
+    def test_i_annex_created(self):
+        # an annex left without a title takes the file name, without its extension (DMS-1217, DMS-605)
+        annex = createContentInContainer(self.imail, "dmsappendixfile",
+                                         file=NamedBlobFile("pdf", filename=u"Ma pièce.pdf"))
+        self.assertEqual(annex.title, u"Ma pièce")
+        # a title given by the user is kept
+        titled = createContentInContainer(self.imail, "dmsappendixfile", title=u"CV",
+                                          file=NamedBlobFile("pdf", filename=u"Ma pièce.pdf"))
+        self.assertEqual(titled.title, u"CV")
+        # a file name without extension is kept as is
+        noext = createContentInContainer(self.imail, "dmsappendixfile",
+                                         file=NamedBlobFile("pdf", filename=u"README"))
+        self.assertEqual(noext.title, u"README")
+        # an annex without file does not break
+        nofile = createContentInContainer(self.imail, "dmsappendixfile", title=u"No file")
+        self.assertEqual(nofile.title, u"No file")
 
     def test_item_copied(self):
         # check if protection markers are removed from copied item
@@ -182,6 +201,49 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         api.content.transition(self.imail, "close")
         self.assertEqual(self.imail.assigned_user, "agent")
 
+    def test_correct_to_print(self):
+        """to_print is auto-derived: main files follow (not esign), appendix always False."""
+        omail = sub_create(
+            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(),
+            "omail-tp-test",
+            title=u"To print test",
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type=u"courrier",
+        )
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        filename = u"Réponse salle.odt"
+
+        def _add(portal_type, oid, esign):
+            omail.esign = esign
+            with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+                file_obj = NamedBlobFile(fo.read(), filename=filename)
+            return createContentInContainer(
+                omail, portal_type, id=oid, file=file_obj,
+                content_category=calculate_category_id(ct),
+            )
+
+        # GED main, esign off -> to_print True
+        main_off = _add("dmsommainfile", "main-off", False)
+        self.assertTrue(main_off.to_print)
+        # GED main, esign on -> to_print False
+        main_on = _add("dmsommainfile", "main-on", True)
+        self.assertFalse(main_on.to_print)
+        # appendix, esign off -> always False
+        app_off = _add("dmsappendixfile", "app-off", False)
+        self.assertFalse(app_off.to_print)
+        # appendix, esign on -> always False
+        app_on = _add("dmsappendixfile", "app-on", True)
+        self.assertFalse(app_on.to_print)
+        # 'to_be_printed_activated' gate: a main that would be to_print (esign off)
+        # stays False when its category group has printing deactivated
+        group = self.portal["annexes_types"]["outgoing_dms_files"]
+        group.to_be_printed_activated = False
+        try:
+            gated_main = _add("dmsommainfile", "main-gated", False)
+            self.assertFalse(gated_main.to_print)
+        finally:
+            group.to_be_printed_activated = True
+
     def test_dmsoutgoingmail_transition(self):
         def make_event(transition_id=None):
             event = Mock()
@@ -225,8 +287,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             dmsoutgoingmail_transition(omail, make_event("propose_to_approve"))
             mock_start.assert_called_once_with()
 
-        # Branch C: ODT cleaning (not mail.esign, not mail.seal)
-        # Create a dmsommainfile inside omail
+        # a dmsommainfile inside omail, used by the seal branch below
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         filename = u"Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
@@ -237,36 +298,15 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             content_category=calculate_category_id(ct),
         )
 
-        # C1: esign=True → entire block skipped, convert_odt never called
+        # Branch D: seal handling (seal without signers, due to constraints)
+
+        # D0: esign=True → seal block skipped, OMApprovalAdapter never instantiated
         omail.esign = True
-        with patch("imio.dms.mail.subscribers.convert_odt") as mock_conv:
-            dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
-            mock_conv.assert_not_called()
+        omail.seal = True
+        with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
+            dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
+            MockAdapter.assert_not_called()
         omail.esign = False
-
-        # C2: file with need_mailing=True → skip
-        IAnnotations(afile).setdefault("documentgenerator", {})["need_mailing"] = True
-        with patch("imio.dms.mail.subscribers.convert_odt") as mock_conv:
-            dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
-            mock_conv.assert_not_called()
-
-        # C3: file with cleaned_download=True → skip
-        IAnnotations(afile)["documentgenerator"]["need_mailing"] = False
-        IAnnotations(afile)["documentgenerator"]["cleaned_download"] = True
-        with patch("imio.dms.mail.subscribers.convert_odt") as mock_conv:
-            dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
-            mock_conv.assert_not_called()
-
-        # C4: eligible file → convert_odt called, cleaned_download set to True
-        doc_annot = IAnnotations(afile)["documentgenerator"]
-        doc_annot["cleaned_download"] = False
-        with patch("imio.dms.mail.subscribers.convert_odt", return_value=b"new_content") as mock_conv:
-            with patch("imio.dms.mail.subscribers.getMultiAdapter"):
-                dmsoutgoingmail_transition(omail, make_event("mark_as_sent"))
-                mock_conv.assert_called_once()
-                self.assertTrue(IAnnotations(afile)["documentgenerator"]["cleaned_download"])
-
-        # Branch D: seal handling (omail.seal set to True before C; stays True here)
 
         # D1: seal=False → OMApprovalAdapter never instantiated
         omail.seal = False
@@ -920,7 +960,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message, u"The ${userid} already exists in the approvings with another order ${o} <=> ${c}"
+            cm.exception.message, u"The chef already exists in the approvings with another order 1 <=> 2"
         )
 
         # Test signers have same email
@@ -956,7 +996,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.message, u"You cannot have the same email (${email}) for multiple signers !")
+        self.assertEqual(cm.exception.message, u"You cannot have the same email (duplicate@belleville.eb) "
+                                               u"for multiple signers !")
         api.user.get("dirg").setMemberProperties({"email": "deduplicate@belleville.eb"})
 
         # Test mail in sent or to_be_signed states
@@ -1639,6 +1680,69 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         mod2 = api.content.rename(mod2, "mod-nextgen")
         annot = IAnnotations(mod2)
         self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"héhéhé")
+
+    def _person_usages(self, person):
+        """Return the value stored in the 'usages' catalog index for the given person."""
+        pc = self.portal.portal_catalog
+        rid = pc(UID=person.UID())[0].getRID()
+        return pc._catalog.getIndex("usages").getEntryForObject(rid, default=[])
+
+    def test_reindex_person_usages(self):
+        # the person's 'usages' index aggregates its held positions' usages
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+        )
+        hp = person["hp1"]
+        hp.usages = ["signer", "approving"]
+        reindex_person_usages(hp)
+        self.assertListEqual(sorted(self._person_usages(person)), ["approving", "signer"])
+
+    def test_held_position_added(self):
+        # a fresh person without held positions is not present in the 'usages' index
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        self.assertListEqual(self._person_usages(person), [])
+        # adding a held position with a usage reindexes the person (held_position_added subscriber)
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+            usages=["signer"],
+        )
+        self.assertListEqual(self._person_usages(person), ["signer"])
+
+    def test_held_position_modified(self):
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+        )
+        hp = person["hp1"]
+        self.assertListEqual(self._person_usages(person), [])
+        # modifying the usages reindexes the person (held_position_modified subscriber)
+        hp.usages = ["approving"]
+        modified(hp, Attributes(IUsagesBehavior, "IUsagesBehavior.usages"))
+        self.assertListEqual(self._person_usages(person), ["approving"])
+        # a modification not touching usages leaves the index untouched
+        hp.usages = ["signer"]
+        modified(hp, Attributes(IBasic, "IBasic.title"))
+        self.assertListEqual(self._person_usages(person), ["approving"])
+
+    def test_held_position_removed(self):
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person.invokeFactory(
+            "held_position",
+            "hp1",
+            position=RelationValue(self.intids.getId(self.pgof["direction-generale"])),
+            usages=["signer"],
+        )
+        self.assertListEqual(self._person_usages(person), ["signer"])
+        # removing the held position reindexes the person (held_position_removed subscriber)
+        api.content.delete(person["hp1"])
+        self.assertListEqual(self._person_usages(person), [])
 
 
 class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):

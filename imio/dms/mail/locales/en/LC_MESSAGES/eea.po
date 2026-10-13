@@ -73,6 +73,10 @@ msgstr ""
 msgid "Folder"
 msgstr ""
 
+#: ../faceted_conf/personnel-searches:
+msgid "Held position usages"
+msgstr ""
+
 #: ../faceted_conf/im-faceted:
 msgid "IM main types"
 msgstr ""

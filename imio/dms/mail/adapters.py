@@ -6,6 +6,7 @@ from collective.classification.folder.interfaces import IServiceInCopy
 from collective.collabora.interfaces import IStoredFile
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
+from collective.contact.core.content.person import IPerson
 from collective.contact.core.indexers import contact_source
 from collective.contact.core.interfaces import IContactContent
 from collective.contact.plonegroup.utils import organizations_with_suffixes
@@ -48,6 +49,7 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
+from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
@@ -524,6 +526,25 @@ def signrequest_approvings_index(obj):
     """
     approval = SignRequestApprovalAdapter(obj)
     return approval.current_approvers
+
+
+@indexer(IPerson)
+def person_usages_index(obj):
+    """Indexer of 'usages' for IPerson.
+
+    Aggregates the usages (signer/approving) of the person's held positions.
+    """
+    res = sorted({usage for hp in obj.get_held_positions() for usage in (getattr(hp, "usages", None) or [])})
+    return res or common_marker
+
+
+# @indexer(IPerson)
+# def person_primary_organization_index(obj):
+#     """Indexer of 'primary_organization' for IPerson.
+#
+#     Stores imio.helpers EMPTY_STRING for persons without a primary organization.
+#     """
+#     return getattr(obj, "primary_organization", None) or EMPTY_STRING
 
 
 @indexer(IDmsMailCreatingGroup)
@@ -1126,13 +1147,10 @@ class SendableAnnexesToPMAdapter(object):
                 }
 
 
-class ItemSignersAdapter(object):
+class ItemSignersAdapter(SignableAdapter):
     """Adapter to get signers of a given item.
 
-    Not used for the moment because we use approval mechanism."""
-
-    def __init__(self, context):
-        self.context = context
+    Signers are set by the approval mechanism: only the session recreation uses this adapter."""
 
     def get_signers(self):
         """Return the list of signers for the item."""
@@ -1472,7 +1490,7 @@ class ApprovalAdapter(object):
                     )
                 )
             signer_person = signer_hp.get_person()
-            user_email = api.user.get(signer_person.userid).getProperty("email")
+            user_email = api.user.get(signer_person.userid).getProperty("email") or "NO EMAIL"
             if user_email in signer_emails:
                 raise ValueError(
                     _(
@@ -1855,6 +1873,8 @@ class ApprovalAdapter(object):
             pdf_file.to_sign = True
             pdf_file.to_approve = False
             pdf_file.approved = orig_fobj.approved
+            if base_hasattr(orig_fobj, "to_print"):
+                pdf_file.to_print = orig_fobj.to_print
             update_categorized_elements(
                 self.context,
                 pdf_file,
@@ -1950,7 +1970,7 @@ class ApprovalAdapter(object):
             return False, _("Not all files approved")
         session_file_uids = []
         for i, f_uid in enumerate(self.files_uids):
-            fobj = uuidToObject(f_uid)
+            fobj = uuidToObject(f_uid, unrestricted=True)
             if not fobj:
                 continue
             if len(self.pdf_files_uids[i]) > 0:  # already done ??
@@ -2011,7 +2031,7 @@ class ApprovalAdapter(object):
             context=self.context.REQUEST,
         )
         sessions_used = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
-                                             title=u"[ia.docs] {} - {{sign_id}}".format(type_label),
+                                             title=u"[iA.Docs] {} - {{sign_id}}".format(type_label),
                                              discriminators=(self.context.portal_type,),
                                              watchers=watcher_emails)
         for sid, _session in sessions_used:

@@ -72,6 +72,11 @@
     />
 
     <utility
+        factory=".dmsfile.ImioDmsAppendixFileSchemaPolicy"
+        name="schema_policy_imiodmsappendixfile"
+    />
+
+    <utility
         factory=".dmssignrequest.ImioDmsSignRequestSchemaPolicy"
         name="schema_policy_imiodmssignrequest"
     />

@@ -164,6 +164,12 @@
         handler=".subscribers.dmsappendixfile_added"
         />
 
+    <subscriber
+        for="imio.annex.content.annex.IAnnex
+             zope.lifecycleevent.interfaces.IObjectCreatedEvent"
+        handler=".subscribers.i_annex_created"
+        />
+
     <!-- previously collective.dms.basecontent.dmsfile.IDmsFile -->
     <subscriber
         for="imio.annex.content.annex.IAnnex
@@ -291,6 +297,12 @@
         for="collective.contact.core.content.organization.IOrganization
              zope.lifecycleevent.interfaces.IObjectMovedEvent"
         handler=".subscribers.organization_modified"
+        />
+
+    <subscriber
+        for="collective.contact.core.interfaces.IHeldPosition
+             zope.lifecycleevent.interfaces.IObjectAddedEvent"
+        handler=".subscribers.held_position_added"
         />
 
     <subscriber

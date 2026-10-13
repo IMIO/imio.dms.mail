@@ -4,7 +4,7 @@ from setuptools import find_packages
 from setuptools import setup
 
 
-version = "3.1.6.dev0"
+version = "3.1.7.dev0"
 
 long_description = (
     open("README.rst").read() + "\n" + "Contributors\n"
@@ -80,7 +80,7 @@ setup(
         "imio.dashboard",
         "imio.dms.soap2pm",
         "imio.pm.wsclient>=2",
-        "imio.esign",
+        "imio.esign>=1.0.2",
         "imio.fpaudit",
         "imio.helpers[pdf]",
         "imio.migrator",

@@ -6,8 +6,11 @@ from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefa
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.browser.table import AssignedGroupColumn
 from imio.dms.mail.browser.table import IMVersionsTitleColumn
+from imio.dms.mail.browser.table import OMVersionsTable
+from imio.dms.mail.browser.table import SignRequestVersionsTable
 from imio.dms.mail.browser.views import ApprovalTableView
 from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.testing import change_user
@@ -15,6 +18,10 @@ from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
+from imio.esign.config import set_esign_registry_enabled
+from imio.esign.utils import create_session
+from imio.helpers.content import get_object
+from persistent.list import PersistentList
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
@@ -79,6 +86,34 @@ class TestTable(unittest.TestCase):
         task = createContentInContainer(imail, "task", id="testid1", assigned_group=group0)
         col = AssignedGroupColumn(self.portal, self.portal.REQUEST, None)
         self.assertEqual(col.renderCell(task).encode("utf8"), "Direction générale")
+
+    def test_SignRequestVersionsTable(self):
+        activate_signing(self.portal)
+        request, files = create_sign_request(self.portal, oid="sr-versions")
+        table = SignRequestVersionsTable(request, request.REQUEST, None)
+        # attributes read by SessionIdColumn.renderCell
+        self.assertIsInstance(table.approval, SignRequestApprovalAdapter)
+        self.assertIn("sessions", table._session_annotation)
+        # SessionIdColumn is removed when the request doesn't belong to multiple sessions
+        self.assertNotIn("session-id-column", [col.__name__ for col in table.setUpColumns()])
+        signers = [("agent", "agent@macommune.be", u"Test Agent", u"Agent")]
+        sid0, _session = create_session(signers, discriminators=("sign_request",))
+        sid1, _session = create_session(signers, discriminators=("sign_request",))
+        table.approval.annot["session_ids"] = PersistentList([sid0, sid1])
+        self.assertIn("session-id-column", [col.__name__ for col in table.setUpColumns()])
+        # SessionIdColumn is removed when eSignature is disabled
+        set_esign_registry_enabled(False)
+        self.assertNotIn("session-id-column", [col.__name__ for col in table.setUpColumns()])
+
+    def test_OMVersionsTable(self):
+        activate_signing(self.portal)
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        table = OMVersionsTable(omail, omail.REQUEST, None)
+        # ApprovedColumn is removed when no approvers are configured for this mail
+        self.assertEqual(table.approval.approvers, [])
+        self.assertNotIn("approved-column", [col.__name__ for col in table.setUpColumns()])
+        table.approval.annot["approvers"] = PersistentList([PersistentList(["dirg"])])
+        self.assertIn("approved-column", [col.__name__ for col in table.setUpColumns()])
 
     def test_ApprovalTable_sign_request(self):
         # sign_request with two signers (dirg, bourgmestre) and two appendix files to approve

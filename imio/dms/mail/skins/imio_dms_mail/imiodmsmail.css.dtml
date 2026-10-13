@@ -341,7 +341,9 @@ body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-I
 }
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label,
-body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-4 label {
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-4 label,
+body.template-reply.portaltype-dmsincomingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label,
+body.template-reply.portaltype-dmsincoming_email #formfield-form-widgets-ISigningBehavior-signers .cell-4 label{
     display: none;
 }
 
@@ -493,7 +495,7 @@ td.td_cell_actions select.apButtonAction_assign {
     text-shadow: 0 0 0 #213C68;
 } /* disable dotted border when using select button in dashboard */
 
-table.personnel-listing li.plonegroup_0 {
+body.section-contacts.subsection-personnel-folder table.faceted-table-results li.plonegroup_0 {
   list-style-type: circle;
 }  /* Different bullet for an hp not in plonegroup orgs */
 
@@ -685,7 +687,7 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
   color: #75ad0a;
 }
 
-.template-personnel-listing td.td_cell_hps li span.signer-icon::before {
+body.section-contacts.subsection-personnel-folder table.faceted-table-results td.td_cell_hps li span.signer-icon::before {
     content: "\f044";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
@@ -693,7 +695,7 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
     padding-left: 3px;
 }
 
-.template-personnel-listing td.td_cell_hps li span.approving-icon::before {
+body.section-contacts.subsection-personnel-folder table.faceted-table-results td.td_cell_hps li span.approving-icon::before {
     content: "\f00c";
     font-family: "Font Awesome 5 Free";
     font-weight: 900;
@@ -1172,6 +1174,12 @@ body.template-imiodmsmail-settings #form-widgets-request_signer_rules td.cell-3,
 body.template-imiodmsmail-settings #form-widgets-request_signer_rules td.cell-5 {
     text-align: center;
     width: 2%;
+}
+
+/* signing request: esign is always enabled, the checkbox is locked (see IRequestSignerRuleSchema) */
+body.template-imiodmsmail-settings #form-widgets-request_signer_rules .cell-3 input {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 body.template-imiodmsmail-settings #form-widgets-omail_signer_rules .cell-3 label,

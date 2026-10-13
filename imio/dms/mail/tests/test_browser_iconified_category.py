@@ -328,6 +328,8 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
         self.assertEqual(col.css_class(file2_cc), " active")
         # "sent"
+        self.change_user("encodeur")
+        self.pw.doActionFor(self.omail2, "mark_as_signed")
         self.pw.doActionFor(self.omail2, "mark_as_sent")
         self.assertEqual(col.css_class(file2_cc), " active")
         self.assertEqual(col.css_class(file3_cc), " deactivated")

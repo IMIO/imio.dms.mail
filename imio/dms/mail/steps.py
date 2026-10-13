@@ -617,11 +617,12 @@ def remove_om_nplus1_wfadaptation(context):
     if modif:
         col.query = query
     # Remove collection from template
-    tmpl = site["templates"]["om"]["d-print"]
-    cols = tmpl.dashboard_collections
-    if val_col_uid in cols:
-        cols.remove(val_col_uid)
-        tmpl.dashboard_collections = cols
+    for name in ("d-print-to-sign", "d-print-signed"):
+        tmpl = site["templates"]["om"][name]
+        cols = tmpl.dashboard_collections
+        if val_col_uid in cols:
+            cols.remove(val_col_uid)
+            tmpl.dashboard_collections = cols
     # update cache
     invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
     invalidate_cachekey_volatile_for("imio.dms.mail.utils.list_wf_states.dmsoutgoingmail")
@@ -941,6 +942,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         )
         category._setObject("scanner_om", action)
 
+    api.user.grant_roles(username="encodeur", roles=["Batch importer"])
+
     # Add N+1 validation
     applied_adaptations = [dic["adaptation"] for dic in get_applied_adaptations()
                            if dic["workflow"] == "outgoingmail_workflow"]
@@ -987,7 +990,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     api.portal.set_registry_record(rsr_rk, req_signer_rules)
 
     # Change user passwords to 'courrier'
-    for userid in ("agent", "agent1", "chef", "dirg", "encodeur", "lecteur"):
+    for userid in ("agent", "agent1", "chef", "dirg", "encodeur", "lecteur", "bourgmestre"):
         site.acl_users.source_users.userSetPassword(userid, "courrier")
 
     # remove dirg from watchers group
@@ -1250,6 +1253,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     # Removed template edition for OM editor
     api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit",
                                    False)
+
+    api.portal.show_message(u"Configurer lien iA·Delib ? Modifier numbering session ?", type="warn", request=api.portal.get().REQUEST)
 
 
 def contact_import_pipeline(context):

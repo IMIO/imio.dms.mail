@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from collective.contact.plonegroup.browser.settings import IContactPlonegroupConfig
+from collective.contact.plonegroup.browser.settings import SettingsEditForm as PGBaseSettingsEditForm
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
@@ -49,6 +51,7 @@ from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
 # from z3c.form.browser.radio import RadioFieldWidget
 # from z3c.form.interfaces import WidgetActionExecutionError
 from z3c.form.validator import NoInputData
+from ZODB.POSException import ConnectionStateError
 from zope import schema
 from zope.component import getUtility
 from zope.globalrequest import getRequest
@@ -58,6 +61,7 @@ from zope.interface import Invalid
 from zope.interface import invariant
 from zope.interface import provider
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.schema import getFieldsInOrder
 from zope.schema import ValidationError
 from zope.schema.interfaces import IContextSourceBinder
 from zope.schema.interfaces import IVocabularyFactory
@@ -480,6 +484,9 @@ class IRequestSignerRuleSchema(ISignerRuleBaseSchema):
     )
     widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
 
+    # a signing request is always an electronic signature request: checked by default (inherited) and not uncheckable.
+    widget("esign", onclick=u"return false;")
+
     tal_condition = schema.TextLine(
         title=_("TAL condition"),
         required=False,
@@ -675,7 +682,8 @@ class IImioDmsMailConfig(model.Schema):
 
     iemail_routing = schema.List(
         title=_(u"${type} routing", mapping={"type": _("Incoming email")}),
-        description=_(u"Configure rules carefully. You can order with arrows. Only first matched rule is used."),
+        description=_(u"Configure routing rules carefully. You can order with arrows. Only first matched rule is "
+                      u"used."),
         required=False,
         value_type=DictRow(title=_(u"Routing"), schema=IRoutingSchema, required=False),
     )
@@ -688,7 +696,8 @@ class IImioDmsMailConfig(model.Schema):
 
     iemail_state_set = schema.List(
         title=_(u"${type} state set", mapping={"type": _("Incoming email")}),
-        description=_(u"Configure rules carefully. You can order with arrows. Only first matched rule is used."),
+        description=_(u"Configure state rules carefully. You can order with arrows. Only first matched rule is "
+                      u"used."),
         required=False,
         value_type=DictRow(title=_(u"State"), schema=IStateSetSchema, required=False),
     )
@@ -1468,6 +1477,25 @@ class IImioDmsMailConfig(model.Schema):
             raise Invalid(_tr(u"Position required for fields: ${msg}", mapping={"msg": msg}))
 
 
+def datagrid_value_types(iface):
+    """Keep DictRow schemas of a config interface, to be able to rebuild them (see heal_datagrid_value_types)"""
+    return [
+        (field, field.value_type.schema, field.value_type.required)
+        for _name, field in getFieldsInOrder(iface)
+        if isinstance(getattr(field, "value_type", None), DictRow)
+    ]
+
+
+def heal_datagrid_value_types(value_types):
+    """DMS-434: rebuild stale datagrid value_type (ConnectionStateError, only happening in robot tests)"""
+    for field, row_schema, required in value_types:
+        try:
+            field.value_type.schema
+        except ConnectionStateError:
+            logger.warning("DMS-434: rebuilding stale datagrid value_type for %r", field.__name__)
+            field.value_type = DictRow(title=field.title, schema=row_schema, required=required)
+
+
 class SettingsEditForm(RegistryEditForm):
     """
     Define form logic
@@ -1476,7 +1504,10 @@ class SettingsEditForm(RegistryEditForm):
     form.extends(RegistryEditForm)
     schema = IImioDmsMailConfig
 
+    _DATAGRID_VALUE_TYPES = datagrid_value_types(IImioDmsMailConfig)
+
     def update(self):
+        heal_datagrid_value_types(self._DATAGRID_VALUE_TYPES)
         super(SettingsEditForm, self).update()
         # !! groups are updated outside and after updateWidgets
         # we will display unconfigured fields
@@ -1504,6 +1535,19 @@ class SettingsEditForm(RegistryEditForm):
 
 
 SettingsView = layout.wrap_form(SettingsEditForm, ControlPanelFormWrapper)
+
+
+class PGSettingsEditForm(PGBaseSettingsEditForm):
+    """collective.contact.plonegroup settings form, with datagrid value_type healing (DMS-434)"""
+
+    _DATAGRID_VALUE_TYPES = datagrid_value_types(IContactPlonegroupConfig)
+
+    def update(self):
+        heal_datagrid_value_types(self._DATAGRID_VALUE_TYPES)
+        super(PGSettingsEditForm, self).update()
+
+
+PGSettingsView = layout.wrap_form(PGSettingsEditForm, ControlPanelFormWrapper)
 
 
 def imiodmsmail_settings_changed(event):

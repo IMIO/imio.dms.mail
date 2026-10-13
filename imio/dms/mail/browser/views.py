@@ -12,17 +12,18 @@ from imio.dms.mail import PLUS_MENU_TABS
 from imio.dms.mail import PMH_ENABLED
 from imio.dms.mail.browser.table import ApprovalTable
 from imio.dms.mail.browser.table import CKTemplatesTable
-from imio.dms.mail.browser.table import PersonnelTable
 from imio.dms.mail.dmsfile import IImioDmsFile
-from imio.dms.mail.interfaces import IPersonnelContact
+from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
 from imio.esign import manage_session_perm
+from imio.esign.browser.actions import RecreateSessionView
 from imio.esign.browser.actions import RemoveItemFromSessionView
 from imio.esign.browser.actions import SessionAnnotationInfoView as BaseSessionAnnotationInfoView
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.browser.views import SessionsListingView
 from imio.esign.config import get_esign_registry_enabled
+from imio.esign.utils import get_session_annotation
 from imio.esign.utils import get_session_info
 from imio.esign.utils import persistent_to_native
 from imio.esign.utils import remove_files_from_session
@@ -395,54 +396,6 @@ class CKTemplatesListing(BrowserView):
         return self.index()
 
 
-class PersonnelListing(BrowserView):
-
-    __table__ = PersonnelTable
-    provides = [IPersonnelContact.__identifier__]
-    depth = None
-    local_search = True
-
-    def __init__(self, context, request):
-        super(PersonnelListing, self).__init__(context, request)
-        self.table = self.__table__(self.context, self.request)
-
-    def query_dict(self):
-        # crit = {'portal_type': ['person'], 'object_provides': self.provides}
-        crit = {"portal_type": ["person"]}
-        if self.local_search:
-            container_path = "/".join(self.context.getPhysicalPath())
-            crit["path"] = {"query": container_path}
-            if self.depth is not None:
-                crit["path"]["depth"] = self.depth
-        crit["sort_on"] = "sortable_title"
-        return crit
-
-    def update(self):
-        self.table.__name__ = u"personnel-listing"
-        catalog = api.portal.get_tool("portal_catalog")
-        brains = catalog.searchResults(**self.query_dict())
-        self.table.results = [brain.getObject() for brain in brains]
-        self.table.update()
-
-    def __call__(self, local_search=None, search_depth=None):
-        """
-        search_depth = int value (0)
-        local_search = bool value
-        """
-        # if search_depth is not None:
-        #     self.depth = search_depth
-        # else:
-        #     sd = self.request.get('search_depth', '')
-        #     if sd:
-        #         self.depth = int(sd)
-        # if local_search is not None:
-        #     self.local_search = local_search
-        # else:
-        #     self.local_search = 'local_search' in self.request or self.local_search
-        self.update()
-        return self.index()
-
-
 class RenderEmailSignature(BrowserView):
     """Render an email signature."""
 
@@ -588,6 +541,38 @@ class ImioRemoveItemFromSessionView(RemoveItemFromSessionView):
             return False
         approval = self.context.__parent__.approval()
         return self.context.UID() in [uid for pdf_files in approval.pdf_files_uids for uid in pdf_files]
+
+
+class ImioRecreateSessionView(RecreateSessionView):
+    """Recreate session and sync OMApprovalAdapter session_ids for impacted mails."""
+
+    def __call__(self):
+        result = super(ImioRecreateSessionView, self).__call__()
+        new_id = self._new_session_id
+        if new_id is None:
+            return result
+        annot = get_session_annotation()
+        new_session = annot["sessions"][new_id]
+        context_uids = set(f["context_uid"] for f in new_session["files"])
+        pc = api.portal.get_tool("portal_catalog")
+        for c_uid in context_uids:
+            obj = uuidToObject(c_uid, unrestricted=True)
+            if obj is None:
+                continue
+            approval = obj.approval()
+            if new_id not in approval.annot["session_ids"]:
+                approval.annot["session_ids"].append(new_id)
+            pc.reindexObject(obj, idxs=("approvings",), update_metadata=0)
+        return result
+
+    def get_new_session_title(self, old, old_session_id):
+        obj = uuidToObject(old["files"][0]["context_uid"])
+        type_label = translate(
+            api.portal.get_tool("portal_types")[obj.portal_type].Title(),
+            domain="plone",
+            context=self.context.REQUEST,
+        )
+        return u"[iA.Docs] {} - {{sign_id}}".format(type_label)
 
 
 class ApprovalTableView(BrowserView):

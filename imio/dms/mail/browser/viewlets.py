@@ -186,6 +186,10 @@ class ImioFacetedSessionInfoViewlet(FacetedSessionInfoViewlet):
     sessions_listing_view = ImioSessionsListingView
 
     @property
+    def sessions_collection_uid(self):
+        return "__not_needed__"
+
+    @property
     def _esign_collection(self):
         """The currently selected collection if it is an "in_esign_sessions" one."""
         try:
