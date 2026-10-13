@@ -150,11 +150,18 @@ class TestExportToPDFElementsVocabulary(ExportToPdfTestCase):
         ged["esigned"] = True
         self.assertFalse(before._to_print(ged))
         self.assertTrue(after._to_print(ged))
+        # after signature, a signed ged file still counts
+        ged.update({"esigned": False, "signed": True})
+        self.assertFalse(before._to_print(ged))
+        self.assertTrue(after._to_print(ged))
         app = {"portal_type": "dmsappendixfile", "to_print": True, "esigned": False}
         self.assertTrue(before._to_print(app))
         self.assertTrue(after._to_print(app))
         app["to_print"] = False
         self.assertFalse(before._to_print(app))
+        self.assertFalse(after._to_print(app))
+        # but not a signed appendix file
+        app["signed"] = True
         self.assertFalse(after._to_print(app))
 
     def test__selectable_content_types(self):
@@ -306,6 +313,18 @@ class TestExportToPDFBatchActionForm(ExportToPdfTestCase):
         self.omail.can_do_export_to_pdf_after_signature = lambda: True
         for obj in (self.b_pdf, self.appendix):
             self._set_infos(obj, to_print=False)
+        self._clean_cache()
+        form = self._form("export-to-pdf-after-signature-batch-action")
+        form.update()
+        self.assertEqual(form._excluded_elements(), [(self.omail, u"No file to print")])
+        # only sent by email modes: nothing to print
+        self.omail.send_modes = [u"email", u"email_other"]
+        self._clean_cache()
+        form = self._form("export-to-pdf-after-signature-batch-action")
+        form.update()
+        self.assertEqual(form._excluded_elements(), [(self.omail, u"Only sent by email")])
+        # also sent by post: the email mode doesn't exclude it
+        self.omail.send_modes = [u"email", u"post"]
         self._clean_cache()
         form = self._form("export-to-pdf-after-signature-batch-action")
         form.update()

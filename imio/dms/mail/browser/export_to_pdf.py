@@ -98,8 +98,9 @@ class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
     def _to_print(self, annex_info):
         """Is this file part of what has to be printed?"""
         if self.after_signature:
-            # main files to_print is off as soon as the mail is esigned
-            return annex_info.get("esigned", False) or annex_info["to_print"]
+            # main files to_print is off as soon as the mail is esigned, a signed ged file is printed too
+            return (annex_info.get("esigned", False) or annex_info["to_print"]
+                    or (annex_info["portal_type"] == GED and annex_info.get("signed", False)))
         return annex_info["to_print"]
 
     def _selectable_content_types(self, annex_info):
@@ -236,7 +237,17 @@ class ExportToPDFAfterSignatureBatchActionForm(ExportToPDFBatchActionForm):
     condition = "can_do_export_to_pdf_after_signature"
     condition_msg = _(u"Not signed")
 
+    def _check_element(self, obj):
+        # a mail only sent by email has nothing to print
+        if obj.send_modes and all(mode.startswith("email") for mode in obj.send_modes):
+            return _(u"Only sent by email")
+        return super(ExportToPDFAfterSignatureBatchActionForm, self)._check_element(obj)
+
 
 class ExportToPDFReqAfterSignatureBatchActionForm(ExportToPDFAfterSignatureBatchActionForm):
 
     collections = None
+
+    def _check_element(self, obj):
+        """Sign requests have no send modes."""
+        return ExportToPDFBatchActionForm._check_element(self, obj)
