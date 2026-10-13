@@ -24,6 +24,7 @@ from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.setuphandlers import add_db_col_folder
+from imio.dms.mail.setuphandlers import configure_collabora
 from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
 from imio.dms.mail.setuphandlers import create_personnel_dashboard
@@ -86,6 +87,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             # Update d-print model
             if "d-print" in self.portal["templates"]["om"]:
                 self.update_print_template()
+            self.add_collabora()
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
@@ -684,6 +686,11 @@ class Migrate_To_3_1(Migrator):  # noqa
         cols = get_dashboard_collections(self.omf["mail-searches"])
         obj.dashboard_collections = [b.UID for b in cols if b.UID in obj.dashboard_collections
                                      and b.id in om_print_to_sign_cols]
+
+    def add_collabora(self):
+        """Install collective.collabora and set its server url. Collabora edit stays disabled."""
+        self.install(["collective.collabora"])
+        configure_collabora()
 
 
 def migrate(context):  # noqa

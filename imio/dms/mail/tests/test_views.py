@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """Test views."""
 
+from AccessControl import Unauthorized
+from bs4 import BeautifulSoup
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.MockMailHost.MockMailHost import MockMailHost
@@ -40,6 +42,9 @@ from zope.intid import IIntIds
 
 import json
 import unittest
+
+
+COLLABORA_EDIT = "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_edit"
 
 
 class TestReplyForm(unittest.TestCase):
@@ -757,3 +762,50 @@ class TestImioRecreateSessionView(unittest.TestCase):
         # the old session is consumed by the recreation, the new one gets a title with the new sign_id
         self.assertNotIn(old_id, annot["sessions"])
         self.assertEqual(annot["sessions"][new_id]["title"], u"[iA.Docs] Courrier sortant - 012999900001")
+
+
+class TestCollaboraOrZopeEditView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.layer["request"]
+        change_user(self.portal)
+        # an unconfigured collabora server url avoids any discovery call
+        api.portal.set_registry_record("collective.collabora.collabora_server_url", u"")
+
+    def test_call(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        template = self.portal["templates"]["om"]["main"]
+        for obj in (omf, template):
+            # collabora edit disabled: zopeedit
+            obj.restrictedTraverse("external_edit")()
+            self.assertEqual(self.request.response.getHeader("location"),
+                             "{}/externalEdit_/{}.zem".format(obj.aq_parent.absolute_url(), obj.getId()))
+            # collabora edit enabled: collabora
+            api.portal.set_registry_record(COLLABORA_EDIT, True)
+            self.assertIn("collabora_server_url is not configured", obj.restrictedTraverse("external_edit")())
+            api.portal.set_registry_record(COLLABORA_EDIT, False)
+        # zopeedit needs the modify permission, as before collabora
+        change_user(self.portal, "agent")
+        self.assertRaises(Unauthorized, template.restrictedTraverse("external_edit"))
+
+
+class TestCreateFromTemplateForm(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        change_user(self.portal)
+
+    def test_index(self):
+        omail1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        view = omail1.restrictedTraverse("@@create-from-template")
+        form = BeautifulSoup(view.index(), "html.parser").find("form", id="tree-form")
+        self.assertIsNone(form.get("target"))
+        # collabora edit opens in a new tab
+        api.portal.set_registry_record(COLLABORA_EDIT, True)
+        form = BeautifulSoup(view.index(), "html.parser").find("form", id="tree-form")
+        self.assertEqual(form.get("target"), "_blank")

@@ -20,6 +20,9 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                 alsoProvides(req_folder, ICountableTab)
                 req_folder.reindexObject(idxs="object_provides")
                 logger.info("requests folder marked as countable tab")
+            self.add_collabora()
+            # update settings
+            self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry"])
 
         if self.is_in_part("t"):  # final steps
             if self.old_version != self.new_version:

@@ -807,7 +807,7 @@
         <browser:page
             name="external_edit"
             for="imio.annex.content.annex.IAnnex"
-            class="collective.collabora.browser.edit.CollaboraEditView"
+            class="imio.dms.mail.browser.views.CollaboraOrZopeEditView"
             template="templates/edit.pt"
             permission="zope2.View"
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
@@ -816,7 +816,7 @@
         <browser:page
             name="external_edit"
             for="collective.documentgenerator.content.pod_template.IPODTemplate"
-            class="collective.collabora.browser.edit.CollaboraEditView"
+            class="imio.dms.mail.browser.views.CollaboraOrZopeEditView"
             template="templates/edit.pt"
             permission="zope2.View"
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
