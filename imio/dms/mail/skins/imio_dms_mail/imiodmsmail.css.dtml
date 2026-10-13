@@ -952,17 +952,27 @@ body.template-folder_factories #content-core dt label img {
 /* templates listing */
 .templates-listing .signers-column {
     text-align: center;
+}
+/* signers icon: also used in the sub-templates usage listings, so keep the font on the span */
+span.pt_self_signers, span.pt_sub_signers, span.pt_conflict_signers {
     font-family: 'Font Awesome 5 Free';
     font-size: 110%;
     font-weight: bold;
 }
-.templates-listing .signers-column span.pt_self_signers::before {
+/* signers defined on the template itself */
+span.pt_self_signers::before {
     content: "\f4ff";
     color: #75ad0a;
 }
-.templates-listing .signers-column span.pt_sub_signers::before {
+/* signers defined on a merge sub-template */
+span.pt_sub_signers::before {
     content: "\f4ff";
     color:#FFB627;
+}
+/* several (sub-)templates define signers, only the first one applies */
+span.pt_conflict_signers::before {
+    content: "\f235";
+    color: #cc0000;
 }
 
 /* org logo in listing */
