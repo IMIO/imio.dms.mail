@@ -83,6 +83,7 @@ class Migrate_To_3_1(Migrator):  # noqa
     def run_parts(self):
         """Run some parts between b and x."""
         if self.is_in_part("c"):  # various, update workflow, localroles and security
+            self.normalize_compound_criterion_values()
             # Update d-print model
             if "d-print" in self.portal["templates"]["om"]:
                 self.update_print_template()
@@ -684,6 +685,20 @@ class Migrate_To_3_1(Migrator):  # noqa
         cols = get_dashboard_collections(self.omf["mail-searches"])
         obj.dashboard_collections = [b.UID for b in cols if b.UID in obj.dashboard_collections
                                      and b.id in om_print_to_sign_cols]
+
+    def normalize_compound_criterion_values(self):
+        """Store CompoundCriterion values as list, not as string."""
+        for brain in self.catalog.unrestrictedSearchResults(portal_type="DashboardCollection"):
+            col = brain.getObject()
+            query = [dict(dic) for dic in col.query]
+            changed = False
+            for dic in query:
+                if dic.get("i") == "CompoundCriterion" and isinstance(dic.get("v"), basestring):
+                    dic["v"] = [dic["v"]]
+                    changed = True
+            if changed:
+                col.query = query
+                logger.info("Normalized CompoundCriterion value in %s" % col.absolute_url_path())
 
 
 def migrate(context):  # noqa
