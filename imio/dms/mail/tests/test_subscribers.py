@@ -13,6 +13,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
+from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
@@ -1328,6 +1329,23 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             },
         )
         # we remove a signer
+        omail.signers = [{"signer": bourg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        modified(omail, Attributes(ISigningBehavior, "ISigningBehavior.signers"))
+        annot = OMApprovalAdapter(omail).annot
+        self.assertEqual(annot["signers"], [("bourgmestre", u"Paul BM", u"Bourgmestre")])
+        self.assertEqual(annot["approvers"], [[]])
+        self.assertEqual(annot["editors"], [False])
+        # we remove all signers: the annotation must be resynced, not keep the previous approvers.
+        # "template_first" avoids the "rules" mode _empty_ placeholder, so signers really stay empty.
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin", u"template_first"
+        )
+        omail.signers = []
+        modified(omail, Attributes(ISigningBehavior, "ISigningBehavior.signers"))
+        annot = OMApprovalAdapter(omail).annot
+        self.assertEqual(annot["signers"], [])
+        self.assertEqual(annot["approvers"], [])
+        self.assertEqual(annot["editors"], [])
 
     def _setup_omail_with_esign(self):
         """Helper to create an outgoing mail with esign approval and files."""
@@ -1772,6 +1790,17 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
                             "approvings": [u"_themself_"], "editor": True}]
         modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
         self.assertEqual(ISignRequestApproval(request).annot["approvers"], [["bourgmestre"]])
+        # removing all signers resyncs the annotation instead of keeping the previous approvers.
+        # Rules are emptied first, otherwise they would recompute signers.
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_signer_rules", []
+        )
+        request.signers = []
+        modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
+        annot = ISignRequestApproval(request).annot
+        self.assertEqual(annot["signers"], [])
+        self.assertEqual(annot["approvers"], [])
+        self.assertEqual(annot["editors"], [])
 
     def test_sign_request_modified_duplicate_email(self):
         request, _files = create_sign_request(self.portal, oid="sr-dup", nb_files=0)

@@ -640,15 +640,17 @@ def dmsoutgoingmail_modified(mail, event):
         signers_update = True
     # check if this is the signers field that is modified
     mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
-    # In "template_first" / "rules_first" waiting state, mail.signers stays empty: do not sort nor
-    # run update_signers, so that empty signers clearly mean "still to be defined from the template".
-    if (signers_update or "ISigningBehavior.signers" in mod_attr) and mail.signers:
-        mail.signers.sort(key=itemgetter("number"))
+    if signers_update or "ISigningBehavior.signers" in mod_attr:
+        if mail.signers:
+            mail.signers.sort(key=itemgetter("number"))
         approval = OMApprovalAdapter(mail)
-        try:
-            approval.update_signers()
-        except ValueError as e:
-            raise Invalid(translate(e.message, context=mail.REQUEST))
+        # An emptied signers field must also resync the annotation. In "template_first" / "rules_first"
+        # waiting state, both sides are empty: nothing to do.
+        if mail.signers or approval.signers:
+            try:
+                approval.update_signers()
+            except ValueError as e:
+                raise Invalid(translate(e.message, context=mail.REQUEST))
 
 
 def dmsoutgoingmail_added(mail, event):
@@ -678,13 +680,16 @@ def sign_request_modified(request, event):
         signers_update = apply_request_signer_rules(request)
     # check if this is the signers field that is modified
     mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
-    if (signers_update or "ISignRequestSigningBehavior.signers" in mod_attr) and request.signers:
-        request.signers.sort(key=itemgetter("number"))
+    if signers_update or "ISignRequestSigningBehavior.signers" in mod_attr:
+        if request.signers:
+            request.signers.sort(key=itemgetter("number"))
         approval = SignRequestApprovalAdapter(request)
-        try:
-            approval.update_signers()
-        except ValueError as e:
-            raise Invalid(e.message)
+        # An emptied signers field must also resync the annotation.
+        if request.signers or approval.signers:
+            try:
+                approval.update_signers()
+            except ValueError as e:
+                raise Invalid(e.message)
 
 
 def sign_request_added(request, event):
