@@ -1254,7 +1254,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit",
                                    False)
 
-    api.portal.show_message("Configurer lien iA·Delib ? Modifier numbering session ?", type="warn")
+    api.portal.show_message(u"Configurer lien iA·Delib ? Modifier numbering session ?", type="warn", request=api.portal.get().REQUEST)
 
 
 def contact_import_pipeline(context):
