@@ -11,8 +11,10 @@ from imio.annex.browser.views import ConcatenateAnnexesBatchActionForm
 from imio.annex.browser.views import ExportPDFForm
 from imio.annex.vocabularies import ContainedAnnexesVocabulary
 from imio.dms.mail import _
+from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.setuphandlers import OM_PRINT_SIGNED_COLS
 from imio.dms.mail.setuphandlers import OM_PRINT_TO_SIGN_COLS
+from imio.helpers.workflow import get_transitions
 from plone import api
 from plone.app.uuid.utils import uuidToObject
 from Products.CMFPlone.utils import safe_unicode
@@ -21,7 +23,10 @@ from z3c.form.field import Fields
 from zope import schema
 from zope.annotation import IAnnotations
 from zope.i18n import translate
+from zope.lifecycleevent import Attributes
+from zope.lifecycleevent import modified
 
+import datetime
 import socket
 
 
@@ -190,6 +195,8 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
     condition = None  # name of the element method telling if the element export is possible
     condition_msg = None  # exclusion reason when the condition is not met
     mailing_appendices = None  # default of the field repeating the appendix files by mailed version, None to omit it
+    close_transition = None  # transition to the final state, done after the export when close_content is True
+    close_with_date = False  # the outgoing date is set when closing
     button_with_icon = False
     CHECK_ELEMENTS = True
 
@@ -218,6 +225,39 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
                 default=self.mailing_appendices,
                 required=False))
             self.fields["mailing_appendices"].widgetFactory = RadioFieldWidget
+        if self.close_transition:
+            self.fields += Fields(schema.Bool(
+                __name__="close_content",
+                title=_(u"Close the exported elements?"),
+                default=True,
+                required=False))
+            self.fields["close_content"].widgetFactory = RadioFieldWidget
+        if self.close_with_date:
+            self.fields += Fields(schema.Datetime(
+                __name__="outgoing_date",
+                title=_(u"Outgoing Date"),
+                default=datetime.datetime.now(),
+                required=False))
+
+    def _apply(self, **data):
+        pdf_file_content = super(ExportToPDFBatchActionForm, self)._apply(**data)
+        if pdf_file_content and data.get("close_content"):
+            self._close_elements(data)
+        return pdf_file_content
+
+    def _close_elements(self, data):
+        """Do the final transition on the exported elements that can do it."""
+        excluded = [obj for obj, reason in self._excluded_elements()]
+        for brain in self.brains:
+            obj = brain.getObject()
+            if obj in excluded or self.close_transition not in get_transitions(obj):
+                continue
+            if data.get("outgoing_date"):
+                obj.outgoing_date = data["outgoing_date"]
+                modified(obj, Attributes(IImioDmsOutgoingMail, "outgoing_date"))
+            api.content.transition(obj=obj, transition=self.close_transition)
+            # the dashboard showing the batch action is refreshed after the download
+            self.request.response.setHeader("X-Refresh-Faceted", "1")
 
     def _element_annexes(self, obj, data=None):
         """The files the vocabulary allows to export, ged files first.
@@ -271,6 +311,8 @@ class ExportToPDFAfterSignatureBatchActionForm(ExportToPDFBatchActionForm):
     condition = "can_do_export_to_pdf_after_signature"
     condition_msg = _(u"Not signed")
     mailing_appendices = True  # each mailed version is a separate pdf
+    close_transition = "mark_as_sent"
+    close_with_date = True
 
     def _check_element(self, obj):
         # a mail only sent by email has nothing to print
@@ -283,6 +325,8 @@ class ExportToPDFReqAfterSignatureBatchActionForm(ExportToPDFAfterSignatureBatch
 
     collections = None
     mailing_appendices = None  # sign requests are not mailed
+    close_transition = "close"
+    close_with_date = False
 
     def _check_element(self, obj):
         """Sign requests have no send modes."""

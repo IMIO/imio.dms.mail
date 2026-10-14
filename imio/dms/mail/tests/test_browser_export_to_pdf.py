@@ -370,6 +370,38 @@ class TestExportToPDFBatchActionForm(ExportToPdfTestCase):
         form.update()
         self.assertNotIn("mailing_appendices", form.fields)
 
+    def test__close_elements(self):
+        """After a successful export, close_content does the final transition and sets the outgoing date."""
+        self.request["uids"] = self.omail.UID()
+        self.omail.can_do_export_to_pdf_after_signature = lambda: True  # signed
+        form = self._form("export-to-pdf-after-signature-batch-action")
+        form.update()
+        self.assertEqual(form.widgets["close_content"].value, ["true"])
+        self.assertIn("outgoing_date", form.fields)
+        self.assertNotIn("close_content", self._form("export-to-pdf-before-signature-batch-action").fields)
+        outgoing_date = datetime(2026, 10, 1, 10, 0)
+        # not asked: unchanged
+        self.assertTrue(form._apply(two_sided=False, mailing_appendices=False, close_content=False,
+                                    outgoing_date=outgoing_date))
+        self.assertEqual(self.portal.portal_workflow.getInfoFor(self.omail, "review_state"), "created")
+        self.assertIsNone(self.omail.outgoing_date)
+        self.assertIsNone(self.request.response.getHeader("X-Refresh-Faceted"))
+        # asked: sent with the given date
+        self.assertTrue(form._apply(two_sided=False, mailing_appendices=False, close_content=True,
+                                    outgoing_date=outgoing_date))
+        self.assertEqual(self.portal.portal_workflow.getInfoFor(self.omail, "review_state"), "sent")
+        self.assertEqual(self.omail.outgoing_date, outgoing_date)
+        self.assertEqual(self.request.response.getHeader("X-Refresh-Faceted"), "1")
+        # already sent: no transition, no error
+        form._close_elements({"close_content": True, "outgoing_date": outgoing_date})
+        # sign requests: closed, without outgoing date
+        form = self.portal["requests"]["requests-searches"].restrictedTraverse(
+            "@@export-to-pdf-after-signature-batch-action")
+        form.update()
+        self.assertEqual(form.close_transition, "close")
+        self.assertIn("close_content", form.fields)
+        self.assertNotIn("outgoing_date", form.fields)
+
     def test_req_dashboard(self):
         """Only the after signature export is on the requests dashboard, whatever the collection."""
         searches = self.portal["requests"]["requests-searches"]
