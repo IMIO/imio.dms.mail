@@ -6,6 +6,7 @@ from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import default_criterias
+from imio.dms.mail.adapters import DmsAppendixFilePrintableAdapter
 from imio.dms.mail.adapters import IdmSearchableExtender
 from imio.dms.mail.adapters import im_sender_email_index
 from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
@@ -38,6 +39,7 @@ from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import get_session_annotation
+from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from imio.helpers.tests.test_pdf import _pdf_page_count
 from plone import api
@@ -466,7 +468,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         settings.mail_types = settings.mail_types[1:]
         view.updateWidgets()
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
-        self.assertIn("Missing", view.widgets["mail_type"].render())
+        self.assertIn("Valeur manquante", view.widgets["mail_type"].render())
 
     def test_OMMCTV(self):
         omail = sub_create(
@@ -494,7 +496,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         settings.omail_types = settings.omail_types[1:]
         view.updateWidgets()
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
-        self.assertIn("Missing", view.widgets["mail_type"].render())
+        self.assertIn("Valeur manquante", view.widgets["mail_type"].render())
 
 
 class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
@@ -1627,28 +1629,32 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
 
-    def test_create_pdf_file_from_doc(self):
-        """Through the esignature process, a DOC file is converted to PDF
+    def test_create_pdf_file_from_docx(self):
+        """Through the esignature process, a DOCX file is converted to PDF
         with a QR barcode page appended."""
 
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
-            ["odt", "pdf", "doc"],
+            ["odt", "pdf", "docx"],
         )
 
         try:
-            # Remove existing ODT files from approval, then add a DOC file
+            # Remove existing ODT files from approval, then add a DOCX file
             self.approval.remove_file_from_approval(self.files[0].UID())
             self.approval.remove_file_from_approval(self.files[1].UID())
             ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-            with open("%s/batchimport/toprocess/incoming-mail/in-courrier4.doc" % PRODUCT_DIR, "rb") as fo:
+            with open("%s/batchimport/toprocess/incoming-mail/in-courrier4.docx" % PRODUCT_DIR, "rb") as fo:
                 doc_data = fo.read()
             doc_fobj = createContentInContainer(
                 self.omail,
                 "dmsommainfile",
                 id="docfile",
                 scan_id="012999900000601",
-                file=NamedBlobFile(doc_data, contentType="application/msword", filename=u"in-courrier4.doc"),
+                file=NamedBlobFile(
+                    doc_data,
+                    contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    filename=u"in-courrier4.docx",
+                ),
                 content_category=calculate_category_id(ct),
             )
 
@@ -1663,7 +1669,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ["odt", "pdf"],
             )
 
-        # 2 ODT originals + 1 converted PDF tahts replaces doc
+        # 2 ODT originals + 1 converted PDF that replaces docx
         self.assertEqual(len(list(self.omail.objectIds())), 3)
 
         # At least 1 converted content page + 1 barcode page
@@ -1680,6 +1686,43 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(pdf_file.to_print)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
+
+
+class TestDmsAppendixFilePrintableAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+        self.omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.category = calculate_category_id(
+            self.portal["annexes_types"]["outgoing_appendix_files"]["outgoing-appendix-file"])
+
+    def _add_appendix(self, filename):
+        """Add an appendix file from the batchimport files"""
+        with open("%s/batchimport/toprocess/incoming-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            return createContentInContainer(self.omail, "dmsappendixfile", content_category=self.category,
+                                            file=NamedBlobFile(fo.read(), filename=filename))
+
+    def test_is_printable(self):
+        pdf = self._add_appendix(u"in-courrier2.pdf")
+        self.assertTrue(DmsAppendixFilePrintableAdapter(pdf).is_printable)
+        self.assertIsNotNone(pdf.to_print)
+        # a non pdf appendix cannot be set to print
+        odt = self._add_appendix(u"in-courrier3.odt")
+        self.assertFalse(DmsAppendixFilePrintableAdapter(odt).is_printable)
+        self.assertIsNone(odt.to_print)
+        self.assertIsNone(self.omail.categorized_elements[odt.UID()]["to_print"])
+        # even when clicking on the icon
+        self.portal.REQUEST.form["iconified-value"] = "true"
+        odt.restrictedTraverse("@@iconified-print")()
+        self.assertIsNone(odt.to_print)
+        # the file is replaced by a pdf: to_print can be set again
+        odt.file = NamedBlobFile(pdf.file.data, filename=u"in-courrier2.pdf")
+        zope.event.notify(ObjectModifiedEvent(odt))
+        self.assertTrue(DmsAppendixFilePrintableAdapter(odt).is_printable)
+        self.assertIsNotNone(odt.to_print)
 
 
 class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):

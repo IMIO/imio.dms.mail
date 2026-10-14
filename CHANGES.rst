@@ -4,11 +4,23 @@ Changelog
 3.1.7 (unreleased)
 ------------------
 
-- Added items count on the ``requests`` tab, like on other tabs (``ICountableTab``).
+- Added "Export to PDF" actions on dmsoutgoingmail and sign_request, using the
+  imio.annex export form: before signature when neither "esign" nor "seal" is set,
+  after signature otherwise.
+  [sgeulette]
+- Added "Export to PDF" batch actions on outgoing mail and requests dashboards.
+  [sgeulette]
+- Replaced "doc" file format by "docx" in settings and considered it in "Export to PDF".
+  [sgeulette]
+- Only a pdf appendix file can be set "to print" (IIconifiedPrintable adapter).
+  [sgeulette]
+- Added "odt", "ods" and "odp" documentviewer auto layout file types.
+  [sgeulette]
+- Added items count on the "requests" tab.
   [sgeulette]
 - Updated robotframework tests to include electronic signature (PARAF-166).
   [chris-adam]
-- Fixed ``ConnectionStateError`` crash when rendering datagrid fields
+- Fixed "ConnectionStateError" crash when rendering datagrid fields
   in settings through robotframework tests (DMS-434).
   [chris-adam,sgeulette]
 - Updated the incoming email routing and state set descriptions (DMS-1215).

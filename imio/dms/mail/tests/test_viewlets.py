@@ -104,7 +104,7 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         msgs = org_v.getAllMessages()
         self.assertEqual(len(msgs), 1)
         self.assertTrue(isinstance(msgs[0], PseudoMessage))
-        self.assertIn("missing address fields: street", msgs[0].text.output)
+        self.assertIn("a des champs d'adresse vides: Rue", msgs[0].text.output)
         self.assertEqual(len(sorg_v.getAllMessages()), 1)  # suborganization has missing street too
         self.assertEqual(len(hp_v.getAllMessages()), 1)  # held position has missing street too
         self.assertEqual(len(om_v.getAllMessages()), 1)  # outgoing mail has missing street too

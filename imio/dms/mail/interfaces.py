@@ -53,6 +53,11 @@ class IReqDashboard(IDocsDashboard):
     """Marker interface for signing-requests dashboard."""
 
 
+class IReqDashboardBatchActions(IReqDashboard, IBatchActionsMarker):
+
+    """Marker interface for signing-requests dashboard with batch actions."""
+
+
 class ITaskDashboard(IDocsDashboard):
 
     """Marker interface for task dashboard."""

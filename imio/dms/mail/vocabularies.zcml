@@ -222,6 +222,16 @@
         />
 
     <utility
+        name="imio.dms.mail.ExportToPDFBeforeSignatureVocabulary"
+        factory="imio.dms.mail.browser.export_to_pdf.ExportToPDFBeforeSignatureVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.ExportToPDFAfterSignatureVocabulary"
+        factory="imio.dms.mail.browser.export_to_pdf.ExportToPDFAfterSignatureVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.PODTemplateContentCategoriesVocabulary"
         factory="imio.dms.mail.vocabularies.PODTemplateContentCategoriesVocabulary"
         />

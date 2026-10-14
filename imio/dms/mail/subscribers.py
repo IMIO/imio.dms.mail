@@ -16,6 +16,7 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
 from collective.iconifiedcategory.content.events import categorized_content_created
+from collective.iconifiedcategory.interfaces import IIconifiedPrintable
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.querynextprev.interfaces import INextPrevNotNavigable
@@ -826,12 +827,12 @@ def _correct_to_approve(file_obj):
 def _correct_to_print(file_obj):
     """Automatically set to_print following file type and esign mode.
 
-    - dmsappendixfile -> always False
+    - dmsappendixfile -> always False, None (deactivated) when not printable (not a pdf)
     - dmsommainfile   -> True when the parent mail esign is off, else False
     """
     om = file_obj.__parent__
     if file_obj.portal_type == "dmsappendixfile":
-        new_value = False
+        new_value = False if IIconifiedPrintable(file_obj).is_printable else None
     elif file_obj.portal_type == "dmsommainfile":
         new_value = not getattr(om, "esign", False)
     else:

@@ -77,6 +77,7 @@ setup(
         "communesplone.layout",
         "dexterity.localrolesfield",
         "ftw.labels",
+        "imio.annex",
         "imio.dashboard",
         "imio.dms.soap2pm",
         "imio.pm.wsclient>=2",

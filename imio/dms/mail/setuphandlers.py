@@ -46,7 +46,7 @@ from imio.dms.mail.interfaces import IOrganizationsDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonnelDashboardBatchActions
 from imio.dms.mail.interfaces import IPersonsDashboardBatchActions
 from imio.dms.mail.interfaces import IProtectedItem
-from imio.dms.mail.interfaces import IReqDashboard
+from imio.dms.mail.interfaces import IReqDashboardBatchActions
 from imio.dms.mail.interfaces import ITaskDashboardBatchActions
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import set_dms_config
@@ -87,8 +87,9 @@ import pkg_resources
 
 logger = logging.getLogger("imio.dms.mail: setuphandlers")
 
-OM_PRINT_TO_SIGN_COLS = ("to_treat", "searchfor_created")
-OM_PRINT_SIGNED_COLS = ("om_treating", "om_to_email", "searchfor_signed")
+# to_treat = "Qui m'est assigné", om_treating = "Que je traite"
+OM_PRINT_TO_SIGN_COLS = ("to_treat", "searchfor_created", "searchfor_validated", "searchfor_to_print")
+OM_PRINT_SIGNED_COLS = ("om_treating", "om_to_email", "searchfor_signed", "searchfor_sent")
 
 
 def _no_more_used(msgid, domain="imio.dms.mail"):  # TODO delete if no more necessary
@@ -309,7 +310,7 @@ def postInstall(context):
         # add searches
         col_folder = add_db_col_folder(req_folder, "requests-searches", _("Requests searches"), _("Requests"))
         alsoProvides(col_folder, INextPrevNotNavigable)
-        alsoProvides(col_folder, IReqDashboard)
+        alsoProvides(col_folder, IReqDashboardBatchActions)
         createReqCollections(col_folder)
         createStateCollections(col_folder, "sign_request")
         configure_faceted_folder(col_folder, xml="requests-searches.xml", default_UID=col_folder["all_requests"].UID())
@@ -764,6 +765,7 @@ def createStateCollections(folder, content_type):
         },
         "sign_request": {
             "*": (
+                u"select_row",
                 u"pretty_link",
                 u"treating_groups",
                 u"assigned_user",
@@ -1769,6 +1771,7 @@ def createReqCollections(folder):
     create some signing requests dashboard collections
     """
     flds = (
+        u"select_row",
         u"pretty_link",
         u"review_state",
         u"treating_groups",
@@ -2734,8 +2737,10 @@ def configure_documentviewer(site):
     gsettings.storage_type = "Blob"
     gsettings.pdf_image_format = "jpg"
     gsettings.auto_select_layout = False
-    if "excel" not in gsettings.auto_layout_file_types:
-        gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + ["excel", "image"]
+    # odt, ods and odp are split from word, excel and ppt in imio.helpers
+    gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + [
+        ftype for ftype in ("excel", "image", "odt", "ods", "odp") if ftype not in gsettings.auto_layout_file_types
+    ]
     # gsettings.auto_convert = False
     gsettings.show_search = True
     # set preservation days

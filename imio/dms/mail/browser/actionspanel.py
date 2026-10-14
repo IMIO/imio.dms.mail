@@ -248,7 +248,7 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
         super(DmsOMActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
-        self.ACCEPTABLE_ACTIONS = ["delete"]
+        self.ACCEPTABLE_ACTIONS = ["delete", "export-to-pdf-before-signature", "export-to-pdf-after-signature"]
         self.SECTIONS_TO_RENDER += (
             "render_create_from_template_button",
             "render_create_new_message",
@@ -359,7 +359,7 @@ class DmsSignRequestActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
     def __init__(self, context, request):
         super(DmsSignRequestActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
-        self.ACCEPTABLE_ACTIONS = ["delete"]
+        self.ACCEPTABLE_ACTIONS = ["delete", "export-to-pdf-after-signature"]
         self.SECTIONS_TO_RENDER += ("render_multiple_annexes_button",)
 
     def sortTransitions(self, lst):

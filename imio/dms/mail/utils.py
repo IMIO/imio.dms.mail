@@ -1695,7 +1695,7 @@ def get_allowed_content_types(esign=False, portal_type=None):
     ct_by_type = {
         "pdf": ("application/pdf",),
         "odt": ("application/vnd.oasis.opendocument.text",),
-        "doc": ("application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
+        "docx": ("application/vnd.openxmlformats-officedocument.wordprocessingml.document",),
     }
     if portal_type == "sign_request":
         key = "request_esign_formats"
