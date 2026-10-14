@@ -2,7 +2,6 @@
 from AccessControl import getSecurityManager
 from AccessControl import Unauthorized
 from Acquisition import aq_inner
-from bs4 import BeautifulSoup
 from collective.ckeditortemplates.cktemplate import ICKTemplate
 from collective.collabora.browser.edit import CollaboraEditView
 from collective.externaleditor.browser.views import ExternalEditView as ZopeEditView
@@ -67,22 +66,13 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
 
     root = "/templates/om"
 
-    def index(self):
-        indexed = super(CreateFromTemplateForm, self).index()
-        if not api.portal.get_registry_record(
+    @property
+    def form_target(self):
+        """Open Collabora edit in a new tab."""
+        collabora = api.portal.get_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_edit", default=False
-        ):
-            return indexed
-        # TODO improve this code
-
-        # Add target="_blank" to open collabora edit in a new tab
-        # This is a workaround to avoid modifying the original template
-        soup = BeautifulSoup(indexed, "html.parser")
-        form_tag = soup.find("form", id="tree-form")
-        form_tag["target"] = "_blank"
-        indexed = str(soup)
-
-        return indexed
+        )
+        return "_blank" if collabora else None
 
     def label(self):
         return translate(
