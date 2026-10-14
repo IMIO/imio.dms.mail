@@ -2,7 +2,6 @@
 """Test views."""
 
 from AccessControl import Unauthorized
-from bs4 import BeautifulSoup
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.MockMailHost.MockMailHost import MockMailHost
@@ -801,12 +800,10 @@ class TestCreateFromTemplateForm(unittest.TestCase):
         self.portal = self.layer["portal"]
         change_user(self.portal)
 
-    def test_index(self):
+    def test_form_target(self):
         omail1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         view = omail1.restrictedTraverse("@@create-from-template")
-        form = BeautifulSoup(view.index(), "html.parser").find("form", id="tree-form")
-        self.assertIsNone(form.get("target"))
+        self.assertIsNone(view.form_target)
         # collabora edit opens in a new tab
         api.portal.set_registry_record(COLLABORA_EDIT, True)
-        form = BeautifulSoup(view.index(), "html.parser").find("form", id="tree-form")
-        self.assertEqual(form.get("target"), "_blank")
+        self.assertEqual(view.form_target, "_blank")

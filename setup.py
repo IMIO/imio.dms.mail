@@ -45,7 +45,6 @@ setup(
         "Plone",
         "Products.CPUtils",
         "Products.PasswordStrength",
-        "beautifulsoup4",
         "collective.ckeditor",
         "collective.ckeditortemplates",
         "collective.classification.folder",
