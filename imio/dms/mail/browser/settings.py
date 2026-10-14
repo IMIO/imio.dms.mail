@@ -995,7 +995,7 @@ class IImioDmsMailConfig(model.Schema):
 
     collabora_edit = schema.Bool(
         title=_(u"Edit with Collabora"),
-        description=_(u"Switch it when nobody is editing a file."),
+        description=_(u"Enable for online editing of documents. Disable to use ZopeEdit."),
         default=False,
     )
     write_permission(collabora_edit="cmf.ManagePortal")
