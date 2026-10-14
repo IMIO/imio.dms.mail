@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from collective.contact.plonegroup.config import get_registry_organizations
-from collective.documentviewer.convert import Converter
+from collective.labels.interfaces import ILabeling
 from datetime import datetime
 from datetime import timedelta
-from DateTime import DateTime
-from ftw.labels.interfaces import ILabeling
+from imio.dms.mail import _tr
 from imio.dms.mail import AUC_RECORD
+from imio.dms.mail.dmsmail import IMEdit
+from imio.dms.mail.dmsmail import IMView
+from imio.dms.mail.dmsmail import OMEdit
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import add_remove_values_in_registry_list
@@ -16,10 +18,12 @@ from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import current_user_groups_ids
-from imio.dms.mail.utils import dv_clean
-from imio.dms.mail.utils import eml_preview
+from imio.dms.mail.utils import do_next_transition
+from imio.dms.mail.utils import Dummy
+from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_allowed_content_types
+from imio.dms.mail.utils import get_context_with_request
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import group_has_user
@@ -27,8 +31,8 @@ from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
+from imio.dms.mail.utils import is_n_plus_level_obsolete
 from imio.dms.mail.utils import list_wf_states
-from imio.dms.mail.utils import PREVIEW_DIR
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.utils import update_solr_config
@@ -37,22 +41,22 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.utils import UtilsMethods
 from imio.dms.mail.utils import VariousUtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
-from mock import Mock
-from mock import patch
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
+from plone.base.utils import base_hasattr
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry import field as reg_field
 from plone.registry import Record
 from plone.registry.interfaces import IRegistry
-from Products.CMFPlone.utils import base_hasattr
-from z3c.relationfield.relation import RelationValue
+from Products.CMFPlone.utils import safe_unicode
+from six import StringIO
+from unittest.mock import patch
 from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
-from zope.intid.interfaces import IIntIds
 
 import os
 import unittest
@@ -100,28 +104,25 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
     def test_add_remove_values_in_registry_list(self):
         """add_remove_values_in_registry_list adds/removes/reorders values idempotently"""
         key = "imio.dms.mail.displayed_tabs"
-        api.portal.set_registry_record(key, [u"incoming-mail", u"outgoing-mail"])
+        api.portal.set_registry_record(key, ["incoming-mail", "outgoing-mail"])
         # add a new value
-        self.assertTrue(add_remove_values_in_registry_list(key, to_add=(u"requests",)))
-        self.assertIn(u"requests", api.portal.get_registry_record(key))
+        self.assertTrue(add_remove_values_in_registry_list(key, to_add=("requests",)))
+        self.assertIn("requests", api.portal.get_registry_record(key))
         # adding an already present value does nothing
-        self.assertFalse(add_remove_values_in_registry_list(key, to_add=(u"requests",)))
+        self.assertFalse(add_remove_values_in_registry_list(key, to_add=("requests",)))
         # remove a value
-        self.assertTrue(add_remove_values_in_registry_list(key, to_remove=(u"outgoing-mail",)))
-        self.assertNotIn(u"outgoing-mail", api.portal.get_registry_record(key))
+        self.assertTrue(add_remove_values_in_registry_list(key, to_remove=("outgoing-mail",)))
+        self.assertNotIn("outgoing-mail", api.portal.get_registry_record(key))
         # removing an absent value does nothing
-        self.assertFalse(add_remove_values_in_registry_list(key, to_remove=(u"outgoing-mail",)))
+        self.assertFalse(add_remove_values_in_registry_list(key, to_remove=("outgoing-mail",)))
         # order reorders known values first, unknown keep relative order
-        self.assertTrue(
-            add_remove_values_in_registry_list(key, order=[u"requests", u"incoming-mail"]))
-        self.assertEqual(api.portal.get_registry_record(key), [u"requests", u"incoming-mail"])
+        self.assertTrue(add_remove_values_in_registry_list(key, order=["requests", "incoming-mail"]))
+        self.assertEqual(api.portal.get_registry_record(key), ["requests", "incoming-mail"])
         # order already respected does nothing
-        self.assertFalse(
-            add_remove_values_in_registry_list(key, order=[u"requests", u"incoming-mail"]))
+        self.assertFalse(add_remove_values_in_registry_list(key, order=["requests", "incoming-mail"]))
         # add + order in one call
-        self.assertTrue(
-            add_remove_values_in_registry_list(key, to_add=(u"tasks",), order=[u"tasks", u"requests"]))
-        self.assertEqual(api.portal.get_registry_record(key), [u"tasks", u"requests", u"incoming-mail"])
+        self.assertTrue(add_remove_values_in_registry_list(key, to_add=("tasks",), order=["tasks", "requests"]))
+        self.assertEqual(api.portal.get_registry_record(key), ["tasks", "requests", "incoming-mail"])
 
     def test_list_wf_states_sign_request(self):
         states = [state for state, title in list_wf_states(self.portal, "sign_request")]
@@ -266,14 +267,14 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(config["to_do"][org2], ("", "back_in_created2"))
 
     def test_update_transitions_auc_config(self):
-        api.portal.set_registry_record(AUC_RECORD, u"no_check")
+        api.portal.set_registry_record(AUC_RECORD, "no_check")
         # no check
         config = get_dms_config(["transitions_auc", "dmsincomingmail"])
         self.assertSetEqual(set(config.keys()), {"close", "propose_to_agent"})
         self.assertTrue(all(config["propose_to_agent"].values()))  # can always do transition
         self.assertTrue(all(config["close"].values()))  # can always do transition
         # n_plus_1
-        api.portal.set_registry_record(AUC_RECORD, u"n_plus_1")
+        api.portal.set_registry_record(AUC_RECORD, "n_plus_1")
         # only one transition
         config = get_dms_config(["transitions_auc", "dmsincomingmail"])
         self.assertSetEqual(set(config.keys()), {"close", "propose_to_agent"})
@@ -339,7 +340,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
     def test_highest_review_level(self):
         self.assertIsNone(highest_review_level("a_type", ""))
         self.assertIsNone(highest_review_level("dmsincomingmail", ""))
-        self.assertEquals(highest_review_level("dmsincomingmail", "['dir_general']"), "dir_general")
+        self.assertEqual(highest_review_level("dmsincomingmail", "['dir_general']"), "dir_general")
         set_dms_config(
             ["review_levels", "dmsincomingmail"],
             OrderedDict(
@@ -349,7 +350,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
                 ]
             ),
         )
-        self.assertEquals(highest_review_level("dmsincomingmail", "['111_n_plus_1']"), "_n_plus_1")
+        self.assertEqual(highest_review_level("dmsincomingmail", "['111_n_plus_1']"), "_n_plus_1")
 
     def test_list_wf_states(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
@@ -380,8 +381,8 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             datetime.now(),
             "test",
             **{
-                "assigned_user": u"agent",
-                "title": u"test",
+                "assigned_user": "agent",
+                "title": "test",
                 "treating_groups": self.pgof["direction-generale"]["secretariat"].UID(),
             }
         )
@@ -402,15 +403,21 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
     def test_get_scan_id(self):
         imail = sub_create(self.portal["incoming-mail"], "dmsincomingmail", datetime.now(), "my-id")
-        obj = createContentInContainer(imail, "dmsmainfile", id="testid1.pdf", scan_id=u"010999900000690")
-        self.assertListEqual(get_scan_id(obj), [u"010999900000690", u"IMIO010999900000690", u"690"])
+        obj = createContentInContainer(imail, "dmsmainfile", id="testid1.pdf", scan_id="010999900000690")
+        self.assertListEqual(get_scan_id(obj), ["010999900000690", "IMIO010999900000690", "690"])
 
     def test_UtilsMethods_current_user_groups_ids(self):
         self.change_user("dirg")
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
-            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs",
-             "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID())},
+            {
+                "AuthenticatedUsers",
+                "audit_contacts",
+                "createurs_dossier",
+                "dir_general",
+                "lecteurs_globaux_cs",
+                "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID()),
+            },
         )
 
     def test_UtilsMethods_highest_scan_id(self):
@@ -431,8 +438,14 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         self.assertSetEqual(
             set(current_user_groups_ids(api.user.get_current())),
-            {"AuthenticatedUsers", "audit_contacts", "createurs_dossier", "dir_general", "lecteurs_globaux_cs",
-             "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID())},
+            {
+                "AuthenticatedUsers",
+                "audit_contacts",
+                "createurs_dossier",
+                "dir_general",
+                "lecteurs_globaux_cs",
+                "{}_lecteur".format(self.portal["contacts"]["plonegroup-organization"]["direction-generale"].UID()),
+            },
         )
         # with groups
         self.assertFalse(view.is_in_user_groups(groups=["abc"]))
@@ -507,7 +520,6 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             self.portal["templates"],
             self.portal["templates"]["om"],
             self.portal["templates"]["om"]["common"],
-            self.portal["templates"]["oem"],
         ):
             view = VariousUtilsMethods(obj, obj.REQUEST)
             self.assertFalse(view.is_unprotected(), "obj {} is unprotected !!".format(obj))
@@ -537,30 +549,30 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             pgo,
             [
-                (pgo_contacts["direction-generale"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale", "a"),
+                (pgo_contacts["direction-generale"].UID(), "Direction générale", "a"),
                 (
                     pgo_contacts["direction-generale"]["secretariat"].UID(),
-                    "Direction g\xc3\xa9n\xc3\xa9rale - Secr\xc3\xa9tariat",
+                    "Direction générale - Secrétariat",
                     "a",
                 ),
-                (pgo_contacts["direction-generale"]["grh"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale - GRH", "a"),
+                (pgo_contacts["direction-generale"]["grh"].UID(), "Direction générale - GRH", "a"),
                 (
                     pgo_contacts["direction-generale"]["communication"].UID(),
-                    "Direction g\xc3\xa9n\xc3\xa9rale - Communication",
+                    "Direction générale - Communication",
                     "a",
                 ),
-                (pgo_contacts["direction-financiere"].UID(), "Direction financi\xc3\xa8re", "a"),
-                (pgo_contacts["direction-financiere"]["budgets"].UID(), "Direction financi\xc3\xa8re - Budgets", "a"),
+                (pgo_contacts["direction-financiere"].UID(), "Direction financière", "a"),
+                (pgo_contacts["direction-financiere"]["budgets"].UID(), "Direction financière - Budgets", "a"),
                 (
                     pgo_contacts["direction-financiere"]["comptabilite"].UID(),
-                    "Direction financi\xc3\xa8re - Comptabilit\xc3\xa9",
+                    "Direction financière - Comptabilité",
                     "a",
                 ),
                 (pgo_contacts["direction-technique"].UID(), "Direction technique", "a"),
-                (pgo_contacts["direction-technique"]["batiments"].UID(), "Direction technique - B\xc3\xa2timents", "a"),
+                (pgo_contacts["direction-technique"]["batiments"].UID(), "Direction technique - Bâtiments", "a"),
                 (pgo_contacts["direction-technique"]["voiries"].UID(), "Direction technique - Voiries", "a"),
-                (pgo_contacts["evenements"].UID(), "\xc3\x89v\xc3\xa9nements", "a"),
-                (pgo_contacts["college-communal"].UID(), "Coll\xc3\xa8ge communal", "a"),
+                (pgo_contacts["evenements"].UID(), "Événements", "a"),
+                (pgo_contacts["college-communal"].UID(), "Collège communal", "a"),
             ],
         )
 
@@ -569,17 +581,17 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             pgo,
             """{};Direction générale
-{};Direction g\xc3\xa9n\xc3\xa9rale - Secr\xc3\xa9tariat
-{};Direction g\xc3\xa9n\xc3\xa9rale - GRH
-{};Direction g\xc3\xa9n\xc3\xa9rale - Communication
-{};Direction financi\xc3\xa8re
-{};Direction financi\xc3\xa8re - Budgets
-{};Direction financi\xc3\xa8re - Comptabilit\xc3\xa9
+{};Direction générale - Secrétariat
+{};Direction générale - GRH
+{};Direction générale - Communication
+{};Direction financière
+{};Direction financière - Budgets
+{};Direction financière - Comptabilité
 {};Direction technique
-{};Direction technique - B\xc3\xa2timents
+{};Direction technique - Bâtiments
 {};Direction technique - Voiries
-{};\xc3\x89v\xc3\xa9nements
-{};Coll\xc3\xa8ge communal""".format(
+{};Événements
+{};Collège communal""".format(
                 pgo_contacts["direction-generale"].UID(),
                 pgo_contacts["direction-generale"]["secretariat"].UID(),
                 pgo_contacts["direction-generale"]["grh"].UID(),
@@ -600,17 +612,17 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             pgo,
             """{};Direction générale;a
-{};Direction g\xc3\xa9n\xc3\xa9rale - Secr\xc3\xa9tariat;a
-{};Direction g\xc3\xa9n\xc3\xa9rale - GRH;a
-{};Direction g\xc3\xa9n\xc3\xa9rale - Communication;a
-{};Direction financi\xc3\xa8re;a
-{};Direction financi\xc3\xa8re - Budgets;a
-{};Direction financi\xc3\xa8re - Comptabilit\xc3\xa9;a
+{};Direction générale - Secrétariat;a
+{};Direction générale - GRH;a
+{};Direction générale - Communication;a
+{};Direction financière;a
+{};Direction financière - Budgets;a
+{};Direction financière - Comptabilité;a
 {};Direction technique;a
-{};Direction technique - B\xc3\xa2timents;a
+{};Direction technique - Bâtiments;a
 {};Direction technique - Voiries;a
-{};\xc3\x89v\xc3\xa9nements;a
-{};Coll\xc3\xa8ge communal;a""".format(
+{};Événements;a
+{};Collège communal;a""".format(
                 pgo_contacts["direction-generale"].UID(),
                 pgo_contacts["direction-generale"]["secretariat"].UID(),
                 pgo_contacts["direction-generale"]["grh"].UID(),
@@ -636,30 +648,30 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             pgo,
             [
-                (pgo_contacts["direction-generale"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale", "a"),
+                (pgo_contacts["direction-generale"].UID(), "Direction générale", "a"),
                 (
                     pgo_contacts["direction-generale"]["secretariat"].UID(),
-                    "Direction g\xc3\xa9n\xc3\xa9rale - Secr\xc3\xa9tariat",
+                    "Direction générale - Secrétariat",
                     "a",
                 ),
-                (pgo_contacts["direction-generale"]["grh"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale - GRH", "a"),
+                (pgo_contacts["direction-generale"]["grh"].UID(), "Direction générale - GRH", "a"),
                 (
                     pgo_contacts["direction-generale"]["communication"].UID(),
-                    "Direction g\xc3\xa9n\xc3\xa9rale - Communication",
+                    "Direction générale - Communication",
                     "a",
                 ),
-                (pgo_contacts["direction-financiere"].UID(), "Direction financi\xc3\xa8re", "a"),
-                (pgo_contacts["direction-financiere"]["budgets"].UID(), "Direction financi\xc3\xa8re - Budgets", "a"),
+                (pgo_contacts["direction-financiere"].UID(), "Direction financière", "a"),
+                (pgo_contacts["direction-financiere"]["budgets"].UID(), "Direction financière - Budgets", "a"),
                 (
                     pgo_contacts["direction-financiere"]["comptabilite"].UID(),
-                    "Direction financi\xc3\xa8re - Comptabilit\xc3\xa9",
+                    "Direction financière - Comptabilité",
                     "a",
                 ),
                 (pgo_contacts["direction-technique"].UID(), "Direction technique", "a"),
-                (pgo_contacts["direction-technique"]["batiments"].UID(), "Direction technique - B\xc3\xa2timents", "a"),
+                (pgo_contacts["direction-technique"]["batiments"].UID(), "Direction technique - Bâtiments", "a"),
                 (pgo_contacts["direction-technique"]["voiries"].UID(), "Direction technique - Voiries", "a"),
-                (pgo_contacts["evenements"].UID(), "\xc3\x89v\xc3\xa9nements", "a"),
-                (pgo_contacts["college-communal"].UID(), "Coll\xc3\xa8ge communal", "a"),
+                (pgo_contacts["evenements"].UID(), "Événements", "a"),
+                (pgo_contacts["college-communal"].UID(), "Collège communal", "a"),
                 (pgo_contacts["conseil-communal"].UID(), "Conseil communal", "a"),
             ],
         )
@@ -669,64 +681,64 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             pgo,
             [
-                (pgo_contacts["direction-generale"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale", "a"),
+                (pgo_contacts["direction-generale"].UID(), "Direction générale", "a"),
                 (
                     pgo_contacts["direction-generale"]["secretariat"].UID(),
-                    "Direction g\xc3\xa9n\xc3\xa9rale - Secr\xc3\xa9tariat",
+                    "Direction générale - Secrétariat",
                     "a",
                 ),
-                (pgo_contacts["direction-generale"]["grh"].UID(), "Direction g\xc3\xa9n\xc3\xa9rale - GRH", "a"),
+                (pgo_contacts["direction-generale"]["grh"].UID(), "Direction générale - GRH", "a"),
                 (
                     pgo_contacts["direction-generale"]["informatique"].UID(),
-                    "Direction g\xc3\xa9n\xc3\xa9rale - Informatique",
+                    "Direction générale - Informatique",
                     "na",
                 ),
                 (
                     pgo_contacts["direction-generale"]["communication"].UID(),
-                    "Direction g\xc3\xa9n\xc3\xa9rale - Communication",
+                    "Direction générale - Communication",
                     "a",
                 ),
-                (pgo_contacts["direction-financiere"].UID(), "Direction financi\xc3\xa8re", "a"),
-                (pgo_contacts["direction-financiere"]["budgets"].UID(), "Direction financi\xc3\xa8re - Budgets", "a"),
+                (pgo_contacts["direction-financiere"].UID(), "Direction financière", "a"),
+                (pgo_contacts["direction-financiere"]["budgets"].UID(), "Direction financière - Budgets", "a"),
                 (
                     pgo_contacts["direction-financiere"]["comptabilite"].UID(),
-                    "Direction financi\xc3\xa8re - Comptabilit\xc3\xa9",
+                    "Direction financière - Comptabilité",
                     "a",
                 ),
-                (pgo_contacts["direction-financiere"]["taxes"].UID(), "Direction financi\xc3\xa8re - Taxes", "na"),
+                (pgo_contacts["direction-financiere"]["taxes"].UID(), "Direction financière - Taxes", "na"),
                 (
                     pgo_contacts["direction-financiere"]["marches-publics"].UID(),
-                    "Direction financi\xc3\xa8re - March\xc3\xa9s publics",
+                    "Direction financière - Marchés publics",
                     "na",
                 ),
                 (pgo_contacts["direction-technique"].UID(), "Direction technique", "a"),
-                (pgo_contacts["direction-technique"]["batiments"].UID(), "Direction technique - B\xc3\xa2timents", "a"),
+                (pgo_contacts["direction-technique"]["batiments"].UID(), "Direction technique - Bâtiments", "a"),
                 (pgo_contacts["direction-technique"]["voiries"].UID(), "Direction technique - Voiries", "a"),
                 (pgo_contacts["direction-technique"]["urbanisme"].UID(), "Direction technique - Urbanisme", "na"),
-                (pgo_contacts["departement-population"].UID(), "D\xc3\xa9partement population", "na"),
+                (pgo_contacts["departement-population"].UID(), "Département population", "na"),
                 (
                     pgo_contacts["departement-population"]["population"].UID(),
-                    "D\xc3\xa9partement population - Population",
+                    "Département population - Population",
                     "na",
                 ),
                 (
                     pgo_contacts["departement-population"]["etat-civil"].UID(),
-                    "D\xc3\xa9partement population - \xc3\x89tat-civil",
+                    "Département population - État-civil",
                     "na",
                 ),
-                (pgo_contacts["departement-culturel"].UID(), "D\xc3\xa9partement culturel", "na"),
+                (pgo_contacts["departement-culturel"].UID(), "Département culturel", "na"),
                 (
                     pgo_contacts["departement-culturel"]["enseignement"].UID(),
-                    "D\xc3\xa9partement culturel - Enseignement",
+                    "Département culturel - Enseignement",
                     "na",
                 ),
                 (
                     pgo_contacts["departement-culturel"]["culture-loisirs"].UID(),
-                    "D\xc3\xa9partement culturel - Culture-loisirs",
+                    "Département culturel - Culture-loisirs",
                     "na",
                 ),
-                (pgo_contacts["evenements"].UID(), "\xc3\x89v\xc3\xa9nements", "a"),
-                (pgo_contacts["college-communal"].UID(), "Coll\xc3\xa8ge communal", "a"),
+                (pgo_contacts["evenements"].UID(), "Événements", "a"),
+                (pgo_contacts["college-communal"].UID(), "Collège communal", "a"),
                 (pgo_contacts["conseil-communal"].UID(), "Conseil communal", "a"),
             ],
         )
@@ -912,167 +924,6 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertSetEqual(annot["imio.dms.mail"]["read_label_cron"]["agent1"]["orgs"], {dg_uid})
         reset_dms_config()
 
-    def test_dv_clean(self):
-        # Test wrong user
-        self.change_user("agent")
-        self.assertEqual(dv_clean(self.portal), "You must be a zope manager to run this script")
-
-        self.change_user("admin")
-        # Test invalid date
-        self.assertIsNone(dv_clean(self.portal, date_back="invalid"))
-
-        # Create incoming mail with file
-        intids = getUtility(IIntIds)
-        params = {
-            "title": "Courrier 10",
-            "mail_type": "courrier",
-            "internal_reference_no": "E0010",
-            "sender": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
-            "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
-            "description": "Ceci est la description du courrier",
-            "mail_date": datetime.today(),
-        }
-        imail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
-        pdf_example_filename = os.path.join(os.path.dirname(__file__), "files", "example.pdf")
-        with open(pdf_example_filename, "rb") as fo:
-            file_object = NamedBlobFile(fo.read(), filename=u"example.pdf")
-            createContentInContainer(
-                imail,
-                "dmsmainfile",
-                title="",
-                file=file_object,
-                scan_id="050999900000010",
-                scan_date=datetime.today(),
-            )
-        file = imail["example.pdf"]
-
-        # Assert base scenario
-        annot = IAnnotations(file)["collective.documentviewer"]
-        self.assertEqual(annot["num_pages"], 6)
-        self.assertNotEqual(annot["last_updated"], "2010-01-01T00:00:00")
-        self.assertEqual(
-            [k for k in annot["blob_files"].keys()],
-            [
-                "large/dump_1.jpg",
-                "large/dump_2.jpg",
-                "large/dump_3.jpg",
-                "large/dump_4.jpg",
-                "large/dump_5.jpg",
-                "large/dump_6.jpg",
-                "normal/dump_1.jpg",
-                "normal/dump_2.jpg",
-                "normal/dump_3.jpg",
-                "normal/dump_4.jpg",
-                "normal/dump_5.jpg",
-                "normal/dump_6.jpg",
-                "small/dump_1.jpg",
-                "small/dump_2.jpg",
-                "small/dump_3.jpg",
-                "small/dump_4.jpg",
-                "small/dump_5.jpg",
-                "small/dump_6.jpg",
-                "text/dump_1.txt",
-                "text/dump_2.txt",
-                "text/dump_3.txt",
-                "text/dump_4.txt",
-                "text/dump_5.txt",
-                "text/dump_6.txt",
-            ],
-        )
-
-        # Mail is not closed yet
-        self.assertTrue(
-            dv_clean(self.portal, days_back=0).endswith("Files: '0', Pages: '0', Deleted: '0', Size: '0.0k'")
-        )
-
-        api.content.transition(imail, "propose_to_agent")
-        api.content.transition(imail, "treat")
-        api.content.transition(imail, "close")
-
-        # Mail is closed but recent
-        self.assertTrue(dv_clean(self.portal).endswith("Files: '0', Pages: '0', Deleted: '0', Size: '0.0k'"))
-
-        # Mail is closed and old
-        new_date = datetime.today() - timedelta(days=366)
-        new_date = DateTime(datetime.strftime(new_date, "%Y/%m/%d")).ISO8601()
-        imail.setModificationDate(new_date)
-        imail._p_changed = True
-        imail.reindexObject(idxs=['modified'])
-        self.assertTrue(
-            dv_clean(self.portal).endswith("Files: '1', Pages: '6', Deleted: '24', Size: '2.0M'")
-        )
-        annot = IAnnotations(file)["collective.documentviewer"]
-        self.assertEqual(annot["num_pages"], 1)
-        self.assertEqual(annot["last_updated"], "2010-01-01T00:00:00")
-        self.assertEqual(
-            [k for k in annot["blob_files"].keys()],
-            ["large/dump_1.jpg", "normal/dump_1.jpg", "small/dump_1.jpg"],
-        )
-
-        # Test date_back
-        converter = Converter(file)
-        converter()
-        new_date = datetime.today() - timedelta(days=366)
-        new_date = DateTime(datetime.strftime(new_date, "%Y/%m/%d")).ISO8601()
-        imail.setModificationDate(new_date)
-        imail._p_changed = True
-        imail.reindexObject(idxs=['modified'])
-        annot = IAnnotations(file)["collective.documentviewer"]
-        self.assertEqual(annot["num_pages"], 6)
-        self.assertNotEqual(annot["last_updated"], "2010-01-01T00:00:00")
-        self.assertTrue(
-            dv_clean(self.portal, date_back=(datetime.today() - timedelta(days=367)).strftime("%Y%m%d")).endswith(
-                "Files: '0', Pages: '0', Deleted: '0', Size: '0.0k'"
-            )
-        )
-        self.assertTrue(
-            dv_clean(self.portal, date_back=(datetime.today() - timedelta(days=365)).strftime("%Y%m%d")).endswith(
-                "Files: '1', Pages: '6', Deleted: '24', Size: '2.0M'"
-            )
-        )
-
-    def test_eml_preview(self):
-        # Create incoming mail with file
-        intids = getUtility(IIntIds)
-        params = {
-            "title": "Courrier 10",
-            "mail_type": "courrier",
-            "internal_reference_no": "E0010",
-            "sender": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
-            "treating_groups": self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
-            "description": "Ceci est la description du courrier",
-            "mail_date": datetime.today(),
-        }
-        iemail = sub_create(self.imf, "dmsincoming_email", datetime.today(), "my-id", **params)
-        pdf_example_filename = os.path.join(os.path.dirname(__file__), "files", "example.eml")
-        with open(pdf_example_filename, "rb") as fo:
-            file_object = NamedBlobFile(fo.read(), filename=u"example.eml")
-            # This prevents the subscriber from executing eml_preview too early in the test
-            with patch("imio.dms.mail.subscribers.eml_preview", new=Mock(return_value=None)):
-                dmsmainfile = createContentInContainer(
-                    iemail,
-                    "dmsmainfile",
-                    title="",
-                    file=file_object,
-                    scan_id="050999900000010",
-                    scan_date=datetime.today(),
-                )
-        annot = IAnnotations(dmsmainfile)
-        self.assertNotIn("successfully_converted", annot)
-        eml_preview(dmsmainfile)
-        annot = IAnnotations(dmsmainfile)["collective.documentviewer"]
-        self.assertEqual(annot["num_pages"], 1)
-        self.assertEqual(annot["successfully_converted"], True)
-        self.assertEqual(
-            [k for k in annot["blob_files"].keys()],
-            ["large/dump_1.jpg", "normal/dump_1.jpg", "small/dump_1.jpg"],
-        )
-        blobs = [bl for bl in annot["blob_files"].values()]
-        self.assertEqual(blobs[0], blobs[1])
-        with open(os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"), 'rb') as f1, \
-                open(blobs[0]._p_blob_uncommitted, 'rb') as f2:
-            self.assertEqual(f1.read(), f2.read())
-
     def test_update_solr_config(self):
         # Early return when collective.solr is not configured (registry records absent)
         self.assertEqual(api.portal.get_registry_record("collective.solr.host", default="not found"), "not found")
@@ -1082,13 +933,13 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         # Setup: create the registry records collective.solr would normally provide
         plone_registry = getUtility(IRegistry)
         solr_records = {
-            "collective.solr.port": (reg_field.Int(title=u"port"), 8983),
-            "collective.solr.host": (reg_field.TextLine(title=u"host"), u"localhost"),
-            "collective.solr.base": (reg_field.TextLine(title=u"base"), u"/solr"),
-            "collective.solr.solr_login": (reg_field.TextLine(title=u"login"), u"login"),
-            "collective.solr.solr_password": (reg_field.TextLine(title=u"password"), u"pwd"),
-            "collective.solr.https_connection": (reg_field.Bool(title=u"https"), False),
-            "collective.solr.ignore_certificate_check": (reg_field.Bool(title=u"ignore cert"), True),
+            "collective.solr.port": (reg_field.Int(title="port"), 8983),
+            "collective.solr.host": (reg_field.TextLine(title="host"), "localhost"),
+            "collective.solr.base": (reg_field.TextLine(title="base"), "/solr"),
+            "collective.solr.solr_login": (reg_field.TextLine(title="login"), "login"),
+            "collective.solr.solr_password": (reg_field.TextLine(title="password"), "pwd"),
+            "collective.solr.https_connection": (reg_field.Bool(title="https"), False),
+            "collective.solr.ignore_certificate_check": (reg_field.Bool(title="ignore cert"), True),
         }
         for key, (fld, value) in solr_records.items():
             rec = Record(fld)
@@ -1100,16 +951,20 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         os.environ["COLLECTIVE_SOLR_HTTPS_CONNECTION"] = "true"
         os.environ["COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK"] = "false"
         update_solr_config()
-        self.assertEqual(api.portal.get_registry_record("collective.solr.host"), u"newhost")
+        self.assertEqual(api.portal.get_registry_record("collective.solr.host"), "newhost")
         self.assertEqual(api.portal.get_registry_record("collective.solr.port"), 9000)
         self.assertEqual(api.portal.get_registry_record("collective.solr.https_connection"), True)
         self.assertEqual(api.portal.get_registry_record("collective.solr.ignore_certificate_check"), False)
         # Absent env vars → unchanged values
-        self.assertEqual(api.portal.get_registry_record("collective.solr.base"), u"/solr")
-        self.assertEqual(api.portal.get_registry_record("collective.solr.solr_login"), u"login")
+        self.assertEqual(api.portal.get_registry_record("collective.solr.base"), "/solr")
+        self.assertEqual(api.portal.get_registry_record("collective.solr.solr_login"), "login")
         # os.environ is process-level state, not rolled back by the test layer
-        for key in ("COLLECTIVE_SOLR_HOST", "COLLECTIVE_SOLR_PORT", "COLLECTIVE_SOLR_HTTPS_CONNECTION",
-                    "COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK"):
+        for key in (
+            "COLLECTIVE_SOLR_HOST",
+            "COLLECTIVE_SOLR_PORT",
+            "COLLECTIVE_SOLR_HTTPS_CONNECTION",
+            "COLLECTIVE_SOLR_IGNORE_CERTIFICATE_CHECK",
+        ):
             del os.environ[key]
 
     def test_is_hp_used_in_signer_rules(self):
@@ -1122,7 +977,7 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             "number": 1,
             "signer": bourgmestre_hp.UID(),
             "esign": True,
-            "approvings": [u"_empty_"],
+            "approvings": ["_empty_"],
             "editor": False,
             "treating_groups": [],
             "mail_types": [],
@@ -1176,3 +1031,186 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
         # Approver in rules, remaining_usages=["approving"]: not a conflict
         self.assertFalse(is_hp_used_in_signer_rules(bourgmestre_hp, ["approving"]))
+
+    def test_VariousMethods_check_scan_id(self):
+        view = VariousUtilsMethods(self.portal, self.portal.REQUEST)
+        self.change_user("agent")
+        self.assertIsNone(view.check_scan_id())
+        self.change_user("siteadmin")
+        imail = sub_create(
+            self.imf, "dmsincomingmail", datetime.now(), "my-id", title="Scan", internal_reference_no="E9999"
+        )
+        createContentInContainer(imail, "dmsmainfile", id="scan", scan_id="010999900001000")
+        bad = sub_create(self.imf, "dmsincomingmail", datetime.now(), "bad-id", title="Bad scan")
+        createContentInContainer(bad, "dmsmainfile", id="bad", scan_id="010999900AB")
+        # one scan id by 1000, by flow
+        out = view.check_scan_id()
+        self.assertIn("<h1>Courrier entrant</h1>", out)
+        self.assertIn('<a href="{}" target="_blank">1000</a>, E9999'.format(imail.absolute_url()), out)
+        self.assertIn("Invalid scan_id '010999900AB' for item {}".format(bad["bad"].absolute_url()), out)
+        # sorted by internal reference
+        out = view.check_scan_id(sort="ref")
+        self.assertIn('<a href="{}" target="_blank">E9999</a>, 1000'.format(imail.absolute_url()), out)
+
+    def test_VariousMethods_kofax_orgs(self):
+        view = VariousUtilsMethods(self.portal, self.portal.REQUEST)
+        self.change_user("agent")
+        self.assertIsNone(view.kofax_orgs())
+        self.change_user("siteadmin")
+        lines = safe_unicode(view.kofax_orgs()).split("\r\n")
+        self.assertEqual(lines[0], _tr("Creating groups : to be used in kofax index"))
+        self.assertIn(_tr("Treating groups : to be used in kofax index"), lines)
+        dg_uid = self.pgof["direction-generale"].UID()
+        self.assertIn("Direction générale ___ {}".format(dg_uid), lines)
+
+    def test_VariousMethods_template_infos(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        # a file not generated from a template
+        annex = createContentInContainer(omail, "dmsappendixfile", file=NamedBlobFile("pdf", filename="a.pdf"))
+        self.assertEqual(VariousUtilsMethods(annex, annex.REQUEST).template_infos(), "No template infos")
+        # a document generated from a template
+        main = self.portal["templates"]["om"]["main"]
+        gen_view = omail.restrictedTraverse("persistent-document-generation")
+        gen_view.pod_template = main
+        gen_view.output_format = "odt"
+        doc = gen_view.generate_persistent_doc(main, "odt")
+        out = VariousUtilsMethods(doc, doc.REQUEST).template_infos()
+        self.assertTrue(out.startswith("<p>Template: "))
+        self.assertIn(main.absolute_url(), out)
+        for name in sorted(main.get_templates_to_merge()):
+            self.assertIn("<li>{} = ".format(name), out)
+
+    def test_VariousMethods_user_usages(self):
+        view = VariousUtilsMethods(self.portal, self.portal.REQUEST)
+        self.assertEqual(view.user_usages("chef"), "You must be a zope manager to run this script")
+        self.change_user("admin")
+        self.assertEqual(view.user_usages(), "You must give a parameter named 'userid'")
+        self.assertEqual(view.user_usages("unknown"), "Cannot find a user with userid='unknown'")
+        # the report is also printed: stdout is captured (non-ASCII titles break on an ASCII stdout)
+        with patch("sys.stdout", StringIO()):
+            out = view.user_usages("chef")
+        self.assertIn("<h1>Usages of user name 'chef'</h1>", out)
+        self.assertIn("Email='chef@macommune.be'", out)
+        self.assertIn("<p>=> Found a person ", out)
+        # chef is the sender of 3 outgoing mails as "responsable-grh"
+        hp = self.contacts["personnel-folder"]["chef"]["responsable-grh"]
+        om_url = "{}/outgoing-mail/mail-searches#c1={}&c7={}".format(
+            self.portal.absolute_url(), self.omf["mail-searches"]["all_mails"].UID(), hp.UID()
+        )
+        self.assertIn('<a href="{}" target="_blank">3</a> om sender.'.format(om_url), out)
+
+    def test_manage_fields(self):
+        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields"
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id", title="Test")
+        # sender first, mail_type not editable, description not displayed, external reference removed
+        config = []
+        for dic in api.portal.get_registry_record(rk):
+            if dic["field_name"] == "external_reference_no":
+                continue
+            dic = dict(dic)
+            if dic["field_name"] == "mail_type":
+                dic["write_tal_condition"] = "python:False"
+            elif dic["field_name"] == "IDublinCore.description":
+                dic["read_tal_condition"] = "python:False"
+            if dic["field_name"] == "sender":
+                config.insert(0, dic)
+            else:
+                config.append(dic)
+        api.portal.set_registry_record(rk, config)
+
+        def form_fields(form):
+            return list(form.fields.keys()) + [name for group in form.groups for name in group.fields.keys()]
+
+        edit = IMEdit(imail, imail.REQUEST)
+        edit.update()
+        self.assertEqual(list(edit.fields.keys())[0], "sender")
+        self.assertNotIn("mail_type", form_fields(edit))
+        self.assertIn("IDublinCore.description", form_fields(edit))
+        self.assertNotIn("external_reference_no", form_fields(edit))
+        view = IMView(imail, imail.REQUEST)
+        view.update()
+        self.assertIn("mail_type", form_fields(view))
+        self.assertNotIn("IDublinCore.description", form_fields(view))
+        self.assertNotIn("external_reference_no", form_fields(view))
+        # the signing fieldset is shown only when a signing field is configured
+        omail = sub_create(
+            self.omf,
+            "dmsoutgoingmail",
+            datetime.now(),
+            "my-id",
+            title="Test",
+            treating_groups=get_registry_organizations()[0],
+        )
+        edit = OMEdit(omail, omail.REQUEST)
+        edit.update()
+        self.assertNotIn("signing", [group.__name__ for group in edit.groups])
+        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields"
+        config = api.portal.get_registry_record(rk)
+        config.append({"field_name": "ISigningBehavior.signers", "read_tal_condition": "", "write_tal_condition": ""})
+        api.portal.set_registry_record(rk, config)
+        edit = OMEdit(omail, omail.REQUEST)
+        edit.update()
+        signing = [group for group in edit.groups if group.__name__ == "signing"]
+        self.assertEqual(list(signing[0].fields.keys()), ["ISigningBehavior.signers"])
+
+    def _im_in_n_plus_1(self):
+        """Return an incoming mail proposed to the n+1 level of its treating group."""
+        imail = sub_create(
+            self.imf,
+            "dmsincomingmail",
+            datetime.now(),
+            "my-id",
+            title="Test",
+            treating_groups=get_registry_organizations()[0],
+        )
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-im_n_plus_1_wfadaptation", run_dependencies=False
+        )
+        api.portal.set_registry_record(AUC_RECORD, "no_check")
+        api.content.transition(imail, "propose_to_n_plus_1")
+        return imail
+
+    def test_is_n_plus_level_obsolete(self):
+        imail = sub_create(self.imf, "dmsincomingmail", datetime.now(), "my-id2", title="Test")
+        # no treating group
+        self.assertEqual(is_n_plus_level_obsolete(imail, "dmsincomingmail"), (False, None, None))
+        # not in a validation state
+        imail.treating_groups = get_registry_organizations()[0]
+        self.assertEqual(is_n_plus_level_obsolete(imail, "dmsincomingmail"), (False, "created", None))
+        # in the n+1 validation state, with a n+1 user
+        imail = self._im_in_n_plus_1()
+        obsolete, state, config = is_n_plus_level_obsolete(imail, "dmsincomingmail")
+        self.assertFalse(obsolete)
+        self.assertEqual(state, "proposed_to_n_plus_1")
+        self.assertEqual(config, get_dms_config(["transitions_levels", "dmsincomingmail"]))
+        # the validation state checked is not the current one
+        self.assertFalse(is_n_plus_level_obsolete(imail, "dmsincomingmail", state_start="proposed_to_manager")[0])
+        # no more n+1 user in the treating group: the level is obsolete
+        api.group.remove_user(groupname="{}_n_plus_1".format(imail.treating_groups), username="chef")
+        self.assertTrue(is_n_plus_level_obsolete(imail, "dmsincomingmail")[0])
+
+    def test_do_next_transition(self):
+        imail = self._im_in_n_plus_1()
+        # the n+1 level has no more user: the mail goes to the next level
+        api.group.remove_user(groupname="{}_n_plus_1".format(imail.treating_groups), username="chef")
+        do_next_transition(imail, "dmsincomingmail")
+        self.assertEqual(api.content.get_state(imail), "proposed_to_agent")
+
+    def test_get_context_with_request(self):
+        col = self.imf["mail-searches"]["all_mails"]
+        request = self.portal.REQUEST
+        # a context with a request is kept
+        self.assertEqual(get_context_with_request(col).UID(), col.UID())
+        # no request (the registry when editing a collection): the published view context is used
+        request.set("PUBLISHED", DummyView(col, request))
+        self.assertEqual(get_context_with_request(Dummy()).UID(), col.UID())
+        # no published view: the collection is found from the referer
+        request.set("PUBLISHED", None)
+        request.set("HTTP_REFERER", "{}/edit".format(col.absolute_url()))
+        self.assertEqual(get_context_with_request(Dummy()).UID(), col.UID())
+        # the referer is not a collection
+        request.set("HTTP_REFERER", self.imf.absolute_url())
+        self.assertIsNone(get_context_with_request(Dummy()))
+        # the referer is not found
+        request.set("HTTP_REFERER", "{}/unknown/edit".format(self.portal.absolute_url()))
+        self.assertIsNone(get_context_with_request(Dummy()))

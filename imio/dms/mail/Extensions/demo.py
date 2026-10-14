@@ -10,11 +10,11 @@ from collective.dms.batchimport.utils import createDocument
 from collective.dms.mailcontent.dmsmail import internalReferenceIncomingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.dms.mailcontent.dmsmail import mailDateDefaultValue
-from collective.documentgenerator.utils import need_mailing_value
 from collective.iconifiedcategory.utils import calculate_category_id
 from datetime import datetime
 from imio.dms.mail import add_path
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail.dg_compat import need_mailing_value
 from imio.dms.mail.dmsmail import ImioDmsOutgoingMail
 from imio.dms.mail.dmssignrequest import internalReferenceSignRequestDefaultValue
 from imio.dms.mail.examples import add_special_model_mail
@@ -91,29 +91,39 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
     docs = {
         "dmsincomingmail": {  # i_e ok
             "59.PDF": {
-                "c": {"mail_type": "courrier", "file_title": "010500000000001.pdf", "recipient_groups": [],
-                      "send_modes": ["post"]},
+                "c": {
+                    "mail_type": "courrier",
+                    "file_title": "010500000000001.pdf",
+                    "recipient_groups": [],
+                    "send_modes": ["post"],
+                },
                 "f": {
                     "scan_id": "010500000000001",
                     "pages_number": 1,
                     "scan_date": now,
                     "scan_user": "Opérateur",
                     "scanner": "Ricola",
-                    "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
-                                                              ["incoming-dms-file"]),
+                    "content_category": calculate_category_id(
+                        portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
+                    ),
                 },
             },
             "60.PDF": {
-                "c": {"mail_type": "courrier", "file_title": "010500000000002.pdf", "recipient_groups": [],
-                      "send_modes": ["post"]},
+                "c": {
+                    "mail_type": "courrier",
+                    "file_title": "010500000000002.pdf",
+                    "recipient_groups": [],
+                    "send_modes": ["post"],
+                },
                 "f": {
                     "scan_id": "010500000000002",
                     "pages_number": 1,
                     "scan_date": now,
                     "scan_user": "Opérateur",
                     "scanner": "Ricola",
-                    "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
-                                                              ["incoming-dms-file"])
+                    "content_category": calculate_category_id(
+                        portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
+                    ),
                 },
             },
         },
@@ -123,11 +133,11 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     "email3.pdf",
                     {
                         "c": {
-                            "title": u"Organisation de la braderie annuelle début septembre",
-                            "mail_type": u"courrier",
-                            "file_title": u"email.pdf",
+                            "title": "Organisation de la braderie annuelle début septembre",
+                            "mail_type": "courrier",
+                            "file_title": "email.pdf",
                             "recipient_groups": [],
-                            "orig_sender_email": u"josiane@gmail.com",
+                            "orig_sender_email": "josiane@gmail.com",
                             "tg": ["evenements"],
                             "user": "agent",
                             "send_modes": ["email"],
@@ -138,8 +148,9 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "scan_date": now,
                             "scan_user": "",
                             "scanner": "",
-                            "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
-                                                                      ["incoming-dms-file"])
+                            "content_category": calculate_category_id(
+                                portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
+                            ),
                         },
                         "s": "proposed_to_agent",
                     },
@@ -148,11 +159,11 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     "email4.pdf",
                     {
                         "c": {
-                            "title": u"Facture 3P XX12345",
-                            "mail_type": u"courrier",
-                            "file_title": u"email.pdf",
+                            "title": "Facture 3P XX12345",
+                            "mail_type": "courrier",
+                            "file_title": "email.pdf",
                             "recipient_groups": [],
-                            "orig_sender_email": u"facturation@3p.be",
+                            "orig_sender_email": "facturation@3p.be",
                             "send_modes": ["email"],
                         },
                         "f": {
@@ -161,8 +172,9 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "scan_date": now,
                             "scan_user": "",
                             "scanner": "",
-                            "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
-                                                                      ["incoming-dms-file"])
+                            "content_category": calculate_category_id(
+                                portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
+                            ),
                         },
                         "a": ["facture-3P-XX12345.pdf"],
                     },
@@ -171,11 +183,11 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     "email1.pdf",
                     {
                         "c": {
-                            "title": u"Réservation de la salle Le Foyer",
-                            "mail_type": u"courrier",
-                            "file_title": u"email.pdf",
+                            "title": "Réservation de la salle Le Foyer",
+                            "mail_type": "courrier",
+                            "file_title": "email.pdf",
                             "recipient_groups": [],
-                            "orig_sender_email": u"s.geul@mail.com",
+                            "orig_sender_email": "s.geul@mail.com",
                             "tg": ["direction-generale", "secretariat"],
                             "user": "agent",
                             "send_modes": ["email"],
@@ -186,8 +198,9 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "scan_date": now,
                             "scan_user": "",
                             "scanner": "",
-                            "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
-                                                                      ["incoming-dms-file"])
+                            "content_category": calculate_category_id(
+                                portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
+                            ),
                         },
                         "s": "proposed_to_agent",
                     },
@@ -196,11 +209,11 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     "email2.pdf",
                     {
                         "c": {
-                            "title": u"Où se situe votre entité par rapport aux Objectifs de développement durable ?",
-                            "mail_type": u"courrier",
-                            "file_title": u"email.pdf",
+                            "title": "Où se situe votre entité par rapport aux Objectifs de développement durable ?",
+                            "mail_type": "courrier",
+                            "file_title": "email.pdf",
                             "recipient_groups": [],
-                            "orig_sender_email": u"m.bou@rw.be",
+                            "orig_sender_email": "m.bou@rw.be",
                             "send_modes": ["email"],
                         },
                         "f": {
@@ -209,8 +222,9 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                             "scan_date": now,
                             "scan_user": "",
                             "scanner": "",
-                            "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
-                                                                      ["incoming-dms-file"])
+                            "content_category": calculate_category_id(
+                                portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
+                            ),
                         },
                     },
                 ),
@@ -238,7 +252,7 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
     count = 1
     limit = int(number)
     while count <= limit:
-        doc = docs_cycle.next()
+        doc = next(docs_cycle)
         if only and doc not in onlys:
             time.sleep(0.5)
             continue
@@ -269,10 +283,15 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
         for attachment in docs[ptype][doc].get("a", []):
             with open(add_path("Extensions/%s" % attachment), "rb") as fo:
                 file_object = NamedBlobFile(fo.read(), filename=safe_unicode(doc))
-            createContentInContainer(document, "dmsappendixfile", title=attachment, file=file_object,
-                                     content_category=calculate_category_id(portal["annexes_types"]
-                                                                            ["incoming_appendix_files"]
-                                                                            ["incoming-appendix-file"]))
+            createContentInContainer(
+                document,
+                "dmsappendixfile",
+                title=attachment,
+                file=file_object,
+                content_category=calculate_category_id(
+                    portal["annexes_types"]["incoming_appendix_files"]["incoming-appendix-file"]
+                ),
+            )
         # state
         if "s" in docs[ptype][doc]:
             to_state = docs[ptype][doc]["s"]
@@ -306,28 +325,30 @@ def import_scanned2(self, number=2):
     now = datetime.now()
     portal = getToolByName(self, "portal_url").getPortalObject()
     docs = {
-        u"011500000000001.pdf": {
-            "c": {"mail_type": "courrier", "file_title": u"011500000000001.pdf", "outgoing_date": now},
+        "011500000000001.pdf": {
+            "c": {"mail_type": "courrier", "file_title": "011500000000001.pdf", "outgoing_date": now},
             "f": {
                 "scan_id": "011500000000001",
                 "pages_number": 1,
                 "scan_date": now,
                 "scan_user": "Opérateur",
                 "scanner": "Ricola",
-                "content_category": calculate_category_id(portal["annexes_types"]["outgoing_dms_files"]
-                                                          ["outgoing-scanned-dms-file"]),
+                "content_category": calculate_category_id(
+                    portal["annexes_types"]["outgoing_dms_files"]["outgoing-scanned-dms-file"]
+                ),
             },
         },
-        u"011500000000002.pdf": {
-            "c": {"mail_type": "courrier", "file_title": u"011500000000002.pdf", "outgoing_date": now},
+        "011500000000002.pdf": {
+            "c": {"mail_type": "courrier", "file_title": "011500000000002.pdf", "outgoing_date": now},
             "f": {
                 "scan_id": "011500000000002",
                 "pages_number": 1,
                 "scan_date": now,
                 "scan_user": "Opérateur",
                 "scanner": "Ricola",
-                "content_category": calculate_category_id(portal["annexes_types"]["outgoing_dms_files"]
-                                                          ["outgoing-scanned-dms-file"]),
+                "content_category": calculate_category_id(
+                    portal["annexes_types"]["outgoing_dms_files"]["outgoing-scanned-dms-file"]
+                ),
             },
         },
     }
@@ -337,7 +358,7 @@ def import_scanned2(self, number=2):
     limit = int(number)
     user = api.user.get_current()
     while count <= limit:
-        doc = docs_cycle.next()
+        doc = next(docs_cycle)
         with open(add_path("Extensions/%s" % doc), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=doc)
         count += 1
@@ -388,13 +409,17 @@ def create_main_file(self, filename="", title="1", mainfile_type="dmsmainfile", 
         category = calculate_category_id(portal["annexes_types"]["incoming_dms_files"]["incoming-dms-file"])
     else:  # appendix file
         return "method need to be improved to chose appendix file category"
-        category = calculate_category_id(portal["annexes_types"]["incoming_appendix_files"]
-                                         ["incoming-appendix-file"])
+        category = calculate_category_id(portal["annexes_types"]["incoming_appendix_files"]["incoming-appendix-file"])
 
     with open(filepath, "rb") as fo:
         file_object = NamedBlobFile(fo.read(), filename=safe_unicode(filename))
-        obj = createContentInContainer(self, mainfile_type, title=safe_unicode(title), file=file_object,
-                                       content_category=category,)
+        obj = createContentInContainer(
+            self,
+            mainfile_type,
+            title=safe_unicode(title),
+            file=file_object,
+            content_category=category,
+        )
     if redirect:
         return obj.REQUEST.response.redirect("%s/view" % obj.absolute_url())
 
@@ -410,7 +435,7 @@ def clean_examples(self, doit="1"):
     out = []
     portal = api.portal.getSite()
     if doit:
-        portal.portal_properties.site_properties.enable_link_integrity_checks = False
+        api.portal.set_registry_record("plone.enable_link_integrity_checks", False)
     registry = getUtility(IRegistry)
 
     # Delete om
@@ -558,7 +583,7 @@ def clean_examples(self, doit="1"):
             api.content.delete(objects=[category])
     if doit:
         caching.invalidate_cache("collective.classification.tree.utils.iterate_over_tree_data", portal["tree"].UID())
-        portal.portal_properties.site_properties.enable_link_integrity_checks = True
+        api.portal.set_registry_record("plone.enable_link_integrity_checks", True)
     # Create test om
     if doit:
         add_special_model_mail(portal)
@@ -603,13 +628,7 @@ def activate_signing(self):
 
 
 def disable_resources_debug_mode(self):
-    portal = self
-    css_tool = portal.portal_css
-    js_tool = portal.portal_javascripts
-    if getattr(css_tool, 'getDebugMode', None):
-        css_tool.setDebugMode(False)
-    if getattr(js_tool, 'getDebugMode', None):
-        js_tool.setDebugMode(False)
+    api.portal.set_registry_record("plone.resources.development", False)
 
 
 def approval_annot(self):
@@ -644,23 +663,24 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
         return "You must be a manager to run this script"
     if not userids:
         user = api.user.get_current()
-        return ("You must call this script with the following parameters:\n"
-                "-> userids : mandatory userids used as signers, separated by comma\n"
-                "-> cases : create only specified cases\n"
-                "-> mnb : number of mails to create\n"
-                "-> fnb : number of files to create\n"
-                "-> approve : if '1', approve esign mails (propose_to_approve + approvings)\n"
-                "Example: import_sign_examples?userids={}&cases=136\n\n"
-                "Cases:\n"
-                "-> 1 : signataire avec modèle\n"
-                "-> 2 : signataire avec annexe seule\n"
-                "-> 3 : signataire avec modèle et annexe\n"
-                "-> 4 : seal avec modèle\n"
-                "-> 5 : signataire et seal avec modèle\n"
-                "-> 6 : signataire avec modèle à publiposter\n"
-                "-> 7 : sans signature électronique avec modèle\n"
-                "-> 8 : demande de signature (sign_request) avec annexes\n".format(user and user.getId() or "dirg")
-                )
+        return (
+            "You must call this script with the following parameters:\n"
+            "-> userids : mandatory userids used as signers, separated by comma\n"
+            "-> cases : create only specified cases\n"
+            "-> mnb : number of mails to create\n"
+            "-> fnb : number of files to create\n"
+            "-> approve : if '1', approve esign mails (propose_to_approve + approvings)\n"
+            "Example: import_sign_examples?userids={}&cases=136\n\n"
+            "Cases:\n"
+            "-> 1 : signataire avec modèle\n"
+            "-> 2 : signataire avec annexe seule\n"
+            "-> 3 : signataire avec modèle et annexe\n"
+            "-> 4 : seal avec modèle\n"
+            "-> 5 : signataire et seal avec modèle\n"
+            "-> 6 : signataire avec modèle à publiposter\n"
+            "-> 7 : sans signature électronique avec modèle\n"
+            "-> 8 : demande de signature (sign_request) avec annexes\n".format(user and user.getId() or "dirg")
+        )
 
     portal = api.portal.get()
     pc = portal.portal_catalog
@@ -690,7 +710,7 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
     if user_ids[0] in pf and pf[user_ids[0]].primary_organization:
         treating_groups_uid = pf[user_ids[0]].primary_organization
     else:
-        try :
+        try:
             secretariat = pgo["direction-generale"]["secretariat"]
         except KeyError:
             return "Organization 'direction-generale/secretariat' not found in plonegroup-organization"
@@ -707,20 +727,20 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
     except KeyError:
         return "Agent secretariat not found in personnel-folder"
 
-    def _om_generate_from_template(mail, template, suffix=u""):
+    def _om_generate_from_template(mail, template, suffix=""):
         """Generate a dmsommainfile on the outgoing mail from the given POD template."""
         view = mail.restrictedTraverse("persistent-document-generation")
         view.pod_template = template
         view.output_format = "odt"
         doc = view.generate_persistent_doc(view.pod_template, view.output_format)
         if suffix:
-            doc.title = u"{} ({})".format(doc.title, suffix)
+            doc.title = "{} ({})".format(doc.title, suffix)
 
-    def _om_add_signable_annex(mail, portal, annex_filename, suffix=u""):
+    def _om_add_signable_annex(mail, portal, annex_filename, suffix=""):
         """Add a signable appendix file on the outgoing mail."""
         with open(add_path("Extensions/%s" % annex_filename), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=annex_filename)
-        title = u"Annexe à signer" + (u" ({})".format(suffix) if suffix else u"")
+        title = "Annexe à signer" + (" ({})".format(suffix) if suffix else "")
         createContentInContainer(
             mail,
             "dmsappendixfile",
@@ -738,7 +758,7 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
         createContentInContainer(
             request,
             "dmsappendixfile",
-            title=u"Annexe à signer: {}".format(filename),
+            title="Annexe à signer: {}".format(filename),
             file=file_object,
             content_category=calculate_category_id(
                 portal["annexes_types"]["sign_request_appendix_files"]["sign-request-appendix-file"]
@@ -780,15 +800,15 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
     container = create_period_folder(ofld, datetime.now())
 
     template = portal["templates"]["om"]["main"]
-    annex_filename = u"011500000000001.pdf"
+    annex_filename = "011500000000001.pdf"
     base_params = {
         "mail_date": mailDateDefaultValue(data),
         "treating_groups": treating_groups_uid,
-        "mail_type": u"courrier",
+        "mail_type": "courrier",
         "sender": sender_uid,
-        "assigned_user": u"agent",
+        "assigned_user": "agent",
         "recipients": [RelationValue(intids.getId(anniekordi))],
-        "send_modes": [u"post"],
+        "send_modes": ["post"],
     }
 
     # Case 8: demande de signature (sign_request) avec annexes (fnb fichiers, cyclés sur 2, 3, 1)
@@ -799,19 +819,20 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
             "treating_groups": treating_groups_uid,
             "assigned_user": assigned_user,
             "recipient_groups": [],
-            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
-                        for i, shp in enumerate(signer_hp_uids, start=1)],
+            "signers": [
+                {"number": i, "signer": shp, "approvings": ["_themself_"], "editor": False}
+                for i, shp in enumerate(signer_hp_uids, start=1)
+            ],
             "esign": True,
         }
-        base_title = u"Cas 8 => demande de signature"
+        base_title = "Cas 8 => demande de signature"
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceSignRequestDefaultValue(data)
-            params["title"] = base_title if mnb == 1 else u"{} ({})".format(base_title, _m + 1)
+            params["title"] = base_title if mnb == 1 else "{} ({})".format(base_title, _m + 1)
             oid = get_correct_id(sr_container, "sign_request_case8")
             sr_container.invokeFactory("sign_request", id=oid, **params)
             request = sr_container[oid]
-            files_cycle = cycle((u"2-reservation-salle.pdf", u"3-degradation-voirie.odt",
-                                 u"1-contestation-facture.pdf"))
+            files_cycle = cycle(("2-reservation-salle.pdf", "3-degradation-voirie.odt", "1-contestation-facture.pdf"))
             for _f in range(fnb):
                 _sr_add_appendix(request, portal, next(files_cycle))
             if do_approve:
@@ -820,47 +841,65 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
     # Case 7: sans signature électronique (2 signataires manuels) + modèle
     if "7" in cases:
         params = dict(base_params)
-        params.update({
-            "title": u"Cas 7 => sans signature électronique avec modèle",
-            "signers": [{"number": 1, "signer": pf["dirg"]["directeur-general"].UID(), "approvings": [u"_empty_"],
-                         "editor": False},
-                        {"number": 2, "signer": pf["bourgmestre"]["bourgmestre"].UID(), "approvings": [u"_empty_"],
-                         "editor": False}],
-            "seal": False,
-            "esign": False,
-        })
+        params.update(
+            {
+                "title": "Cas 7 => sans signature électronique avec modèle",
+                "signers": [
+                    {
+                        "number": 1,
+                        "signer": pf["dirg"]["directeur-general"].UID(),
+                        "approvings": ["_empty_"],
+                        "editor": False,
+                    },
+                    {
+                        "number": 2,
+                        "signer": pf["bourgmestre"]["bourgmestre"].UID(),
+                        "approvings": ["_empty_"],
+                        "editor": False,
+                    },
+                ],
+                "seal": False,
+                "esign": False,
+            }
+        )
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
             if mnb > 1:
-                params["title"] = u"{} ({})".format(base_title, _m + 1)
+                params["title"] = "{} ({})".format(base_title, _m + 1)
             oid = get_correct_id(container, "esign_case7")
             container.invokeFactory("dmsoutgoingmail", id=oid, **params)
             mail = container[oid]
             for _f in range(fnb):
-                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else "")
 
     # Case 6: signataire + modèle à publiposter
     if "6" in cases:
         params = dict(base_params)
-        params.update({
-            "title": u"Cas 6 => 1 signataire avec modèle à publiposter",
-            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
-                        for i, shp in enumerate(signer_hp_uids, start=1)],
-            "esign": True,
-            "recipients": [RelationValue(intids.getId(anniekordi)),
-                           RelationValue(intids.getId(contacts["electrabel"]))],
-        })
+        params.update(
+            {
+                "title": "Cas 6 => 1 signataire avec modèle à publiposter",
+                "signers": [
+                    {"number": i, "signer": shp, "approvings": ["_themself_"], "editor": False}
+                    for i, shp in enumerate(signer_hp_uids, start=1)
+                ],
+                "esign": True,
+                "recipients": [
+                    RelationValue(intids.getId(anniekordi)),
+                    RelationValue(intids.getId(contacts["electrabel"])),
+                ],
+            }
+        )
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
             if mnb > 1:
-                params["title"] = u"{} ({})".format(base_title, _m + 1)
+                params["title"] = "{} ({})".format(base_title, _m + 1)
             oid = get_correct_id(container, "esign_case6")
             container.invokeFactory("dmsoutgoingmail", id=oid, **params)
             mail = container[oid]
             for _f in range(fnb):
-                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else "")
             if do_approve:
                 _trigger_mailing_loop(mail)
                 _approve_item(mail)
@@ -868,112 +907,129 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
     # Case 5: signataire + seal + modèle
     if "5" in cases:
         params = dict(base_params)
-        params.update({
-            "title": u"Cas 5 => 1 signataire et seal avec modèle",
-            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
-                        for i, shp in enumerate(signer_hp_uids, start=1)],
-            "seal": True,
-            "esign": True,
-        })
+        params.update(
+            {
+                "title": "Cas 5 => 1 signataire et seal avec modèle",
+                "signers": [
+                    {"number": i, "signer": shp, "approvings": ["_themself_"], "editor": False}
+                    for i, shp in enumerate(signer_hp_uids, start=1)
+                ],
+                "seal": True,
+                "esign": True,
+            }
+        )
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
             if mnb > 1:
-                params["title"] = u"{} ({})".format(base_title, _m + 1)
+                params["title"] = "{} ({})".format(base_title, _m + 1)
             oid = get_correct_id(container, "esign_case5")
             container.invokeFactory("dmsoutgoingmail", id=oid, **params)
             mail = container[oid]
             for _f in range(fnb):
-                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else "")
             if do_approve:
                 _approve_item(mail)
 
     # Case 4: seal seul (pas de signataire, pas d'esign) + modèle
     if "4" in cases:
         params = dict(base_params)
-        params.update({
-            "title": u"Cas 4 => seal avec modèle",
-            "signers": [{"number": 1, "signer": u"_empty_", "approvings": [u"_empty_"], "editor": False}],
-
-            "seal": True,
-            "esign": False,
-        })
+        params.update(
+            {
+                "title": "Cas 4 => seal avec modèle",
+                "signers": [{"number": 1, "signer": "_empty_", "approvings": ["_empty_"], "editor": False}],
+                "seal": True,
+                "esign": False,
+            }
+        )
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
             if mnb > 1:
-                params["title"] = u"{} ({})".format(base_title, _m + 1)
+                params["title"] = "{} ({})".format(base_title, _m + 1)
             oid = get_correct_id(container, "esign_case4")
             container.invokeFactory("dmsoutgoingmail", id=oid, **params)
             mail = container[oid]
             for _f in range(fnb):
-                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else "")
 
     # Case 3: signataire + modèle + annexe
     if "3" in cases:
         params = dict(base_params)
-        params.update({
-            "title": u"Cas 3 => 1 signataire avec modèle et annexe",
-            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
-                        for i, shp in enumerate(signer_hp_uids, start=1)],
-            "esign": True,
-        })
+        params.update(
+            {
+                "title": "Cas 3 => 1 signataire avec modèle et annexe",
+                "signers": [
+                    {"number": i, "signer": shp, "approvings": ["_themself_"], "editor": False}
+                    for i, shp in enumerate(signer_hp_uids, start=1)
+                ],
+                "esign": True,
+            }
+        )
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
             if mnb > 1:
-                params["title"] = u"{} ({})".format(base_title, _m + 1)
+                params["title"] = "{} ({})".format(base_title, _m + 1)
             oid = get_correct_id(container, "esign_case3")
             container.invokeFactory("dmsoutgoingmail", id=oid, **params)
             mail = container[oid]
             for _f in range(fnb):
-                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else "")
             for _f in range(fnb):
-                _om_add_signable_annex(mail, portal, annex_filename, _f + 1 if fnb > 1 else u"")
+                _om_add_signable_annex(mail, portal, annex_filename, _f + 1 if fnb > 1 else "")
             if do_approve:
                 _approve_item(mail)
 
     # Case 2: signataire + annexe seule
     if "2" in cases:
         params = dict(base_params)
-        params.update({
-            "title": u"Cas 2 => 1 signataire avec annexe seule",
-            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
-                        for i, shp in enumerate(signer_hp_uids, start=1)],
-            "esign": True,
-        })
+        params.update(
+            {
+                "title": "Cas 2 => 1 signataire avec annexe seule",
+                "signers": [
+                    {"number": i, "signer": shp, "approvings": ["_themself_"], "editor": False}
+                    for i, shp in enumerate(signer_hp_uids, start=1)
+                ],
+                "esign": True,
+            }
+        )
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
             if mnb > 1:
-                params["title"] = u"{} ({})".format(base_title, _m + 1)
+                params["title"] = "{} ({})".format(base_title, _m + 1)
             oid = get_correct_id(container, "esign_case2")
             container.invokeFactory("dmsoutgoingmail", id=oid, **params)
             mail = container[oid]
             for _f in range(fnb):
-                _om_add_signable_annex(mail, portal, annex_filename, _f + 1 if fnb > 1 else u"")
+                _om_add_signable_annex(mail, portal, annex_filename, _f + 1 if fnb > 1 else "")
             if do_approve:
                 _approve_item(mail)
 
     # Case 1: signataire + modèle
     if "1" in cases:
         params = dict(base_params)
-        params.update({
-            "title": u"Cas 1 => 1 signataire avec modèle",
-            "signers": [{"number": i, "signer": shp, "approvings": [u"_themself_"], "editor": False}
-                        for i, shp in enumerate(signer_hp_uids, start=1)],
-            "esign": True,
-        })
+        params.update(
+            {
+                "title": "Cas 1 => 1 signataire avec modèle",
+                "signers": [
+                    {"number": i, "signer": shp, "approvings": ["_themself_"], "editor": False}
+                    for i, shp in enumerate(signer_hp_uids, start=1)
+                ],
+                "esign": True,
+            }
+        )
         base_title = params["title"]
         for _m in range(mnb):
             params["internal_reference_no"] = internalReferenceOutgoingMailDefaultValue(data)
             if mnb > 1:
-                params["title"] = u"{} ({})".format(base_title, _m + 1)
+                params["title"] = "{} ({})".format(base_title, _m + 1)
             oid = get_correct_id(container, "esign_case1")
             container.invokeFactory("dmsoutgoingmail", id=oid, **params)
             mail = container[oid]
             for _f in range(fnb):
-                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else u"")
+                _om_generate_from_template(mail, template, _f + 1 if fnb > 1 else "")
             if do_approve:
                 _approve_item(mail)
     if cases == "8":
@@ -997,20 +1053,20 @@ def sub_templates_usage(self):
 
     portal = api.portal.get()
     catalog = getToolByName(portal, "portal_catalog")
-    portal_path = u"/".join(portal.getPhysicalPath())
+    portal_path = "/".join(portal.getPhysicalPath())
 
     def title_path(obj):
         """Breadcrumb-like path made of the Title of each level between the
-           site root (excluded) and ``obj`` (included)."""
+        site root (excluded) and ``obj`` (included)."""
         titles = []
         current = obj.aq_inner
         while current is not None:
-            current_path = u"/".join(current.getPhysicalPath())
+            current_path = "/".join(current.getPhysicalPath())
             if current_path == portal_path or not current_path.startswith(portal_path):
                 break
             titles.append(safe_unicode(current.Title()))
             current = aq_parent(current.aq_inner)
-        return u" / ".join(reversed(titles))
+        return " / ".join(reversed(titles))
 
     # Map each sub-template UID to its brain (kept to also list unused ones).
     sub_templates = {}
@@ -1030,42 +1086,38 @@ def sub_templates_usage(self):
     rows = []
     for uid in sorted(sub_templates, key=lambda u: safe_unicode(sub_templates[u].Title).lower()):
         sub_brain = sub_templates[uid]
-        sub_label = u'<a href="{}">{}</a>'.format(sub_brain.getURL(), safe_unicode(sub_brain.Title))
+        sub_label = '<a href="{}">{}</a>'.format(sub_brain.getURL(), safe_unicode(sub_brain.Title))
         using = usage.get(uid, [])
         if not using:
-            rows.append(
-                u'<tr><td>{}</td><td colspan="2"><em>not used</em></td></tr>'.format(sub_label)
-            )
+            rows.append('<tr><td>{}</td><td colspan="2"><em>not used</em></td></tr>'.format(sub_label))
             continue
         # Group the using templates by the path of their container so that all
         # templates living under the same path share a single cell, listed.
         groups = {}
         for template in using:
             parent = template.aq_inner.aq_parent
-            key = u"/".join(parent.getPhysicalPath())
+            key = "/".join(parent.getPhysicalPath())
             groups.setdefault(key, {"title_path": title_path(parent), "templates": []})
             groups[key]["templates"].append(template)
         for idx, key in enumerate(sorted(groups)):
             group = groups[key]
-            items = u"".join(
-                u'<li><a href="{}">{}</a></li>'.format(t.absolute_url(), safe_unicode(t.Title()))
+            items = "".join(
+                '<li><a href="{}">{}</a></li>'.format(t.absolute_url(), safe_unicode(t.Title()))
                 for t in sorted(group["templates"], key=lambda t: safe_unicode(t.Title()).lower())
             )
-            cells = u"<td>{}</td><td><ul>{}</ul></td>".format(group["title_path"], items)
+            cells = "<td>{}</td><td><ul>{}</ul></td>".format(group["title_path"], items)
             if idx == 0:
-                rows.append(
-                    u'<tr><td rowspan="{}">{}</td>{}</tr>'.format(len(groups), sub_label, cells)
-                )
+                rows.append('<tr><td rowspan="{}">{}</td>{}</tr>'.format(len(groups), sub_label, cells))
             else:
-                rows.append(u"<tr>{}</tr>".format(cells))
+                rows.append("<tr>{}</tr>".format(cells))
 
     html = (
-        u"<html><head><title>Sub-templates usage</title></head><body>"
-        u"<h2>Sub-templates usage</h2>"
-        u'<table border="1" cellpadding="4" cellspacing="0">'
-        u"<thead><tr><th>Sub-template</th><th>Path</th><th>Using templates</th></tr></thead>"
-        u"<tbody>{}</tbody></table></body></html>"
-    ).format(u"".join(rows))
+        "<html><head><title>Sub-templates usage</title></head><body>"
+        "<h2>Sub-templates usage</h2>"
+        '<table border="1" cellpadding="4" cellspacing="0">'
+        "<thead><tr><th>Sub-template</th><th>Path</th><th>Using templates</th></tr></thead>"
+        "<tbody>{}</tbody></table></body></html>"
+    ).format("".join(rows))
 
     self.REQUEST.response.setHeader("Content-Type", "text/html;charset=utf-8")
     return safe_encode(html)

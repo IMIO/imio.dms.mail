@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from imio.dms.mail import add_path
 from plone import api
+from plone.namedfile.file import NamedBlobImage
 from Products.CMFPlone.utils import safe_unicode
 from zope.component import getMultiAdapter
 
@@ -32,7 +33,7 @@ def robot_init(self):
             api.content.transition(obj=msg, transition="deactivate")
 
     # Deactivate auto refresh on outgoingmail
-    portal.portal_javascripts.updateScript("++resource++imio.dms.mail/outgoingmail.js", enabled=False)
+    api.portal.set_registry_record("plone.bundles/imio-dms-mail-outgoingmail.enabled", False)
 
     return self.REQUEST.response.redirect(self.absolute_url())
     # must always return a redirect in robot...
@@ -47,13 +48,19 @@ def video_doc_init(self, pdb=""):
     filename = "outlook-ruban.jpg"
     if filename in portal:
         return self.REQUEST.response.redirect(self.absolute_url())
-    iprops = portal.portal_properties.imaging_properties
-    orig_sizes = iprops.allowed_sizes
+    orig_sizes = api.portal.get_registry_record("plone.allowed_sizes")
     new_sizes = [size for size in orig_sizes if not size.startswith("preview")]
     new_sizes.append("preview 768:768")
-    iprops.manage_changeProperties(allowed_sizes=new_sizes)
+    api.portal.set_registry_record("plone.allowed_sizes", new_sizes)
     filepath = add_path("tests/robot/outlook-ruban-1.jpg")
     with open(filepath, "rb") as fo:
-        portal.invokeFactory("Image", id=filename, title=safe_unicode(filename), file=fo.read(), excludeFromNav=True)
+        api.content.create(
+            container=portal,
+            type="Image",
+            id=filename,
+            title=safe_unicode(filename),
+            image=NamedBlobImage(fo.read(), filename=safe_unicode(filename)),
+            exclude_from_nav=True,
+        )
     return self.REQUEST.response.redirect(self.absolute_url())
     # must always return a redirect in robot...

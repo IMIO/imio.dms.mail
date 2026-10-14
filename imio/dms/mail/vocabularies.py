@@ -11,7 +11,7 @@ from collective.contact.plonegroup.utils import get_selected_org_suffix_principa
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.iconifiedcategory.vocabularies import CategoryVocabulary
-from ftw.labels.interfaces import ILabelJar
+from collective.labels.interfaces import ILabelJar
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
@@ -26,14 +26,15 @@ from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import get_plone_groups_for_user
+from imio.helpers.vocabularies import get_users_voc
 from imio.helpers.vocabularies import voc_cache_key as users_groups_cache_key
 from natsort import humansorted
 from operator import attrgetter
 from plone import api
+from plone.base.utils import base_hasattr
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.memoize import ram
 from Products.CMFPlone import PloneMessageFactory as pmf
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from unidecode import unidecode  # unidecode_expect_nonascii not yet available in used version
 from z3c.formwidget.query.interfaces import IQuerySource
@@ -66,7 +67,7 @@ class BaseReviewStatesVocabulary(object):
 
     def __call__(self, context):
         if self.site_language:
-            tl = api.portal.get().portal_properties.site_properties.getProperty("default_language", "fr")
+            tl = api.portal.get_registry_record("plone.default_language", default="fr")
             kwargs = {"target_language": tl}
         else:
             kwargs = {"context": context.REQUEST}
@@ -132,7 +133,7 @@ class HeldPositionUsagesVocabulary(object):
         res = [
             # SimpleTerm(EMPTY_STRING, EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
             SimpleTerm("signer", "signer", _("Signer")),
-            SimpleTerm("approving", "approving", _("Approving"))
+            SimpleTerm("approving", "approving", _("Approving")),
         ]
         return SimpleVocabulary(res)
 
@@ -143,8 +144,7 @@ class AssignedUsersWithDeactivatedVocabulary(object):
 
     @ram.cache(users_groups_cache_key)
     def AssignedUsersWithDeactivatedVocabulary__call__(self, context):
-        factory = getUtility(IVocabularyFactory, "plone.principalsource.Users")
-        vocab = factory(context)  # terms as username, userid, fullname
+        vocab = get_users_voc(False)  # terms as userid, userid, fullname (was plone.principalsource.Users)
         a_terms = []
         d_terms = []
         active_orgs = get_registry_organizations()
@@ -281,7 +281,7 @@ def get_internal_held_positions_vocabulary(states=(), usages=(), as_person=False
             if person.userid not in terms_dict:
                 terms_dict[person.userid] = (
                     person,
-                    SimpleTerm(person.UID(), person.userid, person.get_title(include_person_title=False))
+                    SimpleTerm(person.UID(), person.userid, person.get_title(include_person_title=False)),
                 )
         else:
             terms.append(
@@ -297,10 +297,10 @@ def get_internal_held_positions_vocabulary(states=(), usages=(), as_person=False
             )
 
     def sort_persons(t):
-        return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1])
+        return getattr(t[0], sort_on[0]) or "", getattr(t[0], sort_on[1]) or ""
 
     def sort_hps(t):
-        return getattr(t[0], sort_on[0]), getattr(t[0], sort_on[1]), t[1].get_full_title(first_index=1)
+        return getattr(t[0], sort_on[0]) or "", getattr(t[0], sort_on[1]) or "", t[1].get_full_title(first_index=1)
 
     if as_person:
         return SimpleVocabulary([term for pers, term in sorted(terms_dict.values(), key=sort_persons)])
@@ -424,9 +424,10 @@ class SigningApprovingsVocabulary(object):
     def SigningApprovingsVocabulary__call__(self, context):
         return SimpleVocabulary(
             [
-                SimpleTerm(value=u"_empty_", title=_("* No validation")),
-                SimpleTerm(value=u"_themself_", title=_("* Themself")),
-            ] + get_internal_held_positions_vocabulary(usages="approving", as_person=True)._terms
+                SimpleTerm(value="_empty_", title=_("* No validation")),
+                SimpleTerm(value="_themself_", title=_("* Themself")),
+            ]
+            + get_internal_held_positions_vocabulary(usages="approving", as_person=True)._terms
         )
 
     __call__ = SigningApprovingsVocabulary__call__
@@ -440,8 +441,9 @@ class SigningRequestApprovingsVocabulary(object):
     def SigningRequestApprovingsVocabulary__call__(self, context):
         return SimpleVocabulary(
             [
-                SimpleTerm(value=u"_themself_", title=_("* Themself")),
-            ] + get_internal_held_positions_vocabulary(usages="approving", as_person=True)._terms
+                SimpleTerm(value="_themself_", title=_("* Themself")),
+            ]
+            + get_internal_held_positions_vocabulary(usages="approving", as_person=True)._terms
         )
 
     __call__ = SigningRequestApprovingsVocabulary__call__
@@ -454,7 +456,7 @@ def encodeur_active_orgs(context):
     :return: a filtered vocabulary with the user treating groups (primary organization user is the first)
     """
     current_user = api.user.get_current()
-    factory = getUtility(IVocabularyFactory, u"collective.dms.basecontent.treating_groups")
+    factory = getUtility(IVocabularyFactory, "collective.dms.basecontent.treating_groups")
     voc = factory(context)
     # this is the case when calling ++widget++...
     if current_user.getId() is None:
@@ -498,10 +500,10 @@ class SignRequestActiveOrgsVocabulary(object):
 
     @ram.cache(users_groups_cache_key)
     def SignRequestActiveOrgsVocabulary__call__(self, context):
-        factory = getUtility(IVocabularyFactory, u"collective.dms.basecontent.treating_groups")
+        factory = getUtility(IVocabularyFactory, "collective.dms.basecontent.treating_groups")
         voc = factory(context)
         terms = [
-            term for term in voc.vocab._terms if get_selected_org_suffix_principal_ids(term.value, [u"demand_sign"])
+            term for term in voc.vocab._terms if get_selected_org_suffix_principal_ids(term.value, ["demand_sign"])
         ]
         return SimpleVocabulary(terms)
 
@@ -517,7 +519,7 @@ def signrequest_active_orgs(context):
     :param context:
     :return: the (possibly reordered) organizations vocabulary
     """
-    factory = getUtility(IVocabularyFactory, u"imio.dms.mail.SignRequestActiveOrgsVocabulary")
+    factory = getUtility(IVocabularyFactory, "imio.dms.mail.SignRequestActiveOrgsVocabulary")
     voc = factory(context)
     current_user = api.user.get_current()
     # this is the case when calling ++widget++...
@@ -538,15 +540,13 @@ def signrequest_active_orgs(context):
             groups = get_plone_groups_for_user(user=current_user)
             orgs = [
                 org
-                for org in organizations_with_suffixes(groups, [u"demand_sign"], group_as_str=True)
+                for org in organizations_with_suffixes(groups, ["demand_sign"], group_as_str=True)
                 if org in voc.by_value
             ]
             if len(orgs) == 1:
                 first_org = orgs[0]
         if first_org:
-            return SimpleVocabulary(
-                [voc.getTerm(first_org)] + [term for term in voc._terms if term.value != first_org]
-            )
+            return SimpleVocabulary([voc.getTerm(first_org)] + [term for term in voc._terms if term.value != first_org])
     return voc
 
 
@@ -693,7 +693,7 @@ class SourceAbleContextBinder(object):
 
 
 class ServicesSourceAbleVocabulary(SourceAbleVocabulary):
-    vocabulary_name = u"collective.dms.basecontent.recipient_groups"
+    vocabulary_name = "collective.dms.basecontent.recipient_groups"
 
 
 class ServicesSourceBinder(SourceAbleContextBinder):
@@ -719,8 +719,8 @@ class IMPortalTypesVocabulary(object):
     def __call__(self, context):
         return SimpleVocabulary(
             [
-                SimpleTerm("dmsincomingmail", title=pmf(u"Incoming Mail")),
-                SimpleTerm("dmsincoming_email", title=pmf(u"Incoming Email")),
+                SimpleTerm("dmsincomingmail", title=pmf("Incoming Mail")),
+                SimpleTerm("dmsincoming_email", title=pmf("Incoming Email")),
             ]
         )
 
@@ -810,7 +810,7 @@ class ActiveInactiveStatesVocabulary(object):
 
     def __call__(self, context):
         return SimpleVocabulary(
-            [SimpleTerm("active", title=pmf(u"Active")), SimpleTerm("deactivated", title=pmf(u"Deactivated"))]
+            [SimpleTerm("active", title=pmf("Active")), SimpleTerm("deactivated", title=pmf("Deactivated"))]
         )
 
 
@@ -820,11 +820,11 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
     classification folders"""
 
     def _get_categories(self, context, only_enabled=True):
-        catalog = api.portal.get_tool('portal_catalog')
+        catalog = api.portal.get_tool("portal_catalog")
         parent_type = context.aq_parent.portal_type
         context_type = context.portal_type
         url = context.REQUEST.getURL()
-        typeupload = context.REQUEST.get('typeupload', '')
+        typeupload = context.REQUEST.get("typeupload", "")
         query = {
             "object_provides": "collective.iconifiedcategory.content.category.ICategory",
             "enabled": True,
@@ -834,14 +834,16 @@ class DmsFilesCategoryVocabulary(CategoryVocabulary):
         if {"dmsincomingmail", "dmsincoming_email"}.intersection({parent_type, context_type}):
             if context_type == "dmsmainfile" or url.endswith("dmsmainfile"):
                 query["path"] = "{}/annexes_types/incoming_dms_files".format(portal_path)
-            elif (context_type == 'dmsappendixfile' or url.endswith('dmsappendixfile')
-                  or typeupload == 'dmsappendixfile'):
+            elif (
+                context_type == "dmsappendixfile" or url.endswith("dmsappendixfile") or typeupload == "dmsappendixfile"
+            ):
                 query["path"] = "{}/annexes_types/incoming_appendix_files".format(portal_path)
         elif {"dmsoutgoingmail", "dmsoutgoing_email"}.intersection({parent_type, context_type}):
             if context_type == "dmsommainfile" or url.endswith("dmsommainfile"):
                 query["path"] = "{}/annexes_types/outgoing_dms_files".format(portal_path)
-            elif (context_type == "dmsappendixfile" or url.endswith("dmsappendixfile")
-                  or typeupload == 'dmsappendixfile'):
+            elif (
+                context_type == "dmsappendixfile" or url.endswith("dmsappendixfile") or typeupload == "dmsappendixfile"
+            ):
                 query["path"] = "{}/annexes_types/outgoing_appendix_files".format(portal_path)
         elif {"sign_request"}.intersection({parent_type, context_type}):
             query["path"] = "{}/annexes_types/sign_request_appendix_files".format(portal_path)
@@ -858,12 +860,12 @@ class PODTemplateContentCategoriesVocabulary(object):
     """Return content categories vocabulary for POD templates."""
 
     def __call__(self, context):
-        catalog = api.portal.get_tool('portal_catalog')
-        portal_path = '/'.join(api.portal.get().getPhysicalPath())
+        catalog = api.portal.get_tool("portal_catalog")
+        portal_path = "/".join(api.portal.get().getPhysicalPath())
         query = {
-            'object_provides': 'collective.iconifiedcategory.content.category.ICategory',
-            'enabled': True,
-            'path': ['{}/annexes_types/outgoing_dms_files'.format(portal_path)],
+            "object_provides": "collective.iconifiedcategory.content.category.ICategory",
+            "enabled": True,
+            "path": ["{}/annexes_types/outgoing_dms_files".format(portal_path)],
         }
         brains = catalog.unrestrictedSearchResults(**query)
         content_categories = [(calculate_category_id(b.getObject()), b.Title) for b in brains]

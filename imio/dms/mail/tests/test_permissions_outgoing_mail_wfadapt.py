@@ -13,10 +13,10 @@ class TestPermissionsOutgoingMailWfAdapt(TestPermissionsBaseOutgoingMail):
         change_user(self.portal)
         params = {
             "validation_level": 1,
-            "state_title": u"À valider par le chef de service",
-            "forward_transition_title": u"Proposer au chef de service",
-            "backward_transition_title": u"Renvoyer au chef de service",
-            "function_title": u"N+1",
+            "state_title": "À valider par le chef de service",
+            "forward_transition_title": "Proposer au chef de service",
+            "backward_transition_title": "Renvoyer au chef de service",
+            "function_title": "N+1",
             "validated_from_created": True,
         }
         sva = OMServiceValidation()

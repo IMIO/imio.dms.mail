@@ -5,14 +5,20 @@ from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefa
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.MockMailHost.MockMailHost import MockMailHost
 from datetime import datetime
-from HTMLParser import HTMLParser
+from html import unescape
 from imio.dms.mail import _
-from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.browser.views import ApprovalTableView
+from imio.dms.mail.browser.views import CreateFromTemplateForm
+from imio.dms.mail.browser.views import ImioCatalogNavigationTabs
+from imio.dms.mail.browser.views import ImioExternalSessionCreateView
 from imio.dms.mail.browser.views import ImioRecreateSessionView
+from imio.dms.mail.browser.views import ImioRemoveItemFromSessionView
+from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.browser.views import parse_query
 from imio.dms.mail.browser.views import SessionAnnotationInfoView
+from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.testing import change_user
@@ -20,8 +26,10 @@ from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
+from imio.esign.config import set_esign_registry_enabled
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import add_files_to_session
+from imio.esign.utils import create_session
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import get_object
 from imio.helpers.content import richtextval
@@ -33,56 +41,86 @@ from plone.app.testing import login
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import safe_unicode
+from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield import RelationValue
+from zExceptions import Unauthorized
 from zope.component import getUtility
-from zope.i18n import translate
 from zope.intid import IIntIds
 
 import json
 import unittest
 
 
-class TestReplyForm(unittest.TestCase):
+class TestCreateFromTemplateForm(unittest.TestCase):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def setUp(self):
         self.portal = self.layer["portal"]
-
-    def test_updateFields(self):
-        imail1 = get_object(oid="courrier1", ptype="dmsincomingmail")
-        view = imail1.unrestrictedTraverse("@@reply")
-        view.updateFields()
-        form = self.portal.REQUEST.form
-        expected_linked_mails = ("/".join(imail1.getPhysicalPath()),)
-        self.assertEqual(form["form.widgets.reply_to"], expected_linked_mails)
-        self.assertEqual(translate(view.label), u"Reply to E0001 - Courrier 1")
-        expected_recipients = ("/plone/contacts/electrabel",)
-        self.assertEqual(form["form.widgets.recipients"], expected_recipients)
-
-    def test_add(self):
+        self.request = self.portal.REQUEST
         change_user(self.portal)
-        imail1 = get_object(oid="courrier1", ptype="dmsincomingmail")
-        omail1 = api.content.create(
-            container=self.portal["outgoing-mail"], type="dmsoutgoingmail", id="newo1", title="TEST"
+        self.omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.view = self.omail.unrestrictedTraverse("@@create-from-template")
+
+    def test_label(self):
+        self.assertIsInstance(self.view, CreateFromTemplateForm)
+        self.assertEqual(self.view.label(), "S0001 - Réponse 1: créer à partir d'un modèle")
+
+    def test_get_action_name(self):
+        self.assertEqual(self.view.get_action_name(), "Choisir ce modèle")
+
+    def test_get_query(self):
+        self.assertDictEqual(
+            self.view.get_query(),
+            {
+                "path": {"query": "/plone/templates/om", "depth": -1},
+                "portal_type": ("Folder", "ConfigurablePODTemplate"),
+                "enabled": True,
+            },
         )
-        view = imail1.unrestrictedTraverse("@@reply")
-        view.add(omail1)
-        self.assertIn("newo1", self.portal["outgoing-mail"][datetime.now().strftime(PERIODS["week"])])
+        # only enabled templates in non empty folders are proposed
+        data = json.loads(self.view.get_data())
+        self.assertListEqual(
+            [(node["title"], node["folder"]) for node in data],
+            [("Modèle de base", False), ("Modèles communs", True), ("Direction générale - Secrétariat", True)],
+        )
+        main = self.portal["templates"]["om"]["main"]
+        main.enabled = False
+        main.reindexObject()
+        data = json.loads(self.view.get_data())
+        self.assertNotIn(main.UID(), [node["key"] for node in data])
 
+    def test_redirect_url(self):
+        # with a CSRF token: the generation writes on this GET
+        self.assertRegex(
+            self.view.redirect_url("abc"),
+            r"^{}/persistent-document-generation\?template_uid=abc&output_format=odt&_authenticator=\w+$".format(
+                self.omail.absolute_url()
+            ),
+        )
 
-class TestPloneView(unittest.TestCase):
-
-    layer = DMSMAIL_INTEGRATION_TESTING
-
-    def setUp(self):
-        self.portal = self.layer["portal"]
-
-    def test_showEditableBorder(self):
-        view = get_object(oid="courrier1", ptype="dmsincomingmail").unrestrictedTraverse("@@plone")
-        self.assertEqual(view.showEditableBorder(), False)
-        view = self.portal["front-page"].unrestrictedTraverse("@@plone")
-        self.assertEqual(view.showEditableBorder(), True)
+    def test_call(self):
+        # GET: the fancytree form
+        self.request["REQUEST_METHOD"] = "GET"
+        rendered = self.view()
+        self.assertIn("<h1>S0001 - Réponse 1: créer à partir d'un modèle</h1>", rendered)
+        self.assertIn('<form id="tree-form" method="post"', rendered)
+        self.assertIn('<div id="tree" data-nodes="[{&quot;title&quot;: ', rendered)
+        self.assertIn('<input name="uid" type="hidden" value="" />', rendered)
+        self.assertIn('<input type="submit" value="Choisir ce modèle" />', rendered)
+        # POST: redirect to the generation view
+        main = self.portal["templates"]["om"]["main"]
+        self.request.method = "POST"
+        self.request.form["uid"] = main.UID()
+        self.request["uid"] = main.UID()
+        self.assertEqual(self.view(), "")
+        self.assertTrue(
+            self.request.response.getHeader("Location").startswith(
+                "{}/persistent-document-generation?template_uid={}&output_format=odt&_authenticator=".format(
+                    self.omail.absolute_url(), main.UID()
+                )
+            )
+        )
 
 
 class TestContactSuggest(unittest.TestCase):
@@ -122,6 +160,14 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(
             ret.pop(0), {"text": "Electrabel / Travaux 1 [TOUT]", "id": "l:%s" % self.elec["travaux"].UID()}
         )
+        self.assertEqual(view.request.response.getHeader("Content-type"), "application/json")
+        # a term emptied by the cleaning: empty SearchableText, every contact is found (Plone 4 catalog)
+        view.request["term"] = "()"
+        ret = json.loads(view())
+        self.assertListEqual(
+            [dic["text"] for dic in ret[:3]], ["Electrabel", "Electrabel / Travaux 1", "Mon organisation"]
+        )
+        self.assertGreater(len(ret), 20)
 
     def test_call_SenderSuggest(self):
         omail1 = get_object(oid="courrier1", ptype="dmsincomingmail")
@@ -134,14 +180,14 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Monsieur Fred Agent, Agent Événements (Mon organisation / Événements)",
+                "text": "Monsieur Fred Agent, Agent Événements (Mon organisation / Événements)",
                 "id": self.pf["agent"]["agent-evenements"].UID(),
             },
         )
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Monsieur Stef Agent, Agent Événements (Mon organisation / Événements)",
+                "text": "Monsieur Stef Agent, Agent Événements (Mon organisation / Événements)",
                 "id": self.pf["agent1"]["agent-evenements"].UID(),
             },
         )
@@ -151,31 +197,38 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Mon organisation / Direction générale / GRH",
-                u"id": self.pgo["direction-generale"]["grh"].UID(),
+                "text": "Mon organisation / Direction générale / GRH",
+                "id": self.pgo["direction-generale"]["grh"].UID(),
             },
         )
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Monsieur Fred Agent, Agent GRH (Mon organisation / Direction générale / GRH)",
+                "text": "Monsieur Fred Agent, Agent GRH (Mon organisation / Direction générale / GRH)",
                 "id": self.pf["agent"]["agent-grh"].UID(),
             },
         )
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Monsieur Michel Chef, Responsable GRH (Mon organisation / Direction générale / GRH)",
+                "text": "Monsieur Michel Chef, Responsable GRH (Mon organisation / Direction générale / GRH)",
                 "id": self.pf["chef"]["responsable-grh"].UID(),
             },
         )
         self.assertEqual(
             ret.pop(0),
             {
-                "text": u"Mon organisation / Direction générale / GRH [TOUT]",
-                u"id": "l:%s" % self.pgo["direction-generale"]["grh"].UID(),
+                "text": "Mon organisation / Direction générale / GRH [TOUT]",
+                "id": "l:%s" % self.pgo["direction-generale"]["grh"].UID(),
             },
         )
+        # a term emptied by the cleaning: empty SearchableText, every internal contact is found (Plone 4 catalog)
+        view.request["term"] = "*"
+        ret = json.loads(view())
+        self.assertListEqual(
+            [dic["text"] for dic in ret[:2]], ["Mon organisation", "Mon organisation / Collège communal"]
+        )
+        self.assertNotIn("Electrabel", [dic["text"] for dic in ret])
 
 
 class TestServerSentEvents(unittest.TestCase):
@@ -193,47 +246,52 @@ class TestServerSentEvents(unittest.TestCase):
         eee_vw = omf.restrictedTraverse("@@externalEditorEnabled")
 
         # a dmsommainfile has been added manually and we go back on the dmsoutgoingmail
-        self.assertEqual(omf.conversion_finished, True)
+        omf.conversion_finished = True  # set by the collective.documentviewer conversion (dropped on Plone 6)
         self.assertFalse(hasattr(omf, "generated"))
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
+        response = sse_vw.request.response
+        self.assertEqual(response.getHeader("Content-Type"), "text/event-stream; charset=utf-8")
+        self.assertEqual(response.getHeader("Cache-Control"), "no-cache")
 
         # a dmsommainfile has been generated
         omf.generated = 1
         omf.conversion_finished = True
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         self.assertEqual(omf.generated, 2)  # waiting external edition
         # we lock like zopeedit
         omf.restrictedTraverse("lock-unlock")()
         self.assertTrue(eee_vw.isObjectLocked())
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         self.assertEqual(omf.generated, 3)  # was always waiting but will end
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         self.assertEqual(omf.generated, 3)  # no more waiting but locked
         # we unlock
         omf.restrictedTraverse("lock-unlock")(unlock=1)
         self.assertFalse(eee_vw.isObjectLocked())
         res = sse_vw()
-        # u'data: {"path": "/plone/outgoing-mail/reponse1/1", "id": "1", "refresh": true}\n\n'
-        self.assertIn('"id": "1", "refresh": true', res)  # we refresh
+        # u'data: {"id": "1", "path": "/plone/outgoing-mail/reponse1/1", "refresh": true}\n\n'
+        self.assertIn('data: {"id": "1", ', res)
+        self.assertIn('"refresh": true}', res)  # we refresh
 
         # a dmsommainfile is edited with zopeedit
         self.assertFalse(hasattr(omf, "generated"))
         self.assertFalse(hasattr(omf, "conversion_finished"))
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         # we lock like zopeedit
         omf.restrictedTraverse("lock-unlock")()
         self.assertTrue(eee_vw.isObjectLocked())
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         # we save the file in the editor but dont close it
         omf.conversion_finished = True
-        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertEqual(sse_vw(), "")  # no refresh
         self.assertEqual(omf.generated, 3)  # set as no more waiting
         # we unlock
         omf.restrictedTraverse("lock-unlock")(unlock=1)
         self.assertFalse(eee_vw.isObjectLocked())
         res = sse_vw()
-        # u'data: {"path": "/plone/outgoing-mail/reponse1/1", "id": "1", "refresh": true}\n\n'
-        self.assertIn('"id": "1", "refresh": true', res)  # we refresh
+        # u'data: {"id": "1", "path": "/plone/outgoing-mail/reponse1/1", "refresh": true}\n\n'
+        self.assertIn('data: {"id": "1", ', res)
+        self.assertIn('"refresh": true}', res)  # we refresh
 
 
 class TestUpdateItem(unittest.TestCase):
@@ -255,6 +313,14 @@ class TestUpdateItem(unittest.TestCase):
         form["assigned_user"] = "chef"
         view()
         self.assertEqual(imail1.assigned_user, "chef")
+        # catalog is updated
+        pc = self.portal.portal_catalog
+        self.assertEqual(len(pc.unrestrictedSearchResults(UID=imail1.UID(), assigned_user="chef")), 1)
+        # Plone 4: the write is done on a GET request, without CSRF token (called by callViewAndReload)
+        self.portal.REQUEST["REQUEST_METHOD"] = "GET"
+        self.portal.REQUEST["assigned_user"] = "agent"
+        imail1.unrestrictedTraverse("@@update_item")()
+        self.assertEqual(imail1.assigned_user, "agent")
 
 
 class TestSendEmail(unittest.TestCase):
@@ -267,11 +333,11 @@ class TestSendEmail(unittest.TestCase):
 
     def test_call(self):
         omail1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
-        omail1.send_modes = [u"email"]
-        omail1.email_subject = u"Email subject"
-        omail1.email_sender = u"sender@mio.be"
-        omail1.email_recipient = u"contakt@mio.be"
-        omail1.email_body = richtextval(u"My email content.")
+        omail1.send_modes = ["email"]
+        omail1.email_subject = "Email subject"
+        omail1.email_sender = "sender@mio.be"
+        omail1.email_recipient = "contakt@mio.be"
+        omail1.email_body = richtextval("My email content.")
         view = omail1.unrestrictedTraverse("@@send_email")
         # Status before call
         self.assertEqual(api.content.get_state(omail1), "created")
@@ -281,11 +347,31 @@ class TestSendEmail(unittest.TestCase):
         mail_host.reset()
         # view call
         view()
-        # self.assertIn("Subject: =?utf-8?q?Email_subject?=\n", mail_host.messages[0])
-        self.assertIn("Subject: Email subject\n", mail_host.messages[0])
-        self.assertIn("My email content.", mail_host.messages[0])
+        message = safe_unicode(mail_host.messages[0])
+        self.assertIn("Subject: =?utf-8?q?Email_subject?=\r\n", message)
+        self.assertIn("My email content.", message)
+        self.assertIn("From: sender@mio.be", message)
         self.assertEqual(api.content.get_state(omail1), "sent")
         self.assertIsNotNone(omail1.email_status)
+        messages = IStatusMessage(self.portal.REQUEST).show()
+        self.assertIn("Votre email a été envoyé", [msg.message for msg in messages])
+        # second sending (GET, without CSRF token), with reply-to option and without closing
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send", True
+        )
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_close_on_email_send", False
+        )
+        api.portal.set_registry_record("plone.email_from_address", "noreply@macommune.be")
+        first_status = omail1.email_status
+        self.portal.REQUEST["REQUEST_METHOD"] = "GET"
+        mail_host.reset()
+        omail1.unrestrictedTraverse("@@send_email")()
+        message = safe_unicode(mail_host.messages[0])
+        self.assertIn("reply-to: sender@mio.be", message)
+        self.assertIn("From: noreply@macommune.be", message)
+        self.assertTrue(omail1.email_status.startswith(first_status + " "))
+        self.assertEqual(omail1.email_status.count("Email envoyé le"), 2)
 
 
 class TestRenderEmailSignature(unittest.TestCase):
@@ -296,11 +382,11 @@ class TestRenderEmailSignature(unittest.TestCase):
         self.portal = self.layer["portal"]
         self.pgo = self.portal.contacts["plonegroup-organization"]
         self.pgo.use_parent_address = False
-        self.pgo.street = u"Rue Léon Morel"
-        self.pgo.number = u"1"
-        self.pgo.zip_code = u"5032"
-        self.pgo.city = u"Isnes"
-        self.pgo.email = u"contakt@mio.be"
+        self.pgo.street = "Rue Léon Morel"
+        self.pgo.number = "1"
+        self.pgo.zip_code = "5032"
+        self.pgo.city = "Isnes"
+        self.pgo.email = "contakt@mio.be"
 
     def test_call(self):
         model = api.portal.get_registry_record(
@@ -310,18 +396,18 @@ class TestRenderEmailSignature(unittest.TestCase):
         omail1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         view = omail1.unrestrictedTraverse("@@render_email_signature")
         self.assertIn("sender", view.namespace)
-        self.assertEqual(view.namespace["sender"]["org_full_title"], u"Direction générale - GRH")
-        self.assertEqual(view.namespace["sender"]["person"].title, u"Monsieur Michel Chef")
+        self.assertEqual(view.namespace["sender"]["org_full_title"], "Direction générale - GRH")
+        self.assertEqual(view.namespace["sender"]["person"].title, "Monsieur Michel Chef")
         # ctct_det = view.namespace['dghv'].get_ctct_det(view.namespace['sender']['hp'])
         rendered = view().output
-        self.assertIn(u">Michel Chef<", rendered)
-        self.assertIn(u">Responsable GRH<", rendered)
-        self.assertIn(u">Direction générale<", rendered)
-        self.assertIn(u">GRH<", rendered)
-        self.assertIn(u">chef@macommune.be<", rendered)
-        self.assertIn(u">012/34.56.79<", rendered)
-        self.assertIn(u">Rue Léon Morel, 1<", rendered)
-        self.assertIn(u">5032 Isnes<", rendered)
+        self.assertIn(">Michel Chef<", rendered)
+        self.assertIn(">Responsable GRH<", rendered)
+        self.assertIn(">Direction générale<", rendered)
+        self.assertIn(">GRH<", rendered)
+        self.assertIn(">chef@macommune.be<", rendered)
+        self.assertIn(">012/34.56.79<", rendered)
+        self.assertIn(">Rue Léon Morel, 1<", rendered)
+        self.assertIn(">5032 Isnes<", rendered)
 
 
 class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
@@ -346,7 +432,7 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         set_esign_registry_file_url("https://downloads.files.com")
         intids = getUtility(IIntIds)
         params = {
-            "title": u"Courrier test esign",
+            "title": "Courrier test esign",
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
@@ -355,25 +441,25 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",
             "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
-            "send_modes": u"post",
+            "send_modes": "post",
             "signers": [
                 {
                     "number": 1,
                     "signer": self.pf["dirg"]["directeur-general"].UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "editor": True,
                 },
                 {
                     "number": 2,
                     "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "editor": False,
                 },
             ],
             "esign": True,
         }
         omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-esign", **params)
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         files = []
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
@@ -405,9 +491,10 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
 
     def test_annot_html(self):
         """Test approval_annot_html and esign_session_html."""
+
         def fmt_dt(dte):
             """Format a datetime like the view does."""
-            return u"datetime({})".format(dte.strftime("%d/%m/%Y %H:%M:%S"))
+            return "datetime({})".format(dte.strftime("%d/%m/%Y %H:%M:%S"))
 
         omail, files, approval = self._setup_esign_omail()
         self._approve_all_files(omail, files, approval)
@@ -416,8 +503,8 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
 
         # approval annot html
         self.assertEqual(
-            HTMLParser().unescape(view.approval_annot_html),
-            u"""{{
+            unescape(view.approval_annot_html),
+            """{{
   "approval": [
     [
       {{
@@ -507,8 +594,8 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         # esign session html
         # self.maxDiff = None
         self.assertEqual(
-            HTMLParser().unescape(view.esign_session_html(esign_session[1])),
-            u"""{{
+            unescape(view.esign_session_html(esign_session[1])),
+            """{{
   "acroform": True,
   "client_id": "0129999",
   "discriminators": [
@@ -560,13 +647,15 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
 }}""".format(  # noqa E501
                 c_uid=omail.UID(),
                 pdf1_uid=api.content.get(omail.absolute_url_path() + "/file0").UID(),
-                pdf2_uid=api.content.get(omail.absolute_url_path()
-                                         + "/modele-de-base-s0010-courrier-test-esign.pdf").UID(),
+                pdf2_uid=api.content.get(
+                    omail.absolute_url_path() + "/modele-de-base-s0010-courrier-test-esign.pdf"
+                ).UID(),
                 folder_name=omail.__parent__.__name__,
                 last_update=fmt_dt(get_session_annotation()["sessions"][0]["last_update"]),
                 size=api.content.get(omail.absolute_url_path() + "/file0").file.size
-                + api.content.get(omail.absolute_url_path()
-                                  + "/modele-de-base-s0010-courrier-test-esign.pdf").file.size,
+                + api.content.get(
+                    omail.absolute_url_path() + "/modele-de-base-s0010-courrier-test-esign.pdf"
+                ).file.size,
             ),
         )
 
@@ -617,36 +706,40 @@ class TestObjectRenameTitleView(unittest.TestCase):
         request["HTTP_REFERER"] = omail.absolute_url() + "?foo=bar"
         view = omf.restrictedTraverse("@@object_rename_title")
         rendered = view()
-        self.assertIn(u'name="new_title"', rendered)
+        self.assertIn('name="new_title"', rendered)
         self.assertIn(original_title, rendered)
         self.assertEqual(view.orig_template, omail.absolute_url())
         self.assertEqual(omf.Title(), original_title)
 
         # POST with empty title: re-renders with error, title unchanged
         request.form.clear()
-        request.form.update({
-            "form.submitted": "1",
-            "_authenticator": token,
-            "new_title": u"   ",
-            "orig_template": omail.absolute_url(),
-            "form.button.RenameAll": "Rename All",
-        })
+        request.form.update(
+            {
+                "form.submitted": "1",
+                "_authenticator": token,
+                "new_title": "   ",
+                "orig_template": omail.absolute_url(),
+                "form.button.RenameAll": "Rename All",
+            }
+        )
         view = omf.restrictedTraverse("@@object_rename_title")
         rendered = view()
         self.assertTrue(view.error)
-        self.assertIn(u"field error", rendered)
+        self.assertIn("field error", rendered)
         self.assertEqual(omf.Title(), original_title)
 
         # POST with new title: persists, reindexes, redirects
-        new_title = u"Nouveau titre éàü"
+        new_title = "Nouveau titre éàü"
         request.form.clear()
-        request.form.update({
-            "form.submitted": "1",
-            "_authenticator": token,
-            "new_title": new_title,
-            "orig_template": omail.absolute_url(),
-            "form.button.RenameAll": "Rename All",
-        })
+        request.form.update(
+            {
+                "form.submitted": "1",
+                "_authenticator": token,
+                "new_title": new_title,
+                "orig_template": omail.absolute_url(),
+                "form.button.RenameAll": "Rename All",
+            }
+        )
         view = omf.restrictedTraverse("@@object_rename_title")
         view()
         self.assertEqual(omf.Title(), new_title)
@@ -677,7 +770,7 @@ class TestImioRecreateSessionView(unittest.TestCase):
         annotation, mirroring what add_mail_files_to_session does during a real workflow."""
         intids = getUtility(IIntIds)
         params = {
-            "title": u"Courrier recreate test",
+            "title": "Courrier recreate test",
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
@@ -686,22 +779,20 @@ class TestImioRecreateSessionView(unittest.TestCase):
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",
             "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
-            "send_modes": u"post",
+            "send_modes": "post",
             "signers": [
                 {
                     "number": 1,
                     "signer": self.pf["dirg"]["directeur-general"].UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "editor": True,
                 },
             ],
             "esign": True,
         }
-        omail = sub_create(
-            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-recreate", **params
-        )
+        omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-recreate", **params)
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file_obj = createContentInContainer(
                 omail,
@@ -712,10 +803,8 @@ class TestImioRecreateSessionView(unittest.TestCase):
                 content_category=calculate_category_id(ct),
             )
 
-        signers = [("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")]
-        old_id, _session = add_files_to_session(
-            signers, [file_obj.UID()], title=_("[iA.Docs] Session {sign_id}")
-        )[-1]
+        signers = [("dirg", "dirg@macommune.be", "Maxime DG", "Directeur Général")]
+        old_id, _session = add_files_to_session(signers, [file_obj.UID()], title=_("[iA.Docs] Session {sign_id}"))[-1]
         # Flip to refused
         annot = get_session_annotation()
         annot["sessions"][old_id]["state"] = "refused"
@@ -756,4 +845,262 @@ class TestImioRecreateSessionView(unittest.TestCase):
         annot = get_session_annotation()
         # the old session is consumed by the recreation, the new one gets a title with the new sign_id
         self.assertNotIn(old_id, annot["sessions"])
-        self.assertEqual(annot["sessions"][new_id]["title"], u"[iA.Docs] Courrier sortant - 012999900001")
+        self.assertEqual(annot["sessions"][new_id]["title"], "[iA.Docs] Courrier sortant - 012999900001")
+
+
+class TestPlusPortaltabContent(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        change_user(self.portal)
+
+    def test_get_tabs(self):
+        view = self.portal.unrestrictedTraverse("@@plus-portaltab-content")
+        self.assertListEqual(
+            view.get_tabs(),
+            [
+                ("Contacts", "http://nohost/plone/contacts"),
+                ("Modèles", "http://nohost/plone/templates"),
+                ("Classement", "http://nohost/plone/tree"),
+                ("Types d'annexes", "http://nohost/plone/annexes_types"),
+            ],
+        )
+        rendered = view()
+        self.assertIn('<div id="subportaltab-plus">', rendered)
+        self.assertIn('<a href="http://nohost/plone/annexes_types">Types d\'annexes</a>', rendered)
+
+
+class TestDmsMailRestClientView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_detailed_description(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        view = imail.unrestrictedTraverse("@@IncomingmailRestWSClient")
+        self.assertEqual(
+            view.detailed_description(),
+            '<p>Fiche courrier liée: <a href="{}/view" target="_blank">E0001 - Courrier 1</a></p>'.format(
+                imail.absolute_url()
+            ),
+        )
+
+
+class TestImioSessionsListingView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.portal.REQUEST
+        change_user(self.portal)
+        self.signers = [("dirg", "dirg@macommune.be", "Maxime DG", "Directeur Général")]
+
+    def test_session_portal_type(self):
+        view = ImioSessionsListingView(self.portal, self.request)
+        self.assertEqual(view.session_portal_type({"discriminators": ("sign_request",)}), "sign_request")
+        self.assertEqual(view.session_portal_type({"discriminators": ()}), "dmsoutgoingmail")
+        self.assertEqual(view.session_portal_type({}), "dmsoutgoingmail")
+
+    def test_get_dashboard_link(self):
+        activate_signing(self.portal)
+        om_sid, _session = create_session(self.signers)
+        sr_sid, _session = create_session(self.signers, discriminators=("sign_request",))
+        view = ImioSessionsListingView(self.portal, self.request)
+        om_col = self.portal["outgoing-mail"]["mail-searches"]["in_esign_sessions"]
+        self.assertEqual(
+            view.get_dashboard_link({"id": om_sid}),
+            "http://nohost/plone/outgoing-mail/mail-searches#c3=20&b_start=0&c1={}&esign_session_id={}".format(
+                om_col.UID(), om_sid
+            ),
+        )
+        sr_col = self.portal["requests"]["requests-searches"]["in_esign_sessions"]
+        self.assertEqual(
+            view.get_dashboard_link({"id": sr_sid}),
+            "http://nohost/plone/requests/requests-searches#c3=20&b_start=0&c1={}&esign_session_id={}".format(
+                sr_col.UID(), sr_sid
+            ),
+        )
+
+    def test_get_sessions(self):
+        activate_signing(self.portal)
+        om_sid, _session = create_session(self.signers)
+        sr_sid, _session = create_session(self.signers, discriminators=("sign_request",))
+        view = ImioSessionsListingView(self.portal, self.request)
+        self.assertListEqual([sess["id"] for sess in view.get_sessions()], [sr_sid, om_sid])
+        self.request.set("esign_portal_type", "sign_request")
+        self.assertListEqual([sess["id"] for sess in view.get_sessions()], [sr_sid])
+        self.request.set("esign_portal_type", "dmsoutgoingmail")
+        self.assertListEqual([sess["id"] for sess in view.get_sessions()], [om_sid])
+
+    def test_available(self):
+        with api.env.adopt_roles(["Manager"]):
+            if api.group.get("esign_watchers") is None:
+                api.group.create("esign_watchers")
+            api.group.add_user(groupname="esign_watchers", username="agent")
+        view = ImioSessionsListingView(self.portal, self.request)
+        # esign disabled
+        self.assertFalse(view.available())
+        self.assertRaises(Unauthorized, self.portal.unrestrictedTraverse("@@parapheo"))
+        activate_signing(self.portal)
+        # session manager
+        self.assertTrue(view.available())
+        self.assertIn("<", self.portal.unrestrictedTraverse("@@parapheo")())
+        # approver
+        change_user(self.portal, "dirg")
+        self.assertTrue(view.available())
+        # other user
+        change_user(self.portal, "agent1")
+        self.assertFalse(view.available())
+        # esign watcher
+        change_user(self.portal, "agent")
+        self.assertTrue(view.available())
+        set_esign_registry_enabled(False)
+        self.assertFalse(view.available())
+
+
+class TestImioExternalSessionCreateView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.portal.REQUEST
+        change_user(self.portal)
+
+    def test_may_create_external_sessions(self):
+        with api.env.adopt_roles(["Manager"]):
+            if api.group.get("esign_watchers") is None:
+                api.group.create("esign_watchers")
+            api.group.add_user(groupname="esign_watchers", username="agent")
+        view = ImioExternalSessionCreateView(self.portal, self.request)
+        self.assertFalse(view.may_create_external_sessions())
+        self.assertRaises(Unauthorized, self.portal.unrestrictedTraverse("@@external-esign-session-create"))
+        activate_signing(self.portal)
+        self.assertTrue(view.may_create_external_sessions())
+        # no session id: back to the sessions listing with an error
+        self.assertEqual(view(), "http://nohost/plone/@@parapheo")
+        self.assertIn(
+            "Aucun identifiant de session fourni !", [msg.message for msg in IStatusMessage(self.request).show()]
+        )
+        change_user(self.portal, "dirg")
+        self.assertTrue(view.may_create_external_sessions())
+        change_user(self.portal, "agent1")
+        self.assertFalse(view.may_create_external_sessions())
+        change_user(self.portal, "agent")
+        self.assertTrue(view.may_create_external_sessions())
+
+
+class TestImioRemoveItemFromSessionView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.portal.REQUEST
+        login(self.layer["app"], "admin")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-sign-request", run_dependencies=False
+        )
+        set_esign_registry_file_url("https://downloads.files.com")
+        self.sreq, self.files = create_sign_request(self.portal, oid="sr-remove", nb_files=1, esign=True)
+        api.content.transition(obj=self.sreq, transition="propose_to_approve")
+        self.approval = ISignRequestApproval(self.sreq)
+        for userid in ("dirg", "bourgmestre"):
+            self.approval.approve_file(self.files[0], userid, transition="propose_to_be_signed")
+        self.pdf = api.content.get(UID=self.approval.pdf_files_uids[0][0])
+
+    def test_available(self):
+        view = self.pdf.restrictedTraverse("@@remove-item-from-esign-session")
+        self.assertIsInstance(view, ImioRemoveItemFromSessionView)
+        self.assertTrue(view.available())
+        # a file outside the approval
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        self.assertFalse(ImioRemoveItemFromSessionView(omf, self.request).available())
+        # a file of an incoming mail
+        imf = get_object(oid="courrier1", ptype="dmsincomingmail").objectValues()[0]
+        self.assertFalse(ImioRemoveItemFromSessionView(imf, self.request).available())
+
+    def test_actions(self):
+        pdf_uid = self.pdf.UID()
+        self.assertIn(pdf_uid, get_session_annotation()["uids"])
+        view = ImioRemoveItemFromSessionView(self.pdf, self.request)
+        view.actions()
+        self.assertNotIn(pdf_uid, get_session_annotation()["uids"])
+        self.assertNotIn(pdf_uid, [uid for lst in self.approval.pdf_files_uids for uid in lst])
+
+    def test_index(self):
+        pdf_uid = self.pdf.UID()
+        self.request["HTTP_REFERER"] = self.sreq.absolute_url()
+        view = ImioRemoveItemFromSessionView(self.pdf, self.request)
+        view.index()
+        self.assertNotIn(pdf_uid, get_session_annotation()["uids"])
+        self.assertEqual(self.request.response.getHeader("Location"), self.sreq.absolute_url())
+        self.assertIn("Élément retiré de la session !", [msg.message for msg in IStatusMessage(self.request).show()])
+        # not available anymore: nothing done
+        self.request.response.setHeader("Location", "")
+        self.assertIsNone(view.index())
+        self.assertEqual(self.request.response.getHeader("Location"), "")
+
+
+class TestApprovalTableView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.portal.REQUEST
+        change_user(self.portal)
+
+    def test_available(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.assertFalse(ApprovalTableView(omail, self.request).available())
+        self.assertEqual(omail.unrestrictedTraverse("@@approvals")(), "")
+        sreq, files = create_sign_request(self.portal, oid="sr-approvals", nb_files=1)
+        view = ApprovalTableView(sreq, self.request)
+        self.assertTrue(view.available())
+        api.content.transition(obj=sreq, transition="propose_to_approve")
+        self.assertTrue(view.available())
+        for userid in ("dirg", "bourgmestre"):
+            ISignRequestApproval(sreq).approve_file(files[0], userid, transition="propose_to_be_signed")
+        self.assertEqual(api.content.get_state(sreq), "to_be_signed")
+        self.assertFalse(view.available())
+
+    def test_call(self):
+        sreq, files = create_sign_request(self.portal, oid="sr-approvals", nb_files=1)
+        self.request["REQUEST_METHOD"] = "GET"
+        rendered = sreq.unrestrictedTraverse("@@approvals")()
+        self.assertIn('action="{}/@@approvals"'.format(sreq.absolute_url()), rendered)
+        self.assertIn('<input type="checkbox" name="approvals.{}.dirg"  />'.format(files[0].UID()), rendered)
+        self.assertIn('name="form.button.Save"', rendered)
+        # CSRF token in the form (Plone 6)
+        action = 'action="{}/@@approvals"'.format(sreq.absolute_url())
+        form_html = rendered[rendered.index(action) : rendered.index('name="form.button.Cancel"')]
+        self.assertIn('name="_authenticator"', form_html)
+        # cancel
+        self.request.form["form.button.Cancel"] = "Cancel"
+        sreq.unrestrictedTraverse("@@approvals")()
+        self.assertEqual(self.request.response.getHeader("Location"), sreq.absolute_url())
+
+
+class TestImioCatalogNavigationTabs(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        change_user(self.portal)
+
+    def test_topLevelTabs(self):
+        view = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST)
+        tabs = view.topLevelTabs()
+        # the "plus" tab is always the last one, after the portal_tabs actions
+        self.assertListEqual(
+            [tab["id"] for tab in tabs], ["incoming-mail", "outgoing-mail", "folders", "tasks", "index_html", "plus"]
+        )
+        self.assertEqual(tabs[0]["url"], "http://nohost/plone/incoming-mail")
+        self.assertEqual(tabs[0]["name"], "Entrant")
+        self.assertEqual(tabs[-1]["url"], "http://nohost/plone/plus")

@@ -6,12 +6,11 @@
     i18n:domain="imio.dms.mail">
     <body>
       <metal:bodytext fill-slot="main">
-        <h1 metal:use-macro="context/kss_generic_macros/macros/generic_title_view">
-         Generic KSS Title. Is rendered with class="documentFirstHeading".
-        </h1>
+        <h1 class="documentFirstHeading" tal:content="context/Title">Title</h1>
         <div id="content-core">
           <form method="post"
               tal:attributes="action string:${context/absolute_url}/@@approvals">
+              <input tal:replace="structure context/@@authenticator/authenticator" />
 
               <div id="esign-approvals-table-container">
                   <tal:block define="results view/table/values;" tal:condition="results">

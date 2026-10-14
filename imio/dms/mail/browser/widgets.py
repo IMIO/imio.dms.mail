@@ -1,16 +1,28 @@
 # -*- coding: utf-8 -*-
-from collective.z3cform.datagridfield.datagridfield import DataGridField
-from collective.z3cform.datagridfield.datagridfield import DataGridFieldObject
+from collective.z3cform.datagridfield.datagridfield import DataGridFieldObjectWidget
+from collective.z3cform.datagridfield.datagridfield import DataGridFieldWidget
 from z3c.form import interfaces
+from z3c.form.interfaces import IFormLayer
 from z3c.form.widget import FieldWidget
 from zope.component import adapter
 from zope.interface import implementer
+from zope.interface.interface import InterfaceClass
+from zope.schema import getFieldsInOrder
 from zope.schema.interfaces import IField
-from z3c.form.interfaces import IFormLayer
 from zope.schema.interfaces import IObject
 
+import copy
 
-class ExpandableDataGridFieldObject(DataGridFieldObject):
+
+def with_inherited_fields(schema):
+    """Row schema owning all its fields: collective.z3cform.datagridfield 4 converts only the fields defined on the
+    row schema itself (namesAndDescriptions()), inherited columns were lost at save. The schema stays a base (widget
+    hints)."""
+    attrs = {name: copy.copy(field) for name, field in getFieldsInOrder(schema)}
+    return InterfaceClass(schema.__name__, (schema,), attrs, __doc__=schema.__doc__, __module__=schema.__module__)
+
+
+class ExpandableDataGridFieldObject(DataGridFieldObjectWidget):
     """DataGridFieldObject row widget that adds an expand/collapse button."""
 
     def isExpandEnabled(self):
@@ -24,16 +36,17 @@ def ExpandableDataGridFieldObjectFactory(field, request):
     return FieldWidget(field, ExpandableDataGridFieldObject(request))
 
 
-class ExpandableDataGridField(DataGridField):
+class ExpandableDataGridField(DataGridFieldWidget):
     """DataGridField subclass whose rows include an expand/collapse toggle button."""
 
     def createObjectWidget(self, idx):
         valueType = self.field.value_type
         if IObject.providedBy(valueType):
             widget = ExpandableDataGridFieldObjectFactory(valueType, self.request)
-            widget.setErrors = idx not in ['TT', 'AA']
+            widget.setErrors = idx not in ["TT", "AA"]
         else:
             from zope.component import getMultiAdapter
+
             widget = getMultiAdapter(
                 (valueType, self.request),
                 interfaces.IFieldWidget,

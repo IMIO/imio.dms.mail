@@ -9,7 +9,6 @@ from dexterity.localroles.utils import fti_configuration
 from dexterity.localroles.utils import get_affected_portal_types
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
-from imio.dms.mail import _tr
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.utils import get_dms_config
@@ -28,6 +27,7 @@ from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import logging
+import six
 
 
 logger = logging.getLogger("imio.dms.mail.wfadaptations")
@@ -40,18 +40,18 @@ logger = logging.getLogger("imio.dms.mail.wfadaptations")
 
 class IIMPreValidationParameters(Interface):
 
-    state_title = schema.TextLine(title=u"State title", default=u"À valider avant le DG", required=True)
+    state_title = schema.TextLine(title="State title", default="À valider avant le DG", required=True)
 
     forward_transition_title = schema.TextLine(
-        title=u"Forward transition title", default=u"Proposer pour prévalidation DG", required=True
+        title="Forward transition title", default="Proposer pour prévalidation DG", required=True
     )
 
     backward_transition_title = schema.TextLine(
-        title=u"Backward transition title", default=u"Renvoyer pour prévalidation DG", required=True
+        title="Backward transition title", default="Renvoyer pour prévalidation DG", required=True
     )
 
     defer_security_update = schema.Bool(
-        title=u"Defer security update",
+        title="Defer security update",
         default=False,
         required=False,
     )
@@ -88,7 +88,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         wf.states.addState(new_state_id)
         state = wf.states[new_state_id]
         state.setProperties(
-            title=parameters["state_title"].encode("utf8"),
+            title=six.ensure_str(parameters["state_title"]),
             description="",
             transitions=["back_to_creation", "propose_to_manager"],
         )
@@ -109,7 +109,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         # add transitions
         wf.transitions.addTransition(propose_tr_id)
         wf.transitions[propose_tr_id].setProperties(
-            title=parameters["forward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["forward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -122,7 +122,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         back_tr_id = "back_to_pre_manager"
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
-            title=parameters["backward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["backward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -189,11 +189,12 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         affected = get_affected_portal_types(portal.REQUEST)
         if affected:
             if parameters["defer_security_update"]:
-                msg = u"Portal types for which security must be updated : {}".format(u", ".join(sorted(affected)))
+                msg = "Portal types for which security must be updated : {}".format(", ".join(sorted(affected)))
                 m_typ = "warn"
             else:
-                msg = u"Portal types that have been concerned by security updates : {}".format(
-                    u", ".join(sorted(affected)))
+                msg = "Portal types that have been concerned by security updates : {}".format(
+                    ", ".join(sorted(affected))
+                )
                 m_typ = "info"
             logger.info(msg)
             api.portal.show_message(msg, portal.REQUEST, type=m_typ)
@@ -201,7 +202,7 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         # add collection
         folder = portal["incoming-mail"]["mail-searches"]
         col_id = "searchfor_proposed_to_pre_manager"
-        col_title = u"État: {}".format(parameters["state_title"])
+        col_title = "État: {}".format(parameters["state_title"])
         if col_id not in folder:
             next_col = folder["searchfor_{}".format(next_states[-1])]
             folder.invokeFactory(
@@ -221,13 +222,13 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
                 tal_condition="python: object.restrictedTraverse('idm-utils').proposed_to_pre_manager_col_cond()",
                 showNumberOfItems=False,
                 roles_bypassing_talcondition=["Manager", "Site Administrator"],
-                sort_on=u"organization_type",
+                sort_on="organization_type",
                 sort_reversed=True,
                 b_size=30,
                 limit=0,
             )
             col = folder[col_id]
-            col.setSubject((u"search",))
+            col.setSubject(("search",))
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("searchfor_proposed_to_manager"))
@@ -235,11 +236,11 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
         # update configuration annotation
         config = get_dms_config(["review_levels", "dmsincomingmail"])  # i_e ok
         if "pre_manager" not in config:
-            new_value = OrderedDict([("pre_manager", {"st": [new_state_id]})] + config.items())
+            new_value = OrderedDict([("pre_manager", {"st": [new_state_id]})] + list(config.items()))
             set_dms_config(keys=["review_levels", "dmsincomingmail"], value=new_value)  # i_e ok
         config = get_dms_config(["review_states", "dmsincomingmail"])  # i_e ok
         if new_state_id not in config:
-            new_value = OrderedDict([(new_state_id, {"group": "pre_manager"})] + config.items())
+            new_value = OrderedDict([(new_state_id, {"group": "pre_manager"})] + list(config.items()))
             set_dms_config(keys=["review_states", "dmsincomingmail"], value=new_value)  # i_e ok
 
         # update state list
@@ -275,32 +276,32 @@ def im_service_validation_levels(context):
 class IIMServiceValidationParameters(Interface):
 
     validation_level = schema.Choice(
-        title=u"Service validation level",
+        title="Service validation level",
         required=True,
         source=im_service_validation_levels,
     )
 
     state_title = schema.TextLine(
-        title=u"State title",
-        default=u"À valider par ",
+        title="State title",
+        default="À valider par ",
         required=True,
     )
 
     forward_transition_title = schema.TextLine(
-        title=u"Title of forward transition",
-        default=u"Proposer ",
+        title="Title of forward transition",
+        default="Proposer ",
         required=True,
     )
 
     backward_transition_title = schema.TextLine(
-        title=u"Title of backward transition",
-        default=u"Renvoyer ",
+        title="Title of backward transition",
+        default="Renvoyer ",
         required=True,
     )
 
     function_title = schema.TextLine(
-        title=u"Title of plonegroup function",
-        default=u"N+",
+        title="Title of plonegroup function",
+        default="N+",
         required=True,
     )
 
@@ -339,7 +340,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             return False, "State {} already in workflow".format(new_state_id)
         wf.states.addState(new_state_id)
         state = wf.states[new_state_id]
-        state.setProperties(title=parameters["state_title"].encode("utf8"), description="", transitions=transitions)
+        state.setProperties(title=six.ensure_str(parameters["state_title"]), description="", transitions=transitions)
         # permissions
         perms = {
             "Access contents information": ("Editor", "Manager", "Reader", "Reviewer", "Site Administrator"),
@@ -357,7 +358,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # add transitions
         wf.transitions.addTransition(propose_tr_id)
         wf.transitions[propose_tr_id].setProperties(
-            title=parameters["forward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["forward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -373,7 +374,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         back_tr_id = "back_to_{}".format(new_id)
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
-            title=parameters["backward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["backward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -498,7 +499,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # add collection
         folder = portal["incoming-mail"]["mail-searches"]
         col_id = "searchfor_{}".format(new_state_id)
-        col_title = u"État: {}".format(parameters["state_title"])
+        col_title = "État: {}".format(parameters["state_title"])
         if col_id not in folder:
             next_col = folder["searchfor_{}".format(next_states[-1])]
             folder.invokeFactory(
@@ -518,13 +519,13 @@ class IMServiceValidation(WorkflowAdaptationBase):
                 tal_condition="python: object.restrictedTraverse('idm-utils').proposed_to_n_plus_col_cond()",
                 showNumberOfItems=False,
                 roles_bypassing_talcondition=["Manager", "Site Administrator"],
-                sort_on=u"organization_type",
+                sort_on="organization_type",
                 sort_reversed=True,
                 b_size=30,
                 limit=0,
             )
             col = folder[col_id]
-            col.setSubject((u"search",))
+            col.setSubject(("search",))
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("searchfor_{}".format(next_states[-1])))
@@ -532,7 +533,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
         # update showNumberOfItems on 'to_treat_in_my_group'
         auc = api.portal.get_registry_record(AUC_RECORD)
         snoi = False
-        if auc == u"no_check":
+        if auc == "no_check":
             snoi = True
         if folder["to_treat_in_my_group"].showNumberOfItems != snoi:
             folder["to_treat_in_my_group"].showNumberOfItems = snoi  # noqa
@@ -589,13 +590,13 @@ class IMServiceValidation(WorkflowAdaptationBase):
 class IOMServiceValidationParameters(IIMServiceValidationParameters):
 
     validation_level = schema.Choice(
-        title=u"Service validation level",
+        title="Service validation level",
         required=True,
         vocabulary=SimpleVocabulary([SimpleTerm(value=1)]),
     )
 
     validated_from_created = schema.Bool(
-        title=u"Can set validated from created state",
+        title="Can set validated from created state",
         required=False,
         default=False,
     )
@@ -619,7 +620,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             )
 
         applied_wfa = [dic["adaptation"] for dic in get_applied_adaptations()]
-        if u"imio.dms.mail.wfadaptations.OMToPrintAdaptation" in applied_wfa:
+        if "imio.dms.mail.wfadaptations.OMToPrintAdaptation" in applied_wfa:
             return (
                 False,
                 "to_print already in workflow. This validation workflow cannot be applied together with it. "
@@ -659,7 +660,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         if val_set_tr_id not in new_state_transitions:
             new_state_transitions.append(val_set_tr_id)
         state.setProperties(
-            title=parameters["state_title"].encode("utf8"), description="", transitions=new_state_transitions
+            title=six.ensure_str(parameters["state_title"]), description="", transitions=new_state_transitions
         )
         # permissions
         perms = {
@@ -689,7 +690,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         # add N+ transitions
         wf.transitions.addTransition(propose_tr_id)
         wf.transitions[propose_tr_id].setProperties(
-            title=parameters["forward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["forward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -704,7 +705,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
         )
         wf.transitions.addTransition(back_tr_id)
         wf.transitions[back_tr_id].setProperties(
-            title=parameters["backward_transition_title"].encode("utf8"),
+            title=six.ensure_str(parameters["backward_transition_title"]),
             new_state_id=new_state_id,
             trigger_type=1,
             script_name="",
@@ -908,10 +909,10 @@ class OMServiceValidation(WorkflowAdaptationBase):
         folder = portal["outgoing-mail"]["mail-searches"]
         for state_id, state_tit, next_col in (
             (new_state_id, parameters["state_title"], to_states[-1]),
-            (val_state_id, _tr(u"om_{}".format(val_state_id), domain="plone"), "to_be_signed"),
+            (val_state_id, _("om_{}".format(val_state_id), domain="plone"), "to_be_signed"),
         ):
             col_id = "searchfor_{}".format(state_id)
-            col_title = _(u"searchfor: ${state}", mapping={"state": state_tit.lower()})
+            col_title = _("searchfor: ${state}", mapping={"state": state_tit.lower()})
             if col_id not in folder:
                 next_col_id = "searchfor_{}".format(next_col)
                 folder.invokeFactory(
@@ -933,13 +934,13 @@ class OMServiceValidation(WorkflowAdaptationBase):
                     ],
                     customViewFields=tuple(folder[next_col_id].customViewFields),
                     showNumberOfItems=True,
-                    sort_on=u"sortable_title",
+                    sort_on="sortable_title",
                     sort_reversed=True,
                     b_size=30,
                     limit=0,
                 )
                 col = folder[col_id]
-                col.setSubject((u"search",))
+                col.setSubject(("search",))
                 col.reindexObject(["Subject"])
                 col.setLayout("tabular_view")
                 folder.moveObjectToPosition(col_id, folder.getObjectPosition(next_col_id))
@@ -1050,11 +1051,11 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
         # what is already applied ?
         already_applied = ""
         applied_wfa = [dic["adaptation"] for dic in get_applied_adaptations()]
-        if u"imio.dms.mail.wfadaptations.OMServiceValidation" in applied_wfa:
+        if "imio.dms.mail.wfadaptations.OMServiceValidation" in applied_wfa:
             already_applied = "n_plus"
             transitions.append("back_to_n_plus_1")
             transitions.append("back_to_validated")
-        if u"imio.dms.mail.wfadaptations.OMToPrintAdaptation" in applied_wfa:
+        if "imio.dms.mail.wfadaptations.OMToPrintAdaptation" in applied_wfa:
             already_applied = "to_print"
             transitions.append("set_to_print")
         """
@@ -1241,14 +1242,14 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                 tal_condition=None,
                 showNumberOfItems=False,
                 roles_bypassing_talcondition=[],
-                sort_on=u"created",
+                sort_on="created",
                 sort_reversed=True,
                 b_size=30,
                 limit=0,
                 enabled=True,
             )
             col = folder[col_id]
-            col.setSubject((u"search",))
+            col.setSubject(("search",))
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("searchfor_to_be_signed"))
@@ -1265,17 +1266,17 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                     {"i": "approvings", "o": "plone.app.querystring.operation.string.currentUser"},
                 ],
                 customViewFields=tuple(next_col.customViewFields),
-                tal_condition=u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
+                tal_condition="python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
                 showNumberOfItems=True,
                 roles_bypassing_talcondition=["Manager", "Site Administrator"],
-                sort_on=u"created",
+                sort_on="created",
                 sort_reversed=True,
                 b_size=30,
                 limit=0,
                 enabled=True,
             )
             col = folder[col_id]
-            col.setSubject((u"todo",))
+            col.setSubject(("todo",))
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("to_validate") + 1)
@@ -1295,17 +1296,17 @@ class OMToApproveAdaptation(WorkflowAdaptationBase):
                     },
                 ],
                 customViewFields=tuple(next_col.customViewFields),
-                tal_condition=u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
+                tal_condition="python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
                 showNumberOfItems=False,
                 roles_bypassing_talcondition=["Manager", "Site Administrator"],
-                sort_on=u"created",
+                sort_on="created",
                 sort_reversed=True,
                 b_size=30,
                 limit=0,
                 enabled=True,
             )
             col = folder[col_id]
-            col.setSubject((u"search",))
+            col.setSubject(("search",))
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("in_copy") + 1)
@@ -1366,11 +1367,11 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
         # has_n_plus_1 = False
         # is n+1 already applied ?
         applied_wfa = [dic["adaptation"] for dic in get_applied_adaptations()]
-        if u"imio.dms.mail.wfadaptations.OMServiceValidation" in applied_wfa:
+        if "imio.dms.mail.wfadaptations.OMServiceValidation" in applied_wfa:
             return False, "N+1 already in workflow. Validated state can be used as to_print"
             # transitions.append("back_to_n_plus_1")
             # has_n_plus_1 = True
-        if u"imio.dms.mail.wfadaptations.OMToApproveAdaptation" in applied_wfa:
+        if "imio.dms.mail.wfadaptations.OMToApproveAdaptation" in applied_wfa:
             transitions.append("back_to_approve")
             # Add "set_to_print" from to_approve
             ta_state = wf.states["to_approve"]
@@ -1507,14 +1508,14 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
                 tal_condition=None,
                 showNumberOfItems=True,
                 roles_bypassing_talcondition=[],
-                sort_on=u"sortable_title",
+                sort_on="sortable_title",
                 sort_reversed=True,
                 b_size=30,
                 limit=0,
                 enabled=True,
             )
             col = folder[col_id]
-            col.setSubject((u"search",))
+            col.setSubject(("search",))
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("searchfor_to_be_signed"))
@@ -1579,7 +1580,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
         portal = api.portal.get()
         wtool = portal.portal_workflow
         new_id = "n_plus_1"
-        function_title = u"N+1"
+        function_title = "N+1"
         wf = wtool["task_workflow"]
 
         # add 'back_in_to_assign' on 'to_do' state

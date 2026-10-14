@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 """ dmsfile.py tests for this package."""
 from datetime import datetime
+from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.dmsfile import AnnexAddForm
 from imio.dms.mail.dmsfile import AppendixFileAddForm
 from imio.dms.mail.dmsfile import RestrictedNamedBlobFile
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
+from plone import api
+from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.namedfile.utils import get_contenttype
 from plone.registry.interfaces import IRegistry
@@ -32,12 +36,12 @@ class TestDmsfile(unittest.TestCase):
 
     def test_RestrictedNamedBlobFile(self):
         path = "%s/batchimport/toprocess/outgoing-mail/Accusé de réception.odt" % imiodmsmail.__path__[0]
-        odtfile = file(path, "rb")  # noqa F821
-        odtblob = NamedBlobFile(data=odtfile.read(), filename=u"file.odt")
+        odtfile = open(path, "rb")
+        odtblob = NamedBlobFile(data=odtfile.read(), filename="file.odt")
         odtfile.close()
         path = os.path.join(os.path.dirname(__file__), "files", "example.pdf")
-        otherfile = file(path, "rb")  # noqa F821
-        otherblob = NamedBlobFile(data=otherfile.read(), filename=u"file.pdf")
+        otherfile = open(path, "rb")
+        otherblob = NamedBlobFile(data=otherfile.read(), filename="file.pdf")
         otherfile.close()
         registry = getUtility(IRegistry)
         # check content type
@@ -60,3 +64,31 @@ class TestDmsfile(unittest.TestCase):
         self.assertNotIn("IBasic.title", form.widgets)
         self.assertEqual(form.widgets["title"].mode, "input")
         self.assertFalse(form.widgets["title"].field.required)
+        self.assertEqual(form.widgets["description"].mode, "hidden")
+        # after adding, the user goes back to the mail
+        self.assertEqual(form.nextURL(), self.imail.absolute_url())
+
+    def test_AnnexAddForm(self):
+        folder = api.content.find(portal_type="ClassificationFolder")[0].getObject()
+        form = AnnexAddForm(folder, self.portal.REQUEST)
+        # after adding, the user goes back to the folder
+        self.assertEqual(form.nextURL(), folder.absolute_url())
+
+    def _om_file(self, filename):
+        """Add an outgoing mail main file from the batchimport examples."""
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        with open("{}/batchimport/toprocess/{}".format(PRODUCT_DIR, filename), "rb") as fo:
+            return createContentInContainer(
+                omail, "dmsommainfile", title="Réponse", file=NamedBlobFile(fo.read(), filename=filename.split("/")[-1])
+            )
+
+    def test_ImioDmsFile_Title(self):
+        self.assertEqual(self._om_file("outgoing-mail/Réponse salle.odt").Title(), "Réponse")
+
+    def test_ImioDmsFile_getFile(self):
+        afile = self._om_file("outgoing-mail/Réponse salle.odt")
+        self.assertIs(afile.getFile(), afile.file)
+
+    def test_ImioDmsFile_is_odt(self):
+        self.assertTrue(self._om_file("outgoing-mail/Réponse salle.odt").is_odt())
+        self.assertFalse(self._om_file("requests/1-contestation-facture.pdf").is_odt())

@@ -9,6 +9,7 @@ from imio.dms.mail.browser.settings import ExpandableDataGridFieldFactory
 from imio.dms.mail.browser.settings import OMFileFormatsVocabulary
 from imio.dms.mail.browser.settings import validate_approvings
 from imio.dms.mail.browser.settings import validate_signer_approvings
+from imio.dms.mail.browser.widgets import with_inherited_fields
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -22,10 +23,10 @@ from operator import itemgetter
 from plone import api
 from plone.autoform import directives as form
 from plone.autoform.interfaces import IFormFieldProvider
+from plone.base.utils import base_hasattr
 from plone.namedfile.utils import get_contenttype
 from plone.supermodel import directives
 from plone.supermodel import model
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.form import validator
 from z3c.form.browser.checkbox import CheckBoxFieldWidget
@@ -46,9 +47,9 @@ from zope.schema.vocabulary import SimpleVocabulary
 class IDmsMailCreatingGroup(model.Schema):
 
     creating_group = LocalRoleField(
-        title=_(u"Creating group"),
+        title=_("Creating group"),
         required=True,
-        vocabulary=u"imio.dms.mail.ActiveCreatingGroupVocabulary",
+        vocabulary="imio.dms.mail.ActiveCreatingGroupVocabulary",
         defaultFactory=default_creating_group,
     )
 
@@ -63,7 +64,7 @@ alsoProvides(IDmsMailCreatingGroup, IFormFieldProvider)
 class IDmsMailDataTransfer(model.Schema):
 
     data_transfer = Text(
-        title=_(u"Data transfer"),
+        title=_("Data transfer"),
         required=False,
         #        readonly=True,
     )
@@ -86,9 +87,7 @@ class IUsagesBehavior(model.Schema):
     form.read_permission(usages="collective.contact.plonegroup.read_userlink_fields")
     form.write_permission(usages="collective.contact.plonegroup.write_userlink_fields")
 
-    directives.fieldset("app_parameters",
-                        label=_ccp(u"Application parameters"),
-                        fields=["usages"])
+    directives.fieldset("app_parameters", label=_ccp("Application parameters"), fields=["usages"])
 
     # TODO: add invariant to check that userid is defined
 
@@ -98,7 +97,7 @@ def signing_signers(context):
     """Return held positions vocabulary for signing."""
     terms = [
         SimpleTerm(value=None, title=_("Choose a value !")),
-        SimpleTerm(value=u"_empty_", title=_("* No signature")),
+        SimpleTerm(value="_empty_", title=_("* No signature")),
     ]
     terms += vocabularyname_to_terms("imio.dms.mail.OMSignersVocabulary", sort_on="title")
     return SimpleVocabulary(terms)
@@ -116,23 +115,23 @@ class ISignerSchema(Interface):
     """Schema for the table of signers in the DataGridField."""
 
     number = schema.Choice(
-        title=_(u"Number"),
-        description=_(u"Signer number on the document."),
+        title=_("Number"),
+        description=_("Signer number on the document."),
         vocabulary=SimpleVocabulary.fromValues(range(1, 10)),
         required=True,
     )
 
     signer = schema.Choice(
-        title=_(u"Signer"),
-        description=_(u"Related userid will be the signer. Position name of the held position will be used."),
-        source=signing_signers,
+        title=_("Signer"),
+        description=_("Related userid will be the signer. Position name of the held position will be used."),
+        vocabulary="imio.dms.mail.SigningSignersVocabulary",
         required=True,
     )
 
     approvings = schema.List(
-        title=_(u"Approvings"),
-        description=_(u"User(s) that can approve the item before the signing session."),
-        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningApprovingsVocabulary"),
+        title=_("Approvings"),
+        description=_("User(s) that can approve the item before the signing session."),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.SigningApprovingsVocabulary"),
         required=True,
         constraint=validate_approvings,
         min_length=1,
@@ -140,8 +139,8 @@ class ISignerSchema(Interface):
     form.widget("approvings", CheckBoxFieldWidget, multiple="multiple", size=5)
 
     editor = schema.Bool(
-        title=_(u"Editor"),
-        description=_(u"Enable edition when approving."),
+        title=_("Editor"),
+        description=_("Enable edition when approving."),
         required=False,
         default=False,
     )
@@ -152,7 +151,7 @@ class ISigningBehavior(model.Schema):
 
     directives.fieldset(
         "signing",
-        label=_(u"Signing fieldset"),
+        label=_("Signing fieldset"),
         fields=[
             "signers",
             "seal",
@@ -161,7 +160,7 @@ class ISigningBehavior(model.Schema):
     )
 
     signers = schema.List(
-        title=_(u"Signers"),
+        title=_("Signers"),
         description=_("List of users who have to sign this document"),
         value_type=DictRow(title=_("Signer"), schema=ISignerSchema),
         required=False,
@@ -175,12 +174,12 @@ class ISigningBehavior(model.Schema):
     )
 
     seal = schema.Bool(
-        title=_(u"Seal"),
+        title=_("Seal"),
         required=False,
     )
 
     esign = schema.Bool(
-        title=_(u"Electronic signature"),
+        title=_("Electronic signature"),
         required=False,
     )
 
@@ -191,35 +190,41 @@ class ISigningBehavior(model.Schema):
             is_user_admin = api.user.has_permission("Manage portal")
             approval = context.approval()
             if not is_user_admin and (approval.is_state_after_or_approve() or approval.current_nb == -1):
-                fields_have_changed = (context.esign != data.esign or context.seal != data.seal
-                                       or context.signers != data.signers)
+                fields_have_changed = (
+                    context.esign != data.esign or context.seal != data.seal or context.signers != data.signers
+                )
                 if fields_have_changed:
-                    raise Invalid(_(u"You cannot modify signers once the approval process has started or is done. "
-                                    u"You may go back to a previous state or ask your admin."))
+                    raise Invalid(
+                        _(
+                            "You cannot modify signers once the approval process has started or is done. "
+                            "You may go back to a previous state or ask your admin."
+                        )
+                    )
 
-        if data.seal and not data.esign and any([s["signer"] != u"_empty_" for s in (data.signers or [])]):
-            raise Invalid(_(u"You cannot have a seal and signers but no electronic signature !"))
+        if data.seal and not data.esign and any([s["signer"] != "_empty_" for s in (data.signers or [])]):
+            raise Invalid(_("You cannot have a seal and signers but no electronic signature !"))
 
         if not data.signers or []:
             return
         persons = []
         for i, signer in enumerate(data.signers, start=1):
-            validate_signer_approvings(signer, _("Signer line ${nb} has a duplicate approver with themself.",
-                                                 mapping={"nb": i}))
+            validate_signer_approvings(
+                signer, _("Signer line ${nb} has a duplicate approver with themself.", mapping={"nb": i})
+            )
             if signer["signer"] == "_empty_":
                 continue
             person = uuidToObject(signer["signer"], unrestricted=True).get_person()
             if person in persons:
                 raise Invalid(
                     _(
-                        u"You cannot have the same signer (${signer_title}) multiple times !",
+                        "You cannot have the same signer (${signer_title}) multiple times !",
                         mapping={"signer_title": person.get_title()},
                     )
                 )
             if not person.userid:
                 raise Invalid(
                     _(
-                        u"The signer '${signer_title}' has no userid, you cannot use it !",
+                        "The signer '${signer_title}' has no userid, you cannot use it !",
                         mapping={"signer_title": person.get_title()},
                     )
                 )
@@ -231,7 +236,7 @@ class ISigningBehavior(model.Schema):
             if len(numbers) != len(set(numbers)):
                 raise Invalid(
                     _(
-                        u"You cannot have the same number for multiple signers !",
+                        "You cannot have the same number for multiple signers !",
                     )
                 )
 
@@ -241,16 +246,16 @@ class ISigningBehavior(model.Schema):
             if missing_numbers:
                 raise Invalid(
                     _(
-                        u"A signer is missing at position: ${positions} !",
+                        "A signer is missing at position: ${positions} !",
                         mapping={"positions": safe_unicode(", ".join(map(str, missing_numbers)))},
                     )
                 )
             # check if there are no approvings at all
-            if all(u"_empty_" in s["approvings"] for s in data.signers):
+            if all("_empty_" in s["approvings"] for s in data.signers):
                 if data.esign:
-                    raise Invalid(_(u"You have to define approvings for each signer if electronic signature is used !"))
-            elif any(u"_empty_" in s["approvings"] for s in data.signers):
-                raise Invalid(_(u"You cannot have empty and defined approvings at the same time !"))
+                    raise Invalid(_("You have to define approvings for each signer if electronic signature is used !"))
+            elif any("_empty_" in s["approvings"] for s in data.signers):
+                raise Invalid(_("You cannot have empty and defined approvings at the same time !"))
 
         signer_emails = set()
         approvers = {}
@@ -264,7 +269,7 @@ class ISigningBehavior(model.Schema):
             if user_email in signer_emails:
                 raise Invalid(
                     _(
-                        u"You cannot have the same email (${email}) for multiple signers !",
+                        "You cannot have the same email (${email}) for multiple signers !",
                         mapping={"email": user_email},
                     )
                 )
@@ -280,7 +285,7 @@ class ISigningBehavior(model.Schema):
                 if person is None:
                     raise Invalid(
                         _(
-                            u"The approving with UID ${uid} does not exist !",
+                            "The approving with UID ${uid} does not exist !",
                             mapping={"uid": approving},
                         )
                     )
@@ -299,8 +304,11 @@ class ISigningBehavior(model.Schema):
                 approvers[userid] = signer["number"]
 
         # Validate file formats if eSignature is enabled (only on outgoing mail or sign request, not on templates)
-        if context and data.esign and (IImioDmsOutgoingMail.providedBy(context)
-                                       or IImioDmsSignRequest.providedBy(context)):
+        if (
+            context
+            and data.esign
+            and (IImioDmsOutgoingMail.providedBy(context) or IImioDmsSignRequest.providedBy(context))
+        ):
             for afile in context.values():
                 # Skip files already converted for esign
                 if base_hasattr(afile, "conv_from_uid"):
@@ -317,7 +325,7 @@ class ISigningBehavior(model.Schema):
                             mapping={
                                 "filename": afile.title,
                                 "mimetype": mimetype,
-                                "formats": u", ".join(
+                                "formats": ", ".join(
                                     [
                                         v.title
                                         for v in OMFileFormatsVocabulary()(None)
@@ -336,16 +344,16 @@ class ISignRequestSignerSchema(ISignerSchema):
     """Signer row for sign_request: a signature is mandatory, so no "_empty_" choice."""
 
     signer = schema.Choice(
-        title=_(u"Signer"),
-        description=_(u"Related userid will be the signer. Position name of the held position will be used."),
-        source=signing_request_signers,
+        title=_("Signer"),
+        description=_("Related userid will be the signer. Position name of the held position will be used."),
+        vocabulary="imio.dms.mail.SigningRequestSignersVocabulary",
         required=True,
     )
 
     approvings = schema.List(
-        title=_(u"Approvings"),
-        description=_(u"User(s) that can approve the item before the signing session."),
-        value_type=schema.Choice(vocabulary=u"imio.dms.mail.SigningRequestApprovingsVocabulary"),
+        title=_("Approvings"),
+        description=_("User(s) that can approve the item before the signing session."),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.SigningRequestApprovingsVocabulary"),
         required=True,
         constraint=validate_approvings,
         min_length=1,
@@ -357,6 +365,7 @@ class ISignRequestSignerSchema(ISignerSchema):
 # (the DataGridField orders columns by field.order, not by plone.autoform order directives)
 ISignRequestSignerSchema["signer"].order = ISignerSchema["signer"].order
 ISignRequestSignerSchema["approvings"].order = ISignerSchema["approvings"].order
+ISignRequestSignerSchema = with_inherited_fields(ISignRequestSignerSchema)
 
 
 @provider(IFormFieldProvider)
@@ -364,7 +373,7 @@ class ISignRequestSigningBehavior(ISigningBehavior):
     """Signing behavior for sign_request: mandatory signature (no "_empty_" for signer/approvings)."""
 
     signers = schema.List(
-        title=_(u"Signers"),
+        title=_("Signers"),
         description=_("List of users who have to sign this document"),
         value_type=DictRow(title=_("Signer"), schema=ISignRequestSignerSchema),
         required=False,
@@ -379,7 +388,7 @@ class ISignRequestSigningBehavior(ISigningBehavior):
 
     # a signing request is always an electronic signature request: always True, hidden on add / edit forms
     esign = schema.Bool(
-        title=_(u"Electronic signature"),
+        title=_("Electronic signature"),
         required=False,
         default=True,
     )
@@ -396,10 +405,13 @@ class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
         # Raise if trying to remove an existing userid while the linked user is still in a group
         if not value:
             user = api.user.get(self.context.userid)
-            groups = user and [g for g in get_plone_groups_for_user(user=user)
-                               if g not in ("AuthenticatedUsers", "Anonymous")] or []
+            groups = (
+                user
+                and [g for g in get_plone_groups_for_user(user=user) if g not in ("AuthenticatedUsers", "Anonymous")]
+                or []
+            )
             if groups:
-                raise Invalid(_(u"You cannot remove a userid from the person while the user is still in a group."))
+                raise Invalid(_("You cannot remove a userid from the person while the user is still in a group."))
             return
 
         if not IPersonnelContact.providedBy(self.context):
@@ -435,12 +447,13 @@ class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
                 if found >= 10:
                     break
                 mail_added = False
-                for signer_dic in (mail.signers or []):
+                for signer_dic in mail.signers or []:
                     if not signer_dic.get("signer") or signer_dic.get("signer") == "_empty_":
                         continue
                     for approving in signer_dic.get("approvings", []):
-                        if (approving == "_themself_" and signer_dic["signer"] in signer_uids) or \
-                                approving == person_uid:
+                        if (
+                            approving == "_themself_" and signer_dic["signer"] in signer_uids
+                        ) or approving == person_uid:
                             pending_approvings.add(b.getPath())
                             found += 1
                             mail_added = True
@@ -448,12 +461,16 @@ class PlonegroupUserLinkUseridValidator(validator.SimpleFieldValidator):
                     if mail_added:
                         break
             if pending_approvings:
-                raise Invalid(_(u"You cannot change the userid because the user is in approvals on "
-                                u"following objects ${paths}",
-                                mapping={"paths": safe_unicode(", ".join(pending_approvings))}))
+                raise Invalid(
+                    _(
+                        "You cannot change the userid because the user is in approvals on "
+                        "following objects ${paths}",
+                        mapping={"paths": safe_unicode(", ".join(pending_approvings))},
+                    )
+                )
 
 
-validator.WidgetValidatorDiscriminators(PlonegroupUserLinkUseridValidator, field=IPlonegroupUserLink['userid'])
+validator.WidgetValidatorDiscriminators(PlonegroupUserLinkUseridValidator, field=IPlonegroupUserLink["userid"])
 
 
 class UsagesSignerRulesValidator(validator.SimpleFieldValidator):
@@ -466,21 +483,23 @@ class UsagesSignerRulesValidator(validator.SimpleFieldValidator):
             # on addition or outside personnel, we skip check
             return
         if is_hp_used_in_signer_rules(self.context, value or []):
-            raise Invalid(_(
-                u"This position is still referenced in the outgoing mail signer configuration. "
-                u"Please update the rules and substitutes before removing this usage."
-            ))
+            raise Invalid(
+                _(
+                    "This position is still referenced in the outgoing mail signer configuration. "
+                    "Please update the rules and substitutes before removing this usage."
+                )
+            )
 
 
-validator.WidgetValidatorDiscriminators(UsagesSignerRulesValidator, field=IUsagesBehavior['usages'])
+validator.WidgetValidatorDiscriminators(UsagesSignerRulesValidator, field=IUsagesBehavior["usages"])
 
 
 @provider(IFormFieldProvider)
 class IDefaultContentCategoryBehavior(model.Schema):
 
     default_content_category = schema.Choice(
-        title=_(u"Default content category"),
+        title=_("Default content category"),
         description=_("Category to apply on generated documents from this template."),
-        vocabulary=u"imio.dms.mail.PODTemplateContentCategoriesVocabulary",
+        vocabulary="imio.dms.mail.PODTemplateContentCategoriesVocabulary",
         required=True,
     )

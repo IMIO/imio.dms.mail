@@ -39,6 +39,7 @@ class MultipleAnnexesMixin(object):
     typeupload = None
 
     """Mixin class for batch upload of dmsappendixfiles"""
+
     def may_multiple_annexes(self):
         """Method that defines if quickupload 'Annexes multiples' has to be displayed"""
         if not self.isInFacetedNavigation() and self.member.has_permission("Add portal content", self.context):
@@ -127,7 +128,7 @@ class DmsIMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order.get(x["id"], 99), self.tr_order.get(y["id"], 99)))  # noqa F821
+        lst.sort(key=lambda x: self.tr_order.get(x["id"], 99))
 
     @ram.cache(actionspanelview_cachekey)
     def DmsIMActionsPanelView__call__(
@@ -200,19 +201,10 @@ class SigningFieldsetActionsPanelView(ActionsPanelView):
 
     @ram.cache(actionspanelview_cachekey)
     def SigningFieldsetActionsPanelView__call__(
-        self,
-        useIcons=True,
-        showEdit=True,
-        showOwnDelete=False,
-        showTransitions=False,
-        **kwargs
+        self, useIcons=True, showEdit=True, showOwnDelete=False, showTransitions=False, **kwargs
     ):
         super(SigningFieldsetActionsPanelView, self).__call__(
-            useIcons=useIcons,
-            showEdit=showEdit,
-            showOwnDelete=showOwnDelete,
-            showTransitions=showTransitions,
-            **kwargs
+            useIcons=useIcons, showEdit=showEdit, showOwnDelete=showOwnDelete, showTransitions=showTransitions, **kwargs
         )
         self.saveHasActions()  # To remove dash "-" when no actions available
         return self.index()
@@ -258,7 +250,7 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))  # noqa F821
+        lst.sort(key=lambda x: self.tr_order[x["id"]])
 
     def may_create_from_template(self):
         """
@@ -364,7 +356,7 @@ class DmsSignRequestActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order.get(x["id"], 99), self.tr_order.get(y["id"], 99)))  # noqa F821
+        lst.sort(key=lambda x: self.tr_order.get(x["id"], 99))
 
     @ram.cache(actionspanelview_cachekey)
     def DmsSignRequestActionsPanelView__call__(self, **kwargs):
@@ -417,7 +409,7 @@ class DmsTaskActionsPanelView(ActionsPanelView):
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
-        lst.sort(lambda x, y: cmp(self.tr_order[x["id"]], self.tr_order[y["id"]]))  # noqa F821
+        lst.sort(key=lambda x: self.tr_order[x["id"]])
 
     @ram.cache(actionspanelview_cachekey)
     def DmsTaskActionsPanelView__call__(

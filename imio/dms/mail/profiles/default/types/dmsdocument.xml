@@ -2,6 +2,6 @@
 <object name="dmsdocument" meta_type="Dexterity FTI">
  <property name="global_allow">False</property>
  <property name="behaviors" purge="False">
-  <element value="plone.app.lockingbehavior.behaviors.ILocking" />
+  <element value="plone.locking" />
  </property>
 </object>

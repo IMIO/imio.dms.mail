@@ -18,10 +18,9 @@ from z3c.form.interfaces import HIDDEN_MODE
 
 
 class ReplyForm(BaseReplyForm):
-
     """Form to reply to an incoming mail."""
 
-    IMMODES = {"dmsincomingmail": u"post", "dmsincoming_email": u"email"}
+    IMMODES = {"dmsincomingmail": "post", "dmsincoming_email": "email"}
 
     def updateFields(self):
         super(ReplyForm, self).updateFields()
@@ -40,7 +39,7 @@ class ReplyForm(BaseReplyForm):
             or ""
         )
         if prefix and not self.widgets["IDublinCore.title"].value.startswith(prefix):
-            self.widgets["IDublinCore.title"].value = u"%s%s" % (prefix, self.widgets["IDublinCore.title"].value)
+            self.widgets["IDublinCore.title"].value = "%s%s" % (prefix, self.widgets["IDublinCore.title"].value)
         if not self.widgets["ITask.assigned_user"].value:
             self.widgets["ITask.assigned_user"].value = [api.user.get_current().getId()]
         if not self.widgets["send_modes"].value:
@@ -91,8 +90,9 @@ class ReplyForm(BaseReplyForm):
 
 
 class MultipleReplyForm(BaseReplyForm):
-
     """Form to reply to multiple incoming mails."""
+
+    allow_prefill_from_GET_request = True  # the form is filled from the request (uids)
 
     def __init__(self, context, request):
         super(MultipleReplyForm, self).__init__(context, request)
@@ -102,8 +102,8 @@ class MultipleReplyForm(BaseReplyForm):
     @property
     def label(self):
         return _(
-            u"Reply to ${ref}",
-            mapping={"ref": u"%d %s" % (len(self.brains), api.portal.translate("incoming mails", "imio.dms.mail"))},
+            "Reply to ${ref}",
+            mapping={"ref": "%d %s" % (len(self.brains), api.portal.translate("incoming mails", "imio.dms.mail"))},
         )
 
     def updateFields(self):
@@ -115,7 +115,7 @@ class MultipleReplyForm(BaseReplyForm):
         if self.uids:  # view is called a 2d time by MS. uids is empty. We don't want to change request form values
             form = self.request.form
             if "form.widgets.reply_to" not in form:
-                form["form.widgets.reply_to"] = tuple([b.getPath() for b in self.brains])
+                form["form.widgets.reply_to"] = ";".join([b.UID for b in self.brains])  # relation widget: uids
             if "form.widgets.recipients" not in form:
                 sender_uids = set(
                     [sender for b in self.brains for sender in b.sender_index if not sender.startswith("l:")]
@@ -134,7 +134,7 @@ class MultipleReplyForm(BaseReplyForm):
                 )
                 or ""
             )
-            self.widgets["IDublinCore.title"].value = u"%s%s" % (
+            self.widgets["IDublinCore.title"].value = "%s%s" % (
                 prefix,
                 safe_unicode(first and self.brains[0].get_full_title or ""),
             )

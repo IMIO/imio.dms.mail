@@ -15,8 +15,8 @@ class TabularView(BrowserView):
         super(BrowserView, self).__init__(context, request)
         self.context = context
         self.request = request
-        self.plone = getMultiAdapter((self.context, self.request), name=u"plone")
-        self.pas_member = getMultiAdapter((self.context, self.request), name=u"pas_member")
+        self.plone = getMultiAdapter((self.context, self.request), name="plone")
+        self.pas_member = getMultiAdapter((self.context, self.request), name="pas_member")
         self.vocs = {
             "treating_groups": "collective.dms.basecontent.treating_groups",
             "recipient_groups": "collective.dms.basecontent.recipient_groups",
@@ -53,9 +53,12 @@ class TabularView(BrowserView):
             if state:
                 klass = "state-%s" % state
             if self.context.getId() == "searchfor_created" and item.getObject().wl_isLocked():
-                return (
-                    '<img width="16" height="16" title="Locked" src="lock_icon.png">'
-                    '<a href="%s" class="%s">%s</a>' % (item.getURL(), klass, value)
+                icons = getMultiAdapter((self.context, self.request), name="iconresolver")
+                return '%s<a href="%s" class="%s">%s</a>' % (
+                    icons.tag("lock", tag_alt="Locked"),
+                    item.getURL(),
+                    klass,
+                    value,
                 )
             return '<a href="%s" class="%s">%s</a>' % (item.getURL(), klass, value)
         elif field_name == "review_state":

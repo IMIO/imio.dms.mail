@@ -1,15 +1,84 @@
 # -*- coding: utf-8 -*-
-"""Test views."""
+"""Test actions panels."""
+from collective.documentgenerator.browser.actionspanel import ConfigurablePODTemplateActionsPanelView
+from collective.iconifiedcategory.utils import calculate_category_id
+from imio.dms.mail.browser.actionspanel import actionspanelview_cachekey
+from imio.dms.mail.browser.actionspanel import ActionsPanelViewletAllButTransitions
+from imio.dms.mail.browser.actionspanel import AnnexActionsPanelView
+from imio.dms.mail.browser.actionspanel import BasicActionsPanelView
+from imio.dms.mail.browser.actionspanel import CategoryActionsPanelView
+from imio.dms.mail.browser.actionspanel import ClassificationActionsPanelView
+from imio.dms.mail.browser.actionspanel import ClassificationContainersActionsPanelView
+from imio.dms.mail.browser.actionspanel import ClassificationFolderActionsPanelView
+from imio.dms.mail.browser.actionspanel import CPODTActionsPanelView
+from imio.dms.mail.browser.actionspanel import DmsFileActionsPanelView
+from imio.dms.mail.browser.actionspanel import DmsSignRequestActionsPanelView
+from imio.dms.mail.browser.actionspanel import DmsTaskActionsPanelView
+from imio.dms.mail.browser.actionspanel import MultipleAnnexesMixin
+from imio.dms.mail.browser.actionspanel import OnlyAddActionsPanelView
+from imio.dms.mail.browser.actionspanel import SigningFieldsetActionsPanelView
+from imio.dms.mail.Extensions.demo import activate_signing
+from imio.dms.mail.interfaces import IImioDmsMailLayer
 from imio.dms.mail.testing import change_user
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import get_object
 from plone import api
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
 from z3c.relationfield.relation import RelationValue
+from zope.component import createObject
 from zope.component import getUtility
+from zope.interface import alsoProvides
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import modified
 
+import re
 import unittest
+
+
+def no_token(rendered):
+    """CSRF tokens are built with a random key of the keyring"""
+    return re.sub(r"'_authenticator': '\w+'", "'_authenticator': 'TOKEN'", rendered)
+
+
+class TestActionspanel(unittest.TestCase):
+    """Module functions."""
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_actionspanelview_cachekey(self):
+        portal = self.layer["portal"]
+        user = api.user.get(username="siteadmin")
+        portal.REQUEST["AUTHENTICATED_USER"] = user
+        im2 = get_object(oid="courrier2", ptype="dmsincomingmail")
+        view = im2.unrestrictedTraverse("@@actions_panel")
+        self.assertEqual(
+            actionspanelview_cachekey(None, view),
+            (
+                True,
+                False,
+                False,
+                False,
+                True,
+                "/".join(im2.getPhysicalPath()),
+                "siteadmin",
+                im2.modified().strftime("%Y%m%d-%H%M%S-%f"),
+                get_plone_groups_for_user(user=user),
+            ),
+        )
+        self.assertEqual(
+            actionspanelview_cachekey(None, view, useIcons=False, showActions=True)[0:3], (False, False, True)
+        )
+
+
+class TestMultipleAnnexesMixin(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_render_multiple_annexes_button(self):
+        self.assertRaises(NotImplementedError, MultipleAnnexesMixin().render_multiple_annexes_button)
 
 
 class TestDmsIMActionsPanelView(unittest.TestCase):
@@ -34,7 +103,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         # change title
         self.im2.title = None
         self.assertFalse(self.view.mayReply())
-        self.im2.title = u"title"
+        self.im2.title = "title"
         # removed permission
         api.content.transition(self.im2, to_state="proposed_to_agent")
         change_user(self.portal, "lecteur")
@@ -47,8 +116,8 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.assertEqual(
             self.view.renderReplyButton(),
             '<td class="noPadding">\n  <a target="_parent" href="{}'
-            '/@@reply">\n     \n     <img title="Reply" src=" http://nohost/plone/'
-            '++resource++imio.dms.mail/reply_icon.png" />\n  </a>\n</td>'
+            '/@@reply">\n     \n     <img title="Répondre" src=" http://nohost/plone/'
+            '++resource++imio.dms.mail/reply_icon.png"/>\n  </a>\n</td>'
             "\n".format(self.im2.absolute_url()),
         )
         #                         '<td class="noPadding"></td>\n'.format(self.im2.absolute_url()))
@@ -56,7 +125,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.assertEqual(
             self.view.renderReplyButton(),
             '<td class="noPadding">\n  <a target="_parent" href="{}'
-            '/@@reply">\n     <input type="button" value="Reply" class="apButton apButtonAction '
+            '/@@reply">\n     <input type="button" value="Répondre" class="apButton apButtonAction '
             'apButtonAction_reply" />\n     \n  </a>\n</td>'
             "\n".format(self.im2.absolute_url()),
         )
@@ -68,27 +137,28 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.assertEqual(api.content.get_state(self.view.context), "created")
         self.assertEqual(self.view.renderAssignUser(), "")
         api.content.transition(self.view.context, "propose_to_manager")
-        # right state
+        # right state: the assignment is a GET ajax call with the CSRF token (random key of the keyring)
+        token = "TOKEN"
         self.assertEqual(
-            self.view.renderAssignUser(),
-            u'<td>\n    <form action="">\n      <select name="Assign" onchange="javascript:'
-            u"callViewAndReload(base_url='{}', view_name='@@update_item', params={{'assigned_user': "
-            u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign">\n'
-            u'        <option style="display:none" value="#">Assign</option>\n        \n        '
-            u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
-            u"</option>\n      </select>\n    </form>\n</td>"
-            u"\n".format(self.im2.absolute_url()),
+            no_token(self.view.renderAssignUser()),
+            '<td>\n    <form action=\'\'>\n      <select name="Assign" class="apButton apButtonSelect apButtonAction '
+            "apButtonAction_assign\" onchange=\"javascript:callViewAndReload(base_url='{}', view_name='@@update_item', "
+            "params={{'assigned_user': this.value, '_authenticator': '{}'}})\">\n"
+            '        <option style="display:none" value=#>Assigner</option>\n        \n        '
+            '<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
+            "</option>\n      </select>\n    </form>\n</td>"
+            "\n".format(self.im2.absolute_url(), token),
         )
         self.view.useIcons = True
         self.assertEqual(
-            self.view.renderAssignUser(),
-            u'<td>\n    <form action="">\n      <select name="Assign" onchange="javascript:'
-            u"callViewAndReload(base_url='{}', view_name='@@update_item', params={{'assigned_user': "
-            u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign '
-            u'apUseIcons">\n        \n        <option style="display:none" value="#"></option>\n        '
-            u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
-            u"</option>\n      </select>\n    </form>\n</td>"
-            u"\n".format(self.im2.absolute_url()),
+            no_token(self.view.renderAssignUser()),
+            '<td>\n    <form action=\'\'>\n      <select name="Assign" class="apButton apButtonSelect apButtonAction '
+            "apButtonAction_assign apUseIcons\" onchange=\"javascript:callViewAndReload(base_url='{}', "
+            "view_name='@@update_item', params={{'assigned_user': this.value, '_authenticator': '{}'}})\">\n"
+            '        \n        <option style="display:none" value=#></option>\n        '
+            '<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
+            "</option>\n      </select>\n    </form>\n</td>"
+            "\n".format(self.im2.absolute_url(), token),
         )
         # without treating_groups
         new = api.content.create(self.portal["incoming-mail"], "dmsincomingmail", "c1")
@@ -118,7 +188,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.view.useIcons = False
         result = self.view.render_multiple_annexes_button()
         self.assertIn("quick_upload?typeupload=dmsappendixfile", result)
-        self.assertIn("Multiple annexes", result)
+        self.assertIn("Annexes multiples", result)
 
         # not shown when in faceted navigation
         self.view.request["URL"] = "http://nohost/plone/@@faceted_query"
@@ -128,18 +198,18 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         # TODO update this irrelevant test
         ret0 = self.view()
         # we have 5 actions: edit, propose manager, propose agent, reply, multiple_annexes
-        self.assertEqual(ret0.count(u"<td "), 6)
+        self.assertEqual(ret0.count("<td "), 6)
         api.content.transition(self.im2, "propose_to_agent")
         ret1 = self.view()
         # we have the same transitions because there is a cache on getTransitions
         # we have also assign but it starts with <td>
-        self.assertEqual(ret1.count(u"<td "), 6)
+        self.assertEqual(ret1.count("<td "), 6)
         # we add a reply
         om2 = get_object(oid="reponse2", ptype="dmsoutgoingmail")
         om2.reply_to = [RelationValue(self.intids.getId(self.im2))]
         modified(om2)
         ret2 = self.view()
-        self.assertEqual(ret2.count(u"<td "), 6)
+        self.assertEqual(ret2.count("<td "), 6)
 
 
 class TestDmsOMActionsPanelView(unittest.TestCase):
@@ -152,24 +222,340 @@ class TestDmsOMActionsPanelView(unittest.TestCase):
         self.portal.REQUEST["AUTHENTICATED_USER"] = api.user.get(username="siteadmin")
         self.om = get_object(oid="reponse2", ptype="dmsoutgoingmail")
         self.view = self.om.unrestrictedTraverse("@@actions_panel")
+        self.view.useIcons = False
+
+    def test_sortTransitions(self):
+        to_sort = [{"id": "mark_as_sent"}, {"id": "propose_to_n_plus_1"}, {"id": "back_to_creation"}]
+        self.view.sortTransitions(to_sort)
+        self.assertListEqual(
+            to_sort, [{"id": "back_to_creation"}, {"id": "propose_to_n_plus_1"}, {"id": "mark_as_sent"}]
+        )
+
+    def test_may_create_from_template(self):
+        self.assertTrue(self.view.may_create_from_template())
+        change_user(self.portal, "lecteur")
+        self.view.request.set("imio.actionspanel_member_cachekey", None)
+        self.assertFalse(self.view.may_create_from_template())
+
+    def test_render_create_from_template_button(self):
+        rendered = self.view.render_create_from_template_button()
+        self.assertIn('href="{}/@@create-from-template"'.format(self.om.absolute_url()), rendered)
+        # modal (Plone 4 overlay)
+        self.assertIn('class="pat-plone-modal link-overlay-actionspanel overlay-template-selection"', rendered)
+        self.assertIn('value="Créer depuis modèle"', rendered)
+        self.view.request["URL"] = "http://nohost/plone/@@faceted_query"
+        self.assertEqual(self.view.render_create_from_template_button(), "")
+
+    def test_may_create_new_message(self):
+        self.assertFalse(self.view.may_create_new_message())
+        self.om.send_modes = ["email"]
+        self.assertTrue(self.view.may_create_new_message())
+
+    def test_render_create_new_message(self):
+        self.assertEqual(self.view.render_create_new_message(), "")
+        self.om.send_modes = ["email"]
+        rendered = self.view.render_create_new_message()
+        self.assertIn('href="{}/edit?edit-email=1#fieldsetlegend-email"'.format(self.om.absolute_url()), rendered)
+        self.assertIn('class="apButton apButtonAction apButtonAction_wemail"', rendered)
+        self.om.email_subject = "Subject"
+        self.assertIn('class="apButton apButtonAction apButtonAction_wemail_ok"', self.view.render_create_new_message())
+
+    def test_may_send_email(self):
+        self.om.send_modes = ["email"]
+        self.assertFalse(self.view.may_send_email())
+        self.om.email_subject = "Subject"
+        self.assertTrue(self.view.may_send_email())
+
+    def test_render_send_email(self):
+        self.assertEqual(self.view.render_send_email(), "")
+        self.om.send_modes = ["email"]
+        self.om.email_subject = "Subject"
+        rendered = self.view.render_send_email()
+        # the email is sent by a GET ajax call, with the CSRF token
+        self.assertIn(
+            "onclick=\"javascript:callViewAndReload(base_url='{}', view_name='@@send_email', "
+            "params={{'_authenticator': 'TOKEN'}})\"".format(self.om.absolute_url()),
+            no_token(rendered),
+        )
+        self.assertIn('class="apButton apButtonAction apButtonAction_sendemail"', rendered)
+
+    def test_call(self):
+        rendered = self.view(useIcons=False)
+        self.assertIn("@@create-from-template", rendered)
+        self.assertIn("quick_upload?typeupload=dmsappendixfile", rendered)
+        self.assertIn("apButtonWF_propose_to_be_signed", rendered)
+        self.assertNotIn("@@send_email", rendered)
 
     def test_multiple_annexes(self):
         self.assertTrue(self.view.may_multiple_annexes())
         self.view.useIcons = False
         result = self.view.render_multiple_annexes_button()
         self.assertIn("quick_upload?typeupload=dmsappendixfile", result)
-        self.assertIn("Multiple annexes", result)
+        self.assertIn("Annexes multiples", result)
 
         # not shown when in faceted navigation
         self.view.request["URL"] = "http://nohost/plone/@@faceted_query"
         self.assertFalse(self.view.may_multiple_annexes())
 
 
-class TestContactActionsPanelView(unittest.TestCase):
+class TestSigningFieldsetActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        change_user(self.portal)
+        self.portal.REQUEST["AUTHENTICATED_USER"] = api.user.get(username="siteadmin")
+        activate_signing(self.portal)
+        self.om = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.view = self.om.unrestrictedTraverse("@@signing_actions_panel")
+
+    def test_fieldset(self):
+        self.assertIsInstance(self.view, SigningFieldsetActionsPanelView)
+        self.assertEqual(self.view.fieldset, "#fieldsetlegend-signing")
+
+    def test_renderEdit(self):
+        self.view.showEdit = True
+        self.view.kwargs = {}
+        self.view.useIcons = True
+        rendered = self.view.renderEdit()
+        self.assertIn('href="{}/edit#fieldsetlegend-signing"'.format(self.om.absolute_url()), rendered)
+        self.assertIn('src="http://nohost/plone/++plone++bootstrap-icons/pencil.svg"', rendered)
+        self.view.useIcons = False
+        rendered = self.view.renderEdit()
+        self.assertIn('action="{}/edit#fieldsetlegend-signing"'.format(self.om.absolute_url()), rendered)
+        self.view.showEdit = False
+        self.assertEqual(self.view.renderEdit(), "")
+
+    def test_call(self):
+        rendered = self.view()
+        self.assertIn("edit#fieldsetlegend-signing", rendered)
+        # no transition
+        self.assertNotIn("apButtonWF", rendered)
+
+
+class TestDmsSignRequestActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        change_user(self.portal)
+        self.portal.REQUEST["AUTHENTICATED_USER"] = api.user.get(username="siteadmin")
+        self.sreq, self.files = create_sign_request(self.portal, oid="sr-panel", nb_files=1)
+        self.view = self.sreq.unrestrictedTraverse("@@actions_panel")
+
+    def test_sortTransitions(self):
+        self.assertIsInstance(self.view, DmsSignRequestActionsPanelView)
+        to_sort = [{"id": "unknown"}, {"id": "close"}, {"id": "propose_to_approve"}, {"id": "back_to_creation"}]
+        self.view.sortTransitions(to_sort)
+        self.assertListEqual(
+            to_sort, [{"id": "back_to_creation"}, {"id": "propose_to_approve"}, {"id": "close"}, {"id": "unknown"}]
+        )
+
+    def test_call(self):
+        rendered = self.view(useIcons=False)
+        self.assertIn("apButtonWF_propose_to_approve", rendered)
+        self.assertIn("quick_upload?typeupload=dmsappendixfile", rendered)
+
+
+class TestDmsFileActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_listObjectButtonsActions(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        view = omf.unrestrictedTraverse("@@actions_panel")
+        self.assertIsInstance(view, DmsFileActionsPanelView)
+        self.assertListEqual(
+            [act["id"] for act in view.listObjectButtonsActions()],
+            ["external_edit", "rename_title", "download", "view_element", "delete"],
+        )
+
+
+class TestDmsTaskActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        change_user(self.portal)
+        self.portal.REQUEST["AUTHENTICATED_USER"] = api.user.get(username="siteadmin")
+        self.task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]
+        self.view = self.task.unrestrictedTraverse("@@actions_panel")
+
+    def test_sortTransitions(self):
+        self.assertIsInstance(self.view, DmsTaskActionsPanelView)
+        to_sort = [{"id": "do_closed"}, {"id": "do_to_assign"}, {"id": "back_in_created"}]
+        self.view.sortTransitions(to_sort)
+        self.assertListEqual(to_sort, [{"id": "back_in_created"}, {"id": "do_to_assign"}, {"id": "do_closed"}])
+
+    def test_call(self):
+        rendered = self.view(useIcons=False)
+        self.assertIn("apButtonWF_do_to_assign", rendered)
+        self.assertListEqual(self.view.ACCEPTABLE_ACTIONS, ["copy", "cut", "paste", "delete"])
+
+
+class TestClassificationFolderActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_call(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        portal.REQUEST["AUTHENTICATED_USER"] = api.user.get(username="siteadmin")
+        folder = portal["folders"]["ordre-public-reglement-general-de-police"]
+        view = folder.unrestrictedTraverse("@@actions_panel")
+        self.assertIsInstance(view, ClassificationFolderActionsPanelView)
+        rendered = view(useIcons=False)
+        self.assertIn("quick_upload?typeupload=annex", rendered)
+        self.assertListEqual(view.ACCEPTABLE_ACTIONS, ["cut", "copy", "paste", "delete"])
+
+
+class TestClassificationContainersActionsPanelView(unittest.TestCase):
 
     layer = DMSMAIL_INTEGRATION_TESTING
 
     def test_init(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        for container in (portal["tree"], portal["folders"]):
+            view = container.unrestrictedTraverse("@@actions_panel")
+            self.assertIsInstance(view, ClassificationContainersActionsPanelView)
+            rendered = view(useIcons=False)
+            # actions with the CSRF token
+            self.assertIn('action="{}/@@import?_authenticator='.format(container.absolute_url()), rendered)
+            self.assertIn('action="{}/@@refresh-cache?_authenticator='.format(container.absolute_url()), rendered)
+        self.assertIn(
+            'action="http://nohost/plone/tree/add-ClassificationCategory?_authenticator=',
+            portal["tree"].unrestrictedTraverse("@@actions_panel")(useIcons=False),
+        )
+
+
+class TestClassificationActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_init(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        # a category is not a content type: the tree container stores it (as its add form does)
+        category = createObject("ClassificationCategory")
+        category.identifier = "001"
+        category.title = "Catégorie"
+        portal["tree"]._add_element(category)
+        category = portal["tree"].get_by("identifier", "001")
+        view = category.unrestrictedTraverse("@@actions_panel")
+        self.assertIsInstance(view, ClassificationActionsPanelView)
+        self.assertListEqual(
+            view.ACCEPTABLE_ACTIONS, ["cut", "copy", "paste", "delete", "rename", "classification.tree.add"]
+        )
+        self.assertIn("add-ClassificationCategory", view(useIcons=False))
+
+
+class TestOnlyAddActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_init(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        view = portal["annexes_types"]["annexes"].unrestrictedTraverse("@@actions_panel")
+        self.assertIsInstance(view, OnlyAddActionsPanelView)
+        self.assertListEqual(view.ACCEPTABLE_ACTIONS, ["paste"])
+        self.assertNotIn("delete", view(useIcons=False, showOwnDelete=False))
+
+
+class TestAnnexActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
         self.portal = self.layer["portal"]
-        self.swde = self.portal["contacts"]["swde"]
-        self.view = self.swde.unrestrictedTraverse("@@actions_panel")
+        change_user(self.portal)
+        self.portal.REQUEST["AUTHENTICATED_USER"] = api.user.get(username="siteadmin")
+        folder = self.portal["folders"]["ordre-public-reglement-general-de-police"]
+        self.annex = createContentInContainer(
+            folder,
+            "annex",
+            title="Annexe",
+            file=NamedBlobFile(b"content", filename="annexe.txt"),
+            content_category=calculate_category_id(self.portal["annexes_types"]["annexes"]["annex"]),
+        )
+
+    def test_init(self):
+        view = self.annex.unrestrictedTraverse("@@actions_panel")
+        self.assertIsInstance(view, AnnexActionsPanelView)
+        self.assertEqual(view.IGNORABLE_ACTIONS, ("documentviewer_convert", "view_preview", "view_element"))
+        self.portal.REQUEST["URL"] = "http://nohost/plone/folders/@@faceted_query"
+        view = self.annex.unrestrictedTraverse("@@actions_panel")
+        self.assertEqual(view.IGNORABLE_ACTIONS, ("documentviewer_convert", "view_preview"))
+
+    def test_call(self):
+        rendered = self.annex.unrestrictedTraverse("@@actions_panel")(useIcons=False)
+        self.assertIn("{}/edit".format(self.annex.absolute_url()), rendered)
+        self.assertNotIn("apButtonWF", rendered)
+        self.assertNotIn("view_element", rendered)
+
+
+class TestCPODTActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_init(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        alsoProvides(portal.REQUEST, IImioDmsMailLayer)
+        view = portal["templates"]["om"]["main"].unrestrictedTraverse("@@actions_panel")
+        self.assertIsInstance(view, CPODTActionsPanelView)
+        self.assertIsInstance(view, ConfigurablePODTemplateActionsPanelView)
+        self.assertListEqual(view.ACCEPTABLE_ACTIONS, ["cut", "copy", "paste", "delete", "rename"])
+        rendered = view()
+        self.assertIn("http://nohost/plone/templates/om/main/object_copy", rendered)
+        self.assertIn("http://nohost/plone/templates/om/main/edit", rendered)
+
+
+class TestBasicActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_init(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        view = portal["contacts"]["swde"].unrestrictedTraverse("@@actions_panel")
+        self.assertIsInstance(view, BasicActionsPanelView)
+        self.assertListEqual(view.ACCEPTABLE_ACTIONS, ["cut", "copy", "paste", "delete", "rename"])
+        self.assertIn("http://nohost/plone/contacts/swde/edit", view())
+
+
+class TestCategoryActionsPanelView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_init(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        view = portal["annexes_types"]["annexes"]["annex"].unrestrictedTraverse("@@actions_panel")
+        self.assertIsInstance(view, CategoryActionsPanelView)
+        self.assertListEqual(view.ACCEPTABLE_ACTIONS, ["copy", "delete", "rename", "update_categorized_elements"])
+
+
+class TestActionsPanelViewletAllButTransitions(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_show(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        # hidden period folder
+        im1 = get_object(oid="courrier1", ptype="dmsincomingmail")
+        period = im1.__parent__
+        period.REQUEST["ACTUAL_URL"] = period.absolute_url()
+        viewlet = ActionsPanelViewletAllButTransitions(period, period.REQUEST, None, None)
+        self.assertFalse(viewlet.show())
+        tplf = portal["templates"]["om"]
+        tplf.REQUEST["ACTUAL_URL"] = tplf.absolute_url()
+        viewlet = ActionsPanelViewletAllButTransitions(tplf, tplf.REQUEST, None, None)
+        self.assertTrue(viewlet.show())

@@ -1,11 +1,9 @@
 from AccessControl import allow_module
 from AccessControl.Permissions import delete_objects
+from App.config import getConfiguration
 from collective.dms.basecontent import dmsfile
-from Globals import DevelopmentMode
 from plone import api
 from plone.dexterity.content import Container
-from Products.Archetypes.BaseFolder import BaseFolder
-from Products.CMFPlone.PloneFolder import BasePloneFolder
 from zope.component import queryUtility
 from zope.i18n.interfaces import ITranslationDomain
 from zope.i18nmessageid import MessageFactory
@@ -13,7 +11,7 @@ from zope.i18nmessageid import MessageFactory
 import os
 
 
-allow_module('imio.dms.mail.utils')
+allow_module("imio.dms.mail.utils")
 _ = MessageFactory("imio.dms.mail")
 
 
@@ -25,8 +23,8 @@ dmsfile.DmsFile.__ac_local_roles_block__ = False
 dmsfile.DmsAppendixFile.__ac_local_roles_block__ = False
 
 AUC_RECORD = "imio.dms.mail.browser.settings.IImioDmsMailConfig.assigned_user_check"
-CREATING_GROUP_SUFFIX = u"group_encoder"
-CONTACTS_PART_SUFFIX = u"contacts_part"
+CREATING_GROUP_SUFFIX = "group_encoder"
+CONTACTS_PART_SUFFIX = "contacts_part"
 # CREATING_FIELD_ROLE = 'Creating Group Field Writer'
 PRODUCT_DIR = os.path.dirname(__file__)
 if os.environ.get("ZOPE_HOME", ""):
@@ -77,8 +75,17 @@ MAIN_FOLDERS = {
 }
 TOP_NAV_TABS = ["incoming-mail", "outgoing-mail", "requests", "folders", "tasks", "plus"]
 PLUS_MENU_TABS = ["contacts", "templates", "tree", "annexes_types"]
-DEFAULT_DISPLAYED_TABS = ["incoming-mail", "outgoing-mail", "folders", "tasks", "plus", "contacts", "templates",
-                          "tree", "annexes_types"]
+DEFAULT_DISPLAYED_TABS = [
+    "incoming-mail",
+    "outgoing-mail",
+    "folders",
+    "tasks",
+    "plus",
+    "contacts",
+    "templates",
+    "tree",
+    "annexes_types",
+]
 FIRST_LEVEL_TABS = TOP_NAV_TABS + PLUS_MENU_TABS
 GE_CONFIG = {  # group_encoder config
     "imail_group_encoder": {"pt": ["dmsincomingmail", "dmsincoming_email"], "idx": "assigned_group"},
@@ -99,14 +106,14 @@ def add_path(path):
 
 
 def get_empty_signers_value():
-    return [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
+    return [{"number": 1, "signer": "_empty_", "editor": False, "approvings": ["_empty_"]}]
 
 
 # We modify the protection ('Delete objects' permission) on container manage_delObjects method
 # Normally to delete an item, user must have the delete permission on the item and on the parent container
 # Now container 'manage_delObjects' method is protected by roles (Member)
 # Based on what is done in AccessControl.class_init
-for klass in (BaseFolder, BasePloneFolder, Container):
+for klass in (Container,):
     new = []
     for perm in klass.__ac_permissions__:
         if perm[0] == delete_objects:
@@ -123,7 +130,9 @@ for klass in (BaseFolder, BasePloneFolder, Container):
 
 pmh = os.environ.get("ENABLE_PRINTING_MAILHOST", None)
 PMH_ENABLED = False
-if (pmh is not None and pmh.lower() in ("yes", "y", "true", "on")) or (pmh is None and DevelopmentMode is True):
+if (pmh is not None and pmh.lower() in ("yes", "y", "true", "on")) or (
+    pmh is None and getattr(getConfiguration(), "debug_mode", False)
+):
     PMH_ENABLED = True
 
 ARCHIVE_SITE = False

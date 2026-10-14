@@ -1,50 +1,71 @@
 # -*- coding: utf-8 -*-
+from App.config import getConfiguration
 from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.config import set_registry_organizations
+from collective.contact.plonegroup.interfaces import INotPloneGroupContact
+from collective.contact.plonegroup.interfaces import IPloneGroupContact
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.querynextprev.interfaces import INextPrevNotNavigable
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
+from DateTime import DateTime
+from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.content.behaviors import IUsagesBehavior
+from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IOMApproval
+from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.subscribers import i_annex_removed
 from imio.dms.mail.subscribers import reindex_person_usages
+from imio.dms.mail.subscribers import zope_ready
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import DummyView
+from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
+from imio.dms.mail.vocabularies import OMActiveSenderVocabulary
+from imio.dms.mail.vocabularies import OMSenderVocabulary
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import get_session_annotation
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
 from imio.helpers.content import uuidToObject
+from imio.helpers.ram import IMIORAMCache
 from imio.helpers.test_helpers import ImioTestHelpers
-from mock import Mock
-from mock import patch
 from plone import api
-from plone.app.controlpanel.events import ConfigurationChangedEvent
 from plone.app.dexterity.behaviors.metadata import IBasic
+from plone.app.linkintegrity.exceptions import LinkIntegrityNotificationException
 from plone.app.testing import TEST_USER_ID
-from plone.app.users.browser.personalpreferences import UserDataConfiglet
+from plone.app.users.browser.userdatapanel import UserDataConfiglet
+from plone.base.interfaces.constrains import ISelectableConstrainTypes
+from plone.dexterity.events import EditFinishedEvent
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from plone.registry.events import RecordModifiedEvent
+from plone.registry.interfaces import IRegistry
+from Products.CMFCore.indexing import processQueue
+from Products.CMFPlone.controlpanel.events import ConfigurationChangedEvent
 from Products.statusmessages.interfaces import IStatusMessage
+from unittest.mock import Mock
+from unittest.mock import patch
 from z3c.relationfield import RelationValue
 from zExceptions import Redirect
-from zope.annotation import IAnnotations
+from zope.component import getSiteManager
 from zope.component import getUtility
+from zope.i18n import translate
 from zope.interface import Interface
 from zope.interface import Invalid
 from zope.intid import IIntIds
@@ -52,6 +73,8 @@ from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import modified
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.lifecycleevent import ObjectRemovedEvent
+from zope.ramcache.interfaces.ram import IRAMCache
+from zope.ramcache.ram import RAMCache
 
 import unittest
 import zope.event
@@ -72,8 +95,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             "c1",
             **{
                 "sender": [RelationValue(self.intids.getId(self.portal.contacts["electrabel"]))],
-                "mail_type": u"courrier",
-                "title": u"title",
+                "mail_type": "courrier",
+                "title": "title",
             }
         )
         self.omf = self.portal["outgoing-mail"]
@@ -82,20 +105,21 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
 
     def test_i_annex_created(self):
         # an annex left without a title takes the file name, without its extension (DMS-1217, DMS-605)
-        annex = createContentInContainer(self.imail, "dmsappendixfile",
-                                         file=NamedBlobFile("pdf", filename=u"Ma pièce.pdf"))
-        self.assertEqual(annex.title, u"Ma pièce")
+        annex = createContentInContainer(
+            self.imail, "dmsappendixfile", file=NamedBlobFile("pdf", filename="Ma pièce.pdf")
+        )
+        self.assertEqual(annex.title, "Ma pièce")
         # a title given by the user is kept
-        titled = createContentInContainer(self.imail, "dmsappendixfile", title=u"CV",
-                                          file=NamedBlobFile("pdf", filename=u"Ma pièce.pdf"))
-        self.assertEqual(titled.title, u"CV")
+        titled = createContentInContainer(
+            self.imail, "dmsappendixfile", title="CV", file=NamedBlobFile("pdf", filename="Ma pièce.pdf")
+        )
+        self.assertEqual(titled.title, "CV")
         # a file name without extension is kept as is
-        noext = createContentInContainer(self.imail, "dmsappendixfile",
-                                         file=NamedBlobFile("pdf", filename=u"README"))
-        self.assertEqual(noext.title, u"README")
+        noext = createContentInContainer(self.imail, "dmsappendixfile", file=NamedBlobFile("pdf", filename="README"))
+        self.assertEqual(noext.title, "README")
         # an annex without file does not break
-        nofile = createContentInContainer(self.imail, "dmsappendixfile", title=u"No file")
-        self.assertEqual(nofile.title, u"No file")
+        nofile = createContentInContainer(self.imail, "dmsappendixfile", title="No file")
+        self.assertEqual(nofile.title, "No file")
 
     def test_item_copied(self):
         # check if protection markers are removed from copied item
@@ -132,7 +156,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             "dmsincomingmail",
             datetime.now(),
             "id1",
-            **{"title": u"IMail1", "treating_groups": orgs[0], "sender": [RelationValue(self.intids.getId(cl))]}
+            **{"title": "IMail1", "treating_groups": orgs[0], "sender": [RelationValue(self.intids.getId(cl))]}
         )
         self.assertEqual(len(imail1.sender), 2)
         self.assertFalse(hasattr(imail1, "creating_group"))
@@ -161,26 +185,26 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 "dmsincomingmail",
                 datetime.now(),
                 "my-id",
-                **{"title": u"IMail created by scanner", "treating_groups": orgs[0]}
+                **{"title": "IMail created by scanner", "treating_groups": orgs[0]}
             )
             dfile = createContentInContainer(imail, "dmsmainfile", **{"title": "File created by scanner"})
-        self.assertEquals(imail.Creator(), "scanner")
-        self.assertEquals(imail.owner_info()["id"], "scanner")
-        self.assertEquals(imail.get_local_roles_for_userid("scanner"), ("Owner",))
-        self.assertEquals(dfile.Creator(), "scanner")
-        self.assertEquals(dfile.owner_info()["id"], "scanner")
-        self.assertEquals(dfile.get_local_roles_for_userid("scanner"), ("Owner",))
+        self.assertEqual(imail.Creator(), "scanner")
+        self.assertEqual(imail.owner_info()["id"], "scanner")
+        self.assertEqual(imail.get_local_roles_for_userid("scanner"), ("Owner",))
+        self.assertEqual(dfile.Creator(), "scanner")
+        self.assertEqual(dfile.owner_info()["id"], "scanner")
+        self.assertEqual(dfile.get_local_roles_for_userid("scanner"), ("Owner",))
         with api.env.adopt_user(username="encodeur"):
             imail.setTitle("IMail modified by encodeur")
             zope.event.notify(ObjectModifiedEvent(imail))
-        self.assertEquals(imail.Creator(), "encodeur")
-        self.assertEquals(imail.owner_info()["id"], "encodeur")
-        self.assertEquals(imail.get_local_roles_for_userid("encodeur"), ("Owner",))
-        self.assertEquals(imail.get_local_roles_for_userid("scanner"), ())
-        self.assertEquals(dfile.Creator(), "encodeur")
-        self.assertEquals(dfile.owner_info()["id"], "encodeur")
-        self.assertEquals(dfile.get_local_roles_for_userid("encodeur"), ("Owner",))
-        self.assertEquals(dfile.get_local_roles_for_userid("scanner"), ())
+        self.assertEqual(imail.Creator(), "encodeur")
+        self.assertEqual(imail.owner_info()["id"], "encodeur")
+        self.assertEqual(imail.get_local_roles_for_userid("encodeur"), ("Owner",))
+        self.assertEqual(imail.get_local_roles_for_userid("scanner"), ())
+        self.assertEqual(dfile.Creator(), "encodeur")
+        self.assertEqual(dfile.owner_info()["id"], "encodeur")
+        self.assertEqual(dfile.get_local_roles_for_userid("encodeur"), ("Owner",))
+        self.assertEqual(dfile.get_local_roles_for_userid("scanner"), ())
         # tasks update test
         task1 = api.content.create(container=imail, type="task", title="task1", id="t1", assigned_group=orgs[1])
         self.assertListEqual(task1.parents_assigned_groups, [orgs[0]])
@@ -204,21 +228,26 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
     def test_correct_to_print(self):
         """to_print is auto-derived: main files follow (not esign), appendix always False."""
         omail = sub_create(
-            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(),
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
             "omail-tp-test",
-            title=u"To print test",
+            title="To print test",
             treating_groups=self.pgof["direction-generale"].UID(),
-            mail_type=u"courrier",
+            mail_type="courrier",
         )
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
 
         def _add(portal_type, oid, esign):
             omail.esign = esign
             with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
                 file_obj = NamedBlobFile(fo.read(), filename=filename)
             return createContentInContainer(
-                omail, portal_type, id=oid, file=file_obj,
+                omail,
+                portal_type,
+                id=oid,
+                file=file_obj,
                 content_category=calculate_category_id(ct),
             )
 
@@ -255,11 +284,13 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             return event
 
         omail = sub_create(
-            self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(),
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
             "omail-tr-test",
-            title=u"Transition test",
+            title="Transition test",
             treating_groups=self.pgof["direction-generale"].UID(),
-            mail_type=u"courrier",
+            mail_type="courrier",
         )
         request = self.portal.REQUEST
 
@@ -289,11 +320,13 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
 
         # a dmsommainfile inside omail, used by the seal branch below
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file_obj = NamedBlobFile(fo.read(), filename=filename)
         afile = createContentInContainer(
-            omail, "dmsommainfile", id="test-odt",
+            omail,
+            "dmsommainfile",
+            id="test-odt",
             file=file_obj,
             content_category=calculate_category_id(ct),
         )
@@ -317,11 +350,13 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
 
         # D2: file filter — to_sign=True files are added, to_sign=False are not
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file_obj2 = NamedBlobFile(fo.read(), filename=filename)
         afile2 = createContentInContainer(
-            omail, "dmsommainfile", id="test-odt2",
+            omail,
+            "dmsommainfile",
+            id="test-odt2",
             file=file_obj2,
             content_category=calculate_category_id(ct),
         )
@@ -331,7 +366,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
             mock_approval = Mock()
             MockAdapter.return_value = mock_approval
-            mock_approval.add_mail_files_to_session.return_value = (False, u"No files")
+            mock_approval.add_mail_files_to_session.return_value = (False, "No files")
             dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
             self.assertEqual(mock_approval.add_file_to_approval.call_count, 1)
             self.assertEqual(mock_approval.add_file_to_approval.call_args[0][0], afile2.UID())
@@ -341,35 +376,35 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
             mock_approval = Mock()
             MockAdapter.return_value = mock_approval
-            mock_approval.add_mail_files_to_session.return_value = (False, u"No files")
+            mock_approval.add_mail_files_to_session.return_value = (False, "No files")
             dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
             msgs = IStatusMessage(request).show()
             self.assertEqual(len(msgs), 1)
-            self.assertEqual(msgs[0].type, u"error")
-            self.assertEqual(msgs[0].message, u"No files")
+            self.assertEqual(msgs[0].type, "error")
+            self.assertEqual(msgs[0].message, "No files")
 
         # D4: (True, msg), no seal code only → info + "Seal code" error, ExternalSessionCreateView not called
         with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
             mock_approval = Mock()
             MockAdapter.return_value = mock_approval
-            mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
+            mock_approval.add_mail_files_to_session.return_value = (True, "1 file added")
             with patch("imio.dms.mail.subscribers.get_esign_registry_seal_code", return_value=None):
-                with patch("imio.dms.mail.subscribers.get_esign_registry_seal_email", return_value=u"sign@example.com"):
+                with patch("imio.dms.mail.subscribers.get_esign_registry_seal_email", return_value="sign@example.com"):
                     with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
                         dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
                         MockESV.assert_not_called()
             msgs = IStatusMessage(request).show()
             self.assertEqual(len(msgs), 2)
-            self.assertEqual(msgs[0].type, u"info")
-            self.assertEqual(msgs[0].message, u"1 file added")
-            self.assertEqual(msgs[1].type, u"error")
-            self.assertIn(u"cachet", msgs[1].message)  # French: "Le code du cachet électronique..."
+            self.assertEqual(msgs[0].type, "info")
+            self.assertEqual(msgs[0].message, "1 file added")
+            self.assertEqual(msgs[1].type, "error")
+            self.assertIn("cachet", msgs[1].message)  # French: "Le code du cachet électronique..."
 
         # D5: both seal code and email missing → info + 2 errors
         with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
             mock_approval = Mock()
             MockAdapter.return_value = mock_approval
-            mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
+            mock_approval.add_mail_files_to_session.return_value = (True, "1 file added")
             with patch("imio.dms.mail.subscribers.get_esign_registry_seal_code", return_value=None):
                 with patch("imio.dms.mail.subscribers.get_esign_registry_seal_email", return_value=None):
                     with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
@@ -377,46 +412,46 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                         MockESV.assert_not_called()
             msgs = IStatusMessage(request).show()
             self.assertEqual(len(msgs), 3)
-            self.assertEqual(msgs[0].type, u"info")
-            self.assertEqual(msgs[1].type, u"error")
-            self.assertIn(u"cachet", msgs[1].message)
-            self.assertEqual(msgs[2].type, u"error")
-            self.assertIn(u"email", msgs[2].message.lower())
+            self.assertEqual(msgs[0].type, "info")
+            self.assertEqual(msgs[1].type, "error")
+            self.assertIn("cachet", msgs[1].message)
+            self.assertEqual(msgs[2].type, "error")
+            self.assertIn("email", msgs[2].message.lower())
 
         # D6: (True, msg), seal code present but no seal email → info + "Seal email" error
         with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
             mock_approval = Mock()
             MockAdapter.return_value = mock_approval
-            mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
-            with patch("imio.dms.mail.subscribers.get_esign_registry_seal_code", return_value=u"1234"):
+            mock_approval.add_mail_files_to_session.return_value = (True, "1 file added")
+            with patch("imio.dms.mail.subscribers.get_esign_registry_seal_code", return_value="1234"):
                 with patch("imio.dms.mail.subscribers.get_esign_registry_seal_email", return_value=None):
                     with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
                         dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
                         MockESV.assert_not_called()
             msgs = IStatusMessage(request).show()
             self.assertEqual(len(msgs), 2)
-            self.assertEqual(msgs[0].type, u"info")
-            self.assertEqual(msgs[1].type, u"error")
-            self.assertIn(u"email", msgs[1].message.lower())  # "Seal email must be defined..."
+            self.assertEqual(msgs[0].type, "info")
+            self.assertEqual(msgs[1].type, "error")
+            self.assertIn("email", msgs[1].message.lower())  # "Seal email must be defined..."
 
         # D7: (True, msg), both seal code and email present → ExternalSessionCreateView called, 1 info message
         with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
             mock_approval = Mock()
             MockAdapter.return_value = mock_approval
-            mock_approval.add_mail_files_to_session.return_value = (True, u"1 file added")
-            mock_approval.session_ids = [u"session-abc"]
-            with patch("imio.dms.mail.subscribers.get_esign_registry_seal_code", return_value=u"1234"):
-                with patch("imio.dms.mail.subscribers.get_esign_registry_seal_email", return_value=u"sign@example.com"):
+            mock_approval.add_mail_files_to_session.return_value = (True, "1 file added")
+            mock_approval.session_ids = ["session-abc"]
+            with patch("imio.dms.mail.subscribers.get_esign_registry_seal_code", return_value="1234"):
+                with patch("imio.dms.mail.subscribers.get_esign_registry_seal_email", return_value="sign@example.com"):
                     with patch("imio.dms.mail.subscribers.ExternalSessionCreateView") as MockESV:
                         mock_esv_instance = Mock()
                         MockESV.return_value = mock_esv_instance
                         dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
                         MockESV.assert_called_once_with(omail, omail.REQUEST)
-                        mock_esv_instance.assert_called_once_with(session_id=u"session-abc")
+                        mock_esv_instance.assert_called_once_with(session_id="session-abc")
             msgs = IStatusMessage(request).show()
             self.assertEqual(len(msgs), 1)
-            self.assertEqual(msgs[0].type, u"info")
-            self.assertEqual(msgs[0].message, u"1 file added")
+            self.assertEqual(msgs[0].type, "info")
+            self.assertEqual(msgs[0].message, "1 file added")
 
     def test_dmsoutgoingmail_modified_signer_rules(self):
         dirg = self.pf["dirg"]
@@ -441,7 +476,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         api.portal.set_registry_record(rk, [])
         modified(omail)
         self.assertListEqual(
-            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": "_empty_", "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # Test treating groups
@@ -452,7 +487,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [self.pgof["direction-generale"].UID()],
@@ -464,7 +499,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         omail.signers = None
@@ -474,7 +509,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [self.pgof["direction-financiere"].UID()],
@@ -486,7 +521,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": "_empty_", "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # Test mail types
@@ -497,7 +532,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": ["courrier"],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -509,15 +544,15 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         omail.signers = None
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types",
             [
-                {"dtitle": u"Courrier", "active": True, "value": u"courrier"},
-                {"dtitle": u"Type 2", "active": True, "value": u"type2"},
+                {"dtitle": "Courrier", "active": True, "value": "courrier"},
+                {"dtitle": "Type 2", "active": True, "value": "type2"},
             ],
         )
         api.portal.set_registry_record(
@@ -526,7 +561,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": ["type2"],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -538,7 +573,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": "_empty_", "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # Test TAL condition
@@ -547,9 +582,9 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "tal_condition": u"python:True",
+                    "tal_condition": "python:True",
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -561,7 +596,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         omail.signers = None
@@ -569,9 +604,9 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             rk,
             [
                 {
-                    "tal_condition": u"python:False",
+                    "tal_condition": "python:False",
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -583,7 +618,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": "_empty_", "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # Test skip number if already present
@@ -594,7 +629,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -605,7 +640,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -617,7 +652,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # Test seal (number 0)
@@ -628,12 +663,12 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": False,
                     "number": 0,
                     "treating_groups": [],
                     "send_modes": [],
-                    "signer": u"_seal_",
+                    "signer": "_seal_",
                     "editor": False,
                 },
             ],
@@ -642,7 +677,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         modified(omail)
         self.assertTrue(omail.seal)
         self.assertEqual(
-            omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": "_empty_", "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # Test sort signers
@@ -653,7 +688,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 2,
                     "treating_groups": [],
@@ -664,7 +699,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -678,8 +713,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             omail.signers,
             [
-                {"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": True},
-                {"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 2, "editor": False},
+                {"signer": dirg_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": True},
+                {"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 2, "editor": False},
             ],
         )
 
@@ -691,7 +726,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -702,7 +737,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 2,
                     "treating_groups": [],
@@ -715,8 +750,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message,
-            u"You cannot have the same signer (${signer_title}) multiple times ! " u"You have to adapt the rules !",
+            cm.exception.args[0],
+            "You cannot have the same signer (${signer_title}) multiple times ! " "You have to adapt the rules !",
         )
 
         params = {
@@ -735,7 +770,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -746,7 +781,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 2,
                     "treating_groups": [],
@@ -759,8 +794,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message,
-            u"You cannot have the same signer (${signer_title}) multiple times ! " u"You have to adapt the rules !",
+            cm.exception.args[0],
+            "You cannot have the same signer (${signer_title}) multiple times ! " "You have to adapt the rules !",
         )
 
         # Test missing number
@@ -771,7 +806,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -782,7 +817,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 3,
                     "treating_groups": [],
@@ -801,18 +836,18 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 0,
                     "treating_groups": [],
                     "send_modes": [],
-                    "signer": u"_seal_",
+                    "signer": "_seal_",
                     "editor": False,
                 },
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -825,7 +860,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         modified(omail)
         self.assertTrue(omail.esign)
         self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         omail.signers = None
@@ -837,7 +872,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": False,
                     "number": 1,
                     "treating_groups": [],
@@ -850,7 +885,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         modified(omail)
         self.assertFalse(omail.esign)
         self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         omail.signers = None
@@ -862,18 +897,18 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 0,
                     "treating_groups": [],
                     "send_modes": [],
-                    "signer": u"_seal_",
+                    "signer": "_seal_",
                     "editor": False,
                 },
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": False,
                     "number": 1,
                     "treating_groups": [],
@@ -886,14 +921,14 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message, u"You cannot have a seal without electronic signature ! You have to adapt the rules !"
+            cm.exception.args[0], "You cannot have a seal without electronic signature ! You have to adapt the rules !"
         )
 
         # Test mail already has signers
         omail.signers = [
             {
                 "signer": dirg_hp.UID(),
-                "approvings": [u"_themself_", bourgmestre_hp.UID()],
+                "approvings": ["_themself_", bourgmestre_hp.UID()],
                 "number": 1,
                 "editor": True,
             }
@@ -904,7 +939,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": False,
                     "number": 1,
                     "treating_groups": [],
@@ -920,7 +955,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_themself_", bourgmestre_hp.UID()],
+                    "approvings": ["_themself_", bourgmestre_hp.UID()],
                     "number": 1,
                     "editor": True,
                 }
@@ -959,9 +994,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(
-            cm.exception.message, u"The chef already exists in the approvings with another order 1 <=> 2"
-        )
+        self.assertEqual(cm.exception.args[0], "L'utilisateur chef existe déjà dans les approbateurs lignes 1 <=> 2")
 
         # Test signers have same email
         api.user.get("bourgmestre").setMemberProperties({"email": "duplicate@belleville.eb"})
@@ -973,7 +1006,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 1,
                     "treating_groups": [],
@@ -984,7 +1017,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "tal_condition": None,
                     "mail_types": [],
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "esign": True,
                     "number": 2,
                     "treating_groups": [],
@@ -996,14 +1029,16 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.message, u"You cannot have the same email (duplicate@belleville.eb) "
-                                               u"for multiple signers !")
+        self.assertEqual(
+            cm.exception.args[0],
+            "Vous ne pouvez pas avoir le même email (duplicate@belleville.eb) " "pour plusieurs signataires !",
+        )
         api.user.get("dirg").setMemberProperties({"email": "deduplicate@belleville.eb"})
 
         # Test mail in sent or to_be_signed states
         filepath = "%s/batchimport/toprocess/outgoing-mail/Réponse salle.odt" % PRODUCT_DIR
         with open(filepath, "rb") as fo:
-            file_object = NamedBlobFile(fo.read(), filename=u"example.odt")
+            file_object = NamedBlobFile(fo.read(), filename="example.odt")
             createContentInContainer(omail, "dmsommainfile", id="1", title="Example", file=file_object)
         api.content.transition(omail, to_state="to_be_signed")
         omail.signers = None
@@ -1037,19 +1072,19 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(omail.signers[1]["signer"], bourgmestre_hp.UID())
 
         # "template_first": signer rules are skipped and no value is set.
-        api.portal.set_registry_record(rk_so, u"template_first")
+        api.portal.set_registry_record(rk_so, "template_first")
         omail.signers = None
         modified(omail)
         self.assertIsNone(omail.signers)
 
         # Existing signers are preserved
-        omail.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
+        omail.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": ["_empty_"]}]
         modified(omail)
         self.assertEqual(len(omail.signers), 1)
         self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
 
         # "rules_first": rules apply on creation (template is only a fallback at generation time)
-        api.portal.set_registry_record(rk_so, u"rules_first")
+        api.portal.set_registry_record(rk_so, "rules_first")
         omail.signers = None
         modified(omail)
         self.assertEqual(len(omail.signers), 2)
@@ -1057,7 +1092,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(omail.signers[1]["signer"], bourgmestre_hp.UID())
 
         # "rules" mode: rules apply again
-        api.portal.set_registry_record(rk_so, u"rules")
+        api.portal.set_registry_record(rk_so, "rules")
         omail.signers = None
         modified(omail)
         self.assertEqual(len(omail.signers), 2)
@@ -1069,10 +1104,10 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         omail.signers = None
         modified(omail)
         self.assertEqual(len(omail.signers), 1)
-        self.assertEqual(omail.signers[0]["signer"], u"_empty_")
+        self.assertEqual(omail.signers[0]["signer"], "_empty_")
 
         # "rules_first": rules apply on creation (template is only a fallback at generation time)
-        api.portal.set_registry_record(rk_so, u"rules_first")
+        api.portal.set_registry_record(rk_so, "rules_first")
         omail.signers = None
         modified(omail)
         self.assertFalse(omail.signers)
@@ -1084,7 +1119,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         rk_osr = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
         dirg_hp = self.pf["dirg"]["directeur-general"]
         bourgmestre_hp = self.pf["bourgmestre"]["bourgmestre"]
-        api.portal.set_registry_record(rk_so, u"template_first")
+        api.portal.set_registry_record(rk_so, "template_first")
         omail = sub_create(
             self.omf,
             "dmsoutgoingmail",
@@ -1106,7 +1141,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(omail.signers[1]["signer"], bourgmestre_hp.UID())
 
         # adding another appendix does not reset/recompute signers
-        omail.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
+        omail.signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": ["_empty_"]}]
         createContentInContainer(omail, "dmsappendixfile", id="appendix2", title="Appendix 2")
         self.assertEqual(len(omail.signers), 1)
         self.assertEqual(omail.signers[0]["signer"], dirg_hp.UID())
@@ -1125,8 +1160,9 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             mail_type="courrier",
         )
         createContentInContainer(omail2, "dmsappendixfile", id="appendix1", title="Appendix 1")
-        self.assertEqual(omail2.signers, [{"number": 1, "signer": u"_empty_", "editor": False,
-                                           "approvings": [u"_empty_"]}])
+        self.assertEqual(
+            omail2.signers, [{"number": 1, "signer": "_empty_", "editor": False, "approvings": ["_empty_"]}]
+        )
 
     def test_dmsoutgoingmail_modified_signer_substitutes(self):
         dirg = self.pf["dirg"]
@@ -1150,7 +1186,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             "number": 1,
             "signer": bourgmestre_hp.UID(),
             "esign": True,
-            "approvings": [u"_empty_"],
+            "approvings": ["_empty_"],
             "editor": False,
             "treating_groups": [],
             "mail_types": [],
@@ -1164,7 +1200,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         api.portal.set_registry_record(rk_subs, [])
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # Test substitute match -> substitute signer used (bourgmestre_hp -> dirg_hp)
@@ -1183,7 +1219,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": dirg_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # First-match-wins: two substitutes for same absent_signer — first one applies
@@ -1225,7 +1261,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # Test substitute expired (valid_until in past) -> original signer
@@ -1237,14 +1273,14 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "absent_signer": bourgmestre_hp.UID(),
                     "substitute_signer": dirg_hp.UID(),
-                    "valid_from": u"2000/01/01",
-                    "valid_until": u"2001/01/01",
+                    "valid_from": "2000/01/01",
+                    "valid_until": "2001/01/01",
                 }
             ],
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # Test substitute not yet active (valid_from in future) -> original signer
@@ -1256,14 +1292,14 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "absent_signer": bourgmestre_hp.UID(),
                     "substitute_signer": dirg_hp.UID(),
-                    "valid_from": u"2099/01/01",
+                    "valid_from": "2099/01/01",
                     "valid_until": None,
                 }
             ],
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": bourgmestre_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
         # Test substitute within valid date range -> substitute used
@@ -1275,14 +1311,14 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 {
                     "absent_signer": bourgmestre_hp.UID(),
                     "substitute_signer": dirg_hp.UID(),
-                    "valid_from": u"2000/01/01",
-                    "valid_until": u"2100/01/01",
+                    "valid_from": "2000/01/01",
+                    "valid_until": "2100/01/01",
                 }
             ],
         )
         modified(omail)
         self.assertEqual(
-            omail.signers, [{"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+            omail.signers, [{"signer": dirg_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": False}]
         )
 
     def test_dmsoutgoingmail_modified_approval_annot(self):
@@ -1304,8 +1340,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             omail.signers,
             [
-                {"signer": dirg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": True},
-                {"signer": bourg_hp.UID(), "approvings": [u"_empty_"], "number": 2, "editor": False},
+                {"signer": dirg_hp.UID(), "approvings": ["_empty_"], "number": 1, "editor": True},
+                {"signer": bourg_hp.UID(), "approvings": ["_empty_"], "number": 2, "editor": False},
             ],
         )
         self.assertFalse(omail.esign)
@@ -1322,8 +1358,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 "approval": [[], []],
                 "editors": [True, False],
                 "signers": [
-                    ("dirg", u"Maxime DG", u"Directeur G\xe9n\xe9ral"),
-                    ("bourgmestre", u"Paul BM", u"Bourgmestre"),
+                    ("dirg", "Maxime DG", "Directeur G\xe9n\xe9ral"),
+                    ("bourgmestre", "Paul BM", "Bourgmestre"),
                 ],
             },
         )
@@ -1338,7 +1374,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         set_esign_registry_file_url("https://downloads.files.com")
         intids = getUtility(IIntIds)
         params = {
-            "title": u"Courrier sortant test",
+            "title": "Courrier sortant test",
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
@@ -1347,25 +1383,25 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",
             "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
-            "send_modes": u"post",
+            "send_modes": "post",
             "signers": [
                 {
                     "number": 1,
                     "signer": self.pf["dirg"]["directeur-general"].UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "editor": True,
                 },
                 {
                     "number": 2,
                     "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
-                    "approvings": [u"_themself_", self.pf["chef"].UID()],
+                    "approvings": ["_themself_", self.pf["chef"].UID()],
                     "editor": False,
                 },
             ],
             "esign": True,
         }
         omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om", **params)
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         files = []
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
@@ -1514,13 +1550,15 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(index_value, ["e0010", "title"])
         # after mainfile creation
         f1 = createContentInContainer(self.imail, "dmsmainfile", id="f1", scan_id="010999900000690")
+        processQueue()  # deferred indexing, read below without a catalog query
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
-        self.assertListEqual(index_value, ["e0010", "title", u"010999900000690", "imio010999900000690", u"690"])
+        self.assertListEqual(index_value, ["e0010", "title", "010999900000690", "imio010999900000690", "690"])
         # after mainfile modification
         f1.scan_id = "010999900000691"
         zope.event.notify(ObjectModifiedEvent(f1, Attributes(IScanFields, "IScanFields.scan_id")))
+        processQueue()
         index_value = pc._catalog.getIndex("SearchableText").getEntryForObject(rid, default=[])
-        self.assertListEqual(index_value, ["e0010", "title", u"010999900000691", "imio010999900000691", u"691"])
+        self.assertListEqual(index_value, ["e0010", "title", "010999900000691", "imio010999900000691", "691"])
         # event without scan_id attribute
         zope.event.notify(ObjectModifiedEvent(f1))
 
@@ -1531,16 +1569,16 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
-                ("agent", u"Fred Agent"),
-                ("encodeur", u"Jean Encodeur"),
-                ("lecteur", u"Jef Lecteur"),
-                ("dirg", u"Maxime DG"),
-                ("chef", u"Michel Chef"),
-                ("bourgmestre", u"Paul BM"),
-                ("siteadmin", u"siteadmin"),
-                ("scanner", u"Scanner"),
-                ("agent1", u"Stef Agent"),
-                ("test-user", u"test-user (Désactivé)"),
+                ("agent", "Fred Agent"),
+                ("encodeur", "Jean Encodeur"),
+                ("lecteur", "Jef Lecteur"),
+                ("dirg", "Maxime DG"),
+                ("chef", "Michel Chef"),
+                ("bourgmestre", "Paul BM"),
+                ("siteadmin", "siteadmin"),
+                ("scanner", "Scanner"),
+                ("agent1", "Stef Agent"),
+                (TEST_USER_ID, "test_user_1_ (Désactivé)"),
             ],
         )
         # we change a user property
@@ -1553,16 +1591,16 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
-                ("agent", u"Fred Agent"),
-                ("encodeur", u"Jean Encodeur"),
-                ("lecteur", u"Jef Lecteur"),
-                ("dirg", u"Maxime DG"),
-                ("chef", u"Michel Chef 2"),
-                ("bourgmestre", u"Paul BM"),
-                ("siteadmin", u"siteadmin"),
-                ("scanner", u"Scanner"),
-                ("agent1", u"Stef Agent"),
-                ("test-user", u"test-user (Désactivé)"),
+                ("agent", "Fred Agent"),
+                ("encodeur", "Jean Encodeur"),
+                ("lecteur", "Jef Lecteur"),
+                ("dirg", "Maxime DG"),
+                ("chef", "Michel Chef 2"),
+                ("bourgmestre", "Paul BM"),
+                ("siteadmin", "siteadmin"),
+                ("scanner", "Scanner"),
+                ("agent1", "Stef Agent"),
+                (TEST_USER_ID, "test_user_1_ (Désactivé)"),
             ],
         )
         # we change the activated services
@@ -1573,16 +1611,16 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             voc_list,
             [
                 (EMPTY_STRING, _tr(EMPTY_TITLE, "imio.helpers")),
-                ("encodeur", u"Jean Encodeur"),
-                ("dirg", u"Maxime DG"),
-                ("chef", u"Michel Chef 2"),
-                ("bourgmestre", u"Paul BM"),
-                ("siteadmin", u"siteadmin"),
-                ("scanner", u"Scanner"),
-                ("agent", u"Fred Agent (Désactivé)"),
-                ("lecteur", u"Jef Lecteur (Désactivé)"),
-                ("agent1", u"Stef Agent (Désactivé)"),
-                ("test-user", u"test-user (Désactivé)"),
+                ("encodeur", "Jean Encodeur"),
+                ("dirg", "Maxime DG"),
+                ("chef", "Michel Chef 2"),
+                ("bourgmestre", "Paul BM"),
+                ("siteadmin", "siteadmin"),
+                ("scanner", "Scanner"),
+                ("agent", "Fred Agent (Désactivé)"),
+                ("lecteur", "Jef Lecteur (Désactivé)"),
+                ("agent1", "Stef Agent (Désactivé)"),
+                (TEST_USER_ID, "test_user_1_ (Désactivé)"),
             ],
         )
         # wrong configuration change
@@ -1594,15 +1632,19 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.user.delete, username="scanner")
         smi = IStatusMessage(request)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'scanner'.")
+        self.assertEqual(msgs[0].message, "Vous ne pouvez pas effacer l'utilisateur 'scanner'.")
         # having group
         self.assertRaises(Redirect, api.user.delete, "lecteur")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'lecteur', used in following groups.")
+        self.assertEqual(
+            msgs[0].message, "Vous ne pouvez pas effacer l'utilisateur 'lecteur', utilisé dans les groupes."
+        )
         # is used in content
         self.assertRaises(Redirect, api.user.delete, username=TEST_USER_ID)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'test_user_1_', used in 'Creator' index.")
+        self.assertEqual(
+            msgs[0].message, "Vous ne pouvez pas effacer l'utilisateur 'test_user_1_', utilisé dans l'index 'Auteur'."
+        )
         # is used as person user_id
         api.user.create("test@test.be", "testuser", "Password#1")
         agent = self.portal.contacts["personnel-folder"]["agent"]
@@ -1610,7 +1652,9 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         agent.reindexObject()
         self.assertRaises(Redirect, api.user.delete, username="testuser")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'testuser', used in 'userid' index.")
+        self.assertEqual(
+            msgs[0].message, "Vous ne pouvez pas effacer l'utilisateur 'testuser', utilisé dans l'index 'userid'."
+        )
 
     def test_group_deleted(self):
         request = self.portal.REQUEST
@@ -1618,14 +1662,16 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.group.delete, groupname="expedition")
         smi = IStatusMessage(request)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group 'expedition'.")
+        self.assertEqual(msgs[0].message, "Vous ne pouvez pas effacer le groupe 'expedition'.")
         # is used in content
         group = "%s_editeur" % get_registry_organizations()[0]
         # we remove this organization to escape plonegroup subscriber
         set_registry_organizations(get_registry_organizations()[1:])
         self.assertRaises(Redirect, api.group.delete, groupname=group)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index." % group)
+        self.assertEqual(
+            msgs[0].message, "Vous ne pouvez pas effacer le groupe '%s', utilisé dans l'index 'Groupe assigné'." % group
+        )
 
     def test_group_assignment(self):
         self.portal.ok = True
@@ -1640,6 +1686,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(index_value, "electrabel|travaux 0001|")
         self.elec.title = "Electrabel 1"
         zope.event.notify(ObjectModifiedEvent(self.elec, Attributes(IBasic, "IBasic.title")))
+        processQueue()  # deferred indexing, read below without a catalog query
         index_value = pc._catalog.getIndex("sortable_title").getEntryForObject(rid, default=[])
         self.assertEqual(index_value, "electrabel 0001|travaux 0001|")
         rid = pc(id="electrabel")[0].getRID()
@@ -1657,30 +1704,6 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(len(self.omf.get_local_roles()), 6)
         # TODO tests other changes !!
 
-    def test_cktemplate_moved(self):
-        oemf = self.portal["templates"]["oem"]
-        srvf = self.portal["contacts"]["plonegroup-organization"]
-        org1 = srvf["direction-generale"]
-        org2 = srvf["direction-generale"]["secretariat"]
-        self.assertIn(org1.UID(), oemf)
-        self.assertIn(org2.UID(), oemf)
-        mod1 = api.content.create(container=oemf, type="cktemplate", id="mod1", title="Modèle 1")
-        annot = IAnnotations(mod1)
-        self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"")
-        mod1 = api.content.move(mod1, oemf[org1.UID()])
-        annot = IAnnotations(mod1)
-        self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"Direction générale")
-        mod2 = api.content.copy(mod1, oemf[org2.UID()], id="mod2")
-        annot = IAnnotations(mod2)
-        self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"Direction générale - Secrétariat")
-        folder = api.content.create(container=oemf, type="Folder", id="fold1", title="héhéhé")
-        mod2 = api.content.move(mod2, folder)
-        annot = IAnnotations(mod2)
-        self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"héhéhé")
-        mod2 = api.content.rename(mod2, "mod-nextgen")
-        annot = IAnnotations(mod2)
-        self.assertEqual(annot["dmsmail.cke_tpl_tit"], u"héhéhé")
-
     def _person_usages(self, person):
         """Return the value stored in the 'usages' catalog index for the given person."""
         pc = self.portal.portal_catalog
@@ -1689,7 +1712,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
 
     def test_reindex_person_usages(self):
         # the person's 'usages' index aggregates its held positions' usages
-        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname="Tester")
         person.invokeFactory(
             "held_position",
             "hp1",
@@ -1702,7 +1725,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
 
     def test_held_position_added(self):
         # a fresh person without held positions is not present in the 'usages' index
-        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname="Tester")
         self.assertListEqual(self._person_usages(person), [])
         # adding a held position with a usage reindexes the person (held_position_added subscriber)
         person.invokeFactory(
@@ -1714,7 +1737,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(self._person_usages(person), ["signer"])
 
     def test_held_position_modified(self):
-        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname="Tester")
         person.invokeFactory(
             "held_position",
             "hp1",
@@ -1732,7 +1755,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertListEqual(self._person_usages(person), ["approving"])
 
     def test_held_position_removed(self):
-        person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname="Tester")
         person.invokeFactory(
             "held_position",
             "hp1",
@@ -1743,6 +1766,289 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         # removing the held position reindexes the person (held_position_removed subscriber)
         api.content.delete(person["hp1"])
         self.assertListEqual(self._person_usages(person), [])
+
+    def _answered(self, imail):
+        """Return True if the incoming mail is found as answered (hasResponse marker) in the catalog."""
+        return len(self.portal.portal_catalog(UID=imail.UID(), markers="hasResponse")) == 1
+
+    def test_update_relations(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.assertFalse(self._answered(imail))
+        # an outgoing mail replying to an incoming mail marks the latter as answered
+        omail.reply_to = [RelationValue(self.intids.getId(imail))]
+        modified(omail)
+        self.assertTrue(self._answered(imail))
+        # the reply link is removed: the incoming mail is no more answered
+        omail.reply_to = []
+        modified(omail)
+        self.assertFalse(self._answered(imail))
+
+    def test_remove_relations(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        omail.reply_to = [RelationValue(self.intids.getId(imail))]
+        modified(omail)
+        self.assertTrue(self._answered(imail))
+        # the reply is deleted: the incoming mail is no more answered
+        api.content.delete(obj=omail, check_linkintegrity=False)
+        self.assertFalse(self._answered(imail))
+
+    def test_im_edit_finished(self):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        request = imail.REQUEST
+        # the editor can still view the mail: no redirection
+        zope.event.notify(EditFinishedEvent(imail))
+        self.assertIsNone(request.response.getHeader("location"))
+        # the editor cannot view the mail anymore: redirected to the incoming mails dashboard with a message
+        self.change_user("agent1")
+        self.assertFalse(api.user.has_permission("View", obj=imail))
+        zope.event.notify(EditFinishedEvent(imail))
+        all_mails = self.portal["incoming-mail"]["mail-searches"]["all_mails"]
+        self.assertEqual(
+            request.response.getHeader("location"),
+            "{}/incoming-mail/mail-searches#c1={}".format(self.portal.absolute_url(), all_mails.UID()),
+        )
+        msgs = IStatusMessage(request).show()
+        self.assertEqual(msgs[-1].type, "warning")
+        self.assertEqual(
+            msgs[-1].message,
+            "Vous avez été redirigé ici parce que vous n'avez plus accès au courrier que vous venez de modifier.",
+        )
+
+    def test_dexterity_transition(self):
+        task = get_object(oid="courrier1", ptype="dmsincomingmail")["tache1"]
+        old = DateTime("2020/01/01")
+        task.setModificationDate(old)
+        task.reindexObject(idxs=["modified"])
+        recently_modified = {"UID": task.UID(), "modified": {"query": DateTime("2020/01/02"), "range": "min"}}
+        self.assertEqual(len(self.portal.portal_catalog(**recently_modified)), 0)
+        # a transition is a modification: the modification date is updated and reindexed
+        api.content.transition(task, transition="do_to_assign")
+        self.assertGreater(task.modified(), old)
+        self.assertEqual(len(self.portal.portal_catalog(**recently_modified)), 1)
+
+    def test_group_unassignment(self):
+        self.addCleanup(reset_dms_config)
+        grh_uid = self.pgof["direction-generale"]["grh"].UID()
+        # an agent removed from the encoders of a service: his held position (as OM sender) is deactivated
+        hp = self.pf["agent"]["agent-grh"]
+        self.assertEqual(api.content.get_state(hp), "active")
+        api.group.remove_user(groupname="{}_encodeur".format(grh_uid), username="agent")
+        self.assertEqual(api.content.get_state(hp), "deactivated")
+        # the last n+1 validator removed from a service: the service has no more validation level
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-im_n_plus_1_wfadaptation", run_dependencies=False
+        )
+        config = get_dms_config(["transitions_levels", "dmsincomingmail"])
+        self.assertTrue(config["proposed_to_n_plus_1"][grh_uid][2])
+        self.assertEqual(config["proposed_to_manager"][grh_uid][0], "propose_to_n_plus_1")
+        api.group.remove_user(groupname="{}_n_plus_1".format(grh_uid), username="chef")
+        config = get_dms_config(["transitions_levels", "dmsincomingmail"])
+        self.assertFalse(config["proposed_to_n_plus_1"][grh_uid][2])
+        self.assertEqual(config["proposed_to_manager"][grh_uid][0], "propose_to_agent")
+
+    def test_plonegroup_contact_changed(self):
+        pc = self.portal.portal_catalog
+        dg = self.pgof["direction-generale"]
+        secr = dg["secretariat"]
+        folders = (self.portal["templates"]["om"], self.portal["contacts"]["contact-lists-folder"])
+        for folder in folders:
+            self.assertEqual(folder[secr.UID()].title, "Direction générale - Secrétariat")
+        # renaming a service renames its templates and contact lists folders, and the sub-services ones
+        dg.title = "Direction générale bis"
+        modified(dg)
+        for folder in folders:
+            self.assertEqual(folder[dg.UID()].title, "Direction générale bis")
+            self.assertEqual(folder[secr.UID()].title, "Direction générale bis - Secrétariat")
+            self.assertEqual(len(pc(UID=folder[secr.UID()].UID(), Title="bis")), 1)
+        # an organization outside the own organization is not concerned
+        elec = self.portal["contacts"]["electrabel"]
+        elec.title = "Electrabel bis"
+        modified(elec)
+        self.assertNotIn(elec.UID(), folders[0])
+
+    def test_mark_contact(self):
+        def provided(obj, iface):
+            return len(self.portal.portal_catalog(UID=obj.UID(), object_provides=iface.__identifier__)) == 1
+
+        contacts = self.portal["contacts"]
+        # a service added in the own organization
+        org = api.content.create(container=self.pgof, type="organization", id="new-service", title="Nouveau")
+        self.assertTrue(provided(org, IPloneGroupContact))
+        self.assertFalse(provided(org, INotPloneGroupContact))
+        # a person added in the personnel folder
+        person = api.content.create(container=self.pf, type="person", id="tester", lastname="Tester")
+        self.assertTrue(provided(person, IPersonnelContact))
+        self.assertFalse(provided(person, INotPloneGroupContact))
+        # an external person
+        ext = api.content.create(container=contacts, type="person", id="external", lastname="External")
+        self.assertTrue(provided(ext, INotPloneGroupContact))
+        self.assertFalse(provided(ext, IPersonnelContact))
+        # the external person is moved in the personnel folder
+        ext = api.content.move(source=ext, target=self.pf)
+        self.assertTrue(provided(ext, IPersonnelContact))
+        self.assertFalse(provided(ext, INotPloneGroupContact))
+        # and moved out again
+        ext = api.content.move(source=ext, target=contacts)
+        self.assertTrue(provided(ext, INotPloneGroupContact))
+        self.assertFalse(provided(ext, IPersonnelContact))
+
+    def test_contact_added(self):
+        contacts = self.portal["contacts"]
+        # contact group encoder not activated: no creating group
+        org = api.content.create(container=contacts, type="organization", id="org1", title="Organisation 1")
+        self.assertIsNone(getattr(org, "creating_group", None))
+        # contact group encoder activated: the creating group of the creator is stored
+        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.contact_group_encoder", True)
+        org0, org1 = get_registry_organizations()[:2]
+        api.group.add_user(groupname="{}_{}".format(org0, CREATING_GROUP_SUFFIX), username="chef")
+        api.group.add_user(groupname="{}_{}".format(org1, CREATING_GROUP_SUFFIX), username="encodeur")
+        self.change_user("encodeur")
+        org = api.content.create(container=contacts, type="organization", id="org2", title="Organisation 2")
+        self.assertEqual(org.creating_group, org1)
+        # the stored value doesn't depend on the user reading it (the field default is the user creating group)
+        self.change_user("siteadmin")
+        self.assertEqual(org.creating_group, org1)
+
+    def test_contact_modified(self):
+        hp = self.pf["chef"]["responsable-grh"]
+        voc = OMSenderVocabulary()
+        self.assertNotIn("Chefbis", voc(self.portal).getTerm(hp.UID()).title)
+        # a personnel person is renamed: the senders vocabulary shows the new name
+        chef = self.pf["chef"]
+        chef.lastname = "Chefbis"
+        modified(chef)
+        self.assertIn("Chefbis", voc(self.portal).getTerm(hp.UID()).title)
+        # a personnel held position is deactivated: it's no more an active sender
+        active_voc = OMActiveSenderVocabulary()
+        self.assertIn(hp.UID(), active_voc(self.portal).by_value)
+        api.content.transition(hp, "deactivate")
+        self.assertNotIn(hp.UID(), active_voc(self.portal).by_value)
+        self.assertIn(hp.UID(), voc(self.portal).by_value)
+
+    def test_personnel_contact_removed(self):
+        # a held position not used as outgoing mail sender can be deleted
+        api.content.delete(obj=self.pf["chef"]["responsable-batiments"])
+        self.assertNotIn("responsable-batiments", self.pf["chef"])
+        # a held position used as outgoing mail sender (reponse1): its deletion is refused
+        hp = self.pf["chef"]["responsable-grh"]
+        self.assertEqual(get_object(oid="reponse1", ptype="dmsoutgoingmail").sender, hp.UID())
+        self.assertRaises(LinkIntegrityNotificationException, api.content.delete, obj=hp)
+
+    def test_personnel_contact_will_be_removed(self):
+        rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
+        hp = self.pf["bourgmestre"]["bourgmestre"]
+        # a held position not used in signer rules can be deleted
+        api.content.delete(obj=self.pf["agent1"]["agent-evenements"])
+        self.assertNotIn("agent-evenements", self.pf["agent1"])
+        # a held position used as signer in the signer rules: its deletion is refused
+        self.assertIn(hp.UID(), [rule["signer"] for rule in api.portal.get_registry_record(rk)])
+        self.assertRaises(LinkIntegrityNotificationException, api.content.delete, obj=hp)
+
+    def test_i_annex_will_be_removed(self):
+        # approval started: a file to approve cannot be deleted
+        request, files = create_sign_request(self.portal, oid="sr-started")
+        self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
+        self.assertRaises(Redirect, api.content.delete, obj=files[0])
+        self.assertIn(files[0].getId(), request)
+        msgs = IStatusMessage(request.REQUEST).show()
+        self.assertEqual(msgs[-1].type, "error")
+        self.assertEqual(
+            msgs[-1].message,
+            translate(
+                _(
+                    "You cannot delete a file '${title}' part of already started esign process !",
+                    mapping={"title": "3-degradation-voirie"},
+                ),
+                context=request.REQUEST,
+            ),
+        )
+        # approval not started: deleting a file to approve must be confirmed (link integrity breach)
+        request, files = create_sign_request(self.portal, oid="sr-created")
+        self.assertIn(files[0].UID(), ISignRequestApproval(request).files_uids)
+        self.assertRaises(LinkIntegrityNotificationException, api.content.delete, obj=files[0])
+
+    def test_member_area_added(self):
+        mtool = self.portal.portal_membership
+        mtool.memberareaCreationFlag = 1
+        mtool.createMemberArea("agent")
+        area = self.portal["Members"]["agent"]
+        self.assertEqual(area.portal_type, "member_area")
+        # nothing can be added directly in the personal folder
+        constraints = ISelectableConstrainTypes(area)
+        self.assertEqual(constraints.getConstrainTypesMode(), 1)
+        self.assertEqual(list(constraints.getLocallyAllowedTypes()), [])
+        # a personal contact lists folder is created, owned by the user
+        self.assertIn("contact-lists", area)
+        folder = area["contact-lists"]
+        constraints = ISelectableConstrainTypes(folder)
+        self.assertEqual(constraints.getConstrainTypesMode(), 1)
+        self.assertEqual(list(constraints.getLocallyAllowedTypes()), ["contact_list"])
+        self.assertEqual(list(constraints.getImmediatelyAddableTypes()), ["contact_list"])
+        self.assertEqual(sorted(folder.get_local_roles_for_userid("agent")), ["Contributor", "Editor", "Reader"])
+
+    def test_folder_added(self):
+        # folders added in om templates or contact lists are only "add" folders
+        for container in (
+            self.portal["templates"]["om"],
+            self.portal["contacts"]["contact-lists-folder"],
+        ):
+            folder = api.content.create(container=container, type="Folder", id="new-folder", title="Nouveau")
+            self.assertTrue(IActionsPanelFolderOnlyAdd.providedBy(folder), container.getId())
+            self.assertTrue(INextPrevNotNavigable.providedBy(folder), container.getId())
+        # elsewhere, a folder is a "normal" folder
+        folder = api.content.create(container=self.portal, type="Folder", id="new-folder", title="Nouveau")
+        self.assertFalse(IActionsPanelFolderOnlyAdd.providedBy(folder))
+        self.assertFalse(INextPrevNotNavigable.providedBy(folder))
+
+    def test_wsclient_configuration_changed(self):
+        record = getUtility(IRegistry).records[
+            "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"
+        ]
+        actions = self.portal.portal_actions
+        self.assertNotIn("plonemeeting_wsclient_action_1", actions.object_buttons)
+        self.assertListEqual(actions.object_portlet.objectIds(), ["batchimport", "im-listing"])
+        # the "send to PloneMeeting" actions are generated and also shown in the actions portlet, before im-listing
+        zope.event.notify(RecordModifiedEvent(record, record.value, record.value))
+        self.assertIn("plonemeeting_wsclient_action_1", actions.object_buttons)
+        self.assertListEqual(
+            actions.object_portlet.objectIds(), ["batchimport", "plonemeeting_wsclient_action_1", "im-listing"]
+        )
+        # regenerated actions are not duplicated
+        zope.event.notify(RecordModifiedEvent(record, record.value, record.value))
+        self.assertListEqual(
+            actions.object_portlet.objectIds(), ["batchimport", "plonemeeting_wsclient_action_1", "im-listing"]
+        )
+
+    def test_record_modified(self):
+        action = self.portal.portal_actions.user["audit-contacts"]
+        self.assertFalse(action.visible)
+        # activating the contacts access audit shows the audit user action
+        record = "collective.contact.core.interfaces.IContactCoreParameters.audit_contact_access"
+        api.portal.set_registry_record(record, True)
+        self.assertTrue(action.visible)
+        api.portal.set_registry_record(record, False)
+        self.assertFalse(action.visible)
+
+    def test_zope_ready(self):
+        sml = getSiteManager(self.portal)
+        sml.unregisterUtility(provided=IRAMCache)
+        sml.registerUtility(component=RAMCache(), provided=IRAMCache)
+        # the process-start hook opens its own ZODB connection and commits: both are patched here
+        with patch("imio.dms.mail.subscribers.get_zope_root", return_value=self.layer["app"]):
+            with patch("imio.dms.mail.subscribers.transaction.commit") as commit:
+                # no plone-path configured for imio.dms.mail: nothing is done
+                zope_ready(None)
+                self.assertNotIsInstance(getUtility(IRAMCache), IMIORAMCache)
+                self.assertFalse(commit.called)
+                # plone-path configured: the site uses the imio.helpers ram cache
+                config = getConfiguration().product_config
+                config["imio.dms.mail"] = {"plone-path": self.portal.getId()}
+                self.addCleanup(config.pop, "imio.dms.mail")
+                zope_ready(None)
+                self.assertIsInstance(getUtility(IRAMCache), IMIORAMCache)
+                self.assertTrue(commit.called)
 
 
 class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
@@ -1768,8 +2074,14 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
 
     def test_sign_request_modified(self):
         request, _files = create_sign_request(self.portal, oid="sr-mod", nb_files=0)
-        request.signers = [{"number": 1, "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
-                            "approvings": [u"_themself_"], "editor": True}]
+        request.signers = [
+            {
+                "number": 1,
+                "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
+                "approvings": ["_themself_"],
+                "editor": True,
+            }
+        ]
         modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
         self.assertEqual(ISignRequestApproval(request).annot["approvers"], [["bourgmestre"]])
 
@@ -1777,10 +2089,18 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
         request, _files = create_sign_request(self.portal, oid="sr-dup", nb_files=0)
         # two signers resolving to the same person => update_signers raises, surfaced as Invalid
         request.signers = [
-            {"number": 1, "signer": self.pf["dirg"]["directeur-general"].UID(),
-             "approvings": [u"_themself_"], "editor": True},
-            {"number": 2, "signer": self.pf["dirg"]["directeur-general"].UID(),
-             "approvings": [u"_themself_"], "editor": False},
+            {
+                "number": 1,
+                "signer": self.pf["dirg"]["directeur-general"].UID(),
+                "approvings": ["_themself_"],
+                "editor": True,
+            },
+            {
+                "number": 2,
+                "signer": self.pf["dirg"]["directeur-general"].UID(),
+                "approvings": ["_themself_"],
+                "editor": False,
+            },
         ]
         with self.assertRaises(Invalid):
             modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
@@ -1790,10 +2110,14 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
         approval = ISignRequestApproval(request)
         self.assertEqual(approval.annot["files"], [])
         ct = self.portal["annexes_types"]["sign_request_appendix_files"]["sign-request-appendix-file"]
-        filename = u"3-degradation-voirie.odt"
+        filename = "3-degradation-voirie.odt"
         with open("%s/batchimport/toprocess/requests/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             afile = createContentInContainer(
-                request, "dmsappendixfile", id="f1", scan_id="012999900000601",
-                file=NamedBlobFile(fo.read(), filename=filename), content_category=calculate_category_id(ct),
+                request,
+                "dmsappendixfile",
+                id="f1",
+                scan_id="012999900000601",
+                file=NamedBlobFile(fo.read(), filename=filename),
+                content_category=calculate_category_id(ct),
             )
         self.assertIn(afile.UID(), approval.annot["files"])

@@ -5,10 +5,10 @@
  <property name="behaviors" purge="False">
   <element value="plone.app.content.interfaces.INameFromTitle"/>
   <element value="plone.app.dexterity.behaviors.metadata.IDublinCore"/>
-  <element value="plone.app.lockingbehavior.behaviors.ILocking" />
+  <element value="plone.locking" />
   <element value="plone.app.versioningbehavior.behaviors.IVersionable" />
   <element value="collective.classification.folder.behaviors.classification_folder.IClassificationFolder" />
-  <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
+  <element value="plone.textindexer" />
   <element value="collective.task.behaviors.ITaskContainer" />
   <element value="collective.task.behaviors.ITask" />
   <element value="imio.dms.mail.content.behaviors.ISigningBehavior" />
@@ -30,7 +30,7 @@
  </action>
  <action title="Annotation info" action_id="session-annotation-info" category="object_buttons"
          condition_expr="object/session-annotation-info/available"
-         description="" icon_expr="string:${portal_url}/info.png" link_target="_blank"
+         description="" icon_expr="string:info-circle" link_target="_blank"
          url_expr="string:${object/absolute_url}/@@session-annotation-info?context_uid=${object/UID}" visible="True">
   <permission value="Manage portal"/>
  </action>

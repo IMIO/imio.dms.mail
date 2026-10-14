@@ -28,20 +28,20 @@ class IDmsMailConfig(IBaseDmsMailConfig):
 
     model.fieldset(
         "signrequest",
-        label=_(u"Signing request"),
+        label=_("Signing request"),
         fields=["signrequest_number", "signrequest_talexpression"],
     )
 
     signrequest_number = schema.Int(
-        title=_(u"Number of next signing request"),
-        description=_(u"This value is used as 'number' variable in linked tal expression"),
+        title=_("Number of next signing request"),
+        description=_("This value is used as 'number' variable in linked tal expression"),
         default=1,
     )
 
     signrequest_talexpression = schema.TextLine(
-        title=_(u"Signing request internal reference default value expression"),
-        description=_(u"Tal expression where you can use portal, number, context, request, date as variable"),
-        default=u"python:'D%04d'%int(number)",
+        title=_("Signing request internal reference default value expression"),
+        description=_("Tal expression where you can use portal, number, context, request, date as variable"),
+        default="python:'D%04d'%int(number)",
     )
 
 

@@ -1,22 +1,16 @@
 # encoding: utf-8
+from App.config import getConfiguration
 from BTrees.OOBTree import OOBTree  # noqa
 from collective.behavior.talcondition.utils import _evaluateExpression
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.utils import organizations_with_suffixes
-from collective.documentviewer.convert import Converter
-from collective.documentviewer.convert import saveFileToBlob
-from collective.documentviewer.settings import GlobalSettings
-from collective.documentviewer.settings import Settings
-from collective.documentviewer.utils import allowedDocumentType
-from collective.documentviewer.utils import getPortal
 from collective.eeafaceted.collectionwidget.utils import _updateDefaultCollectionFor
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
+from collective.labels.interfaces import ILabeling
 from collective.querynextprev.interfaces import INextPrevNotNavigable
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
-from DateTime import DateTime
-from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import _tr as _
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import AUC_RECORD
@@ -24,44 +18,36 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.interfaces import IIMDashboard
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
-from imio.helpers.batching import batch_delete_files
-from imio.helpers.batching import batch_get_keys
-from imio.helpers.batching import batch_handle_key
-from imio.helpers.batching import batch_hashed_filename
-from imio.helpers.batching import batch_loop_else
-from imio.helpers.batching import batch_skip_key
-from imio.helpers.batching import can_delete_batch_files
 from imio.helpers.cache import generate_key
 from imio.helpers.cache import get_cachekey_volatile
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
 from imio.helpers.cache import obj_modified
-from imio.helpers.content import object_values
 from imio.helpers.content import uuidToObject
 from imio.helpers.security import check_zope_admin
 from imio.helpers.security import separate_fullname
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
-from interfaces import IIMDashboard
 from natsort import natsorted
 from operator import attrgetter
 from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
 from plone.api.exc import GroupNotFoundError
+from plone.base.interfaces.constrains import ISelectableConstrainTypes
+from plone.base.utils import base_hasattr
 from plone.dexterity.utils import addContentToContainer
 from plone.i18n.normalizer import IIDNormalizer
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from plone.z3cform.fieldsets.utils import add
 from plone.z3cform.fieldsets.utils import remove
+from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.interfaces import IHideFromBreadcrumbs
-from Products.CMFPlone.utils import base_hasattr
-from Products.CMFPlone.utils import getToolByName
 from Products.CMFPlone.utils import safe_unicode
-from Products.CPUtils.Extensions.utils import fileSize
 from Products.CPUtils.Extensions.utils import log_list
 from Products.Five import BrowserView
 from unidecode import unidecode
@@ -77,6 +63,7 @@ from zope.schema.interfaces import IVocabularyFactory
 
 import logging
 import os
+import six
 
 
 cg_separator = " ___ "
@@ -300,7 +287,7 @@ def update_transitions_levels_config(ptypes, action=None, group_id=None):
     if "dmsoutgoingmail" in ptypes:
         wf_from_to = get_dms_config(["wf_from_to", "dmsoutgoingmail", "n_plus"])
         states = [("created", 0)]
-        for (st, tr) in wf_from_to["to"]:
+        for st, tr in wf_from_to["to"]:
             states.append((st, 1))
         # states: [('created', 0), ('sent', 1), ('to_be_signed', 1), ('validated', 1)]
         right_transitions = ("propose_to_n_plus_1", "back_to_n_plus_1", None)
@@ -358,9 +345,9 @@ def update_transitions_auc_config(ptype, action=None, group_id=None):
                 val = False
                 if tr == "close":  # we can always close. assigned_user is set in subscriber
                     val = True
-                elif auc == u"no_check":
+                elif auc == "no_check":
                     val = True
-                elif auc == u"mandatory":
+                elif auc == "mandatory":
                     # propose_to_agent: previous_tr is empty => val will be False
                     # propose_to_n_plus_x: lower level True => val is True
                     # propose_to_n_plus_x: lower level False and user at this level => val is True
@@ -368,7 +355,7 @@ def update_transitions_auc_config(ptype, action=None, group_id=None):
                     act = groupname == group_id and action or None
                     if previous_tr and (global_config[previous_tr][org] or group_has_user(groupname, action=act)):
                         val = True
-                elif auc == u"n_plus_1":
+                elif auc == "n_plus_1":
                     # propose_to_agent: no n+1 level => val is True
                     # propose_to_n_plus_x: previous_tr => val is True
                     # propose_to_agent: n+1 level doesn't have user => val is True
@@ -433,8 +420,17 @@ def list_wf_states(context, portal_type):
             "closed",
         ],
         "task": ["created", "to_assign", "to_do", "in_progress", "realized", "closed"],
-        "dmsoutgoingmail": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print",
-                            "to_approve", "to_be_signed", "signed", "sent"],
+        "dmsoutgoingmail": [
+            "scanned",
+            "created",
+            "proposed_to_n_plus_1",
+            "validated",
+            "to_print",
+            "to_approve",
+            "to_be_signed",
+            "signed",
+            "sent",
+        ],
         "sign_request": ["created", "to_approve", "to_be_signed", "signed", "closed"],
         # "dmsoutgoing_email": ["scanned", "created", "proposed_to_n_plus_1", "validated", "to_print", "to_be_signed",
         #                       "signed", "sent"],
@@ -497,7 +493,7 @@ def get_scan_id(obj):
     sid = obj.scan_id and obj.scan_id.startswith("IMIO") and obj.scan_id[4:] or obj.scan_id
     sid_long, sid_short = "", ""
     if sid:
-        sid_long = u"IMIO%s" % sid
+        sid_long = "IMIO%s" % sid
         sid_short = len(sid) == 15 and sid[7:].lstrip("0") or sid
     return [sid, sid_long, sid_short]
 
@@ -505,117 +501,10 @@ def get_scan_id(obj):
 def reimport_faceted_config(folder, xml, default_UID=None):  # noqa
     """Reimport faceted navigation config."""
     folder.unrestrictedTraverse("@@faceted_exportimport").import_xml(
-        import_file=open(os.path.dirname(__file__) + "/faceted_conf/%s" % xml)
+        import_file=open(os.path.dirname(__file__) + "/faceted_conf/%s" % xml, "rb")
     )
     if default_UID:
         _updateDefaultCollectionFor(folder, default_UID)
-
-
-def dv_clean(portal, days_back="365", date_back=None):
-    """Remove document viewer annotation on old mails.
-
-    * days_back: default behavior: we take closed items not modified from this range
-    * date_back: if present (YYYYMMDD), we take items not modified from this date (whatever the state)
-    """
-    if not check_zope_admin():
-        return "You must be a zope manager to run this script"
-    start = datetime.now()
-    out = [
-        "call the script followed by needed parameters:",
-        "-> days_back=nb of days to keep (default '365') (not used if date_back is used)",
-        "-> date_back=fixed date to consider (default None) (format YYYYMMDD)",
-    ]
-    # logger.info("Starting dv_clean at {}".format(start))
-    log_list(out, "Starting dv_clean at {}".format(start), logger)
-    from Products.CPUtils.Extensions.utils import dv_images_size
-
-    normal_blob = saveFileToBlob(os.path.join(PREVIEW_DIR, "previsualisation_supprimee_normal.jpg"))
-    blobs = {
-        "large": normal_blob,
-        "normal": normal_blob,
-        "small": saveFileToBlob(os.path.join(PREVIEW_DIR, "previsualisation_supprimee_small.jpg")),
-    }
-    criterias = [
-        {"portal_type": ["dmsincomingmail", "dmsincoming_email"]},
-        {"portal_type": ["dmsoutgoingmail"]},
-    ]
-    state_criterias = [
-        {"review_state": "closed"},
-        {"review_state": "sent"},
-    ]
-    if date_back:
-        if len(date_back) != 8:
-            log_list(out, "Bad date_back length '{}'".format(date_back), logger)
-            return
-        mod_date = datetime.strptime(date_back, "%Y%m%d")
-        # mod_date = add_timezone(mod_date, force=True)
-    else:
-        mod_date = start - timedelta(days=int(days_back))
-    already_done = DateTime("2010/01/01").ISO8601()  # when using image saying preview has been deleted
-    already_eml = DateTime("2011/01/01").ISO8601()  # when using image saying eml cannot be converted
-    get_same_blob = True  # we will get previously blobs
-    pc = portal.portal_catalog
-    brains = []
-    for j, criteria in enumerate(criterias):
-        if not date_back:
-            criteria.update(state_criterias[j])  # noqa
-        criteria.update({"modified": {"query": mod_date, "range": "max"}, "sort_on": "created"})  # noqa
-        brains.extend(pc(**criteria))
-
-    bl = len(brains)
-    pklfile = batch_hashed_filename('idm.dv_clean.pkl')
-    batch_keys, batch_config = batch_get_keys(pklfile, loop_length=bl)
-    total = {"obj": bl, "pages": 0, "files": 0, "size": 0}
-    for brain in brains:
-        if batch_skip_key(brain.UID, batch_keys, batch_config):
-            continue
-        mail = brain.getObject()
-        for fobj in object_values(mail, ["DmsFile", "DmsAppendixFile", "ImioDmsFile"]):
-            annot = IAnnotations(fobj).get("collective.documentviewer", "")
-            if not annot or not annot.get("successfully_converted"):
-                continue
-            if annot["last_updated"] == already_done:
-                if get_same_blob:
-                    for name in ("large", "normal", "small"):
-                        blobs[name] = annot["blob_files"]["{}/dump_1.jpg".format(name)]
-                    get_same_blob = False
-                continue
-            if annot["last_updated"] == already_eml:
-                continue
-            get_same_blob = False
-            total["files"] += 1
-            sizes = dv_images_size(fobj)
-            total["pages"] += sizes["pages"]
-            total["size"] += sizes["large"] + sizes["normal"] + sizes["small"] + sizes["text"]
-            # clean annotation
-            files = OOBTree()
-            for name in ["large", "normal", "small"]:
-                files["{}/dump_1.jpg".format(name)] = blobs[name]
-            annot["blob_files"] = files
-            annot["num_pages"] = 1
-            annot["pdf_image_format"] = "jpg"
-            annot["last_updated"] = already_done
-        if batch_handle_key(brain.UID, batch_keys, batch_config):
-            break
-    else:
-        batch_loop_else(batch_keys, batch_config)
-
-    end = datetime.now()
-    delta = end - start
-    # logger.info("Finishing dv_clean, duration {}".format(delta))
-    log_list(out, "Finishing dv_clean, duration {}".format(delta), logger)
-    total["deleted"] = total["pages"] * 4
-    total["size"] = fileSize(total["size"])
-    # logger.info("Objects: '{obj}', Files: '{files}', Pages: '{pages}', Deleted: '{deleted}', "
-    #             "Size: '{size}'".format(**total))
-    log_list(
-        out,
-        "Objects: '{obj}', Files: '{files}', Pages: '{pages}', Deleted: '{deleted}', " "Size: '{size}'".format(**total),
-        logger
-    )
-    if can_delete_batch_files(batch_keys, batch_config):
-        batch_delete_files(batch_keys, batch_config)
-    return "\n".join(out)
 
 
 def current_user_groups(user):
@@ -662,44 +551,6 @@ def is_in_user_groups(groups=(), admin=True, test="any", suffixes=(), org_uid=""
     return False
 
 
-def eml_preview(obj):
-    """Adds jpeg documentviewer previews for eml file"""
-    blobs = {}
-    pc = api.portal.get_tool("portal_catalog")
-    brains = pc.unrestrictedSearchResults(portal_type="dmsmainfile", markers="dvConvError")
-    # search an existing main file with eml previews
-    for brain in brains:
-        o_annot = IAnnotations(brain._unrestrictedGetObject()).get("collective.documentviewer", "")
-        if o_annot and "blob_files" in o_annot:
-            for name in ("large", "normal", "small"):
-                blobs[name] = o_annot["blob_files"]["{}/dump_1.jpg".format(name)]
-            break
-    # otherwise create previews
-    if not blobs:
-        normal_blob = saveFileToBlob(os.path.join(PREVIEW_DIR, "previsualisation_eml_normal.jpg"))
-        blobs = {
-            "large": normal_blob,
-            "normal": normal_blob,
-            "small": saveFileToBlob(os.path.join(PREVIEW_DIR, "previsualisation_eml_small.jpg")),
-        }
-    converter = Converter(obj)
-    annot = IAnnotations(obj).get("collective.documentviewer", "")
-    already_done = DateTime("2011/01/01").ISO8601()
-    files = OOBTree()
-    for name in ["large", "normal", "small"]:
-        files["{}/dump_1.jpg".format(name)] = blobs[name]
-    annot["blob_files"] = files
-    annot["num_pages"] = 1
-    annot["pdf_image_format"] = "jpg"
-    annot["storage_type"] = converter.gsettings.storage_type
-    annot["last_updated"] = already_done
-    annot["catalog"] = None
-    converter.initialize_filehash()  # get md5
-    annot["filehash"] = converter.filehash
-    annot["converting"] = False
-    annot["successfully_converted"] = True
-
-
 def is_dv_conv_in_error(obj):
     """Check if document viewer conversion is in error for the object.
     This is used to know if the conversion button must be displayed."""
@@ -744,7 +595,9 @@ class UtilsMethods(BrowserView):
         )
         if brains:
             return "dmsmainfiles: '%d', highest scan_id: '%s'" % (
-                len(brains), pc.getIndexDataForRID(brains[0].getRID())['scan_id'])
+                len(brains),
+                pc.getIndexDataForRID(brains[0].getRID())["scan_id"],
+            )
         else:  # pragma: no cover
             return "No scan id"
 
@@ -787,17 +640,17 @@ class VariousUtilsMethods(UtilsMethods):
 
         res = {"0": {}, "1": {}, "2": {}, "Z": {}}
         flow_titles = {
-            "0": u"Courrier entrant",
-            "1": u"Courrier sortant",
-            "2": u"Courrier sortant généré",
-            "Z": u"Email entrant",
+            "0": "Courrier entrant",
+            "1": "Courrier sortant",
+            "2": "Courrier sortant généré",
+            "Z": "Email entrant",
         }
         pc = getToolByName(self.context, "portal_catalog")
         brains = pc.unrestrictedSearchResults(portal_type=["dmsmainfile", "dmsommainfile"])
         divisor = int(by)
         out = []
         for brain in brains:
-            scan_id = pc.getIndexDataForRID(brain.getRID())['scan_id']
+            scan_id = pc.getIndexDataForRID(brain.getRID())["scan_id"]
             if not scan_id:
                 continue
             try:
@@ -825,14 +678,14 @@ class VariousUtilsMethods(UtilsMethods):
         catalog = portal.portal_catalog
         dic = get_dms_config(["read_label_cron"], missing_key_handling=True, missing_key_value={})
         count = 0
-        for userid in dic.keys():
+        for userid in list(dic.keys()):
             if api.user.get(userid=userid) is None:
                 continue
             for brain in catalog(
-                    portal_type=["dmsincomingmail", "dmsincoming_email"],
-                    recipient_groups=tuple(dic[userid]["orgs"]),
-                    labels={"not": ["%s:lu" % userid]},
-                    created={"query": (start, dic[userid]["end"]), "range": "min:max"},
+                portal_type=["dmsincomingmail", "dmsincoming_email"],
+                recipient_groups=tuple(dic[userid]["orgs"]),
+                labels={"not": ["%s:lu" % userid]},
+                created={"query": (start, dic[userid]["end"]), "range": "min:max"},
             ):
                 obj = brain.getObject()
                 labeling = ILabeling(obj)
@@ -842,47 +695,6 @@ class VariousUtilsMethods(UtilsMethods):
                 count += 1
             del dic[userid]
         logger.info("End of cron_read_label_handling, %d items labeled" % count)
-
-    def dv_conv_error(self):
-        """When a conversion problem occurs, made the context no more convertible."""
-        if not check_zope_admin():
-            return "You must be zope admin to run this"
-        if self.context.portal_type not in ("dmsmainfile", "dmsommainfile", "dmsappendixfile"):
-            return "Portal type not considered: {}".format(self.context.portal_type)
-        eml_preview(self.context)
-        annot = IAnnotations(self.context)
-        # so it cannot be converted anymore
-        annot["collective.documentviewer"]["last_updated"] = DateTime("2050/01/01").ISO8601()
-        if "exception_msg" in annot["collective.documentviewer"]:
-            del annot["collective.documentviewer"]["exception_msg"]
-        if "exception_traceback" in annot["collective.documentviewer"]:
-            del annot["collective.documentviewer"]["exception_traceback"]
-        self.context.reindexObject(idxs=["markers"])
-        return self.context.REQUEST["RESPONSE"].redirect("{}/view".format(self.context.absolute_url()))
-
-    def dv_images_clean(self):
-        """Call dv_clean to remove old images following configuration"""
-        # admin check is done in called dv_clean function
-        params = {
-            "days_back": api.portal.get_registry_record("imio.dms.mail.dv_clean_days", default=None),
-            "date_back": api.portal.get_registry_record("imio.dms.mail.dv_clean_date", default=None),
-        }
-        for k, v in params.items():
-            if not params[k]:
-                del params[k]
-        if not params:
-            logger.error("No preservation parameters configured")
-            return
-        logger.info("Cleaning dv files with params {} on {}".format(params, self.context.absolute_url_path()))
-        try:
-            from datetime import datetime
-
-            if params.get("date_back"):
-                datetime.strftime(params["date_back"], "%Y%m%d")
-        except Exception as msg:
-            logger.error("Bad date value '{}': '{}'".format(params["date_back"], msg))
-            return
-        dv_clean(self.context, **params)
 
     def initialize_service_folder(self):
         """ """
@@ -921,15 +733,15 @@ class VariousUtilsMethods(UtilsMethods):
             values = []
             factory = getUtility(IVocabularyFactory, voc_name)
             for term in factory(self.context):
-                values.append("{}{}{}".format(term.title.encode("utf8"), cg_separator, term.value))
+                values.append("{}{}{}".format(six.ensure_str(term.title), cg_separator, term.value))
             return values
 
         ret = []  # noqa
-        ret.append(_("Creating groups : to be used in kofax index").encode("utf8"))
+        ret.append(six.ensure_str(_("Creating groups : to be used in kofax index")))
         ret.append("")
         ret.append("\r\n".join(get_voc_values("imio.dms.mail.ActiveCreatingGroupVocabulary")))
         ret.append("")
-        ret.append(_("Treating groups : to be used in kofax index").encode("utf8"))
+        ret.append(six.ensure_str(_("Treating groups : to be used in kofax index")))
         ret.append("")
         ret.append("\r\n".join(get_voc_values("collective.dms.basecontent.treating_groups")))
         return "\r\n".join(ret)
@@ -939,10 +751,10 @@ class VariousUtilsMethods(UtilsMethods):
         if not check_zope_admin():
             return
         out = [
-            u"<p>list_last_scan</h1>",
-            u"-> typ='' : im, iem, om. Default=im",
-            u"-> nb='' : get ... last. Default=100",
-            u"ie. list_last_scan?typ=im",
+            "<p>list_last_scan</h1>",
+            "-> typ='' : im, iem, om. Default=im",
+            "-> nb='' : get ... last. Default=100",
+            "ie. list_last_scan?typ=im",
             "",
         ]
         pc = self.context.portal_catalog
@@ -964,9 +776,9 @@ class VariousUtilsMethods(UtilsMethods):
             obj = brain._unrestrictedGetObject()
             mail = obj.getParentNode()
             out.append(
-                u"{} ({}) in {} ({})".format(obj.scan_id, obj.version, mail.internal_reference_no, object_link(mail))
+                "{} ({}) in {} ({})".format(obj.scan_id, obj.version, mail.internal_reference_no, object_link(mail))
             )
-        sep = u"\n<br />"
+        sep = "\n<br />"
         return sep.join(out)
 
     def order_table_list(self, table=""):
@@ -997,7 +809,7 @@ class VariousUtilsMethods(UtilsMethods):
             status = uid in activated and "a" or "na"
             if only_activated == "1" and status == "na":
                 continue
-            lst.append((uid, title.encode("utf8"), status))
+            lst.append((uid, six.ensure_str(title), status))
         # sorted(lst, key=itemgetter(1))
         if output != "csv":
             return lst
@@ -1012,35 +824,37 @@ class VariousUtilsMethods(UtilsMethods):
     def template_infos(self):
         """Get from a generated document the original template."""
         annot = IAnnotations(self.context)
-        if ("documentgenerator" not in annot or ("template_uid" not in annot["documentgenerator"] and  # noqa W504
-                                                 "conv_from_uid" not in annot["documentgenerator"])):
+        if "documentgenerator" not in annot or (
+            "template_uid" not in annot["documentgenerator"]  # noqa W504
+            and "conv_from_uid" not in annot["documentgenerator"]
+        ):
             return "No template infos"
         uid = annot["documentgenerator"].get("template_uid")
         ret = []
         if uid:
             doc = uuidToObject(uid, unrestricted=True)
             if doc:
-                ret.append(u"<p>Template: {}</p>".format(object_link(doc, target="_blank")))
+                ret.append("<p>Template: {}</p>".format(object_link(doc, target="_blank")))
                 merge = doc.get_templates_to_merge()
                 if merge:
-                    ret.append(u"<ul>")
+                    ret.append("<ul>")
                     for name in sorted(merge.keys()):
-                        ret.append(u"<li>{} = {}</li>".format(name, object_link(merge[name][0], target="_blank")))
+                        ret.append("<li>{} = {}</li>".format(name, object_link(merge[name][0], target="_blank")))
                     else:
-                        ret.append(u"</ul>")
+                        ret.append("</ul>")
                 style = doc.get_style_template()
                 if style:
-                    ret.append(u"<p>Style: {}</p>".format(object_link(style, target="_blank")))
+                    ret.append("<p>Style: {}</p>".format(object_link(style, target="_blank")))
             else:
                 ret.append("No template found with uid '{}'".format(uid))
         uid = annot["documentgenerator"].get("conv_from_uid")
         if uid:
             doc = uuidToObject(uid, unrestricted=True)
             if doc:
-                ret.append(u"<p>Converted from: {}</p>".format(object_link(doc, target="_blank")))
+                ret.append("<p>Converted from: {}</p>".format(object_link(doc, target="_blank")))
             else:
                 ret.append("No converted from found with uid '{}'".format(uid))
-        return u"".join(ret)
+        return "".join(ret)
 
     def unread_criteria(self):
         """ """
@@ -1059,11 +873,11 @@ class VariousUtilsMethods(UtilsMethods):
         user = api.user.get(userid=userid)
         if user is None:
             return "Cannot find a user with userid='{}'".format(userid)
-        out = [u"<h1>Usages of user name '{}'</h1>".format(userid)]
+        out = ["<h1>Usages of user name '{}'</h1>".format(userid)]
         portal = api.portal.getSite()
         log_list(
             out,
-            u"<p>Fullname='{}'. Email='{}'</p>".format(
+            "<p>Fullname='{}'. Email='{}'</p>".format(
                 object_link(
                     portal,
                     view="@@usergroup-userprefs?searchstring={}".format(userid),
@@ -1074,12 +888,12 @@ class VariousUtilsMethods(UtilsMethods):
             ),
         )
         # get groups
-        log_list(out, u"<h2>In groups ?</h2>")
+        log_list(out, "<h2>In groups ?</h2>")
         groups = [group for group in get_plone_groups_for_user(user=user) if group != "AuthenticatedUsers"]
         if groups:
             log_list(
                 out,
-                u"<p>=> in {} {}.</p>".format(
+                "<p>=> in {} {}.</p>".format(
                     len(groups),
                     object_link(
                         portal,
@@ -1090,7 +904,7 @@ class VariousUtilsMethods(UtilsMethods):
                 ),
             )
         else:
-            log_list(out, u"<p>none</p>")
+            log_list(out, "<p>none</p>")
 
         config = {
             "dmsincomingmail": "{}/incoming-mail/mail-searches#c1={}&{{}}".format(
@@ -1106,7 +920,7 @@ class VariousUtilsMethods(UtilsMethods):
                 portal.absolute_url(), self.all_collection_uid("tasks", "task-searches", "all_tasks")
             ),
         }
-        log_list(out, u"<h2>In personnel folder ?</h2>")
+        log_list(out, "<h2>In personnel folder ?</h2>")
         intids = getUtility(IIntIds)
         catalog = getUtility(ICatalog)
         pc = portal.portal_catalog
@@ -1121,7 +935,7 @@ class VariousUtilsMethods(UtilsMethods):
                 rels = list(catalog.findRelations({"to_id": intids.getId(person)}))
                 log_list(
                     out,
-                    u"<p>=> Found a person {}, with {} relations.</p>".format(
+                    "<p>=> Found a person {}, with {} relations.</p>".format(
                         object_link(person, target="_blank"), len(rels)
                     ),
                 )
@@ -1135,14 +949,14 @@ class VariousUtilsMethods(UtilsMethods):
                         )
                     log_list(
                         out,
-                        u"<p>.. in HP {}, with {} relations and {} om sender.</p>".format(
+                        "<p>.. in HP {}, with {} relations and {} om sender.</p>".format(
                             object_link(hp, target="_blank"), len(rels), oms_l
                         ),
                     )
         else:
-            log_list(out, u"<p>none</p>")
+            log_list(out, "<p>none</p>")
 
-        log_list(out, u"<h2>Is an assigned user ?</h2>")
+        log_list(out, "<h2>Is an assigned user ?</h2>")
         brains = pc.unrestrictedSearchResults(assigned_user=userid, sort_on="path")
         if brains:
             tasks = {}
@@ -1157,28 +971,18 @@ class VariousUtilsMethods(UtilsMethods):
                 )
                 log_list(out, "<p>=> Found {} {}.</p>".format(tp_l, tp))
         else:
-            log_list(out, u"<p>none</p>")
+            log_list(out, "<p>none</p>")
 
-        log_list(out, u"<h2>Is a creator ?</h2>")
+        log_list(out, "<h2>Is a creator ?</h2>")
         brains = pc.unrestrictedSearchResults(Creator=userid, sort_on="path")
         if brains:
             log_list(out, "<p>=> Found {} items.</p>".format(len(brains)))
             for brain in brains:
                 obj = brain._unrestrictedGetObject()
-                log_list(out, u"<p>* {}</p>".format(object_link(obj, target="_blank")))
+                log_list(out, "<p>* {}</p>".format(object_link(obj, target="_blank")))
         else:
-            log_list(out, u"<p>none</p>")
-        return u"\n".join(out)
-
-    def dv_conv_enabled(self):
-        if not base_hasattr(self.context, "file"):
-            return False
-        if is_dv_conv_in_error(self.context):
-            return False
-        if not allowedDocumentType(self.context, GlobalSettings(getPortal(self.context)).auto_layout_file_types):
-            return False
-        settings = Settings(self.context)
-        return not settings.successfully_converted
+            log_list(out, "<p>none</p>")
+        return "\n".join(out)
 
 
 class IdmUtilsMethods(UtilsMethods):
@@ -1269,7 +1073,7 @@ class DummyView(object):
 def create_period_folder_max(main_dir, dte, counter_dic, max_nb=1000):
     """Following date, get a period date string and create the subdirectory.
     If the children number is greater than max_nb, create another subfolder."""
-    period = getattr(main_dir, "folder_period", u"week")
+    period = getattr(main_dir, "folder_period", "week")
     dte_str = base_dte_str = dte.strftime(PERIODS.get(period, PERIODS["week"]))
 
     def folder_status(folder):
@@ -1297,13 +1101,13 @@ def create_period_folder(main_dir, dte, subfolder=""):
     if subfolder:
         dte_str = subfolder
     else:
-        period = getattr(main_dir, "folder_period", u"week")
+        period = getattr(main_dir, "folder_period", "week")
         dte_str = dte.strftime(PERIODS[period])
     if dte_str not in main_dir:
         with api.env.adopt_user(username="admin"):
-            main_dir.setConstrainTypesMode(0)
-            subfolder = api.content.create(main_dir, "Folder", dte_str, dte_str.decode())
-            main_dir.setConstrainTypesMode(1)
+            ISelectableConstrainTypes(main_dir).setConstrainTypesMode(0)
+            subfolder = api.content.create(main_dir, "Folder", dte_str, six.ensure_text(dte_str))
+            ISelectableConstrainTypes(main_dir).setConstrainTypesMode(1)
             alsoProvides(subfolder, INextPrevNotNavigable)
             alsoProvides(subfolder, IHideFromBreadcrumbs)
             do_transitions(subfolder, ["show_internally"])
@@ -1336,7 +1140,7 @@ def create_personnel_content(
         persons = portal.portal_catalog.unrestrictedSearchResults(userid=userid, portal_type="person")
         if persons:
             if len(persons) > 1:
-                logger.warn(
+                logger.warning(
                     "Found multiple personnel persons linked to userid '{}' : {}".format(
                         userid, "\n".join([br.getURL() for br in persons])
                     )
@@ -1363,7 +1167,7 @@ def create_personnel_content(
                 firstname=firstname,
                 use_parent_address=False,
             )
-            out.append(u"person created for user %s, fn:'%s', ln:'%s'" % (userid, firstname, lastname))
+            out.append("person created for user %s, fn:'%s', ln:'%s'" % (userid, firstname, lastname))
         else:
             return out  # in unassignment, if pers doesn't exit, nothing more to do
         hps = [
@@ -1374,9 +1178,9 @@ def create_personnel_content(
         ]
         hps_orgs = dict([(hp.get_organization(), hp) for hp in hps])
         if len(hps) != len(hps_orgs):
-            logger.warn(
-                u"Found multiple held positions for the same org in userid '{}' : {}".format(
-                    userid, u" | ".join([hp.get_full_title() for hp in hps])
+            logger.warning(
+                "Found multiple held positions for the same org in userid '{}' : {}".format(
+                    userid, " | ".join([hp.get_full_title() for hp in hps])
                 )
             )
         elif primary and len(hps_orgs) == 1:
@@ -1399,7 +1203,7 @@ def create_personnel_content(
                     position=RelationValue(intids.getId(org)),
                     use_parent_address=True,
                 )
-                out.append(u" -> hp created for userid '{}' with org '{}'".format(userid, org.get_full_title()))
+                out.append(" -> hp created for userid '{}' with org '{}'".format(userid, org.get_full_title()))
             else:
                 continue  # in unassignment, if hp doesn't exit, nothing more to do
             # activate hp only if the corresponding group has encodeur function (OM senders)
@@ -1438,11 +1242,11 @@ def update_solr_config():
     if api.portal.get_registry_record("collective.solr.port", default=None) is None:
         return
     for key, cast in (
-        ("host", u""),
+        ("host", ""),
         ("port", 0),
-        ("base", u""),
-        ("solr_login", u""),
-        ("solr_password", u""),
+        ("base", ""),
+        ("solr_login", ""),
+        ("solr_password", ""),
         ("https_connection", True),
         ("ignore_certificate_check", True),
     ):
@@ -1573,7 +1377,7 @@ def get_post_approval_transition(context):
     to_print after approval instead of directly to to_be_signed.
     """
     pw = api.portal.get().portal_workflow
-    trs = [tr['id'] for tr in pw.getTransitionsFor(context)]
+    trs = [tr["id"] for tr in pw.getTransitionsFor(context)]
     if "set_to_print" in trs:
         return "set_to_print"
     return "propose_to_be_signed"
@@ -1625,8 +1429,8 @@ def invalidate_users_groups(portal=None, user=None, user_id=None, **kwargs):
 
 
 def modifyFileInBlob(blob, filepath):
-    with blob.open('w') as blob_file:
-        with open(filepath, 'rb') as new_file:
+    with blob.open("w") as blob_file:
+        with open(filepath, "rb") as new_file:
             blob_file.write(new_file.read())
 
 
@@ -1736,3 +1540,32 @@ def is_hp_used_in_signer_rules(hp_obj, remaining_usages):
                 if person_uid in (rule.get("approvings") or []):
                     return True
     return False
+
+
+def get_scan_config(key):
+    """Return a value of the scan configuration (zope.conf `product-config imio.zamqp.core`, e.g. client_id).
+
+    Was imio.zamqp.core.base.get_config (imio.zamqp.core is not ported to Plone 6)."""
+    package_config = getattr(getConfiguration(), "product_config", {}).get("imio.zamqp.core")
+    if package_config is None:
+        raise ValueError("The config for the package is missing")
+    return package_config.get(key, "")
+
+
+def next_scan_id(file_portal_types=("dmsmainfile",), client_id_var="client_id", scan_type="3"):
+    """Return the scan id following the highest one found on the given types.
+
+    Was imio.zamqp.core.utils.next_scan_id."""
+    catalog = api.portal.get_tool("portal_catalog")
+    brains = catalog.unrestrictedSearchResults(
+        portal_type=list(file_portal_types), sort_on="scan_id", sort_order="descending", sort_limit=1
+    )
+    highest_id = brains and catalog.getIndexDataForRID(brains[0].getRID())["scan_id"] or None
+    client_id = get_scan_config(client_id_var)
+    prefix = "{}{}{}".format(client_id[0:2], scan_type, client_id[2:6])
+    # limitation: doesn't check if the generated id already exists in catalog
+    if not highest_id:
+        highest_id = "{}00000000".format(prefix)
+    elif not highest_id.startswith(prefix):
+        raise ValueError("highest_id '{}' doesn't start with prefix '{}'".format(highest_id, prefix))
+    return prefix + "{:08d}".format(int(highest_id[7:15]) + 1)

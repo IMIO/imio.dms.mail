@@ -13,7 +13,11 @@ from imio.dms.mail import CONTACTS_PART_SUFFIX
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail import FIRST_LEVEL_TABS
+from imio.dms.mail.browser.settings import datagrid_value_types
+from imio.dms.mail.browser.settings import heal_datagrid_value_types
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.settings import PGSettingsEditForm
+from imio.dms.mail.browser.settings import SettingsEditForm
 from imio.dms.mail.browser.views import ImioCatalogNavigationTabs
 from imio.dms.mail.browser.views import PlusPortaltabContent
 from imio.dms.mail.content.behaviors import default_creating_group
@@ -52,28 +56,30 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         # test uniqueness
         data = {
             "mail_types": [
-                {"dtitle": u"Job", "active": True, "value": u"job"},
-                {"dtitle": u"Pub", "active": True, "value": u"pub"},
+                {"dtitle": "Job", "active": True, "value": "job"},
+                {"dtitle": "Pub", "active": True, "value": "pub"},
             ]
         }
         self.assertFalse(invariants.validate(data))
         data = {
             "mail_types": [
-                {"dtitle": u"Job", "active": True, "value": u"job"},
-                {"dtitle": u"Pub", "active": True, "value": u"job"},
+                {"dtitle": "Job", "active": True, "value": "job"},
+                {"dtitle": "Pub", "active": True, "value": "job"},
             ]
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         # test omail_send_modes part
-        data = {"omail_send_modes": [{"dtitle": u"Lettre", "active": True, "value": u"email"}]}
+        data = {"omail_send_modes": [{"dtitle": "Lettre", "active": True, "value": "email"}]}
         self.assertFalse(invariants.validate(data))
-        data = {"omail_send_modes": [{"dtitle": u"Lettre", "active": True, "value": u"bad"}]}
+        data = {"omail_send_modes": [{"dtitle": "Lettre", "active": True, "value": "bad"}]}
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = (u"Onglet « Courrier sortant »: le champ « Formes d'envoi » doit uniquement contenir des "
-                     u"« valeurs stockées » commencant par « post », « email » ou « other »")
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        error_msg = (
+            "Onglet « Courrier sortant »: le champ « Formes d'envoi » doit uniquement contenir des "
+            "« valeurs stockées » commencant par « post », « email » ou « other »"
+        )
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
         # test imail_group_encoder
         rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder"
         api.portal.set_registry_record(rec, True)
@@ -81,11 +87,11 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = (
-            u"Onglet « Courrier entrant »: décocher le paramètre « Activation de plusieurs groupes d'indicatage » n'"
-            u"est pas prévu !"
+            "Onglet « Courrier entrant »: décocher le paramètre « Activation de plusieurs groupes d'indicatage » n'"
+            "est pas prévu !"
         )
         self.assertEqual(
-            _tr(errors[0].message, mapping={"tab": _tr("Incoming mail"), "field": _tr("Activate group encoder")}),
+            _tr(errors[0].args[0], mapping={"tab": _tr("Incoming mail"), "field": _tr("Activate group encoder")}),
             error_msg,
         )
 
@@ -95,38 +101,56 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         invariants = validator.InvariantsValidator(record_proxy, None, None, IImioDmsMailConfig, None)
 
         # a) Valid data with all None dates — no errors expected
-        data = {"omail_signer_substitutes": [
-            {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": None, "valid_until": None}
-        ]}
+        data = {
+            "omail_signer_substitutes": [
+                {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": None, "valid_until": None}
+            ]
+        }
         self.assertFalse(invariants.validate(data))
 
         # b) Invalid valid_from format — expect Invalid
-        data = {"omail_signer_substitutes": [
-            {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": u"not-a-date", "valid_until": None}
-        ]}
+        data = {
+            "omail_signer_substitutes": [
+                {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": "not-a-date", "valid_until": None}
+            ]
+        }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
 
         # c) Invalid valid_until format — expect Invalid
-        data = {"omail_signer_substitutes": [
-            {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": None, "valid_until": u"2025-01-01"}
-        ]}
+        data = {
+            "omail_signer_substitutes": [
+                {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": None, "valid_until": "2025-01-01"}
+            ]
+        }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
 
         # d) valid_until < valid_from — expect Invalid
-        data = {"omail_signer_substitutes": [
-            {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": u"2025/01/01",
-             "valid_until": u"2024/01/01"}
-        ]}
+        data = {
+            "omail_signer_substitutes": [
+                {
+                    "absent_signer": "hp1",
+                    "substitute_signer": "hp2",
+                    "valid_from": "2025/01/01",
+                    "valid_until": "2024/01/01",
+                }
+            ]
+        }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
 
         # e) Valid date range — no errors expected
-        data = {"omail_signer_substitutes": [
-            {"absent_signer": "hp1", "substitute_signer": "hp2", "valid_from": u"2000/01/01",
-             "valid_until": u"2100/01/01"}
-        ]}
+        data = {
+            "omail_signer_substitutes": [
+                {
+                    "absent_signer": "hp1",
+                    "substitute_signer": "hp2",
+                    "valid_from": "2000/01/01",
+                    "valid_until": "2100/01/01",
+                }
+            ]
+        }
         self.assertFalse(invariants.validate(data))
 
         # f) Empty substitutes list — no errors expected
@@ -137,29 +161,47 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         pf = self.portal["contacts"]["personnel-folder"]
         bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
         dirg_hp = pf["dirg"]["directeur-general"]
-        data = {"omail_signer_substitutes": [
-            {
-                "absent_signer": bourgmestre_hp.UID(),
-                "substitute_signer": dirg_hp.UID(),
-                "valid_from": None,
-                "valid_until": None,
-            }
-        ]}
+        data = {
+            "omail_signer_substitutes": [
+                {
+                    "absent_signer": bourgmestre_hp.UID(),
+                    "substitute_signer": dirg_hp.UID(),
+                    "valid_from": None,
+                    "valid_until": None,
+                }
+            ]
+        }
         self.assertFalse(invariants.validate(data))
 
     @staticmethod
     def _omail_rule(**kw):
         """Build a valid omail signer rule, overridable via kwargs."""
-        rule = {"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"], "esign": False,
-                "treating_groups": [], "mail_types": [], "send_modes": [], "tal_condition": None}
+        rule = {
+            "number": 1,
+            "signer": "_empty_",
+            "editor": False,
+            "approvings": ["_empty_"],
+            "esign": False,
+            "treating_groups": [],
+            "mail_types": [],
+            "send_modes": [],
+            "tal_condition": None,
+        }
         rule.update(kw)
         return rule
 
     @staticmethod
     def _request_rule(**kw):
         """Build a valid request signer rule, overridable via kwargs."""
-        rule = {"number": 1, "signer": u"_seal_", "editor": False, "approvings": [u"_empty_"], "esign": True,
-                "treating_groups": [], "tal_condition": None}
+        rule = {
+            "number": 1,
+            "signer": "_seal_",
+            "editor": False,
+            "approvings": ["_empty_"],
+            "esign": True,
+            "treating_groups": [],
+            "tal_condition": None,
+        }
         rule.update(kw)
         return rule
 
@@ -173,20 +215,22 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         # a) valid rule with a real signer
         self.assertFalse(invariants.validate({"omail_signer_rules": [self._omail_rule(signer=signer)]}))
         # b) valid seal rule (number 0, seal signature)
-        self.assertFalse(invariants.validate({"omail_signer_rules": [self._omail_rule(number=0, signer=u"_seal_")]}))
+        self.assertFalse(invariants.validate({"omail_signer_rules": [self._omail_rule(number=0, signer="_seal_")]}))
         # c) number 0 but a signer is set
         errors = invariants.validate({"omail_signer_rules": [self._omail_rule(number=0, signer=signer)]})
         self.assertTrue(isinstance(errors[0], Invalid))
         # d) seal signature but number is not 0
-        errors = invariants.validate({"omail_signer_rules": [self._omail_rule(number=1, signer=u"_seal_")]})
+        errors = invariants.validate({"omail_signer_rules": [self._omail_rule(number=1, signer="_seal_")]})
         self.assertTrue(isinstance(errors[0], Invalid))
         # e) esign enabled but no valid approving
-        errors = invariants.validate({"omail_signer_rules": [
-            self._omail_rule(signer=signer, esign=True, approvings=[u"_empty_"])]})
+        errors = invariants.validate(
+            {"omail_signer_rules": [self._omail_rule(signer=signer, esign=True, approvings=["_empty_"])]}
+        )
         self.assertTrue(isinstance(errors[0], Invalid))
         # f) two rules applying to the same signer
-        errors = invariants.validate({"omail_signer_rules": [
-            self._omail_rule(signer=signer), self._omail_rule(signer=signer)]})
+        errors = invariants.validate(
+            {"omail_signer_rules": [self._omail_rule(signer=signer), self._omail_rule(signer=signer)]}
+        )
         self.assertTrue(isinstance(errors[0], Invalid))
 
     def test_request_signer_rules_validation(self):
@@ -198,31 +242,42 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         approving = pf["bourgmestre"]["bourgmestre"].get_person().UID()
 
         # a) valid rule with a real signer and approving
-        self.assertFalse(invariants.validate({"request_signer_rules": [
-            self._request_rule(signer=signer, approvings=[approving])]}))
+        self.assertFalse(
+            invariants.validate({"request_signer_rules": [self._request_rule(signer=signer, approvings=[approving])]})
+        )
         # b) valid seal rule (number 0, seal signature)
-        self.assertFalse(invariants.validate({"request_signer_rules": [
-            self._request_rule(number=0, signer=u"_seal_", approvings=[approving])]}))
+        self.assertFalse(
+            invariants.validate(
+                {"request_signer_rules": [self._request_rule(number=0, signer="_seal_", approvings=[approving])]}
+            )
+        )
         # c) electronic signature is mandatory for a signing request
-        errors = invariants.validate({"request_signer_rules": [
-            self._request_rule(signer=signer, approvings=[approving], esign=False)]})
+        errors = invariants.validate(
+            {"request_signer_rules": [self._request_rule(signer=signer, approvings=[approving], esign=False)]}
+        )
         self.assertTrue(isinstance(errors[0], Invalid))
         # d) number 0 but a signer is set
-        errors = invariants.validate({"request_signer_rules": [
-            self._request_rule(number=0, signer=signer, approvings=[approving])]})
+        errors = invariants.validate(
+            {"request_signer_rules": [self._request_rule(number=0, signer=signer, approvings=[approving])]}
+        )
         self.assertTrue(isinstance(errors[0], Invalid))
         # e) seal signature but number is not 0
-        errors = invariants.validate({"request_signer_rules": [
-            self._request_rule(number=1, signer=u"_seal_", approvings=[approving])]})
+        errors = invariants.validate(
+            {"request_signer_rules": [self._request_rule(number=1, signer="_seal_", approvings=[approving])]}
+        )
         self.assertTrue(isinstance(errors[0], Invalid))
         # f) esign enabled but no approving
-        errors = invariants.validate({"request_signer_rules": [
-            self._request_rule(signer=signer, approvings=[])]})
+        errors = invariants.validate({"request_signer_rules": [self._request_rule(signer=signer, approvings=[])]})
         self.assertTrue(isinstance(errors[0], Invalid))
         # g) two rules applying to the same signer
-        errors = invariants.validate({"request_signer_rules": [
-            self._request_rule(signer=signer, approvings=[approving]),
-            self._request_rule(signer=signer, approvings=[approving])]})
+        errors = invariants.validate(
+            {
+                "request_signer_rules": [
+                    self._request_rule(signer=signer, approvings=[approving]),
+                    self._request_rule(signer=signer, approvings=[approving]),
+                ]
+            }
+        )
         self.assertTrue(isinstance(errors[0], Invalid))
 
     def test_validate_settings2(self):
@@ -279,9 +334,9 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         data["imail_fields"] = [{"field_name": fld} for fld in im_flds]
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        self.assertIn(u"Champs obligatoires manquants: ", errors[0].message)
-        self.assertIn(u"courrier entrant", errors[0].message)
-        self.assertIn(u"Référence interne", errors[0].message)
+        self.assertIn("Champs obligatoires manquants: ", errors[0].args[0])
+        self.assertIn("courrier entrant", errors[0].args[0])
+        self.assertIn("Référence interne", errors[0].args[0])
         # test positions
         im_flds.append(removed)
         # we change required position
@@ -290,9 +345,9 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         data["imail_fields"] = [{"field_name": fld} for fld in im_flds]
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        self.assertIn(u"Position obligatoire pour les champs: ", errors[0].message)
-        self.assertIn(u"courrier entrant", errors[0].message)
-        self.assertIn(u"'Description': position 2.", errors[0].message)
+        self.assertIn("Position obligatoire pour les champs: ", errors[0].args[0])
+        self.assertIn("courrier entrant", errors[0].args[0])
+        self.assertIn("'Description': position 2.", errors[0].args[0])
 
     def test_settings_translations(self):
         # not needed anymore but kept as example
@@ -313,14 +368,14 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types"
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMMailTypesVocabulary")
         self.assertEqual(len(voc_inst(self.portal)), 5)
-        self.registry[key] += [{"value": u"new_type", "dtitle": u"New type", "active": True}]
+        self.registry[key] += [{"value": "new_type", "dtitle": "New type", "active": True}]
         self.assertEqual(len(voc_inst(self.portal)), 6)
 
         # changing omail types
         key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types"
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.OMMailTypesVocabulary")
         self.assertEqual(len(voc_inst(self.portal)), 1)
-        self.registry[key] += [{"value": u"new_type", "dtitle": u"New type", "active": True}]
+        self.registry[key] += [{"value": "new_type", "dtitle": "New type", "active": True}]
         self.assertEqual(len(voc_inst(self.portal)), 2)
 
         # changing imail group encoder
@@ -333,17 +388,19 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         """Changing displayed_tabs toggles exclude_from_nav on top nav tabs"""
         key = "imio.dms.mail.displayed_tabs"
         tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
-        self.assertListEqual([t["id"] for t in tabs if t["id"] != "index_html"],
-                             ["incoming-mail", "outgoing-mail", "folders", "tasks", "plus"])
-        self.assertTrue(self.portal["requests"].getExcludeFromNav())
+        self.assertListEqual(
+            [t["id"] for t in tabs if t["id"] != "index_html"],
+            ["incoming-mail", "outgoing-mail", "folders", "tasks", "plus"],
+        )
+        self.assertTrue(self.portal["requests"].exclude_from_nav)
         all_tabs = FIRST_LEVEL_TABS
         api.portal.set_registry_record(key, all_tabs)
-        self.assertFalse(self.portal["requests"].getExcludeFromNav())
+        self.assertFalse(self.portal["requests"].exclude_from_nav)
         tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
         self.assertIn("requests", [t["id"] for t in tabs])
         # hide requests again
         api.portal.set_registry_record(key, DEFAULT_DISPLAYED_TABS)
-        self.assertTrue(self.portal["requests"].getExcludeFromNav())
+        self.assertTrue(self.portal["requests"].exclude_from_nav)
         tabs = ImioCatalogNavigationTabs(self.portal, self.portal.REQUEST).topLevelTabs()
         self.assertNotIn("requests", [t["id"] for t in tabs])
         self.assertIn("incoming-mail", [t["id"] for t in tabs])
@@ -358,7 +415,7 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(any(u.endswith("/tree") for u in urls))
         self.assertTrue(any(u.endswith("/annexes_types") for u in urls))
         # hide tree
-        api.portal.set_registry_record(key, [t for t in all_tabs if t != u"tree"])
+        api.portal.set_registry_record(key, [t for t in all_tabs if t != "tree"])
         tabs = PlusPortaltabContent(self.portal, self.portal.REQUEST).get_tabs()
         urls = [url for _, url in tabs]
         self.assertFalse(any(u.endswith("/tree") for u in urls))
@@ -368,16 +425,18 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         """Classification singles steps drive folders/tree via displayed_tabs"""
         key = "imio.dms.mail.displayed_tabs"
         self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-deactivate_classification", run_dependencies=False)
+            "profile-imio.dms.mail:singles", "imiodmsmail-deactivate_classification", run_dependencies=False
+        )
         displayed = api.portal.get_registry_record(key) or []
-        self.assertNotIn(u"folders", displayed)
-        self.assertNotIn(u"tree", displayed)
+        self.assertNotIn("folders", displayed)
+        self.assertNotIn("tree", displayed)
         self.assertTrue(self.portal["folders"].exclude_from_nav)
         self.portal.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:singles", "imiodmsmail-activate_classification", run_dependencies=False)
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate_classification", run_dependencies=False
+        )
         displayed = api.portal.get_registry_record(key) or []
-        self.assertIn(u"folders", displayed)
-        self.assertIn(u"tree", displayed)
+        self.assertIn("folders", displayed)
+        self.assertIn("tree", displayed)
         self.assertFalse(self.portal["folders"].exclude_from_nav)
 
     def test_default_creating_group(self):
@@ -392,7 +451,7 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         # u'Direction technique', (u'Bâtiments', u'Voiries')
         # u'Événements'
         functions = get_registry_functions()
-        self.assertEqual(u"group_encoder", functions[-1]["fct_id"])
+        self.assertEqual("group_encoder", functions[-1]["fct_id"])
         self.assertIsNone(default_creating_group())
         # we configure the function orgs
         functions[-1]["fct_orgs"] = [orgs[1], orgs[2], orgs[3]]
@@ -450,3 +509,75 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         for fid in ("orgs-searches", "persons-searches", "hps-searches", "cls-searches"):
             crit = ICriteria(self.portal["contacts"][fid])
             self.assertIn("c90", crit.keys())
+
+
+class TestSettingsFunctions(unittest.TestCase):
+    """Module functions of browser/settings.py."""
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_datagrid_value_types(self):
+        value_types = datagrid_value_types(IImioDmsMailConfig)
+        names = [field.__name__ for field, row_schema, required in value_types]
+        self.assertIn("imail_fields", names)
+        self.assertIn("omail_signer_rules", names)
+        field, row_schema, required = value_types[names.index("imail_fields")]
+        self.assertEqual(field.value_type.schema, row_schema)
+        self.assertFalse(required)
+
+    def test_heal_datagrid_value_types(self):
+        value_types = datagrid_value_types(IImioDmsMailConfig)
+        before = [field.value_type for field, row_schema, required in value_types]
+        heal_datagrid_value_types(value_types)
+        # nothing to heal: value types are kept
+        self.assertListEqual([field.value_type for field, row_schema, required in value_types], before)
+
+
+class TestSettingsEditForm(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.portal.REQUEST
+        change_user(self.portal)
+
+    def test_update(self):
+        key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields"
+        fields = api.portal.get_registry_record(key)
+        api.portal.set_registry_record(key, [dic for dic in fields if dic["field_name"] != "IDublinCore.description"])
+        voc = getUtility(IVocabularyFactory, "imio.dms.mail.IMFieldsVocabulary")(self.portal)
+        title = voc.getTerm("IDublinCore.description").title
+        self.request["REQUEST_METHOD"] = "GET"
+        view = self.portal.unrestrictedTraverse("@@imiodmsmail-settings")
+        rendered = view()
+        form = view.form_instance
+        self.assertIsInstance(form, SettingsEditForm)
+        groups = dict([(grp.__name__, grp) for grp in form.groups])
+        description = groups["incomingmail"].widgets["imail_fields"].field.description
+        self.assertIn(
+            "<span class='unconfigured-fields'>Les champs non configurés et donc non affichés sont: ", description
+        )
+        self.assertIn('"{}"'.format(title), description)
+        # outgoing mail signing fields are added by activate_om_signing; Plone 6 versioning behavior field
+        self.assertIn(
+            'sont: "Contrôle de version activé", "Sceau", "Signataires", "Signature élec."</span>',
+            groups["outgoingmail"].widgets["omail_fields"].field.description,
+        )
+        self.assertIn('id="form-widgets-imail_fields"', rendered)
+        self.assertIn("unconfigured-fields", rendered)
+
+
+class TestPGSettingsEditForm(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def test_update(self):
+        portal = self.layer["portal"]
+        change_user(portal)
+        portal.REQUEST["REQUEST_METHOD"] = "GET"
+        view = portal.unrestrictedTraverse("@@contact-plonegroup-settings")
+        rendered = view()
+        self.assertIsInstance(view.form_instance, PGSettingsEditForm)
+        self.assertIn('id="form-widgets-organizations"', rendered)
+        self.assertIn('id="form-widgets-functions"', rendered)

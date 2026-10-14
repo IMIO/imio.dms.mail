@@ -332,52 +332,6 @@
      name="relative_path"
   />
 
-  <!-- ck-templates-listing columns -->
-  <adapter
-      name="select_row"
-      for="zope.interface.Interface
-           zope.publisher.interfaces.browser.IBrowserRequest
-           imio.dms.mail.browser.table.CKTemplatesTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory="collective.documentgenerator.browser.table.CheckBoxColumn"
-      />
-
-  <adapter
-      name="title"
-      for="zope.interface.Interface
-           zope.interface.Interface
-           imio.dms.mail.browser.table.CKTemplatesTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory=".columns.CKTemplatesTitleColumn"
-      />
-
-  <adapter
-      name="PathColumn"
-      for="zope.interface.Interface
-           zope.interface.Interface
-           imio.dms.mail.browser.table.CKTemplatesTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory=".columns.CKPathColumn"
-      />
-
-  <adapter
-      name="ReviewStateColumn"
-      for="zope.interface.Interface
-           zope.interface.Interface
-           imio.dms.mail.browser.table.CKTemplatesTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory="collective.documentgenerator.browser.table.ReviewStateColumn"
-      />
-
-  <adapter
-      name="actions"
-      for="zope.interface.Interface
-           zope.interface.Interface
-           imio.dms.mail.browser.table.CKTemplatesTable"
-      provides="z3c.table.interfaces.IColumn"
-      factory=".columns.CKTemplatesActionsColumn"
-      />
-
   <!-- personnel dashboard columns -->
   <adapter
       for="imio.dms.mail.interfaces.IPersonnelDashboard

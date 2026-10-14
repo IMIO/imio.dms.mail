@@ -1,5 +1,6 @@
 # encoding: utf-8
 from AccessControl import getSecurityManager
+from Acquisition import aq_base
 from borg.localrole.interfaces import ILocalRoleProvider
 from collective.classification.folder.interfaces import IServiceInCharge
 from collective.classification.folder.interfaces import IServiceInCopy
@@ -9,23 +10,18 @@ from collective.contact.core.indexers import contact_source
 from collective.contact.core.interfaces import IContactContent
 from collective.contact.plonegroup.utils import organizations_with_suffixes
 from collective.contact.widget.interfaces import IContactAutocompleteWidget
-from collective.dexteritytextindexer.interfaces import IDynamicTextIndexExtender
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator import _ as _dg
-from collective.documentgenerator.utils import convert_and_save_file
-from collective.documentgenerator.utils import convert_file
-from collective.documentgenerator.utils import convert_odt
-from collective.documentgenerator.utils import get_original_template
-from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
-from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
+from collective.labels.indexer import labels as labels_base_index
+from collective.labels.interfaces import ILabelSupport
 from collective.task.interfaces import ITaskContent
 from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
@@ -33,6 +29,11 @@ from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import OM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail import REQUEST_TREATING_SERVICE_FUNCTIONS
 from imio.dms.mail.content.behaviors import IDmsMailCreatingGroup
+from imio.dms.mail.dg_compat import convert_and_save_file
+from imio.dms.mail.dg_compat import convert_file
+from imio.dms.mail.dg_compat import convert_odt
+from imio.dms.mail.dg_compat import get_original_template
+from imio.dms.mail.dg_compat import odfsplit
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
@@ -46,12 +47,14 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
+from imio.dms.mail.utils import next_scan_id
 from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
 from imio.esign.utils import get_max_download_date
 from imio.helpers import EMPTY_DATE
+from imio.helpers import EMPTY_STRING
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import get_relations
@@ -63,7 +66,6 @@ from imio.helpers.pdf import merge_pdf
 from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
-from imio.zamqp.core.utils import next_scan_id
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
 from plone import api
@@ -71,17 +73,18 @@ from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuI
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
+from plone.app.contenttypes.interfaces import IFolder
+from plone.app.dexterity.textindexer.interfaces import IDynamicTextIndexExtender
+from plone.base.utils import base_hasattr
 from plone.indexer import indexer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
 from plone.rfc822.interfaces import IPrimaryFieldInfo
-from Products.ATContentTypes.interfaces.folder import IATFolder
 from Products.CMFCore.interfaces import IContentish
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone.CatalogTool import sortable_title
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
-from Products.PluginIndexes.common.UnIndex import _marker as common_marker
+from Products.PluginIndexes.unindex import _marker as common_marker
 from z3c.form.datamanager import AttributeField
 from z3c.form.interfaces import IContextAware
 from z3c.form.interfaces import IDataManager
@@ -91,7 +94,6 @@ from z3c.form.term import MissingTermsMixin
 from z3c.form.validator import SimpleFieldValidator
 from zope.annotation import IAnnotations
 from zope.component import adapter
-from zope.component import adapts
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.i18n import translate
@@ -103,6 +105,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 import datetime
 import os
+import six
 import time
 import uuid
 
@@ -584,8 +587,10 @@ def ready_for_email_index(obj):
     return False
 
 
-@indexer(IATFolder)
+@indexer(IFolder)
 def fancy_tree_folder_index(obj):
+    if obj.portal_type != "Folder":  # IFolder is also provided by other folderish types (categories...)
+        return getattr(aq_base(obj), "enabled", common_marker)
     if "/templates/om/" in "/".join(obj.getPhysicalPath()):
         return True
     return False
@@ -596,7 +601,7 @@ def get_full_title_index(obj):
     """Metadata of 'get_full_title' for IImioDmsIncomingMail. Stores title !"""
     # No acquisition pb because get_full_title isn't an attr
     if obj.title:
-        return obj.title.encode("utf8")
+        return six.ensure_str(obj.title)
     return common_marker
 
 
@@ -606,7 +611,7 @@ def get_obj_size(obj):
     try:
         primary_field_info = IPrimaryFieldInfo(obj)
     except TypeError:
-        logger.warn(u"Lookup of PrimaryField failed for %s" % obj.absolute_url())
+        logger.warning("Lookup of PrimaryField failed for %s" % obj.absolute_url())
         return ""
     const = {"KB": 1024, "MB": 1048576, "GB": 1073741824}
     order = ("GB", "MB", "KB")
@@ -614,7 +619,7 @@ def get_obj_size(obj):
     if size < 1024:
         return "1 KB"
     for c in order:
-        if size / const[c] > 0:
+        if size // const[c] > 0:
             break
     return "%.1f %s" % (float(size / float(const[c])), c)  # noqa
 
@@ -707,7 +712,7 @@ def im_markers(obj):
     # Set hasResponse
     rels = get_relations(obj, "reply_to", backrefs=True)  # get only "normal" response
     for relation in rels:
-        if not relation.isBroken() and relation.from_object.portal_type == "dmsoutgoingmail":
+        if not relation.isBroken() and getattr(relation.from_object, "portal_type", None) == "dmsoutgoingmail":
             markers.append("hasResponse")
             break
     # Stores on obj
@@ -771,14 +776,21 @@ def markers_dmaf_index(obj):
     return markers_conversion_error(obj)
 
 
+def date_seconds_key(dte):
+    """Date in seconds as a sortable string: the 'organization_type' index also stores the organizations types
+    (strings) and Python 3 cannot compare str and int keys."""
+    # ponytail: 10 digits sort right until 2286, a dedicated index if range queries are needed
+    return "%010d" % (dte and int(time.mktime(dte.timetuple())) or 0)
+
+
 @indexer(IImioDmsIncomingMail)
 def im_reception_date_index(obj):
     """Indexer of 'organization_type' for IImioDmsIncomingMail. Stores reception_date (in seconds) !"""
     # No acquisition pb because organization_type isn't an attr
     if obj.reception_date:
-        return int(time.mktime(obj.reception_date.timetuple()))
+        return date_seconds_key(obj.reception_date)
     # there is by default a reception_date, but a user can empty it
-    return 0
+    return date_seconds_key(None)
 
 
 @indexer(IImioDmsOutgoingMail)
@@ -786,8 +798,8 @@ def om_outgoing_date_index(obj):
     """Indexer of 'organization_type' for IImioDmsOutgoingMail. Stores outgoing_date (in seconds) !"""
     # No acquisition pb because organization_type isn't an attr
     if obj.outgoing_date:
-        return int(time.mktime(obj.outgoing_date.timetuple()))
-    return 0
+        return date_seconds_key(obj.outgoing_date)
+    return date_seconds_key(None)
 
 
 @indexer(IImioDmsOutgoingMail)
@@ -866,9 +878,8 @@ def imio_contact_source(contact):
 
 
 @implementer(IDynamicTextIndexExtender)
+@adapter(IScanFields)
 class ScanSearchableExtender(object):
-    adapts(IScanFields)
-
     def __init__(self, context):
         self.context = context
 
@@ -892,7 +903,7 @@ class ScanSearchableExtender(object):
                 items.append(sid_short)
         if self.context.description:
             items.append(self.context.description)
-        return u" ".join(items)
+        return " ".join(items)
 
     def __call__(self):
         """Extend the searchable text with a custom string"""
@@ -901,7 +912,7 @@ class ScanSearchableExtender(object):
             return self.searchable_text()
         mimetype = primary_field.value.contentType
         transforms = getToolByName(self.context, "portal_transforms")
-        value = str(primary_field.value.data)
+        value = primary_field.value.data
         filename = primary_field.value.filename
         try:
             transformed_value = transforms.convertTo("text/plain", value, mimetype=mimetype, filename=filename)
@@ -916,13 +927,12 @@ class ScanSearchableExtender(object):
 
 
 @implementer(IDynamicTextIndexExtender)
+@adapter(IImioDmsIncomingMail)
 class IdmSearchableExtender(object):
     """
     Extends SearchableText of scanned dms document.
     Concatenate the contained dmsmainfiles scan_id infos.
     """
-
-    adapts(IImioDmsIncomingMail)
 
     def __init__(self, context):
         self.context = context
@@ -942,14 +952,13 @@ class IdmSearchableExtender(object):
             if sid_infos[0]:
                 index += sid_infos
         if index:
-            return u" ".join(index)
+            return " ".join(index)
         return None
 
 
+@adapter(IImioDmsOutgoingMail)
 class OdmSearchableExtender(IdmSearchableExtender):
     """See IdmSearchableExtender"""
-
-    adapts(IImioDmsOutgoingMail)
 
 
 #########################
@@ -1022,9 +1031,8 @@ class OMMCTV(MissingChoiceTermsVocabulary, MissingTerms):
 #########################
 
 
+@adapter(Interface, Interface, Interface, IField, IContactAutocompleteWidget)
 class ContactAutocompleteValidator(SimpleFieldValidator):
-
-    adapts(Interface, Interface, Interface, IField, IContactAutocompleteWidget)
 
     def validate(self, value, force=False):
         """
@@ -1160,7 +1168,7 @@ class ItemSignersAdapter(SignableAdapter):
                 yield {
                     "held_position": hp,
                     "name": hp.get_person().get_title(include_person_title=False),
-                    "function": hp.label or u"",
+                    "function": hp.label or "",
                 }
 
     def get_files_uids(self):
@@ -1407,8 +1415,10 @@ class ApprovalAdapter(object):
             esign_audit(
                 "start_approval_process",
                 "mail={} signers={} approvers={}".format(
-                    self.context.UID(), "|".join(self.signers), "|".join([",".join(sublist) for sublist in
-                                                                          self.annot["approvers"]]))
+                    self.context.UID(),
+                    "|".join(self.signers),
+                    "|".join([",".join(sublist) for sublist in self.annot["approvers"]]),
+                ),
             )
         if self.approvers:
             # first time transition, set the first level to "proposed"
@@ -1482,7 +1492,7 @@ class ApprovalAdapter(object):
             if signer_hp is None:
                 raise ValueError(
                     _(
-                        u"The signer held position with UID ${uid} does not exist !",
+                        "The signer held position with UID ${uid} does not exist !",
                         mapping={"uid": signer["signer"]},
                     )
                 )
@@ -1491,7 +1501,7 @@ class ApprovalAdapter(object):
             if user_email in signer_emails:
                 raise ValueError(
                     _(
-                        u"You cannot have the same email (${email}) for multiple signers !",
+                        "You cannot have the same email (${email}) for multiple signers !",
                         mapping={"email": user_email},
                     )
                 )
@@ -1526,7 +1536,7 @@ class ApprovalAdapter(object):
 
             # Add signer in annotation
             signer_name = signer_person.get_title(include_person_title=False)
-            signer_label = signer_hp.label or u""
+            signer_label = signer_hp.label or ""
             self.annot["signers"].append((signer_person.userid, signer_name, signer_label))
             self.annot["approvers"].append(approvers)
             self.annot["editors"].append(signer["editor"])
@@ -1546,8 +1556,10 @@ class ApprovalAdapter(object):
             esign_audit(
                 "update_signers",
                 "mail={} signers={} approvers={}".format(
-                    self.context.UID(), "|".join(self.signers), "|".join([",".join(sublist) for sublist in
-                                                                          self.annot["approvers"]]))
+                    self.context.UID(),
+                    "|".join(self.signers),
+                    "|".join([",".join(sublist) for sublist in self.annot["approvers"]]),
+                ),
             )
 
         for fuid in backup_files_uids:
@@ -1697,7 +1709,7 @@ class ApprovalAdapter(object):
         self.annot["current_nb"] = self.calculate_current_nb()
         esign_audit(
             "approve_file",
-            "mail={} file={} signer={} approver={}".format(self.context.UID(), f_uid, self.signers[c_a], userid)
+            "mail={} file={} signer={} approver={}".format(self.context.UID(), f_uid, self.signers[c_a], userid),
         )
         if self.is_file_approved(f_uid):
             afile.approved = True
@@ -1707,8 +1719,8 @@ class ApprovalAdapter(object):
         if yet_to_approve:
             api.portal.show_message(
                 message=_(
-                    u"The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files "
-                    u"to approve on this mail.",
+                    "The file '${file}' has been approved by ${user}. However, there is/are yet ${nb} files "
+                    "to approve on this mail.",
                     mapping={
                         "file": safe_unicode(afile.Title()),
                         "user": safe_unicode(fullname),
@@ -1719,7 +1731,7 @@ class ApprovalAdapter(object):
                 type="info",
             )
             return True, True
-        message = u"The file '${file}' has been approved by ${user}. "
+        message = "The file '${file}' has been approved by ${user}. "
         c_a = self.current_nb  # current approval
         pc = getToolByName(self.context, "portal_catalog")
         if c_a is not None and 0 <= c_a < len(self.annot["approval"]):
@@ -1729,7 +1741,7 @@ class ApprovalAdapter(object):
             self.annot["current_nb"] = self.calculate_current_nb()
             pc.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
             self.context.reindexObjectSecurity()  # to update local roles from adapter
-            message += u"Next approval number is ${nb}."
+            message += "Next approval number is ${nb}."
             api.portal.show_message(
                 message=_(
                     message,
@@ -1741,7 +1753,7 @@ class ApprovalAdapter(object):
             return True, True
         else:
             pc.reindexObject(self.context, idxs=("approvings",), update_metadata=0)
-            message += u"All approvals have been done for this file."
+            message += "All approvals have been done for this file."
             api.portal.show_message(
                 message=_(message, mapping={"file": safe_unicode(afile.Title()), "user": safe_unicode(fullname)}),
                 request=request,
@@ -1754,7 +1766,7 @@ class ApprovalAdapter(object):
                     if not ret:
                         api.portal.show_message(
                             message=_(
-                                u"There was an error while creating the signing session: ${msg} !", mapping={"msg": msg}
+                                "There was an error while creating the signing session: ${msg} !", mapping={"msg": msg}
                             ),
                             request=request,
                             type="error",
@@ -1762,7 +1774,7 @@ class ApprovalAdapter(object):
                         return False, True
                     else:
                         api.portal.show_message(
-                            message=_(u"A signing session has been created: ${msg}.", mapping={"msg": msg}),
+                            message=_("A signing session has been created: ${msg}.", mapping={"msg": msg}),
                             request=request,
                             type="info",
                         )
@@ -1802,10 +1814,7 @@ class ApprovalAdapter(object):
         self.annot["approval"][nb][f_index]["status"] = "w"
         self.annot["approval"][nb][f_index]["approved_on"] = None
         self.annot["approval"][nb][f_index]["approved_by"] = None
-        esign_audit(
-            "unapprove_file",
-            "mail={} file={} signer={}".format(self.context.UID(), f_uid, signer_userid)
-        )
+        esign_audit("unapprove_file", "mail={} file={} signer={}".format(self.context.UID(), f_uid, signer_userid))
         afile.approved = False
 
         if orig_nb != self.current_nb:
@@ -1850,18 +1859,20 @@ class ApprovalAdapter(object):
                     "context": self.context,
                     "portal": api.portal.get(),
                     "view": helper_view,
-                    "download_barcode": generate_barcode(download_url, barcode=58, scale=3, resize=0.5,
-                                                         extra_args=["--vwhitesp=2", "--whitesp=2"]).read(),
+                    "download_barcode": generate_barcode(
+                        download_url, barcode=58, scale=3, resize=0.5, extra_args=["--vwhitesp=2", "--whitesp=2"]
+                    ).read(),
                     "download_url": download_url,
                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
                     "render_download_barcode": True,
                 }
-                template_file = NamedBlobFile(download_template.get_file().data, filename=u"download_template.odt")
+                template_file = NamedBlobFile(download_template.get_file().data, filename="download_template.odt")
                 return convert_odt(template_file, fmt="pdf", gen_context=gen_context)
             except Exception:
                 logger.exception(
-                    u"Could not render download template for pdf file {} ({})".format(
-                        u'/'.join(orig_fobj.getPhysicalPath()), f_title)
+                    "Could not render download template for pdf file {} ({})".format(
+                        "/".join(orig_fobj.getPhysicalPath()), f_title
+                    )
                 )
                 return ""
 
@@ -1881,7 +1892,7 @@ class ApprovalAdapter(object):
                 logging=True,
             )
 
-        new_filename = u"{}.pdf".format(f_title)
+        new_filename = "{}.pdf".format(f_title)
         if nbf.contentType not in get_allowed_content_types(esign=True, portal_type=self.context.portal_type):
             raise NotImplementedError("Cannot convert file of type '{}' to pdf for signing.".format(nbf.contentType))
         gen_context = {}
@@ -1889,18 +1900,14 @@ class ApprovalAdapter(object):
         if orig_template and nbf.contentType == "application/vnd.oasis.opendocument.text":  # own document
             new_uid = uuid.uuid4().hex
             download_url, _s_uid = get_file_download_url(new_uid)
-            helper_view = getMultiAdapter(
-                (self.context, self.context.REQUEST), name="document_generation_helper_view"
-            )
+            helper_view = getMultiAdapter((self.context, self.context.REQUEST), name="document_generation_helper_view")
             helper_view.pod_template = orig_template.UID()
             helper_view.output_format = "pdf"
             gen_context = {"context": self.context, "portal": api.portal.get(), "view": helper_view}
             # update_dict_with_validation(gen_context, self._get_context_variables(pod_template),
             #                                   _("Error when merging context_variables in generation context"))
             merge_templates = [
-                dic["template"]
-                for dic in orig_template.merge_templates
-                if dic["pod_context_name"] == "doc_cb_download"
+                dic["template"] for dic in orig_template.merge_templates if dic["pod_context_name"] == "doc_cb_download"
             ]
             if merge_templates:
                 download_template = uuidToObject(merge_templates[0])
@@ -1909,8 +1916,9 @@ class ApprovalAdapter(object):
             update_dict_with_validation(
                 gen_context,
                 {
-                    "download_barcode": generate_barcode(download_url, barcode=58, scale=3, resize=0.5,
-                                                         extra_args=["--vwhitesp=2", "--whitesp=2"]).read(),
+                    "download_barcode": generate_barcode(
+                        download_url, barcode=58, scale=3, resize=0.5, extra_args=["--vwhitesp=2", "--whitesp=2"]
+                    ).read(),
                     "download_url": download_url,
                     "max_download_date": get_max_download_date(None, adate=datetime.date.today()),
                     "render_download_barcode": True,
@@ -1947,16 +1955,20 @@ class ApprovalAdapter(object):
             if download_page:
                 merged = merge_pdf(pdf_file_content, download_page)
                 pdf_file.file = NamedBlobFile(merged, filename=safe_unicode(new_filename))
-                Converter(pdf_file)()  # Refresh pdf preview
+                # file replaced in place: refresh its filesize and contentType (documentviewer did it on Plone 4)
+                update_categorized_elements(
+                    self.context,
+                    pdf_file,
+                    get_category_object(self.context, pdf_file.content_category),
+                    sort=False,
+                    logging=True,
+                )
         pdf_uid = pdf_file.UID()
         self.pdf_files_uids[file_index].append(pdf_uid)
         # we rename the pdf filename to include pdf uid. So after the file is later consumed, we can retrieve object
-        pdf_file.file.filename = u"{}__{}.pdf".format(f_title, pdf_uid)
+        pdf_file.file.filename = "{}__{}.pdf".format(f_title, pdf_uid)
         session_file_uids.append(pdf_uid)
-        esign_audit(
-            "create_pdf_file",
-            "mail={} file={} pdf={}".format(self.context.UID(), f_uid, pdf_uid)
-        )
+        esign_audit("create_pdf_file", "mail={} file={} pdf={}".format(self.context.UID(), f_uid, pdf_uid))
 
     def add_mail_files_to_session(self):
         """Add mail files to sign session."""
@@ -2007,8 +2019,8 @@ class ApprovalAdapter(object):
                     return False, _("Cannot split odt file uid ${uid}", mapping={"uid": f_uid})
                 num_digits = len(str(nbf))
                 for j, odt_data in enumerate(result, start=1):
-                    nb_title = u"{}_{{:0{}d}}".format(f_title, num_digits).format(j)
-                    file_object = NamedBlobFile(odt_data, filename=safe_unicode(u"{}.odt".format(nb_title)))
+                    nb_title = "{}_{{:0{}d}}".format(f_title, num_digits).format(j)
+                    file_object = NamedBlobFile(odt_data, filename=safe_unicode("{}.odt".format(nb_title)))
                     # file filename will be renamed later to include uid
                     self._create_pdf_file(fobj, file_object, nb_title, f_uid, i, session_file_uids)
             else:
@@ -2020,24 +2032,32 @@ class ApprovalAdapter(object):
             email = user.getProperty("email")
             signers.append((signer, email, name, label))
         watcher_users = api.user.get_users(groupname="esign_watchers")
-        watcher_emails = [user.getProperty("email") for user in watcher_users]
+        watcher_emails = [watcher.getProperty("email") for watcher in watcher_users]
         pdf_session_ids = set()
         type_label = translate(
             api.portal.get_tool("portal_types")[self.context.portal_type].Title(),
             domain="plone",
             context=self.context.REQUEST,
         )
-        sessions_used = add_files_to_session(signers, session_file_uids, bool(self.context.seal),
-                                             title=u"[iA.Docs] {} - {{sign_id}}".format(type_label),
-                                             discriminators=(self.context.portal_type,),
-                                             watchers=watcher_emails)
+        sessions_used = add_files_to_session(
+            signers,
+            session_file_uids,
+            bool(self.context.seal),
+            title="[iA.Docs] {} - {{sign_id}}".format(type_label),
+            discriminators=(self.context.portal_type,),
+            watchers=watcher_emails,
+        )
         for sid, _session in sessions_used:
             pdf_session_ids.add(sid)
             if sid not in self.annot["session_ids"]:
                 self.annot["session_ids"].append(sid)
-        return True, _("${count} file(s) added to session(s) ${session_ids}",
-                       mapping={"count": str(len(session_file_uids)),
-                                "session_ids": u", ".join([str(sid) for sid in sorted(pdf_session_ids)])})
+        return True, _(
+            "${count} file(s) added to session(s) ${session_ids}",
+            mapping={
+                "count": str(len(session_file_uids)),
+                "session_ids": ", ".join([str(sid) for sid in sorted(pdf_session_ids)]),
+            },
+        )
 
 
 @implementer(IOMApproval)
@@ -2070,3 +2090,14 @@ class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
         base_infos["conv_from_uid"] = getattr(self.obj, "conv_from_uid", None)
         base_infos["esigned"] = getattr(self.obj, "esigned", False)
         return base_infos
+
+
+@indexer(ILabelSupport)
+def labels_index(obj):
+    """collective.labels index, with EMPTY_STRING when no global label is selected (was imio.helpers.labels)."""
+    labels = labels_base_index(obj)()
+    # personal labels are indexed as ["pers-label", "username:pers-label"]
+    pers_labels = [lab.split(":")[1] for lab in labels if ":" in lab]
+    if labels == ["_"] or not [lab for lab in labels if ":" not in lab and lab not in pers_labels]:
+        labels.append(EMPTY_STRING)
+    return labels

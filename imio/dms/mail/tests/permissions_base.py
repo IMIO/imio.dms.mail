@@ -74,8 +74,9 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
         self.imail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
         self.annex = api.content.create(container=self.imail, id="annex", type="dmsappendixfile")
         self.file = api.content.create(container=self.imail, id="file", type="dmsmainfile")
-        self.task = api.content.create(container=self.imail, id="task", type="task",
-                                       assigned_group=self.imail.treating_groups)
+        self.task = api.content.create(
+            container=self.imail, id="task", type="task", assigned_group=self.imail.treating_groups
+        )
 
     def permissions_incoming_mail(self):
         clean_borg_cache(self.portal.REQUEST)
@@ -248,7 +249,7 @@ class TestPermissionsBaseIncomingMail(TestPermissionsBase):
         change_user(self.portal, "dirg")
         if "proposed_to_n_plus_1" in set(self.pw["incomingmail_workflow"].states):
             self.pw.doActionFor(self.imail, "propose_to_n_plus_1")
-            self.imail.assigned_user = 'agent'
+            self.imail.assigned_user = "agent"
         self.pw.doActionFor(self.imail, "propose_to_agent")
         clean_borg_cache(self.portal.REQUEST)
 
@@ -757,7 +758,7 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
         super(TestPermissionsBaseOutgoingMail, self).setUp()
         intids = getUtility(IIntIds)
         params = {
-            "title": u"Courrier sortant test",
+            "title": "Courrier sortant test",
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
@@ -766,17 +767,19 @@ class TestPermissionsBaseOutgoingMail(TestPermissionsBase):
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",
             "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
-            "send_modes": u"post",
+            "send_modes": "post",
         }
         change_user(self.portal, "agent")
         self.omail = sub_create(self.omf, "dmsoutgoingmail", datetime.today(), "my-id", **params)
         self.annex = api.content.create(container=self.omail, id="annex", type="dmsappendixfile")
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
-            self.file = api.content.create(container=self.omail, id="file", type="dmsommainfile",
-                                           file=NamedBlobFile(fo.read(), filename=filename))
-        self.task = api.content.create(container=self.omail, id="task", type="task",
-                                       assigned_group=self.omail.treating_groups)
+            self.file = api.content.create(
+                container=self.omail, id="file", type="dmsommainfile", file=NamedBlobFile(fo.read(), filename=filename)
+            )
+        self.task = api.content.create(
+            container=self.omail, id="task", type="task", assigned_group=self.omail.treating_groups
+        )
 
     def permissions_outgoing_mail(self):
         clean_borg_cache(self.portal.REQUEST)
@@ -1256,8 +1259,9 @@ class TestPermissionsBaseIncomingEmail(TestPermissionsBase):
         self.iemail = sub_create(self.imf, "dmsincomingmail", datetime.today(), "my-id", **params)
         self.annex = api.content.create(container=self.iemail, id="annex", type="dmsappendixfile")
         self.file = api.content.create(container=self.iemail, id="file", type="dmsmainfile")
-        self.task = api.content.create(container=self.iemail, id="task", type="task",
-                                       assigned_group=self.iemail.treating_groups)
+        self.task = api.content.create(
+            container=self.iemail, id="task", type="task", assigned_group=self.iemail.treating_groups
+        )
 
     def permissions_incoming_email(self):
         clean_borg_cache(self.portal.REQUEST)

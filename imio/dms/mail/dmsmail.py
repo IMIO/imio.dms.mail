@@ -27,10 +27,8 @@ from collective.dms.mailcontent.dmsmail import IDmsIncomingMail
 from collective.dms.mailcontent.dmsmail import IDmsOutgoingMail
 from collective.dms.mailcontent.dmsmail import IFieldsetOutgoingEmail
 from collective.dms.mailcontent.dmsmail import originalMailDateDefaultValue
-from collective.documentgenerator.utils import need_mailing_value
 from collective.task.behaviors import ITask
 from collective.task.field import LocalRoleMasterSelectField
-from collective.z3cform.select2.widget.widget import SingleSelect2FieldWidget
 from datetime import datetime
 from datetime import timedelta
 from dexterity.localrolesfield.field import LocalRolesField
@@ -44,6 +42,7 @@ from imio.dms.mail import OM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.browser.task import TaskEdit
+from imio.dms.mail.dg_compat import need_mailing_value
 from imio.dms.mail.interfaces import IImioDmsIncomingMailWfConditions
 from imio.dms.mail.interfaces import IImioDmsOutgoingMailWfConditions
 from imio.dms.mail.interfaces import IOMApproval
@@ -56,7 +55,6 @@ from imio.dms.mail.utils import is_n_plus_level_obsolete
 from imio.dms.mail.utils import manage_fields
 from imio.dms.mail.utils import object_modified_cachekey
 from imio.dms.mail.vocabularies import encodeur_active_orgs
-# from imio.dms.mail.vocabularies import ServicesSourceBinder
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.content import object_values
 from imio.helpers.content import uuidsToCatalogBrains
@@ -65,14 +63,12 @@ from imio.helpers.emailer import validate_email_address
 from plone import api
 from plone.app.dexterity.behaviors.metadata import IBasic
 from plone.app.dexterity.behaviors.metadata import IDublinCore
+from plone.app.z3cform.widgets.select import SelectFieldWidget
 from plone.autoform import directives
-# from plone.autoform.interfaces import IFormFieldProvider
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.dexterity.schema import DexteritySchemaPolicy
-# from plone.formwidget.autocomplete.widget import AutocompleteMultiFieldWidget
-from plone.formwidget.datetime.z3cform.widget import DatetimeFieldWidget
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
@@ -82,7 +78,7 @@ from z3c.form.browser.checkbox import CheckBoxFieldWidget
 from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.interfaces import HIDDEN_MODE
 from zope import schema
-from zope.component import adapts
+from zope.component import adapter
 from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.interface import alsoProvides
@@ -118,7 +114,7 @@ def creating_group_filter(context):
     terms = [new_term]
     for term in voc:
         # beware to enclose dic content with " to be loaded correctly with json.loads
-        new_term = SimpleTerm(u'{{"assigned_group": "{}"}}'.format(term.value), token=term.token, title=term.title)
+        new_term = SimpleTerm('{{"assigned_group": "{}"}}'.format(term.value), token=term.token, title=term.title)
         setattr(new_term, "__org__", term.value)
         terms.append(new_term)
     return SimpleVocabulary(terms)
@@ -187,7 +183,7 @@ def filter_dmsincomingmail_assigned_users(org_uid):
         elif isinstance(view, MasterSelectJSONValue):
             form = view.widget.form
             if "ITask.assigned_user" in form.widgets and not form.widgets["ITask.assigned_user"].value:
-                view.request.set("_default_assigned_user_", voc.by_value.keys()[0])
+                view.request.set("_default_assigned_user_", list(voc.by_value)[0])
     return voc
 
 
@@ -197,13 +193,13 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     """
 
     orig_sender_email = schema.TextLine(
-        title=_(u"Original sender email"),
+        title=_("Original sender email"),
         required=False,
         constraint=validate_email_address,
     )
 
     sender = ContactList(
-        title=_(u"Sender"),
+        title=_("Sender"),
         required=True,
         prefilter_vocabulary=creating_group_filter,
         prefilter_default_value=creating_group_filter_default,
@@ -217,9 +213,9 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     )
 
     treating_groups = LocalRoleMasterSelectField(
-        title=_(u"Treating groups"),
+        title=_("Treating groups"),
         required=True,
-        vocabulary=u"collective.dms.basecontent.treating_groups",
+        vocabulary="collective.dms.basecontent.treating_groups",
         slave_fields=(
             {
                 "name": "ITask.assigned_user",
@@ -238,9 +234,9 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
     # directives.write_permission(treating_groups='imio.dms.mail.write_treating_group_field')
 
     recipient_groups = LocalRolesField(
-        title=_(u"Recipient groups"),
+        title=_("Recipient groups"),
         required=False,
-        value_type=schema.Choice(vocabulary=u"collective.dms.basecontent.recipient_groups")
+        value_type=schema.Choice(vocabulary="collective.dms.basecontent.recipient_groups"),
         # value_type=schema.Choice(source=ServicesSourceBinder())
     )
     #    directives.widget(recipient_groups=AutocompleteMultiFieldWidget)  #22423
@@ -250,18 +246,18 @@ class IImioDmsIncomingMail(IDmsIncomingMail):
         # description = _("help_mail_type",
         # default=u"Enter the mail type"),
         required=True,
-        vocabulary=u"imio.dms.mail.IMActiveMailTypesVocabulary",
+        vocabulary="imio.dms.mail.IMActiveMailTypesVocabulary",
         default=None,
     )
 
     send_modes = schema.List(
         title=_("Send modes"),
-        value_type=schema.Choice(vocabulary=u"imio.dms.mail.IMActiveSendModesVocabulary"),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.IMActiveSendModesVocabulary"),
         min_length=1,
     )
     directives.widget("send_modes", CheckBoxFieldWidget, multiple="multiple", size=5)
 
-    document_in_service = schema.Bool(title=_(u"Original document in service"), default=False)
+    document_in_service = schema.Bool(title=_("Original document in service"), default=False)
     directives.widget(document_in_service=RadioFieldWidget)
 
     directives.omitted("related_docs", "recipients", "notes")
@@ -289,8 +285,8 @@ class ImioDmsIncomingMail(DmsIncomingMail):
 
     __ac_local_roles_block__ = True
 
-    treating_groups = FieldProperty(IImioDmsIncomingMail[u"treating_groups"])
-    recipient_groups = FieldProperty(IImioDmsIncomingMail[u"recipient_groups"])
+    treating_groups = FieldProperty(IImioDmsIncomingMail["treating_groups"])
+    recipient_groups = FieldProperty(IImioDmsIncomingMail["recipient_groups"])
     # send_modes = FieldProperty(IImioDmsIncomingMail[u"send_modes"])
 
     @ram.cache(object_modified_cachekey)
@@ -318,8 +314,8 @@ class ImioDmsIncomingMail(DmsIncomingMail):
 
 
 @implementer(IImioDmsIncomingMailWfConditions)
+@adapter(IImioDmsIncomingMail)
 class ImioDmsIncomingMailWfConditionsAdapter(object):
-    adapts(IImioDmsIncomingMail)
     security = ClassSecurityInfo()
 
     def __init__(self, context):
@@ -422,7 +418,7 @@ def updatewidgets_assigned_user_description(the_form):
         if transition in transitions_auc and not transitions_auc[transition].get(treating_group, False):
             the_form.widgets["ITask.assigned_user"].field = copy.copy(the_form.widgets["ITask.assigned_user"].field)
             the_form.widgets["ITask.assigned_user"].field.description = _(
-                u"You must select an assigned user before you can propose to an agent !"
+                "You must select an assigned user before you can propose to an agent !"
             )
 
 
@@ -453,13 +449,13 @@ def imio_dmsincomingmail_updatewidgets(the_form):
 
     if "original_mail_date" in the_form.fields:
         if the_form.widgets["original_mail_date"].field.required:
-            if the_form.widgets["original_mail_date"].value == ("", "", ""):  # field value is None
+            if not the_form.widgets["original_mail_date"].value:  # field value is None
                 date = originalMailDateDefaultValue(None)
-                the_form.widgets["original_mail_date"].value = (date.year, date.month, date.day)
+                the_form.widgets["original_mail_date"].value = date.isoformat()
         else:
             # if the context original_mail_date is already set, the widget value is good and must be kept
             if not is_dim or the_form.context.original_mail_date is None:
-                the_form.widgets["original_mail_date"].value = ("", "", "")
+                the_form.widgets["original_mail_date"].value = ""
 
     if is_dim and the_form.context.treating_groups and the_form.context.assigned_user is None:
         updatewidgets_assigned_user_description(the_form)
@@ -582,9 +578,7 @@ class CustomAddForm(DefaultAddForm):
         if self.portal_type == "dmsincomingmail":
             self.widgets["orig_sender_email"].mode = HIDDEN_MODE
         if "send_modes" in self.widgets and not self.widgets["send_modes"].value:
-            self.widgets["send_modes"].value = (
-                [u"email"] if self.portal_type == "dmsincoming_email" else [u"post"]
-            )
+            self.widgets["send_modes"].value = ["email"] if self.portal_type == "dmsincoming_email" else ["post"]
         # Set a due date by default if it was set in the configuration
         due_date_extension = api.portal.get_registry_record(name="due_date_extension", interface=IImioDmsMailConfig)
         if due_date_extension > 0:
@@ -653,7 +647,7 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     """
 
     treating_groups = LocalRoleMasterSelectField(
-        title=_(u"Treating groups"),
+        title=_("Treating groups"),
         required=True,
         # vocabulary=u'collective.dms.basecontent.treating_groups',
         source=encodeur_active_orgs,
@@ -672,26 +666,26 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     # directives.widget('treating_groups', AjaxChosenFieldWidget, populate_select=True, prompt=False)
 
     recipient_groups = LocalRolesField(
-        title=_(u"Recipient groups"),
+        title=_("Recipient groups"),
         required=False,
-        value_type=schema.Choice(vocabulary=u"collective.dms.basecontent.recipient_groups"),
+        value_type=schema.Choice(vocabulary="collective.dms.basecontent.recipient_groups"),
     )
 
     sender = schema.Choice(
-        title=_cdmsm(u"Sender"),
+        title=_cdmsm("Sender"),
         required=True,
-        vocabulary=u"imio.dms.mail.OMActiveSenderVocabulary",
+        vocabulary="imio.dms.mail.OMActiveSenderVocabulary",
     )
-    directives.widget("sender", SingleSelect2FieldWidget)
+    directives.widget("sender", SelectFieldWidget)
 
     orig_sender_email = schema.TextLine(
-        title=_(u"Original sender email"),
+        title=_("Original sender email"),
         required=False,
         constraint=validate_email_address,
     )
 
     recipients = ContactList(
-        title=_cdmsm(u"Recipients"),
+        title=_cdmsm("Recipients"),
         required=True,
         value_type=ContactChoice(
             source=DmsContactSourceBinder(
@@ -707,24 +701,23 @@ class IImioDmsOutgoingMail(IDmsOutgoingMail):
     mail_type = schema.Choice(
         title=_("Mail type"),
         required=True,
-        vocabulary=u"imio.dms.mail.OMActiveMailTypesVocabulary",
+        vocabulary="imio.dms.mail.OMActiveMailTypesVocabulary",
         default=None,
     )
 
     send_modes = schema.List(
         title=_("Send modes"),
-        value_type=schema.Choice(vocabulary=u"imio.dms.mail.OMActiveSendModesVocabulary"),
+        value_type=schema.Choice(vocabulary="imio.dms.mail.OMActiveSendModesVocabulary"),
         min_length=1,
     )
     directives.widget("send_modes", CheckBoxFieldWidget, multiple="multiple", size=5)
 
     outgoing_date = schema.Datetime(
-        title=_(u"Outgoing Date"),
+        title=_("Outgoing Date"),
         required=False,
         min=datetime(1990, 1, 1),
         max=datetime(now.year + 1, 12, 31),
     )
-    directives.widget("outgoing_date", DatetimeFieldWidget, show_today_link=True, show_time=True)
 
     directives.omitted("related_docs", "notes")
 
@@ -743,8 +736,8 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     __ac_local_roles_block__ = True
 
     # Needed by collective.z3cform.rolefield. Need to be overriden here
-    treating_groups = FieldProperty(IImioDmsOutgoingMail[u"treating_groups"])
-    recipient_groups = FieldProperty(IImioDmsOutgoingMail[u"recipient_groups"])
+    treating_groups = FieldProperty(IImioDmsOutgoingMail["treating_groups"])
+    recipient_groups = FieldProperty(IImioDmsOutgoingMail["recipient_groups"])
 
     def approval(self):
         """Returns the adapter providing approval behavior.
@@ -805,18 +798,18 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         if not sender_i:
             sender_i = self.get_sender_info()
         reg_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_sender_email_default"
-        rtv = api.portal.get_registry_record(reg_key, default=u"agent_email")
+        rtv = api.portal.get_registry_record(reg_key, default="agent_email")
         if rtv == "agent_email":
             hpc = IContactable(sender_i["hp"])
-            email = hpc.get_contact_details(keys=["email"]).get("email", u"")
+            email = hpc.get_contact_details(keys=["email"]).get("email", "")
             if email:
-                realname = u"{} {}".format(sender_i["hp"].firstname, sender_i["hp"].lastname)
-                return u'"{}" <{}>'.format(unidecode(realname), email)
+                realname = "{} {}".format(sender_i["hp"].firstname, sender_i["hp"].lastname)
+                return '"{}" <{}>'.format(unidecode(realname), email)
         elif rtv == "service_email":
             orgc = IContactable(sender_i["org"])
-            email = orgc.get_contact_details(keys=["email"]).get("email", u"")
+            email = orgc.get_contact_details(keys=["email"]).get("email", "")
             return email
-        return u""
+        return ""
 
     def get_bcc_emails(self, sender_i=None):
         """Returns bcc email addresses
@@ -830,19 +823,19 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         reg_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_bcc_email_default"
         rtv = api.portal.get_registry_record(reg_key, default=None)
         if not rtv:
-            return u""
+            return ""
         res = []
         if "agent_email" in rtv:
             hpc = IContactable(sender_i["hp"])
-            email = hpc.get_contact_details(keys=["email"]).get("email", u"")
+            email = hpc.get_contact_details(keys=["email"]).get("email", "")
             if email:
-                realname = u"{} {}".format(sender_i["hp"].firstname, sender_i["hp"].lastname)
-                res.append(u'"{}" <{}>'.format(unidecode(realname), email))
+                realname = "{} {}".format(sender_i["hp"].firstname, sender_i["hp"].lastname)
+                res.append('"{}" <{}>'.format(unidecode(realname), email))
         if "service_email" in rtv:
             orgc = IContactable(sender_i["org"])
-            email = orgc.get_contact_details(keys=["email"]).get("email", u"")
+            email = orgc.get_contact_details(keys=["email"]).get("email", "")
             res.append(email)
-        return u", ".join(res)
+        return ", ".join(res)
 
     def get_recipient_emails(self):
         """Returns recipient email addresses
@@ -865,15 +858,15 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
         for brain in brains:
             contact = brain._unrestrictedGetObject()
             contactable = IContactable(contact)
-            email = contactable.get_contact_details(keys=["email"]).get("email", u"")
+            email = contactable.get_contact_details(keys=["email"]).get("email", "")
             if email and email not in uniques:
                 uniques.append(email)
                 if hasattr(contact, "firstname"):  # for person or held_position
-                    realname = u"{} {}".format(contact.firstname, contact.lastname)
-                    emails.append(u'"{}" <{}>'.format(unidecode(realname), email))
+                    realname = "{} {}".format(contact.firstname, contact.lastname)
+                    emails.append('"{}" <{}>'.format(unidecode(realname), email))
                 else:
                     emails.append(email)
-        return u", ".join(emails)
+        return ", ".join(emails)
 
     def has_approvings(self, all_done=False):
         """Check if the outgoing mail must be approved.
@@ -900,8 +893,8 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
 
 
 @implementer(IImioDmsOutgoingMailWfConditions)
+@adapter(IImioDmsOutgoingMail)
 class ImioDmsOutgoingMailWfConditionsAdapter(object):
-    adapts(IImioDmsOutgoingMail)
     security = ClassSecurityInfo()
 
     def __init__(self, context):
@@ -1240,12 +1233,12 @@ class OMView(DmsDocumentView):
             self.widgets["orig_sender_email"].mode = HIDDEN_MODE
 
     def legend_extra(self, group):
-        if group.__name__ == 'signing':
-            return self.context.restrictedTraverse('@@signing_actions_panel')()
+        if group.__name__ == "signing":
+            return self.context.restrictedTraverse("@@signing_actions_panel")()
         # TODO do the same for email
         # if group.__name__ == "email":
         #     return xxx
-        return u""
+        return ""
 
 
 # Validators
@@ -1274,7 +1267,7 @@ class AssignedUserValidator(validator.SimpleFieldValidator):
                         and value
                         not in get_selected_org_suffix_principal_ids(self.request.form[form_widget][0], dic["fcts"])
                     ):
-                        raise Invalid(_(u"The assigned user is not in the selected group !"))
+                        raise Invalid(_("The assigned user is not in the selected group !"))
                     # check if assigned_user is needed on dmsincomingmail
                     if klass != IMEdit or value is not None:
                         continue
@@ -1303,9 +1296,9 @@ class AssignedUserValidator(validator.SimpleFieldValidator):
                             if not auc_config[transition].get(ntg, False):
                                 raise Invalid(
                                     _(
-                                        u"You must select an assigned user because the treating group "
-                                        u"modification to another without validators will cause the mail state "
-                                        u"change !"
+                                        "You must select an assigned user because the treating group "
+                                        "modification to another without validators will cause the mail state "
+                                        "change !"
                                     )
                                 )
 

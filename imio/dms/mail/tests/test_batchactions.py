@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 """Test views."""
 from collective.contact.duplicated.interfaces import ICollectiveContactDuplicatedLayer
+from DateTime import DateTime
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
 from plone import api
 from zope.interface import alsoProvides
 
+import datetime
 import unittest
 
 
@@ -30,6 +32,11 @@ class BatchActions(unittest.TestCase):
         self.ta2 = self.im1["tache2"]
         self.ta3 = self.im1["tache3"]
         self.pgof = self.portal["contacts"]["plonegroup-organization"]
+        self.omsf = self.portal["outgoing-mail"]["mail-searches"]
+        self.om1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.om2 = get_object(oid="reponse2", ptype="dmsoutgoingmail")
+        self.elec = self.portal["contacts"]["electrabel"]
+        self.swde = self.portal["contacts"]["swde"]
 
     def test_TransitionBatchActionForm(self):
         self.assertEqual("created", api.content.get_state(self.im1))
@@ -37,7 +44,7 @@ class BatchActions(unittest.TestCase):
         view.request.form["form.widgets.uids"] = ",".join([self.im1.UID(), self.im2.UID()])
         view.update()
         # override z3c.form.field.FieldWidgets.extract
-        view.widgets.extract = lambda *a, **kw: ({"transition": u"propose_to_manager", "comment": u""}, [])
+        view.widgets.extract = lambda *a, **kw: ({"transition": "propose_to_manager", "comment": ""}, [])
         view.handleApply(view, "apply")
         self.assertEqual("proposed_to_manager", api.content.get_state(self.im1))
         self.assertEqual("proposed_to_manager", api.content.get_state(self.im2))
@@ -171,7 +178,7 @@ class BatchActions(unittest.TestCase):
         view = self.tsf.unrestrictedTraverse("@@transition-batch-action")
         view.request.form["form.widgets.uids"] = ",".join([self.ta1.UID(), self.ta2.UID()])
         view.update()
-        view.widgets.extract = lambda *a, **kw: ({"transition": u"do_to_assign", "comment": u""}, [])
+        view.widgets.extract = lambda *a, **kw: ({"transition": "do_to_assign", "comment": ""}, [])
         view.handleApply(view, "apply")
         # to_do due to automatic transition
         self.assertEqual("to_do", api.content.get_state(self.ta1))
@@ -205,8 +212,8 @@ class BatchActions(unittest.TestCase):
     def test_DuplicatedBatchActionForm_on_personnel_dashboard(self):
         pf = self.portal["contacts"]["personnel-folder"]
         psf = pf["personnel-searches"]
-        p1 = api.content.create(container=pf, type="person", id="dup1", lastname=u"Dupont")
-        p2 = api.content.create(container=pf, type="person", id="dup2", lastname=u"Dupond")
+        p1 = api.content.create(container=pf, type="person", id="dup1", lastname="Dupont")
+        p2 = api.content.create(container=pf, type="person", id="dup2", lastname="Dupond")
         view = psf.unrestrictedTraverse("@@duplicated-batch-action")
         alsoProvides(view.request, ICollectiveContactDuplicatedLayer)
         view.request["uids"] = ",".join([p1.UID(), p2.UID()])
@@ -224,3 +231,140 @@ class BatchActions(unittest.TestCase):
         view.handleApply(view, "apply")
         self.assertEqual(self.ta1.assigned_user, "chef")
         self.assertEqual(self.ta2.assigned_user, "chef")
+
+    def test_ReplyBatchActionForm(self):
+        view = self.msf.unrestrictedTraverse("@@reply-batch-action")
+        self.assertFalse(view.overlay)  # the form is a full page, not an overlay
+        view.request["URL"] = "{}/reply-batch-action".format(self.msf.absolute_url())
+        view.request["uids"] = ",".join([self.im1.UID(), self.im2.UID()])
+        rendered = view()
+        # the multiple-reply form is rendered in place
+        self.assertEqual(view.request["URL"], "{}/multiple-reply".format(self.msf.absolute_url()))
+        self.assertIn("Répondre à 2 courriers entrants", rendered)
+        self.assertIn('name="form.widgets.IDublinCore.title"', rendered)
+        # uids separated by ";" (Plone 6 relation widget)
+        self.assertEqual(view.request.form["form.widgets.reply_to"], "{};{}".format(self.im1.UID(), self.im2.UID()))
+
+    def test_IMSenderBatchActionForm(self):
+        self.assertListEqual([rel.to_object for rel in self.im1.sender], [self.elec])
+        self.assertListEqual([rel.to_object for rel in self.im2.sender], [self.swde])
+        uids = ",".join([self.im1.UID(), self.im2.UID()])
+        view = self.msf.unrestrictedTraverse("@@im-sender-batch-action")
+        view.request["uids"] = uids
+        view.update()
+        self.assertTrue(view.do_apply)
+        # add
+        view.widgets.extract = lambda *a, **kw: ({"action_choice": "add", "added_values": [self.swde]}, [])
+        view.handleApply(view, "apply")
+        self.assertSetEqual(set([rel.to_object for rel in self.im1.sender]), {self.elec, self.swde})
+        self.assertListEqual([rel.to_object for rel in self.im2.sender], [self.swde])
+        self.assertSetEqual(
+            set([b.UID for b in self.pc(sender_index=self.swde.UID())]) & {self.im1.UID(), self.im2.UID()},
+            {self.im1.UID(), self.im2.UID()},
+        )
+        # remove
+        view.widgets.extract = lambda *a, **kw: ({"action_choice": "remove", "removed_values": [self.elec]}, [])
+        view.handleApply(view, "apply")
+        self.assertListEqual([rel.to_object for rel in self.im1.sender], [self.swde])
+        self.assertNotIn(self.im1.UID(), [b.UID for b in self.pc(sender_index=self.elec.UID())])
+
+    def test_OutgoingDateBatchActionForm(self):
+        view = self.omsf.unrestrictedTraverse("@@outgoingdate-batch-action")
+        view.request["uids"] = ",".join([self.om1.UID(), self.om2.UID()])
+        view.update()
+        self.assertTrue(view.do_apply)
+        new_date = datetime.datetime(2025, 3, 4, 10, 30)
+        view.widgets.extract = lambda *a, **kw: ({"outgoing_date": new_date}, [])
+        view.handleApply(view, "apply")
+        self.assertEqual(self.om1.outgoing_date, new_date)
+        self.assertEqual(self.om2.outgoing_date, new_date)
+        # in_out_date index is updated
+        brains = self.pc(
+            UID=[self.om1.UID(), self.om2.UID()],
+            in_out_date={"query": [DateTime("2025/03/04 00:00"), DateTime("2025/03/05 00:00")], "range": "min:max"},
+        )
+        self.assertEqual(len(brains), 2)
+
+    def test_SendModesBatchActionForm(self):
+        uids = ",".join([self.om1.UID(), self.om2.UID()])
+        self.assertListEqual(self.om1.send_modes, ["post"])
+        view = self.omsf.unrestrictedTraverse("@@send-modes-batch-action")
+        view.request["uids"] = uids
+        view.update()
+        self.assertTrue(view.do_apply)  # Manage portal on dashboard
+        view.widgets.extract = lambda *a, **kw: ({"action_choice": "add", "added_values": ["email"]}, [])
+        view.handleApply(view, "apply")
+        # vocabulary order is kept
+        self.assertListEqual(list(self.om1.send_modes), ["post", "email"])
+        self.assertListEqual(list(self.om2.send_modes), ["post", "email"])
+        self.assertEqual(len(self.pc(UID=[self.om1.UID(), self.om2.UID()], Subject="email")), 2)
+        # the result cannot be empty
+        view.widgets.extract = lambda *a, **kw: (
+            {"action_choice": "remove", "removed_values": ["post", "email"]},
+            [],
+        )
+        view.handleApply(view, "apply")
+        self.assertListEqual(list(self.om1.send_modes), ["post", "email"])
+        # an agent cannot apply it
+        change_user(self.portal, "agent")
+        view = self.omsf.unrestrictedTraverse("@@send-modes-batch-action")
+        view.request["uids"] = uids
+        view.update()
+        self.assertFalse(view.do_apply)
+
+    def test_RecipientsBatchActionForm(self):
+        self.assertListEqual([rel.to_object for rel in self.om1.recipients], [self.elec])
+        view = self.omsf.unrestrictedTraverse("@@recipients-batch-action")
+        view.request["uids"] = ",".join([self.om1.UID(), self.om2.UID()])
+        view.update()
+        self.assertTrue(view.do_apply)
+        view.widgets.extract = lambda *a, **kw: (
+            {"action_choice": "replace", "removed_values": [self.elec], "added_values": [self.swde]},
+            [],
+        )
+        view.handleApply(view, "apply")
+        self.assertListEqual([rel.to_object for rel in self.om1.recipients], [self.swde])
+        self.assertListEqual([rel.to_object for rel in self.om2.recipients], [self.swde])
+        self.assertIn(self.om1.UID(), [b.UID for b in self.pc(recipients_index=self.swde.UID())])
+        view.widgets.extract = lambda *a, **kw: ({"action_choice": "overwrite", "added_values": [self.elec]}, [])
+        view.handleApply(view, "apply")
+        self.assertListEqual([rel.to_object for rel in self.om1.recipients], [self.elec])
+        self.assertListEqual([rel.to_object for rel in self.om2.recipients], [self.elec])
+
+    def test_CopyToBatchActionForm(self):
+        tplf = self.portal["templates"]["om"]
+        main = tplf["main"]
+        folder_uid = self.pgof["direction-generale"]["secretariat"].UID()
+        target = tplf[folder_uid]
+        before = target.objectIds()
+        view = tplf.unrestrictedTraverse("@@copy-to-batch-action")
+        view.request["uids"] = main.UID()
+        view.update()
+        # only sub folders are proposed
+        self.assertSetEqual(
+            set([t.value for t in view.voc]),
+            set([obj.UID() for obj in tplf.objectValues() if obj.portal_type == "Folder"]),
+        )
+        self.assertIn(target.UID(), [t.value for t in view.voc])
+        self.assertTrue(view.do_apply)
+        self.assertEqual(view.widgets["folders"].multiple, "multiple")
+        view.widgets.extract = lambda *a, **kw: ({"folders": [target.UID()]}, [])
+        view.handleApply(view, "apply")
+        added = [oid for oid in target.objectIds() if oid not in before]
+        self.assertEqual(len(added), 1)
+        self.assertEqual(target[added[0]].title, main.title)
+        # an encoder can copy in its organizations folders (Contributor given to <org>_encodeur)
+        change_user(self.portal, "agent")
+        agent_orgs = [g.getId()[:-9] for g in api.group.get_groups(username="agent") if g.getId().endswith("_encodeur")]
+        view = tplf.unrestrictedTraverse("@@copy-to-batch-action")
+        view.request["uids"] = main.UID()
+        view.update()
+        self.assertSetEqual(set([t.value for t in view.voc]), set([tplf[uid].UID() for uid in agent_orgs]))
+        self.assertTrue(view.do_apply)
+        # a user without add permission has no folder
+        change_user(self.portal, "lecteur")
+        view = tplf.unrestrictedTraverse("@@copy-to-batch-action")
+        view.request["uids"] = main.UID()
+        view.update()
+        self.assertEqual(len(view.voc), 0)
+        self.assertFalse(view.do_apply)

@@ -8,31 +8,9 @@
 #
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
-from collective.contact.plonegroup.subscribers import PloneGroupContactChecksAdapter
-from collective.contact.plonegroup.subscribers import search_value_in_objects
 from collective.task.adapters import TaskContentAdapter
 from imio.dms.mail.utils import get_dms_config
 from plone import api
-
-
-class DmsPloneGroupContactChecksAdapter(PloneGroupContactChecksAdapter):
-    def check_items_on_delete(self):
-        fields = {
-            "dmsincomingmail": ["treating_groups", "recipient_groups"],
-            "dmsincoming_email": ["treating_groups", "recipient_groups"],
-            "dmsoutgoingmail": ["treating_groups", "recipient_groups"],
-            "task": ["assigned_group", "enquirer", "parents_assigned_groups", "parents_enquirers"],
-        }
-        search_value_in_objects(self.context, self.context.UID(), p_types=fields.keys(), type_fields=fields)
-
-    def check_items_on_transition(self):
-        fields = {
-            "dmsincomingmail": ["treating_groups", "recipient_groups"],
-            "dmsincoming_email": ["treating_groups", "recipient_groups"],
-            "dmsoutgoingmail": ["treating_groups", "recipient_groups"],
-            "task": ["assigned_group", "enquirer", "parents_assigned_groups", "parents_enquirers"],
-        }
-        search_value_in_objects(self.context, self.context.UID(), p_types=fields.keys(), type_fields=fields)
 
 
 class DmsTaskContentAdapter(TaskContentAdapter):

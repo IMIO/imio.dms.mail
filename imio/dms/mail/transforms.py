@@ -1,8 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from plone.base.utils import safe_bytes
+from plone.base.utils import safe_text
 from Products.PortalTransforms.interfaces import ITransform
 from Products.PortalTransforms.libtransforms.commandtransform import popentransform  # noqa
 from zope.interface import implementer
+
+import subprocess
+import tempfile
 
 
 @implementer(ITransform)
@@ -21,12 +26,20 @@ class odt_2_text(popentransform):
     __version__ = "2017-08-03.01"
 
     binaryName = "odt2txt"
-    binaryArgs = "--encoding=UTF-8 --width=-1 --subst=all %(infile)s"
-    useStdin = False
+    binaryArgs = "--encoding=UTF-8 --width=-1 --subst=all"
 
-    def getData(self, couterr):
+    def convert(self, data, cache, **kwargs):
+        """odt2txt reads a file (PortalTransforms 5 popentransform only pipes stdin)."""
+        with tempfile.NamedTemporaryFile(suffix=".odt") as infile:
+            infile.write(data)
+            infile.flush()
+            out = subprocess.run([self.binary] + self.binaryArgs.split() + [infile.name], stdout=subprocess.PIPE).stdout
+        cache.setData(safe_bytes(self.getData(safe_text(out).splitlines())))
+        return cache
+
+    def getData(self, lines):
         out = []
-        for line in couterr.readlines():
+        for line in lines:
             line = line.strip(" \n")
             if not line:
                 continue

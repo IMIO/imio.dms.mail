@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <object name="directory">
  <property name="behaviors" purge="False">
-  <element value="plone.app.lockingbehavior.behaviors.ILocking" />
+  <element value="plone.locking" />
  </property>
 </object>

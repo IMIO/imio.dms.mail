@@ -11,9 +11,6 @@ from imio.helpers.cache import extract_wrapped
 from imio.pyutils.utils import ftimed
 from plone import api
 from plone.app.testing import login
-from plone.app.testing import setRoles
-from plone.app.testing import TEST_USER_ID
-from plone.app.testing import TEST_USER_NAME
 from zope.component import getUtility
 from zope.schema.interfaces import IVocabularyFactory
 
@@ -34,12 +31,12 @@ def check_catalog_following_groups(self, init=False, nb=100):
     groups_nb = len(api.group.get_groups(username="newuser"))
     login(self.portal, "newuser")
     print(
-        u"catalog._listAllowedRolesAndUsers ({}): {} groups, in {}".format(
+        "catalog._listAllowedRolesAndUsers ({}): {} groups, in {}".format(
             nb, groups_nb, ftimed(lambda: pc._listAllowedRolesAndUsers(user), nb)
         )
     )
     print(
-        u"catalog.searchResults ({}): {} groups, in {}".format(
+        "catalog.searchResults ({}): {} groups, in {}".format(
             nb, groups_nb, ftimed(lambda: pc.searchResults(criterias), nb)
         )
     )
@@ -52,12 +49,12 @@ def check_catalog_following_groups(self, init=False, nb=100):
         user = self.portal.acl_users.getUserById("newuser")
         groups_nb = len(api.group.get_groups(user=user))
         print(
-            u"catalog._listAllowedRolesAndUsers ({}): {} groups, in {}".format(
+            "catalog._listAllowedRolesAndUsers ({}): {} groups, in {}".format(
                 nb, groups_nb, ftimed(lambda: pc._listAllowedRolesAndUsers(user), nb)[0]
             )
         )
         print(
-            u"catalog.searchResults ({}): {} groups, in {}".format(
+            "catalog.searchResults ({}): {} groups, in {}".format(
                 nb, groups_nb, ftimed(lambda: pc.searchResults(criterias), nb)[0]
             )
         )
@@ -79,12 +76,12 @@ class TestPerformance(unittest.TestCase):
         # __builtin__.__dict__.update(locals())
         nb = 100
         print(
-            u"voc_selected_org_suffix_users ({}) without n_plus: in {}".format(
+            "voc_selected_org_suffix_users ({}) without n_plus: in {}".format(
                 nb, ftimed(lambda: voc_selected_org_suffix_users(org_uid, ["editeur"]), nb)[0]
             )
         )
         print(
-            u"voc_selected_org_suffix_users ({}) with 5 n_plus: in {}".format(
+            "voc_selected_org_suffix_users ({}) with 5 n_plus: in {}".format(
                 nb,
                 ftimed(
                     lambda: voc_selected_org_suffix_users(
@@ -102,14 +99,14 @@ class TestPerformance(unittest.TestCase):
         # __builtin__.__dict__.update(locals())
         nb = 100
         print(
-            u"organizations_with_suffixes ({}) without n_plus: in {}".format(
+            "organizations_with_suffixes ({}) without n_plus: in {}".format(
                 nb, ftimed(lambda: organizations_with_suffixes(groups, suffixes, group_as_str=True), nb)
             )
         )
         suffixes = ("editeur", "lecteur", "n_plus_1", "n_plus_2", "n_plus_3", "n_plus_4", "n_plus_5")
         # __builtin__.__dict__.update(locals())
         print(
-            u"organizations_with_suffixes ({}) with 5 n_plus: in {}".format(
+            "organizations_with_suffixes ({}) with 5 n_plus: in {}".format(
                 nb, ftimed(lambda: organizations_with_suffixes(groups, suffixes, group_as_str=True), nb)
             )
         )
@@ -121,24 +118,24 @@ class TestPerformance(unittest.TestCase):
         voc_inst = getUtility(IVocabularyFactory, "imio.dms.mail.IMMailTypesVocabulary")
         # this is cached
         print(
-            u"vocabularies.IMMailTypesVocabulary cached ({}) in {}".format(
+            "vocabularies.IMMailTypesVocabulary cached ({}) in {}".format(
                 1, ftimed(lambda: voc_inst(self.portal), 1)[0]
             )
         )
         print(
-            u"vocabularies.IMMailTypesVocabulary cached ({}) in {}".format(
+            "vocabularies.IMMailTypesVocabulary cached ({}) in {}".format(
                 10, ftimed(lambda: voc_inst(self.portal), 10)[0]
             )
         )
         # original function without cache
         orig_func = extract_wrapped(voc_inst.__call__)
         print(
-            u"vocabularies.IMMailTypesVocabulary not cached ({}) in {}".format(
+            "vocabularies.IMMailTypesVocabulary not cached ({}) in {}".format(
                 1, ftimed(lambda: orig_func(voc_inst, self.portal), 1)[0]
             )
         )
         print(
-            u"vocabularies.IMMailTypesVocabulary not cached ({}) in {}".format(
+            "vocabularies.IMMailTypesVocabulary not cached ({}) in {}".format(
                 10, ftimed(lambda: orig_func(voc_inst, self.portal), 10)[0]
             )
         )
@@ -146,18 +143,18 @@ class TestPerformance(unittest.TestCase):
         self.assertListEqual(
             voc_list,
             [
-                (u"courrier", u"Courrier"),
-                (u"certificat", u"Certificat médical"),
-                (u"facture", u"Facture"),
-                (u"retour-recommande", u"Retour recommandé"),
-                (u"retour-ar", u"Retour AR"),
+                ("courrier", "Courrier"),
+                ("certificat", "Certificat médical"),
+                ("facture", "Facture"),
+                ("retour-recommande", "Retour recommandé"),
+                ("retour-ar", "Retour AR"),
             ],
         )
 
     def test_getGroups(self):
         user = api.user.get(userid="dirg")
-        print(u"dirg getGroups in {}".format(ftimed(lambda: user.getGroups(), 1)))
+        print("dirg getGroups in {}".format(ftimed(lambda: user.getGroups(), 1)))
         user = api.user.get(userid="chef")
-        print(u"chef getGroups in {}".format(ftimed(lambda: user.getGroups(), 1)))
+        print("chef getGroups in {}".format(ftimed(lambda: user.getGroups(), 1)))
         user = api.user.get(userid="agent")
-        print(u"agent getGroups in {}".format(ftimed(lambda: user.getGroups(), 1)))
+        print("agent getGroups in {}".format(ftimed(lambda: user.getGroups(), 1)))

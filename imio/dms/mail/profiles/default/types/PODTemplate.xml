@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <object name="PODTemplate" meta_type="Dexterity FTI">
- <property name="default_view">documentviewer</property>
+ <property name="default_view">view</property>
  <property name="view_methods">
   <element value="view"/>
-  <element value="documentviewer"/>
  </property>
 </object>

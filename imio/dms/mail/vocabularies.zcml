@@ -226,4 +226,20 @@
         factory="imio.dms.mail.vocabularies.PODTemplateContentCategoriesVocabulary"
         />
 
+    <!-- datagrid rows have no context: a context source binder isn't called (zope.schema 8), named vocabularies are -->
+    <utility component=".content.behaviors.signing_signers" provides="zope.schema.interfaces.IVocabularyFactory"
+             name="imio.dms.mail.SigningSignersVocabulary" />
+    <utility component=".content.behaviors.signing_request_signers"
+             provides="zope.schema.interfaces.IVocabularyFactory"
+             name="imio.dms.mail.SigningRequestSignersVocabulary" />
+    <utility component=".browser.settings.signing_signers_with_seal"
+             provides="zope.schema.interfaces.IVocabularyFactory"
+             name="imio.dms.mail.SigningSignersWithSealVocabulary" />
+    <utility component=".browser.settings.signing_request_signers"
+             provides="zope.schema.interfaces.IVocabularyFactory"
+             name="imio.dms.mail.SettingsSigningRequestSignersVocabulary" />
+    <utility component=".browser.settings.signing_signers_substitute"
+             provides="zope.schema.interfaces.IVocabularyFactory"
+             name="imio.dms.mail.SigningSignersSubstituteVocabulary" />
+
 </configure>

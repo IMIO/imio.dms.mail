@@ -21,6 +21,7 @@ from imio.dms.mail.dmssignrequest import internalReferenceSignRequestDefaultValu
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import DummyView
+from imio.dms.mail.utils import get_scan_config
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from imio.helpers.security import generate_password
@@ -28,16 +29,15 @@ from imio.helpers.security import get_environment
 from imio.helpers.security import is_develop_environment
 from imio.helpers.workflow import do_transitions
 from imio.pyutils.system import get_git_tag
-from imio.zamqp.core import base
 from itertools import cycle
 from pathlib import Path
 from plone import api
+from plone.base.utils import base_hasattr
 from plone.dexterity.utils import createContentInContainer
 from plone.i18n.normalizer.interfaces import IIDNormalizer
 from plone.namedfile.file import NamedBlobFile
 from plone.namedfile.file import NamedBlobImage
 from plone.registry.interfaces import IRegistry
-from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
@@ -61,7 +61,7 @@ def add_special_model_mail(portal):
     :return: the model mail
     """
     params = {
-        "title": u"Courrier test pour création de modèles (ne pas effacer)",
+        "title": "Courrier test pour création de modèles (ne pas effacer)",
         "internal_reference_no": internalReferenceOutgoingMailDefaultValue(DummyView(portal, portal.REQUEST)),
         "mail_date": datetime.date.today(),
         "mail_type": "courrier",
@@ -81,18 +81,20 @@ def add_special_model_mail(portal):
     else:
         obj = brains[0].getObject()
     if not obj.objectIds():
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=filename)
             filo = createContentInContainer(
-                obj, "dmsommainfile",
+                obj,
+                "dmsommainfile",
                 id="1",
-                title=u"Modèle de base",
+                title="Modèle de base",
                 file=file_object,
-                content_category=calculate_category_id(portal["annexes_types"]["outgoing_dms_files"]
-                                                       ["outgoing-dms-file"]),
+                content_category=calculate_category_id(
+                    portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+                ),
             )
-            client_id = base.get_config("client_id")
+            client_id = get_scan_config("client_id")
             filo.scan_id = "%s2%s00000000" % (client_id[0:2], client_id[2:6])
             if not IProtectedItem.providedBy(filo):
                 alsoProvides(filo, IProtectedItem)
@@ -114,11 +116,11 @@ def add_test_annexes_types(context):
     # Category Group for classification folders
     annexes_category_group = ccc["annexes"]
     icats = (
-        ("annex", _("Annex"), u"attach.png"),
-        ("deliberation", _("Deliberation"), u"deliberation_signed.png"),
-        ("cahier-charges", _("Technical specifications"), u"cahier.png"),
-        ("legal-advice", _("Legal advice"), u"legalAdvice.png"),
-        ("budget", _("Invoice"), u"budget.png"),
+        ("annex", _("Annex"), "attach.png"),
+        ("deliberation", _("Deliberation"), "deliberation_signed.png"),
+        ("cahier-charges", _("Technical specifications"), "cahier.png"),
+        ("legal-advice", _("Legal advice"), "legalAdvice.png"),
+        ("budget", _("Invoice"), "budget.png"),
     )
     for oid, title, img in icats:
         if oid in annexes_category_group:
@@ -129,7 +131,7 @@ def add_test_annexes_types(context):
         api.content.create(
             type="ContentCategory",
             title=title,
-            description=u"",
+            description="",
             container=annexes_category_group,
             icon=icon,
             id=oid,
@@ -147,12 +149,12 @@ def add_test_contact_lists(context):
     clf = contacts["contact-lists-folder"]
 
     if base_hasattr(clf, "common"):
-        logger.warn("Nothing done: common already exists. You must first delete it to reimport!")
+        logger.warning("Nothing done: common already exists. You must first delete it to reimport!")
         return
 
     # set common
-    clf.invokeFactory("Folder", id="common", title=u"Listes communes")
-    clf["common"].setLayout("folder_tabular_view")
+    clf.invokeFactory("Folder", id="common", title="Listes communes")
+    clf["common"].setLayout("tabular_view")
     alsoProvides(clf["common"], IProtectedItem)
     do_transitions(clf["common"], ["show_internally"])
     intids = getUtility(IIntIds)
@@ -161,7 +163,7 @@ def add_test_contact_lists(context):
             container=clf["common"],
             type="contact_list",
             id="list-agents-swde",
-            title=u"Liste des agents SWDE",
+            title="Liste des agents SWDE",
             contacts=[
                 RelationValue(intids.getId(contacts["sergerobinet"]["agent-swde"])),
                 RelationValue(intids.getId(contacts["bernardlermitte"]["agent-swde"])),
@@ -179,36 +181,36 @@ def add_test_directory(context):
     logger.info("Adding test directory")
     contacts = site["contacts"]
     # if base_hasattr(contacts, 'plonegroup-organization'):
-    #     logger.warn('Nothing done: directory contacts already exists. You must first delete it to reimport!')
+    #     logger.warning('Nothing done: directory contacts already exists. You must first delete it to reimport!')
     #     return
 
     # Add not encoded person (in directory)
-    contacts.invokeFactory("person", "notencoded", lastname=u"Non encodé", use_parent_address=False)
+    contacts.invokeFactory("person", "notencoded", lastname="Non encodé", use_parent_address=False)
 
     # Organisations creation (in directory)
     params = {
-        "title": u"Electrabel",
-        "organization_type": u"sa",
-        "zip_code": u"0020",
-        "city": u"E-ville",
-        "street": u"Rue de l'électron",
-        "number": u"1",
-        "email": u"contak@electrabel.eb",
+        "title": "Electrabel",
+        "organization_type": "sa",
+        "zip_code": "0020",
+        "city": "E-ville",
+        "street": "Rue de l'électron",
+        "number": "1",
+        "email": "contak@electrabel.eb",
         "use_parent_address": False,
     }
     contacts.invokeFactory("organization", "electrabel", **params)
     electrabel = contacts["electrabel"]
 
-    electrabel.invokeFactory("organization", "travaux", title=u"Travaux 1", organization_type=u"service")
+    electrabel.invokeFactory("organization", "travaux", title="Travaux 1", organization_type="service")
 
     params = {
-        "title": u"SWDE",
-        "organization_type": u"sa",
-        "zip_code": u"0020",
-        "city": u"E-ville",
-        "street": u"Rue de l'eau vive",
-        "number": u"1",
-        "email": u"contak@swde.eb",
+        "title": "SWDE",
+        "organization_type": "sa",
+        "zip_code": "0020",
+        "city": "E-ville",
+        "street": "Rue de l'eau vive",
+        "number": "1",
+        "email": "contak@swde.eb",
         "use_parent_address": False,
     }
     contacts.invokeFactory("organization", "swde", **params)
@@ -216,30 +218,30 @@ def add_test_directory(context):
 
     # Persons creation (in directory)
     params = {
-        "lastname": u"Courant",
-        "firstname": u"Jean",
-        "gender": u"M",
-        "person_title": u"Monsieur",
+        "lastname": "Courant",
+        "firstname": "Jean",
+        "gender": "M",
+        "person_title": "Monsieur",
         "use_parent_address": False,
     }
     contacts.invokeFactory("person", "jeancourant", **params)
     jeancourant = contacts["jeancourant"]
 
     params = {
-        "lastname": u"Robinet",
-        "firstname": u"Serge",
-        "gender": u"M",
-        "person_title": u"Monsieur",
+        "lastname": "Robinet",
+        "firstname": "Serge",
+        "gender": "M",
+        "person_title": "Monsieur",
         "use_parent_address": False,
     }
     contacts.invokeFactory("person", "sergerobinet", **params)
     sergerobinet = contacts["sergerobinet"]
 
     params = {
-        "lastname": u"Lermitte",
-        "firstname": u"Bernard",
-        "gender": u"M",
-        "person_title": u"Monsieur",
+        "lastname": "Lermitte",
+        "firstname": "Bernard",
+        "gender": "M",
+        "person_title": "Monsieur",
         "use_parent_address": False,
     }
     contacts.invokeFactory("person", "bernardlermitte", **params)
@@ -253,22 +255,22 @@ def add_test_directory(context):
         "start_date": datetime.date(2001, 5, 25),
         "end_date": datetime.date(2100, 1, 1),
         "position": RelationValue(intids.getId(swde)),
-        "label": u"Agent",
-        "email": u"serge.robinet@swde.eb",
-        "phone": u"012345678",
+        "label": "Agent",
+        "email": "serge.robinet@swde.eb",
+        "phone": "012345678",
         "use_parent_address": True,
     }
     sergerobinet.invokeFactory("held_position", "agent-swde", **params)
-    params["email"] = u"bernard.lermitte@swde.eb"
+    params["email"] = "bernard.lermitte@swde.eb"
     bernardlermitte.invokeFactory("held_position", "agent-swde", **params)
 
     params = {
         "start_date": datetime.date(2005, 5, 25),
         "end_date": datetime.date(2100, 1, 1),
         "position": RelationValue(intids.getId(electrabel)),
-        "label": u"Agent",
-        "email": u"jean.courant@electrabel.eb",
-        "phone": u"012345678",
+        "label": "Agent",
+        "email": "jean.courant@electrabel.eb",
+        "phone": "012345678",
         "use_parent_address": True,
     }
     jeancourant.invokeFactory("held_position", "agent-electrabel", **params)
@@ -281,26 +283,26 @@ def add_test_folders(context):
     logger.info("Adding test categories")
     site = context.getSite()
     cats = [
-        {"identifier": u"-1", "title": u"Tâche des organes. (*)", "parent": None},
-        {"identifier": u"-1.7", "title": u"Tâches de police.", "parent": u"-1"},
-        {"identifier": u"-1.75", "title": u"Ordre public. (*)", "parent": u"-1.7"},
-        {"identifier": u"-1.753", "title": u"Contrôle des armes et munitions.", "parent": u"-1.75"},
-        {"identifier": u"-1.754", "title": u"Police de la voie publique (voies et cours d" "eau).", "parent": u"-1.75"},
-        {"identifier": u"-1.754.2", "title": u"Usage de la voie publique. (*)", "parent": u"-1.754"},
-        {"identifier": u"-1.754.21", "title": u"Stationnement et amarrage. (*)", "parent": u"-1.754.2"},
-        {"identifier": u"-1.758", "title": u"Police des édifices et lieux de réunions publiques.", "parent": u"-1.75"},
+        {"identifier": "-1", "title": "Tâche des organes. (*)", "parent": None},
+        {"identifier": "-1.7", "title": "Tâches de police.", "parent": "-1"},
+        {"identifier": "-1.75", "title": "Ordre public. (*)", "parent": "-1.7"},
+        {"identifier": "-1.753", "title": "Contrôle des armes et munitions.", "parent": "-1.75"},
+        {"identifier": "-1.754", "title": "Police de la voie publique (voies et cours d" "eau).", "parent": "-1.75"},
+        {"identifier": "-1.754.2", "title": "Usage de la voie publique. (*)", "parent": "-1.754"},
+        {"identifier": "-1.754.21", "title": "Stationnement et amarrage. (*)", "parent": "-1.754.2"},
+        {"identifier": "-1.758", "title": "Police des édifices et lieux de réunions publiques.", "parent": "-1.75"},
         {
-            "identifier": u"-1.758.1",
-            "title": u"Contrôle des fêtes, représentations, expositions, etc. (*)",
-            "parent": u"-1.758",
+            "identifier": "-1.758.1",
+            "title": "Contrôle des fêtes, représentations, expositions, etc. (*)",
+            "parent": "-1.758",
         },
-        {"identifier": u"-1.758.2", "title": u"Contrôle des foires, marchés et kermesses. (*)", "parent": u"-1.758"},
+        {"identifier": "-1.758.2", "title": "Contrôle des foires, marchés et kermesses. (*)", "parent": "-1.758"},
         {
-            "identifier": u"-1.758.3",
-            "title": u"Contrôle des cabarets, cafés et débits de boissons.",
-            "parent": u"-1.758",
+            "identifier": "-1.758.3",
+            "title": "Contrôle des cabarets, cafés et débits de boissons.",
+            "parent": "-1.758",
         },
-        {"identifier": u"-1.758.5", "title": u"Contrôle des lieux des réunions religieuses.  (*)", "parent": u"-1.758"},
+        {"identifier": "-1.758.5", "title": "Contrôle des lieux des réunions religieuses.  (*)", "parent": "-1.758"},
     ]
     objs = {None: site["tree"]}
     for cat in cats:
@@ -314,65 +316,65 @@ def add_test_folders(context):
     orgs = get_registry_organizations()
     data = [
         {
-            "title": u"Ordre public - Règlement général de police",
+            "title": "Ordre public - Règlement général de police",
             "classification_categories": [objs["-1.75"].UID()],
             "archived": False,
             "subs": [
-                {"title": u"Anciens règlements", "archived": True},
-                {"title": u"Adaptation pour les caméras de surveillance de l'espace public", "archived": False},
-                {"title": u"Demandes de renseignements", "archived": False},
+                {"title": "Anciens règlements", "archived": True},
+                {"title": "Adaptation pour les caméras de surveillance de l'espace public", "archived": False},
+                {"title": "Demandes de renseignements", "archived": False},
             ],
         },
         {
-            "title": u"Règlement général de police : Sanctions administratives / Service de médiation",
+            "title": "Règlement général de police : Sanctions administratives / Service de médiation",
             "classification_categories": [objs["-1.75"].UID()],
             "archived": False,
             "subs": [
                 {
-                    "title": u"Sanctions administratives / Amendes administratives : Agents sanctionnateurs",
+                    "title": "Sanctions administratives / Amendes administratives : Agents sanctionnateurs",
                     "archived": True,
                 },
-                {"title": u"Sanctions administratives communales : Législation", "archived": False},
-                {"title": u"Service de médiation : Bilans / Rapports annuels", "archived": False},
+                {"title": "Sanctions administratives communales : Législation", "archived": False},
+                {"title": "Service de médiation : Bilans / Rapports annuels", "archived": False},
             ],
         },
         {
-            "title": u"Contrôle des armes et munitions",
+            "title": "Contrôle des armes et munitions",
             "classification_categories": [objs["-1.753"].UID()],
             "archived": False,
             "subs": [
-                {"title": u"Collectionneur d'armes : Mr Fred Chasseur", "archived": True},
-                {"title": u"Stands de tir : Certificats d'agrément / Contrôles quinquennals", "archived": False},
-                {"title": u"Loi sur les armes à feu : redevances fédérales - Année 2020 à", "archived": False},
+                {"title": "Collectionneur d'armes : Mr Fred Chasseur", "archived": True},
+                {"title": "Stands de tir : Certificats d'agrément / Contrôles quinquennals", "archived": False},
+                {"title": "Loi sur les armes à feu : redevances fédérales - Année 2020 à", "archived": False},
             ],
         },
         {
-            "title": u"Usage de la voie publique : Stationnement et amarrage",
+            "title": "Usage de la voie publique : Stationnement et amarrage",
             "classification_categories": [objs["-1.754.21"].UID()],
             "archived": False,
             "subs": [
-                {"title": u"Cas particuliers : Demandes en autorisation - 2008 à 2020", "archived": True},
-                {"title": u"Cas particuliers : Demandes en autorisation – 2021", "archived": False},
+                {"title": "Cas particuliers : Demandes en autorisation - 2008 à 2020", "archived": True},
+                {"title": "Cas particuliers : Demandes en autorisation – 2021", "archived": False},
             ],
         },
         {
-            "title": u"Usage de la voie publique : Stationnement et amarrage - Friteries",
+            "title": "Usage de la voie publique : Stationnement et amarrage - Friteries",
             "classification_categories": [objs["-1.754.21"].UID()],
             "archived": False,
             "subs": [
-                {"title": u"Attestations d'assurance", "archived": True},
-                {"title": u"Autorisation d'exploiter : Belleville, Rue de la Fleur", "archived": False},
+                {"title": "Attestations d'assurance", "archived": True},
+                {"title": "Autorisation d'exploiter : Belleville, Rue de la Fleur", "archived": False},
             ],
         },
         {
-            "title": u"Police des édifices et lieux de réunions publiques : Contrôle des fêtes, bals,...",
+            "title": "Police des édifices et lieux de réunions publiques : Contrôle des fêtes, bals,...",
             "classification_categories": [objs["-1.758.1"].UID()],
             "archived": False,
             "subs": [
-                {"title": u"Demandes en autorisation - 2009 à 2020", "archived": True},
-                {"title": u"Demandes en autorisation – 2021", "archived": False},
+                {"title": "Demandes en autorisation - 2009 à 2020", "archived": True},
+                {"title": "Demandes en autorisation – 2021", "archived": False},
                 {
-                    "title": u"Fancy-fair (Ecoles libres ou non communales) : Demandes en autorisation - 2021",
+                    "title": "Fancy-fair (Ecoles libres ou non communales) : Demandes en autorisation - 2021",
                     "archived": False,
                 },
             ],
@@ -389,7 +391,7 @@ def add_test_folders(context):
         cf_obj = createContentInContainer(folders, "ClassificationFolder", **cf_dic)
         cf_obj._increment_internal_reference()
         for i, csf_dic in enumerate(subs, start=1):
-            csf_dic["internal_reference_no"] = u"{}-{:02d}".format(cf_obj.internal_reference_no, i)
+            csf_dic["internal_reference_no"] = "{}-{:02d}".format(cf_obj.internal_reference_no, i)
             csf_dic["treating_groups"] = cf_obj.treating_groups
             csf_dic["recipient_groups"] = []
             if "classification_categories" not in csf_dic:
@@ -410,11 +412,9 @@ def add_test_mails(context):
     import imio.dms.mail as imiodmsmail
 
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
-    files = sorted([
-        safe_unicode(name)
-        for name in os.listdir(filespath)  # noqa
-        if Path(name).suffix[1:] in ("pdf", "doc", "jpg")
-    ])
+    files = sorted(
+        [safe_unicode(name) for name in os.listdir(filespath) if Path(name).suffix[1:] in ("pdf", "doc", "jpg")]  # noqa
+    )
     files_cycle = cycle(files)
 
     intids = getUtility(IIntIds)
@@ -433,7 +433,7 @@ def add_test_mails(context):
     selected_orgs = [org for i, org in enumerate(get_registry_organizations()) if i in (0, 1, 2, 4, 5, 6)]
     orgas_cycle = cycle(selected_orgs)
 
-    client_id = base.get_config("client_id")
+    client_id = get_scan_config("client_id")
 
     # incoming mails
     ifld = site["incoming-mail"]
@@ -464,31 +464,32 @@ def add_test_mails(context):
                     file=file_object,
                     scan_id="%s0%s000000%02d" % (client_id[0:2], client_id[2:6], i),
                     scan_date=scan_date,
-                    content_category=calculate_category_id(site["annexes_types"]["incoming_dms_files"]
-                                                           ["incoming-dms-file"]),
+                    content_category=calculate_category_id(
+                        site["annexes_types"]["incoming_dms_files"]["incoming-dms-file"]
+                    ),
                 )
 
     # tasks
     mail = get_object(oid="courrier1", ptype="dmsincomingmail")
     mail.invokeFactory(
-        "task", id="tache1", title=u"Tâche 1", assigned_group=mail.treating_groups, enquirer=mail.treating_groups
+        "task", id="tache1", title="Tâche 1", assigned_group=mail.treating_groups, enquirer=mail.treating_groups
     )
     mail.invokeFactory(
-        "task", id="tache2", title=u"Tâche 2", assigned_group=mail.treating_groups, enquirer=mail.treating_groups
+        "task", id="tache2", title="Tâche 2", assigned_group=mail.treating_groups, enquirer=mail.treating_groups
     )
     mail.invokeFactory(
         "task",
         id="tache3",
-        title=u"Tâche autre service",
+        title="Tâche autre service",
         assigned_group=next(orgas_cycle),
         enquirer=mail.treating_groups,
     )
     task3 = mail["tache3"]
     task3.invokeFactory(
-        "task", id="tache3-1", title=u"Sous-tâche 1", assigned_group=task3.assigned_group, enquirer=task3.assigned_group
+        "task", id="tache3-1", title="Sous-tâche 1", assigned_group=task3.assigned_group, enquirer=task3.assigned_group
     )
     task3.invokeFactory(
-        "task", id="tache3-2", title=u"Sous-tâche 2", assigned_group=task3.assigned_group, enquirer=task3.assigned_group
+        "task", id="tache3-2", title="Sous-tâche 2", assigned_group=task3.assigned_group, enquirer=task3.assigned_group
     )
 
     filespath = "%s/batchimport/toprocess/outgoing-mail" % PRODUCT_DIR
@@ -524,7 +525,7 @@ def add_test_mails(context):
             }
             mail = sub_create(ofld, "dmsoutgoingmail", dte, "reponse%d" % i, **params)
             filename = next(files_cycle)
-            with open(u"%s/%s" % (filespath, filename), "rb") as fo:
+            with open("%s/%s" % (filespath, filename), "rb") as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
                 createContentInContainer(
                     mail,
@@ -533,8 +534,9 @@ def add_test_mails(context):
                     title="",
                     file=file_object,
                     scan_id="%s2%s000000%02d" % (client_id[0:2], client_id[2:6], i),
-                    content_category=calculate_category_id(site["annexes_types"]["outgoing_dms_files"]
-                                                           ["outgoing-dms-file"]),
+                    content_category=calculate_category_id(
+                        site["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+                    ),
                 )
 
 
@@ -550,7 +552,7 @@ def add_test_sign_requests(site):
 
     It only does something when the demo users 'chef' and 'dirg' still exist.
     """
-    users = (u"chef", u"dirg")
+    users = ("chef", "dirg")
     if not all(api.user.get(userid=userid) for userid in users):
         logger.info("Nothing done: demo users %s do not all exist anymore", ", ".join(users))
         return
@@ -586,7 +588,7 @@ def add_test_sign_requests(site):
             }
             request = sub_create(rfld, "sign_request", dte, "demande%d" % i, **params)
             filename = next(files_cycle)
-            with open(u"%s/%s" % (filespath, filename), "rb") as fo:
+            with open("%s/%s" % (filespath, filename), "rb") as fo:
                 file_object = NamedBlobFile(fo.read(), filename=filename)
                 createContentInContainer(
                     request,
@@ -594,8 +596,9 @@ def add_test_sign_requests(site):
                     id="1",
                     title="",
                     file=file_object,
-                    content_category=calculate_category_id(site["annexes_types"]["sign_request_appendix_files"]
-                                                           ["sign-request-appendix-file"]),
+                    content_category=calculate_category_id(
+                        site["annexes_types"]["sign_request_appendix_files"]["sign-request-appendix-file"]
+                    ),
                 )
 
 
@@ -610,31 +613,31 @@ def add_test_plonegroup_services(context):
     own_orga = contacts["plonegroup-organization"]
 
     if len(own_orga.objectIds()):
-        logger.warn("Nothing done: plonegroup-organization already contains children!")
+        logger.warning("Nothing done: plonegroup-organization already contains children!")
         return
 
     # Departments and services creation
     sublevels = [
-        (u"Direction générale", (u"Secrétariat", u"GRH", u"Informatique", u"Communication")),
-        (u"Direction financière", (u"Budgets", u"Comptabilité", u"Taxes", u"Marchés publics")),
-        (u"Direction technique", (u"Bâtiments", u"Voiries", u"Urbanisme")),
-        (u"Département population", (u"Population", u"État-civil")),
-        (u"Département culturel", (u"Enseignement", u"Culture-loisirs")),
-        (u"Événements", []),
-        (u"Collège communal", []),
-        (u"Conseil communal", []),
+        ("Direction générale", ("Secrétariat", "GRH", "Informatique", "Communication")),
+        ("Direction financière", ("Budgets", "Comptabilité", "Taxes", "Marchés publics")),
+        ("Direction technique", ("Bâtiments", "Voiries", "Urbanisme")),
+        ("Département population", ("Population", "État-civil")),
+        ("Département culturel", ("Enseignement", "Culture-loisirs")),
+        ("Événements", []),
+        ("Collège communal", []),
+        ("Conseil communal", []),
     ]
     idnormalizer = queryUtility(IIDNormalizer)
-    for (department, services) in sublevels:
+    for department, services in sublevels:
         oid = own_orga.invokeFactory(
             "organization",
             idnormalizer.normalize(department),
-            **{"title": department, "organization_type": (len(services) and u"department" or u"service")}
+            **{"title": department, "organization_type": (len(services) and "department" or "service")}
         )
         dep = own_orga[oid]
         for service in services:
             dep.invokeFactory(
-                "organization", idnormalizer.normalize(service), **{"title": service, "organization_type": u"service"}
+                "organization", idnormalizer.normalize(service), **{"title": service, "organization_type": "service"}
             )
 
 
@@ -648,13 +651,13 @@ def add_test_users_and_groups(context):
 
     # creating users
     users = {
-        ("encodeur", u"Jean Encodeur"): [],
-        ("dirg", u"Maxime DG"): [],
-        ("chef", u"Michel Chef"): [],
-        ("agent", u"Fred Agent"): [],
-        ("agent1", u"Stef Agent"): [],
-        ("lecteur", u"Jef Lecteur"): [],
-        ("bourgmestre", u"Paul BM"): [],
+        ("encodeur", "Jean Encodeur"): [],
+        ("dirg", "Maxime DG"): [],
+        ("chef", "Michel Chef"): [],
+        ("agent", "Fred Agent"): [],
+        ("agent1", "Stef Agent"): [],
+        ("lecteur", "Jef Lecteur"): [],
+        ("bourgmestre", "Paul BM"): [],
     }
     password = "Dmsmail69!"
     if get_environment() == "prod":
@@ -701,15 +704,15 @@ def configure_batch_import(context):
 
     if not registry.get("collective.dms.batchimport.batchimport.ISettings.fs_root_directory"):
         registry["collective.dms.batchimport.batchimport.ISettings.fs_root_directory"] = os.path.join(
-            productpath, u"batchimport/toprocess"
+            productpath, "batchimport/toprocess"
         )
     if not registry.get("collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory"):
         registry["collective.dms.batchimport.batchimport.ISettings.processed_fs_root_directory"] = os.path.join(
-            productpath, u"batchimport/toprocess"
+            productpath, "batchimport/toprocess"
         )
     if not registry.get("collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping"):
         registry["collective.dms.batchimport.batchimport.ISettings.code_to_type_mapping"] = [
-            {"code": u"in", "portal_type": u"dmsincomingmail"}
+            {"code": "in", "portal_type": "dmsincomingmail"}
         ]  # i_e ok
 
 
@@ -725,22 +728,22 @@ def configure_contact_plone_group(context):
         set_registry_functions(
             [
                 {
-                    "fct_title": u"Créateur CS",
-                    "fct_id": u"encodeur",
+                    "fct_title": "Créateur CS",
+                    "fct_id": "encodeur",
                     "fct_orgs": [],
                     "fct_management": False,
                     "enabled": True,
                 },
                 {
-                    "fct_title": u"Lecteur",
-                    "fct_id": u"lecteur",
+                    "fct_title": "Lecteur",
+                    "fct_id": "lecteur",
                     "fct_orgs": [],
                     "fct_management": False,
                     "enabled": True,
                 },
                 {
-                    "fct_title": u"Éditeur",
-                    "fct_id": u"editeur",
+                    "fct_title": "Éditeur",
+                    "fct_id": "editeur",
                     "fct_orgs": [],
                     "fct_management": False,
                     "enabled": True,
@@ -798,87 +801,87 @@ def configure_contact_plone_group(context):
         persons = {
             "encodeur": {
                 "pers": {
-                    "lastname": u"Encodeur",
-                    "firstname": u"Jean",
-                    "gender": u"M",
-                    "person_title": u"Monsieur",
-                    "zip_code": u"5000",
-                    "city": u"Namur",
-                    "street": u"Rue de l'église",
-                    "number": u"4",
+                    "lastname": "Encodeur",
+                    "firstname": "Jean",
+                    "gender": "M",
+                    "person_title": "Monsieur",
+                    "zip_code": "5000",
+                    "city": "Namur",
+                    "street": "Rue de l'église",
+                    "number": "4",
                     "primary_organization": services0[0].UID(),
                 },
-                "hps": {"phone": u"012345679", "label": u"Encodeur {}"},
+                "hps": {"phone": "012345679", "label": "Encodeur {}"},
             },
             "chef": {
                 "pers": {
-                    "lastname": u"Chef",
-                    "firstname": u"Michel",
-                    "gender": u"M",
-                    "person_title": u"Monsieur",
-                    "zip_code": u"4000",
-                    "city": u"Liège",
-                    "street": u"Rue du cimetière",
-                    "number": u"2",
+                    "lastname": "Chef",
+                    "firstname": "Michel",
+                    "gender": "M",
+                    "person_title": "Monsieur",
+                    "zip_code": "4000",
+                    "city": "Liège",
+                    "street": "Rue du cimetière",
+                    "number": "2",
                     "primary_organization": dep0.UID(),
                 },
-                "hps": {"phone": u"012345679", "label": u"Responsable {}", "usages": ["approving"]},
+                "hps": {"phone": "012345679", "label": "Responsable {}", "usages": ["approving"]},
             },
             "agent": {
                 "pers": {
-                    "lastname": u"Agent",
-                    "firstname": u"Fred",
-                    "gender": u"M",
-                    "person_title": u"Monsieur",
-                    "zip_code": u"7000",
-                    "city": u"Mons",
-                    "street": u"Rue de la place",
-                    "number": u"3",
+                    "lastname": "Agent",
+                    "firstname": "Fred",
+                    "gender": "M",
+                    "person_title": "Monsieur",
+                    "zip_code": "7000",
+                    "city": "Mons",
+                    "street": "Rue de la place",
+                    "number": "3",
                     "primary_organization": services0[3].UID(),
                 },
-                "hps": {"phone": u"012345670", "label": u"Agent {}"},
+                "hps": {"phone": "012345670", "label": "Agent {}"},
             },
             "agent1": {
                 "pers": {
-                    "lastname": u"Agent",
-                    "firstname": u"Stef",
-                    "gender": u"M",
-                    "person_title": u"Monsieur",
-                    "zip_code": u"5000",
-                    "city": u"Namur",
-                    "street": u"Rue du désespoir",
-                    "number": u"1",
+                    "lastname": "Agent",
+                    "firstname": "Stef",
+                    "gender": "M",
+                    "person_title": "Monsieur",
+                    "zip_code": "5000",
+                    "city": "Namur",
+                    "street": "Rue du désespoir",
+                    "number": "1",
                     "primary_organization": departments[5].UID(),
                 },
-                "hps": {"phone": u"012345670", "label": u"Agent {}"},
+                "hps": {"phone": "012345670", "label": "Agent {}"},
             },
             "dirg": {
                 "pers": {
-                    "lastname": u"DG",
-                    "firstname": u"Maxime",
-                    "gender": u"M",
-                    "person_title": u"Monsieur",
-                    "zip_code": u"5000",
-                    "city": u"Namur",
-                    "street": u"Rue du couvent",
-                    "number": u"1",
+                    "lastname": "DG",
+                    "firstname": "Maxime",
+                    "gender": "M",
+                    "person_title": "Monsieur",
+                    "zip_code": "5000",
+                    "city": "Namur",
+                    "street": "Rue du couvent",
+                    "number": "1",
                     "primary_organization": dep0.UID(),
                 },
-                "hps": {"phone": u"012345670", "label": u"Directeur Général", "usages": ["signer"]},
+                "hps": {"phone": "012345670", "label": "Directeur Général", "usages": ["signer"]},
             },
             "bourgmestre": {
                 "pers": {
-                    "lastname": u"BM",
-                    "firstname": u"Paul",
-                    "gender": u"M",
-                    "person_title": u"Monsieur",
-                    "zip_code": u"5000",
-                    "city": u"Namur",
-                    "street": u"Place des Célestines",
-                    "number": u"1",
+                    "lastname": "BM",
+                    "firstname": "Paul",
+                    "gender": "M",
+                    "person_title": "Monsieur",
+                    "zip_code": "5000",
+                    "city": "Namur",
+                    "street": "Place des Célestines",
+                    "number": "1",
                     "primary_organization": departments[6].UID(),
                 },
-                "hps": {"phone": u"012345670", "label": u"Bourgmestre", "usages": ["signer"]},
+                "hps": {"phone": "012345670", "label": "Bourgmestre", "usages": ["signer"]},
             },
         }
         pf = contacts["personnel-folder"]
@@ -892,7 +895,7 @@ def configure_contact_plone_group(context):
             person.reindexObject()
             for i, hp in enumerate(person.objectValues()):
                 setattr(hp, "phone", persons[pers_id]["hps"]["phone"])
-                if u"{}" in persons[pers_id]["hps"]["label"]:
+                if "{}" in persons[pers_id]["hps"]["label"]:
                     setattr(hp, "label", persons[pers_id]["hps"]["label"].format(hp.get_organization().title))
                 else:
                     setattr(hp, "label", persons[pers_id]["hps"]["label"])
@@ -903,51 +906,57 @@ def configure_contact_plone_group(context):
 
         # Add signer rules
         rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
-        api.portal.set_registry_record(rk, [
-            {
-                "number": 1,
-                "signer": pf["dirg"]["directeur-general"].UID(),
-                "editor": True,
-                "approvings": [u"_empty_"],
-                "esign": False,
-                "treating_groups": [],
-                "mail_types": [],
-                "send_modes": [],
-                "tal_condition": None,
-            },
-            {
-                "number": 2,
-                "signer": pf["bourgmestre"]["bourgmestre"].UID(),
-                "editor": False,
-                "approvings": [u"_empty_"],
-                "esign": False,
-                "treating_groups": [],
-                "mail_types": [],
-                "send_modes": [],
-                "tal_condition": None,
-            },
-        ])
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "number": 1,
+                    "signer": pf["dirg"]["directeur-general"].UID(),
+                    "editor": True,
+                    "approvings": ["_empty_"],
+                    "esign": False,
+                    "treating_groups": [],
+                    "mail_types": [],
+                    "send_modes": [],
+                    "tal_condition": None,
+                },
+                {
+                    "number": 2,
+                    "signer": pf["bourgmestre"]["bourgmestre"].UID(),
+                    "editor": False,
+                    "approvings": ["_empty_"],
+                    "esign": False,
+                    "treating_groups": [],
+                    "mail_types": [],
+                    "send_modes": [],
+                    "tal_condition": None,
+                },
+            ],
+        )
         rk = "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_signer_rules"
-        api.portal.set_registry_record(rk, [
-            {
-                "number": 1,
-                "signer": pf["dirg"]["directeur-general"].UID(),
-                "editor": True,
-                "approvings": [u"_themself_"],
-                "esign": True,
-                "treating_groups": [],
-                "tal_condition": None,
-            },
-            {
-                "number": 2,
-                "signer": pf["bourgmestre"]["bourgmestre"].UID(),
-                "editor": False,
-                "approvings": [u"_themself_"],
-                "esign": True,
-                "treating_groups": [],
-                "tal_condition": None,
-            },
-        ])
+        api.portal.set_registry_record(
+            rk,
+            [
+                {
+                    "number": 1,
+                    "signer": pf["dirg"]["directeur-general"].UID(),
+                    "editor": True,
+                    "approvings": ["_themself_"],
+                    "esign": True,
+                    "treating_groups": [],
+                    "tal_condition": None,
+                },
+                {
+                    "number": 2,
+                    "signer": pf["bourgmestre"]["bourgmestre"].UID(),
+                    "editor": False,
+                    "approvings": ["_themself_"],
+                    "esign": True,
+                    "treating_groups": [],
+                    "tal_condition": None,
+                },
+            ],
+        )
 
 
 def configure_imio_dms_mail(context):
@@ -962,18 +971,18 @@ def configure_imio_dms_mail(context):
     # IM
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.mail_types"] = [
-            {"value": u"courrier", "dtitle": u"Courrier", "active": True},
-            {"value": u"certificat", "dtitle": u"Certificat médical", "active": True},
-            {"value": u"facture", "dtitle": u"Facture", "active": True},
-            {"value": u"retour-recommande", "dtitle": u"Retour recommandé", "active": True},
-            {"value": u"retour-ar", "dtitle": u"Retour AR", "active": True},
+            {"value": "courrier", "dtitle": "Courrier", "active": True},
+            {"value": "certificat", "dtitle": "Certificat médical", "active": True},
+            {"value": "facture", "dtitle": "Facture", "active": True},
+            {"value": "retour-recommande", "dtitle": "Retour recommandé", "active": True},
+            {"value": "retour-ar", "dtitle": "Retour AR", "active": True},
         ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_send_modes"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_send_modes"] = [
-            {"value": u"post", "dtitle": u"Courrier postal", "active": True},
-            {"value": u"post_registered", "dtitle": u"Courrier recommandé", "active": True},
-            {"value": u"post_registered_dr", "dtitle": u"Courrier recommandé avec AR", "active": True},
-            {"value": u"email", "dtitle": u"Email", "active": True},
+            {"value": "post", "dtitle": "Courrier postal", "active": True},
+            {"value": "post_registered", "dtitle": "Courrier recommandé", "active": True},
+            {"value": "post_registered_dr", "dtitle": "Courrier recommandé avec AR", "active": True},
+            {"value": "email", "dtitle": "Email", "active": True},
         ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states"] = ["proposed_to_agent"]
@@ -999,7 +1008,7 @@ def configure_imio_dms_mail(context):
             "internal_reference_no",
         ]
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_fields"] = [
-            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
+            {"field_name": v, "read_tal_condition": "", "write_tal_condition": ""} for v in fields
         ]
 
     # IEM
@@ -1007,50 +1016,50 @@ def configure_imio_dms_mail(context):
     if not registry.get(routing_key, default=[]):
         registry[routing_key] = [
             {
-                u"forward": u"agent",
-                u"transfer_email_pat": u"",
-                u"original_email_pat": u"",
-                u"tal_condition_1": u"python: agent_id and 'encodeurs' in modules['imio.dms.mail.utils']."
-                u"current_user_groups_ids(userid=agent_id)",
-                u"user_value": u"_empty_",
-                u"tal_condition_2": u"",
-                u"tg_value": u"_empty_",
+                "forward": "agent",
+                "transfer_email_pat": "",
+                "original_email_pat": "",
+                "tal_condition_1": "python: agent_id and 'encodeurs' in modules['imio.dms.mail.utils']."
+                "current_user_groups_ids(userid=agent_id)",
+                "user_value": "_empty_",
+                "tal_condition_2": "",
+                "tg_value": "_empty_",
             },
             {
-                u"forward": u"agent",
-                u"transfer_email_pat": u"",
-                u"original_email_pat": u"",
-                u"tal_condition_1": u"",
-                u"user_value": u"_transferer_",
-                u"tal_condition_2": u"",
-                u"tg_value": u"_hp_",
+                "forward": "agent",
+                "transfer_email_pat": "",
+                "original_email_pat": "",
+                "tal_condition_1": "",
+                "user_value": "_transferer_",
+                "tal_condition_2": "",
+                "tg_value": "_hp_",
             },
         ]
     state_set_key = "imio.dms.mail.browser.settings.IImioDmsMailConfig.iemail_state_set"
     if not registry.get(state_set_key, default=[]):
         registry[state_set_key] = [
             {
-                u"forward": u"agent",
-                u"transfer_email_pat": u"",
-                u"original_email_pat": u"",
-                u"tal_condition_1": u"",
-                u"state_value": u"proposed_to_agent",
+                "forward": "agent",
+                "transfer_email_pat": "",
+                "original_email_pat": "",
+                "tal_condition_1": "",
+                "state_value": "proposed_to_agent",
             },
         ]
 
     # OM
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types"] = [
-            {"value": u"courrier", "dtitle": u"Courrier", "active": True},
+            {"value": "courrier", "dtitle": "Courrier", "active": True},
         ]
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"):
-        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"] = _(u"Response: ")
+        registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_response_prefix"] = _("Response: ")
     if not registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes"):
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_send_modes"] = [
-            {"value": u"post", "dtitle": u"Courrier postal", "active": True},
-            {"value": u"post_registered", "dtitle": u"Courrier recommandé", "active": True},
-            {"value": u"post_registered_dr", "dtitle": u"Courrier recommandé avec AR", "active": True},
-            {"value": u"email", "dtitle": u"Email", "active": True},
+            {"value": "post", "dtitle": "Courrier postal", "active": True},
+            {"value": "post_registered", "dtitle": "Courrier recommandé", "active": True},
+            {"value": "post_registered_dr", "dtitle": "Courrier recommandé avec AR", "active": True},
+            {"value": "email", "dtitle": "Email", "active": True},
         ]
     if registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send") is None:
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_replyto_email_send"] = False
@@ -1089,7 +1098,7 @@ def configure_imio_dms_mail(context):
             "email_body",
         ]
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields"] = [
-            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
+            {"field_name": v, "read_tal_condition": "", "write_tal_condition": ""} for v in fields
         ]
 
     # IOM
@@ -1097,7 +1106,7 @@ def configure_imio_dms_mail(context):
         from string import Template
 
         template = Template(
-            u"""
+            """
 <meta charset="UTF-8">
 <tal:global define="ctct_det python: dghv.get_ctct_det(sender['hp']);
                     label python: sender['hp'].label;
@@ -1161,7 +1170,7 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
             "ISignRequestSigningBehavior.esign",
         ]
         registry["imio.dms.mail.browser.settings.IImioDmsMailConfig.request_fields"] = [
-            {"field_name": v, "read_tal_condition": u"", "write_tal_condition": u""} for v in fields
+            {"field_name": v, "read_tal_condition": "", "write_tal_condition": ""} for v in fields
         ]
 
     # general
@@ -1171,8 +1180,8 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
 
     # IImioDmsMailConfig2 settings
     api.portal.set_registry_record("imio.dms.mail.dv_clean_days", 180)
-    api.portal.set_registry_record("imio.dms.mail.imail_folder_period", u"week")
-    api.portal.set_registry_record("imio.dms.mail.omail_folder_period", u"week")
+    api.portal.set_registry_record("imio.dms.mail.imail_folder_period", "week")
+    api.portal.set_registry_record("imio.dms.mail.omail_folder_period", "week")
     if not api.portal.get_registry_record("imio.dms.mail.product_version"):
         api.portal.set_registry_record(
             "imio.dms.mail.product_version", safe_unicode(get_git_tag(BLDT_DIR, is_develop_environment()))
@@ -1180,20 +1189,20 @@ Limite de responsabilité: les informations contenues dans ce courrier électron
 
     # mailcontent
     # Hide internal reference for outgoingmmail. Increment number automatically
-    registry["collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn"] = u"hide"
+    registry["collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_edit_irn"] = "hide"
     registry["collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_increment_number"] = True
 
     if (
         registry.get("collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression")
-        == u"python:'in/'+number"
+        == "python:'in/'+number"
     ):
-        registry[
-            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression"
-        ] = u"python:'E%04d'%int(number)"
+        registry["collective.dms.mailcontent.browser.settings.IDmsMailConfig.incomingmail_talexpression"] = (
+            "python:'E%04d'%int(number)"
+        )
     if (
         registry.get("collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression")
-        == u"python:'out/'+number"
+        == "python:'out/'+number"
     ):
-        registry[
-            "collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression"
-        ] = u"python:'S%04d'%int(number)"
+        registry["collective.dms.mailcontent.browser.settings.IDmsMailConfig.outgoingmail_talexpression"] = (
+            "python:'S%04d'%int(number)"
+        )

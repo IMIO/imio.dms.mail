@@ -2,7 +2,7 @@
 <object name="person">
  <property name="global_allow">True</property>
  <property name="behaviors" purge="False">
-  <element value="plone.app.lockingbehavior.behaviors.ILocking" />
+  <element value="plone.locking" />
   <element value="collective.contact.plonegroup.behaviors.IPlonegroupUserLink" />
  </property>
 </object>

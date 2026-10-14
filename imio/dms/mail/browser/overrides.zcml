@@ -48,7 +48,7 @@
     <browser:page
         name="tabular_view"
         permission="zope2.View"
-        for="plone.app.collection.interfaces.ICollection"
+        for="plone.app.contenttypes.behaviors.collection.ISyndicatableCollection"
         template="templates/tabular_view.pt"
         class=".browser.tabular_view.TabularView"
         />
@@ -100,24 +100,6 @@
         allowed_interface="Products.CMFPlone.browser.interfaces.IPlone"
         />
 
-    <browser:viewlet
-        name="plone.contentactions"
-        for="*"
-        view="plone.app.layout.globals.interfaces.IViewView"
-        manager="plone.app.layout.viewlets.interfaces.IContentViews"
-        class=".browser.overrides.ContentActionsViewlet"
-        permission="zope2.View"
-        />
-
-    <browser:viewlet
-        name="plone.contentactions"
-        for="*"
-        view="plone.app.content.browser.interfaces.IFolderContentsView"
-        manager="plone.app.layout.viewlets.interfaces.IContentViews"
-        class=".browser.overrides.ContentActionsViewlet"
-        permission="zope2.View"
-        />
-
     <!-- Actions Panel -->
     <configure package="imio.actionspanel">
         <browser:page
@@ -164,26 +146,6 @@
           zcml:condition="not-have plone-5"
       /-->
     </unconfigure>
-
-    <configure package="collective.documentviewer">
-        <browser:page
-            name="documentviewer"
-            for="collective.documentgenerator.content.pod_template.IConfigurablePODTemplate"
-            class="imio.dms.mail.browser.documentgenerator.DmsViewConfigurablePodTemplate"
-            template="templates/documentviewerdx.pt"
-            permission="zope2.View"
-            layer=".interfaces.ILayer"
-            />
-        <!-- SubTemplate documentviewer override -->
-        <browser:page
-            name="documentviewer"
-            for="collective.documentgenerator.content.pod_template.ISubTemplate"
-            class="imio.dms.mail.browser.documentgenerator.DmsViewSubTemplate"
-            template="templates/documentviewerdx.pt"
-            permission="zope2.View"
-            layer=".interfaces.ILayer"
-            />
-    </configure>
 
     <configure package="collective.eeafaceted.dashboard.browser">
       <plone:portletRenderer

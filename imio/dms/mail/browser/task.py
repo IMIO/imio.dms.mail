@@ -2,11 +2,11 @@ from collective.contact.plonegroup.utils import voc_selected_org_suffix_userids
 from collective.task import _ as _t
 from imio.dms.mail import TASK_EDITOR_SERVICE_FUNCTIONS
 from plone import api
+from plone.base.utils import base_hasattr
 from plone.dexterity.browser.add import DefaultAddForm
 from plone.dexterity.browser.add import DefaultAddView
 from plone.dexterity.browser.edit import DefaultEditForm
 from plone.formwidget.masterselect.widget import MasterSelectJSONValue
-from Products.CMFPlone.utils import base_hasattr
 
 import copy
 
@@ -26,7 +26,7 @@ def filter_task_assigned_users(group):
         elif isinstance(view, MasterSelectJSONValue):
             form = view.widget.form
             if "ITask.assigned_user" in form.widgets and not form.widgets["ITask.assigned_user"].value:
-                view.request.set("_default_assigned_user_", voc.by_value.keys()[0])
+                view.request.set("_default_assigned_user_", list(voc.by_value)[0])
     return voc
 
 
@@ -53,7 +53,7 @@ class TaskEdit(DefaultEditForm):
         if not self.context.assigned_user and api.content.get_state(obj=self.context) == "to_assign":
             self.widgets["ITask.assigned_user"].field = copy.copy(self.widgets["ITask.assigned_user"].field)
             self.widgets["ITask.assigned_user"].field.description = _t(
-                u"You must select an assigned user before continuing !"
+                "You must select an assigned user before continuing !"
             )
 
 

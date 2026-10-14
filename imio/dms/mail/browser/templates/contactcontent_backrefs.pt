@@ -1,16 +1,23 @@
-<div class="visualClear"><!-- --></div>
+<div class="clearfix"><!-- --></div>
 <div i18n:domain="imio.dms.mail"
      class="contactcontent_backrefs"
      tal:condition="backrefs"
      tal:define="backrefs view/backrefs;
                  toLocalizedTime nocall:context/@@plone/toLocalizedTime;
-                 purl context/portal_url;">
+                 purl context/portal_url;
+                 types_tool context/portal_types;
+                 icons nocall:context/@@iconresolver;">
 
     <h3 i18n:translate="backrefs_viewlet_title">Backrefs</h3>
     <ul>
     <tal:refs tal:repeat="brain backrefs">
-        <li>
-            <img tal:attributes="src python:'%s/%s' % (purl, brain.getIcon);"/>
+        <li tal:define="fti python: types_tool.getTypeInfo(brain.portal_type);
+                        icon_expr python: fti and fti.getProperty('icon_expr') or ''">
+            <tal:comment replace="nothing">the type icon (the getIcon metadata is a boolean on Plone 6): icon_expr is a
+              portal_url path (string:...portal_url}/++resource++x/y.png) or an iconresolver name (string:contenttype/folder)</tal:comment>
+            <img width="16" height="16"
+                 tal:condition="icon_expr"
+                 tal:attributes="src python: '%s/%s' % (purl, '/'.join(icon_expr.split('/')[1:])) if 'portal_url' in icon_expr else icons.url(icon_expr.split(':', 1)[-1]);"/>
             <a href=""
                tal:attributes="href brain/getURL; class python:'contenttype-%s' % brain.portal_type;"
                tal:define="title brain/Title;"

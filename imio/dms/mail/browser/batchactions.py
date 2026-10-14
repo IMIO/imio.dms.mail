@@ -33,6 +33,7 @@ from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
 import datetime
+import six
 
 
 # IM and OM batch actions
@@ -40,7 +41,7 @@ import datetime
 
 class TreatingGroupBatchActionForm(BaseBatchActionForm):
 
-    label = _(u"Batch treating group change")
+    label = _("Batch treating group change")
     weight = 20
 
     def _update(self):
@@ -48,10 +49,10 @@ class TreatingGroupBatchActionForm(BaseBatchActionForm):
         self.fields += Fields(
             schema.Choice(
                 __name__="treating_group",
-                title=_(u"Treating groups"),
-                description=(not self.do_apply and cannot_modify_field_msg or u""),
+                title=_("Treating groups"),
+                description=(not self.do_apply and cannot_modify_field_msg or ""),
                 required=self.do_apply,
-                vocabulary=(self.do_apply and u"collective.dms.basecontent.treating_groups" or SimpleVocabulary([])),
+                vocabulary=(self.do_apply and "collective.dms.basecontent.treating_groups" or SimpleVocabulary([])),
             )
         )
 
@@ -69,8 +70,8 @@ class TreatingGroupBatchActionForm(BaseBatchActionForm):
                     # self.status not good here because it needs to stay on the same form
                     api.portal.show_message(
                         _(
-                            u"An assigned user is not in this new treating group. " u'Mail "${mail}" !',
-                            mapping={"mail": brain.Title.decode("utf8")},
+                            "An assigned user is not in this new treating group. " 'Mail "${mail}" !',
+                            mapping={"mail": six.ensure_text(brain.Title)},
                         ),
                         self.request,
                         "error",
@@ -85,17 +86,17 @@ class TreatingGroupBatchActionForm(BaseBatchActionForm):
 
 class RecipientGroupBatchActionForm(BaseARUOBatchActionForm):
 
-    label = _(u"Batch recipient groups change")
+    label = _("Batch recipient groups change")
     modified_attr_name = "recipient_groups"
     call_modified_event = True
     # id = 'recipientgroup-batchaction-form'
     weight = 40
 
     def _vocabulary(self):
-        return u"collective.dms.basecontent.recipient_groups"
+        return "collective.dms.basecontent.recipient_groups"
 
     def _remove_vocabulary(self):
-        return u"collective.contact.plonegroup.organization_services"
+        return "collective.contact.plonegroup.organization_services"
 
 
 class AssignedUserBatchActionForm(aubaf):
@@ -120,7 +121,7 @@ class ReplyBatchActionForm(BaseBatchActionForm):
 
 class IMSenderBatchActionForm(ContactBaseBatchActionForm):
 
-    label = _(u"Batch sender contact field change")
+    label = _("Batch sender contact field change")
     weight = 60
     perms = ("imio.dms.mail: Write mail base fields", "Modify portal content")
     attribute = "sender"
@@ -135,7 +136,7 @@ class IMSenderBatchActionForm(ContactBaseBatchActionForm):
 
 class OutgoingDateBatchActionForm(BaseBatchActionForm):
 
-    label = _(u"Batch outgoing date change")
+    label = _("Batch outgoing date change")
     weight = 50
 
     def _update(self):
@@ -143,8 +144,8 @@ class OutgoingDateBatchActionForm(BaseBatchActionForm):
         self.fields += Fields(
             schema.Datetime(
                 __name__="outgoing_date",
-                title=_(u"Outgoing Date"),
-                description=(not self.do_apply and cannot_modify_field_msg or u""),
+                title=_("Outgoing Date"),
+                description=(not self.do_apply and cannot_modify_field_msg or ""),
                 required=(self.do_apply),
                 default=datetime.datetime.now(),
             )
@@ -160,7 +161,7 @@ class OutgoingDateBatchActionForm(BaseBatchActionForm):
 
 class SendModesBatchActionForm(BaseARUOBatchActionForm):
 
-    label = _(u"Batch send modes change")
+    label = _("Batch send modes change")
     modified_attr_name = "send_modes"
     call_modified_event = False
     indexes = ["Subject"]
@@ -168,10 +169,10 @@ class SendModesBatchActionForm(BaseARUOBatchActionForm):
     weight = 60
 
     def _vocabulary(self):
-        return u"imio.dms.mail.OMActiveSendModesVocabulary"
+        return "imio.dms.mail.OMActiveSendModesVocabulary"
 
     def _remove_vocabulary(self):
-        return u"imio.dms.mail.OMSendModesVocabulary"
+        return "imio.dms.mail.OMSendModesVocabulary"
 
     def _may_apply(self):
         return api.user.has_permission("Manage portal", obj=self.context)
@@ -179,7 +180,7 @@ class SendModesBatchActionForm(BaseARUOBatchActionForm):
 
 class RecipientsBatchActionForm(ContactBaseBatchActionForm):
 
-    label = _(u"Batch recipients contact field change")
+    label = _("Batch recipients contact field change")
     weight = 60
     perms = ("imio.dms.mail: Write mail base fields", "Modify portal content")
     attribute = "recipients"
@@ -217,7 +218,7 @@ class TaskAssignedUserBatchActionForm(aubaf):
 class CopyToBatchActionForm(BaseBatchActionForm):
     """Button to copy selection to sub folders."""
 
-    label = _(u"Batch copy to")
+    label = _("Batch copy to")
     weight = 20
 
     def available_folders_voc(self):
@@ -235,12 +236,12 @@ class CopyToBatchActionForm(BaseBatchActionForm):
         self.fields += Fields(
             schema.List(
                 __name__="folders",
-                title=_(u"Folders"),
+                title=_("Folders"),
                 value_type=schema.Choice(vocabulary=self.voc),
                 description=(
                     self.do_apply
-                    and _(u"Select multiple values (CTRL+click)")
-                    or _(u"No folder available where you can add templates.")
+                    and _("Select multiple values (CTRL+click)")
+                    or _("No folder available where you can add templates.")
                 ),
                 required=self.do_apply,
             )
@@ -286,7 +287,7 @@ class DuplicatedBatchActionForm(BaseBatchActionForm):
 
 class FoldersTreatingGroupBatchActionForm(BaseBatchActionForm):
 
-    label = _(u"Batch treating group change")
+    label = _("Batch treating group change")
     weight = 20
 
     def _update(self):
@@ -294,10 +295,10 @@ class FoldersTreatingGroupBatchActionForm(BaseBatchActionForm):
         self.fields += Fields(
             schema.Choice(
                 __name__="treating_group",
-                title=_(u"Treating groups"),
-                description=(not self.do_apply and cannot_modify_field_msg or u""),
+                title=_("Treating groups"),
+                description=(not self.do_apply and cannot_modify_field_msg or ""),
                 required=self.do_apply,
-                vocabulary=(self.do_apply and u"collective.dms.basecontent.treating_groups" or SimpleVocabulary([])),
+                vocabulary=(self.do_apply and "collective.dms.basecontent.treating_groups" or SimpleVocabulary([])),
             )
         )
 

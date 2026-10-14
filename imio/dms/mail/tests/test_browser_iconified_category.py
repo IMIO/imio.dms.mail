@@ -23,6 +23,7 @@ from z3c.relationfield.relation import RelationValue
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 
+import json
 import unittest
 
 
@@ -46,7 +47,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         # Create outgoing mail 1 with one eSign signer and one file to approve
         intids = getUtility(IIntIds)
         params = {
-            "title": u"Courrier sortant test",
+            "title": "Courrier sortant test",
             "internal_reference_no": internalReferenceOutgoingMailDefaultValue(
                 DummyView(self.portal, self.portal.REQUEST)
             ),
@@ -55,19 +56,19 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
             "recipients": [RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
             "assigned_user": "agent",
             "sender": self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
-            "send_modes": u"post",
+            "send_modes": "post",
             "signers": [
                 {
                     "number": 1,
                     "signer": self.portal["contacts"]["personnel-folder"]["dirg"]["directeur-general"].UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "editor": True,
                 }
             ],
             "esign": True,
         }
         self.omail1 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om1", **params)
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=filename)
@@ -85,12 +86,12 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
             {
                 "number": 2,
                 "signer": self.portal["contacts"]["personnel-folder"]["bourgmestre"]["bourgmestre"].UID(),
-                "approvings": [u"_themself_"],
+                "approvings": ["_themself_"],
                 "editor": False,
             }
         )
         self.omail2 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om2", **params)
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=filename)
@@ -119,8 +120,8 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.get_url(file1_cc), "%s/@@iconified-approved" % self.file1.absolute_url())
         # FIXME This raises Unauthorized but still passes
         self.assertEqual(
-            col.get_action_view(file1_cc)(),
-            u'{"msg":"En attente de votre approbation (cliquer pour approuver)","status":1,"reload": true}',
+            json.loads(col.get_action_view(file1_cc)()),
+            {"msg": "En attente de votre approbation (cliquer pour approuver)", "status": 1, "reload": True},
         )
         # TODO "to_print"
         # "to_be_signed"
@@ -142,47 +143,47 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         # file2_brain = get_brain(self.file2)
         self.change_user("dirg")
         self.assertEqual(col.css_class(file2_cc), " to-approve ")
-        self.assertEqual(col.msg, u"Deactivated for approval")
+        self.assertEqual(col.msg, "Deactivated for approval")
         self.change_user("agent")
         self.assertEqual(col.css_class(file2_cc), " to-approve editable")
-        self.assertEqual(col.msg, u"Deactivated for approval (click to activate)")
+        self.assertEqual(col.msg, "Deactivated for approval (click to activate)")
         # "created", one file to approve
         col.get_action_view(file2_cc)()  # activate approval on file2
         # file2_brain = get_brain(self.file2)
         self.change_user("dirg")
         self.assertEqual(col.css_class(file2_cc), " active to-approve")
-        self.assertEqual(col.msg, u"Activated for approval")
+        self.assertEqual(col.msg, "Activated for approval")
         self.change_user("agent")
         self.assertEqual(col.css_class(file2_cc), " active to-approve editable")
-        self.assertEqual(col.msg, u"Activated for approval (click to deactivate)")
+        self.assertEqual(col.msg, "Activated for approval (click to deactivate)")
         # "to_approve"
         self.pw.doActionFor(self.omail2, "propose_to_approve")
         clean_borg_cache(col.request)
         self.assertEqual(col.css_class(file2_cc), " cant-approve")
-        self.assertEqual(col.msg, u"Waiting for the first approval")
+        self.assertEqual(col.msg, "Waiting for the first approval")
         self.change_user("dirg")
         self.assertEqual(col.css_class(file2_cc), " editable")
-        self.assertEqual(col.msg, u"Waiting for your approval (click to approve)")
+        self.assertEqual(col.msg, "Waiting for your approval (click to approve)")
         self.change_user("bourgmestre")
         self.assertEqual(col.css_class(file2_cc), " waiting")
-        self.assertEqual(col.msg, u"Waiting for other approval before you can approve")
+        self.assertEqual(col.msg, "Waiting for other approval before you can approve")
         self.change_user("dirg")
         col.get_action_view(file2_cc)()  # dirg approves file
         clean_borg_cache(col.request)  # because approval borg roles are changed
         self.assertEqual(col.css_class(file2_cc), " partially-approved")
-        self.assertEqual(col.msg, u"Partially approved. Still waiting for other approval(s)")
+        self.assertEqual(col.msg, "Partially approved. Still waiting for other approval(s)")
         self.change_user("agent")
         self.assertEqual(col.css_class(file2_cc), " partially-approved")
-        self.assertEqual(col.msg, u"Partially approved. Still waiting for other approval(s)")
+        self.assertEqual(col.msg, "Partially approved. Still waiting for other approval(s)")
         self.change_user("bourgmestre")
         self.assertEqual(col.css_class(file2_cc), " editable")
-        self.assertEqual(col.msg, u"Waiting for your approval (click to approve)")
+        self.assertEqual(col.msg, "Waiting for your approval (click to approve)")
         col.get_action_view(file2_cc)()  # bourgmestre approves file
         clean_borg_cache(col.request)  # because transition was done
         # file2_brain = get_brain(self.file2)
         # "to_be_signed"
         self.assertEqual(col.css_class(file2_cc), " totally-approved")
-        self.assertEqual(col.msg, u"Totally approved")
+        self.assertEqual(col.msg, "Totally approved")
         # "sent", approval deactivated
         self.change_user("agent")
         self.pw.doActionFor(self.omail2, "back_to_creation")
@@ -191,7 +192,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
         self.pw.doActionFor(self.omail2, "mark_as_sent")
         self.assertEqual(col.css_class(file2_cc), " to-approve")
-        self.assertEqual(col.msg, u"Deactivated for approval")
+        self.assertEqual(col.msg, "Deactivated for approval")
 
     def test_approved_change_view(self):
         """Test ApprovedChangeView"""
@@ -200,49 +201,49 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         # "created"
         old_values = {"to_approve": True, "approved": True}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": False, "approved": False}))
-        self.assertEqual(view.msg, u"Deactivated for approval (click to activate)")
+        self.assertEqual(view.msg, "Deactivated for approval (click to activate)")
         old_values = {"to_approve": True, "approved": False}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": False, "approved": False}))
-        self.assertEqual(view.msg, u"Deactivated for approval (click to activate)")
+        self.assertEqual(view.msg, "Deactivated for approval (click to activate)")
         old_values = {"to_approve": False, "approved": False}
         self.assertEqual(view._get_next_values(old_values), (1, {"to_approve": True, "approved": False}))
-        self.assertEqual(view.msg, u"Activated for approval (click to deactivate)")
+        self.assertEqual(view.msg, "Activated for approval (click to deactivate)")
         old_values = {"to_approve": False, "approved": True}
         self.assertEqual(view._get_next_values(old_values), (1, {"to_approve": True, "approved": False}))
-        self.assertEqual(view.msg, u"Activated for approval (click to deactivate)")
+        self.assertEqual(view.msg, "Activated for approval (click to deactivate)")
         # "to_approve"
         self.pw.doActionFor(self.omail1, "propose_to_approve")
         old_values = {"to_approve": False, "approved": False}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": False, "approved": False}))
-        self.assertEqual(view.msg, u"Activated for approval (click to deactivate)")
+        self.assertEqual(view.msg, "Activated for approval (click to deactivate)")
         old_values = {"to_approve": False, "approved": True}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": False, "approved": False}))
-        self.assertEqual(view.msg, u"Activated for approval (click to deactivate)")
+        self.assertEqual(view.msg, "Activated for approval (click to deactivate)")
         old_values = {"to_approve": True, "approved": True}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": True, "approved": True}))
-        self.assertEqual(view.msg, u"Activated for approval (click to deactivate)")
+        self.assertEqual(view.msg, "Activated for approval (click to deactivate)")
         old_values = {"to_approve": True, "approved": False}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": True, "approved": False}))
-        self.assertEqual(view.msg, u"Activated for approval (click to deactivate)")
+        self.assertEqual(view.msg, "Activated for approval (click to deactivate)")
         self.change_user("dirg")
         old_values = {"to_approve": False, "approved": False}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": False, "approved": False}))
-        self.assertEqual(view.msg, u"Activated for approval (click to deactivate)")
+        self.assertEqual(view.msg, "Activated for approval (click to deactivate)")
         old_values = {"to_approve": False, "approved": True}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": False, "approved": False}))
-        self.assertEqual(view.msg, u"Activated for approval (click to deactivate)")
+        self.assertEqual(view.msg, "Activated for approval (click to deactivate)")
         old_values = {"to_approve": True, "approved": False}
         self.assertEqual(view._get_next_values(old_values), (1, {"to_approve": True, "approved": True}))
-        self.assertEqual(view.msg, u"Waiting for your approval (click to approve)")
+        self.assertEqual(view.msg, "Waiting for your approval (click to approve)")
         # "to_be_signed"
         self.assertEqual(api.content.get_state(self.omail1), "to_be_signed")
         self.assertTrue(OMApprovalAdapter(self.omail1).is_file_approved(self.file1.UID()))
         old_values = {"to_approve": True, "approved": False}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": True, "approved": False}))
-        self.assertEqual(view.msg, u"Waiting for your approval (click to approve)")
+        self.assertEqual(view.msg, "Waiting for your approval (click to approve)")
         old_values = {"to_approve": True, "approved": True}
         self.assertEqual(view._get_next_values(old_values), (0, {"to_approve": True, "approved": True}))
-        self.assertEqual(view.msg, u"Waiting for your approval (click to approve)")
+        self.assertEqual(view.msg, "Waiting for your approval (click to approve)")
 
     def test_signed_column(self):
         """Test signed column rendering"""
@@ -272,7 +273,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
 
         # Test css_class
         self.change_user("admin")
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=filename)
@@ -295,8 +296,8 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         ApprovedChangeView(file3, self.portal.REQUEST)()  # Set file3 not to_approve
         self.assertEqual(col.css_class(file3_cc), " editable")
         self.assertEqual(
-            col.get_action_view(file3_cc)(),
-            u'{"msg":"Cet élément ne doit pas être signé","status":-1,"reload": true}',
+            json.loads(col.get_action_view(file3_cc)()),
+            {"msg": "Cet élément ne doit pas être signé", "status": -1, "reload": True},
         )  # Set file3 not to_sign
         self.assertEqual(col.css_class(file3_cc), " deactivated editable")
         self.change_user("dirg")
@@ -323,7 +324,7 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.css_class(file2_cc), "")
         self.assertEqual(col.css_class(file3_cc), " deactivated")
         self.assertEqual(
-            col.get_action_view(file2_cc)(), u'{"msg":"Cet élément est signé","status":1}'
+            json.loads(col.get_action_view(file2_cc)()), {"msg": "Cet élément est signé", "status": 1}
         )  # Set file2 as signed
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
         self.assertEqual(col.css_class(file2_cc), " active")

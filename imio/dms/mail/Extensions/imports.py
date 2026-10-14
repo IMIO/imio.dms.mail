@@ -28,5 +28,5 @@ def assert_date(val, fmt="%Y/%m/%d", can_be_empty=True):
         dtm = datetime.datetime.strptime(val, fmt)
         dt = dtm.date()
     except Exception as ex:
-        raise AssertionError(u"Not a valid date '%s': %s" % (val, ex))
+        raise AssertionError("Not a valid date '%s': %s" % (val, ex))
     return dt

@@ -1,11 +1,11 @@
-$(document).ready(function(){
+// bundle plone.bundles/imio-dms-mail-outgoingmail: reload the outgoing mail view when the server says so
+document.addEventListener('DOMContentLoaded', function () {
 
-    var url = 'server_sent_events';
-    var evtSource = new EventSource(url);
+    var evtSource = new EventSource(document.body.dataset.baseUrl + '/server_sent_events');
     evtSource.onmessage = function (e) {
-      var selectedFileUrl = $('tr.selected').find('.version-link').attr('href');
+      var selectedFile = document.querySelector('tr.selected .version-link');
       var info = JSON.parse(e.data);
-      if (info.refresh || selectedFileUrl.endsWith(info.path)) {
+      if (info.refresh || (selectedFile && selectedFile.getAttribute('href').endsWith(info.path))) {
         window.location.reload();
       }
     }

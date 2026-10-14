@@ -9,6 +9,7 @@ from collective.contact.plonegroup.config import set_registry_organizations
 from collective.contact.plonegroup.utils import get_selected_org_suffix_principal_ids
 from collective.contact.plonegroup.utils import get_suffixed_groups
 from collective.documentgenerator.utils import update_templates
+from collective.labels.interfaces import ILabeling
 from collective.wfadaptations.api import add_applied_adaptation
 from collective.wfadaptations.api import apply_from_registry
 from collective.wfadaptations.api import get_applied_adaptations
@@ -17,7 +18,6 @@ from copy import deepcopy
 from dexterity.localroles.utils import fti_configuration
 from dexterity.localroles.utils import update_roles_in_fti
 from eea.facetednavigation.criteria.interfaces import ICriteria
-from ftw.labels.interfaces import ILabeling
 from imio.dms.mail import ALL_SERVICE_FUNCTIONS
 from imio.dms.mail import FIRST_LEVEL_TABS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
@@ -50,6 +50,7 @@ from imio.esign.config import set_esign_registry_seal_email
 from imio.esign.config import set_esign_registry_vat_number
 from imio.helpers.cache import get_plone_groups_for_user
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.content import richtextval
 from imio.helpers.emailer import get_mail_host
 from imio.helpers.path import is_test_url
 from imio.helpers.security import get_user_from_criteria
@@ -62,6 +63,7 @@ from imio.pyutils.utils import safe_encode
 from persistent.list import PersistentList
 from plone import api
 from plone.app.portlets.storage import PortletAssignmentMapping
+from plone.base.utils import get_installer
 from plone.namedfile import NamedImage
 from plone.portlet.static.static import Assignment as StaticAssignment
 from plone.portlets.constants import CONTENT_TYPE_CATEGORY
@@ -78,6 +80,7 @@ import datetime
 import logging
 import os
 import pwd
+import six
 
 
 logger = logging.getLogger("imio.dms.mail: steps")
@@ -103,12 +106,11 @@ def install_and_configure_esign(site):
     :return: a list of log messages.
     """
     log = []
-    if not site.portal_quickinstaller.isProductInstalled("imio.esign"):
-        site.portal_quickinstaller.installProduct("imio.esign", forceProfile=True)
+    installer = get_installer(site)
+    if not installer.is_product_installed("imio.esign"):
+        installer.install_product("imio.esign")
         # redo actions to add condition on installed actions
-        site.portal_setup.runImportStepFromProfile(
-            "profile-imio.dms.mail:default", "actions", run_dependencies=False
-        )
+        site.portal_setup.runImportStepFromProfile("profile-imio.dms.mail:default", "actions", run_dependencies=False)
         log.append("Installed imio.esign")
         load_type_from_package("ConfigurablePODTemplate", "profile-imio.dms.mail:default")  # content category
         load_type_from_package("PODTemplate", "profile-imio.dms.mail:default")  # views
@@ -126,13 +128,12 @@ def install_and_configure_esign(site):
         ("adam", "chris"),
     ]
     if not get_esign_registry_external_watchers():
-        set_esign_registry_external_watchers(u", ".join(["{}.{}@imio.be".format(name[1], name[0])
-                                                         for name in watchers]))
+        set_esign_registry_external_watchers(", ".join(["{}.{}@imio.be".format(name[1], name[0]) for name in watchers]))
     if not get_esign_registry_file_url():
         if is_test_url():
-            set_esign_registry_file_url(u"https://documents.imio-egov.be/esign")
+            set_esign_registry_file_url("https://documents.imio-egov.be/esign")
         else:
-            set_esign_registry_file_url(u"https://documents.enwallonie.be/esign")
+            set_esign_registry_file_url("https://documents.enwallonie.be/esign")
     return log
 
 
@@ -145,24 +146,22 @@ def activate_om_signing(context):
 
     log = install_and_configure_esign(site)
 
-    omf = api.portal.get_registry_record(
-        "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", default=[]
-    )
+    omf = api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", default=[])
     om_fns = [dic["field_name"] for dic in omf]
     if "ISigningBehavior.signers" not in om_fns:
         pos = om_fns.index("internal_reference_no")
-        omf.insert(pos + 1,
-                   {"field_name": "ISigningBehavior.signers", "read_tal_condition": u"", "write_tal_condition": u""})
+        omf.insert(
+            pos + 1, {"field_name": "ISigningBehavior.signers", "read_tal_condition": "", "write_tal_condition": ""}
+        )
         om_fns = [dic["field_name"] for dic in omf]
-        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
-                                       omf)
+        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", omf)
         log.append("Added signers to omail_fields registry record")
     if "ISigningBehavior.esign" not in om_fns:
         pos = om_fns.index("ISigningBehavior.signers")
-        omf.insert(pos + 1,
-                   {"field_name": "ISigningBehavior.esign", "read_tal_condition": u"", "write_tal_condition": u""})
-        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields",
-                                       omf)
+        omf.insert(
+            pos + 1, {"field_name": "ISigningBehavior.esign", "read_tal_condition": "", "write_tal_condition": ""}
+        )
+        api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_fields", omf)
         log.append("Added esign to omail_fields registry record")
 
     site.portal_setup.runImportStepFromProfile(
@@ -197,11 +196,11 @@ def activate_sign_request(context):
 
     # add "Demande Sign." plonegroup function (requester), used by signing requests
     functions = get_registry_functions()
-    if u"demand_sign" not in [fct["fct_id"] for fct in functions]:
+    if "demand_sign" not in [fct["fct_id"] for fct in functions]:
         functions.append(
             {
-                "fct_title": u"Demande Sign.",
-                "fct_id": u"demand_sign",
+                "fct_title": "Demande Sign.",
+                "fct_id": "demand_sign",
                 "fct_orgs": [],
                 "fct_management": False,
                 "enabled": True,
@@ -227,7 +226,7 @@ def update_templates_step(context):
         return
     templates_list = [(tup[1], tup[2]) for tup in list_templates()]
     ret = update_templates(templates_list)
-    ret = "\n".join(["%s: %s" % (tup[0], tup[2]) for tup in ret]).encode("utf8")
+    ret = six.ensure_str("\n".join(["%s: %s" % (tup[0], tup[2]) for tup in ret]))
     logger.info("\n{}".format(ret))
     return ret
 
@@ -237,7 +236,7 @@ def override_templates_step(context):
         return
     templates_list = [(tup[1], tup[2]) for tup in list_templates()]
     ret = update_templates(templates_list, force=True)
-    ret = "\n".join(["%s: %s" % (tup[0], tup[2]) for tup in ret]).encode("utf8")
+    ret = six.ensure_str("\n".join(["%s: %s" % (tup[0], tup[2]) for tup in ret]))
     logger.info("\n{}".format(ret))
     return ret
 
@@ -245,13 +244,13 @@ def override_templates_step(context):
 def create_persons_from_users_step(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    return "\n".join(create_persons_from_users(context.getSite())).encode("utf8")
+    return six.ensure_str("\n".join(create_persons_from_users(context.getSite())))
 
 
 def create_persons_from_users_step_inverted(context):
     if not context.readDataFile("imiodmsmail_singles_marker.txt"):
         return
-    return "\n".join(create_persons_from_users(context.getSite(), fn_first=False)).encode("utf8")
+    return six.ensure_str("\n".join(create_persons_from_users(context.getSite(), fn_first=False)))
 
 
 def add_icons_to_contact_workflow(context):
@@ -316,10 +315,10 @@ def im_n_plus_1_wfadaptation(context):
     site = context.getSite()
     n_plus_1_params = {
         "validation_level": 1,
-        "state_title": u"À valider par le chef de service",
-        "forward_transition_title": u"Proposer au chef de service",
-        "backward_transition_title": u"Renvoyer au chef de service",
-        "function_title": u"N+1",
+        "state_title": "À valider par le chef de service",
+        "forward_transition_title": "Proposer au chef de service",
+        "backward_transition_title": "Renvoyer au chef de service",
+        "function_title": "N+1",
     }
     sva = IMServiceValidation()
     adapt_is_applied = sva.patch_workflow("incomingmail_workflow", **n_plus_1_params)
@@ -343,10 +342,10 @@ def om_n_plus_1_wfadaptation(context):
     site = context.getSite()
     n_plus_1_params = {
         "validation_level": 1,
-        "state_title": u"À valider par le chef de service",
-        "forward_transition_title": u"Proposer au chef de service",
-        "backward_transition_title": u"Renvoyer au chef de service",
-        "function_title": u"N+1",
+        "state_title": "À valider par le chef de service",
+        "forward_transition_title": "Proposer au chef de service",
+        "backward_transition_title": "Renvoyer au chef de service",
+        "function_title": "N+1",
         "validated_from_created": False,
     }
     sva = OMServiceValidation()
@@ -371,9 +370,7 @@ def om_to_approve_wfadaptation(context):
     sva = OMToApproveAdaptation()
     adapt_is_applied = sva.patch_workflow("outgoingmail_workflow")
     if adapt_is_applied:
-        add_applied_adaptation(
-            "imio.dms.mail.wfadaptations.OMToApproveAdaptation", "outgoingmail_workflow", True
-        )
+        add_applied_adaptation("imio.dms.mail.wfadaptations.OMToApproveAdaptation", "outgoingmail_workflow", True)
 
 
 def om_to_print_wfadaptation(context):
@@ -386,9 +383,7 @@ def om_to_print_wfadaptation(context):
     sva = OMToPrintAdaptation()
     adapt_is_applied = sva.patch_workflow("outgoingmail_workflow")
     if adapt_is_applied:
-        add_applied_adaptation(
-            "imio.dms.mail.wfadaptations.OMToPrintAdaptation", "outgoingmail_workflow", True
-        )
+        add_applied_adaptation("imio.dms.mail.wfadaptations.OMToPrintAdaptation", "outgoingmail_workflow", True)
 
 
 def task_n_plus_1_wfadaptation(context):
@@ -415,11 +410,13 @@ def manage_classification(context, active):
     site = context.getSite()
     # handle displayed tabs: folders (top nav) and tree (plus sub-menu) visibility
     if active:
-        add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_add=("folders", "tree"),
-                                           order=FIRST_LEVEL_TABS)
+        add_remove_values_in_registry_list(
+            "imio.dms.mail.displayed_tabs", to_add=("folders", "tree"), order=FIRST_LEVEL_TABS
+        )
     else:
-        add_remove_values_in_registry_list("imio.dms.mail.displayed_tabs", to_remove=("folders", "tree"),
-                                           order=FIRST_LEVEL_TABS)
+        add_remove_values_in_registry_list(
+            "imio.dms.mail.displayed_tabs", to_remove=("folders", "tree"), order=FIRST_LEVEL_TABS
+        )
     # handle fields
     for rec in ("imail_fields", "omail_fields"):
         update = False
@@ -428,12 +425,12 @@ def manage_classification(context, active):
         showed_ids = [dic["field_name"] for dic in showed]
         # imf = [ for v in im_fo]
         for fld in (
-            u"IClassificationFolder.classification_folders",
-            u"IClassificationFolder.classification_categories",
+            "IClassificationFolder.classification_folders",
+            "IClassificationFolder.classification_categories",
         ):
             if active and fld not in showed_ids:
                 idx = showed_ids.index("internal_reference_no")
-                showed.insert(idx, {"field_name": fld, "read_tal_condition": u"", "write_tal_condition": u""})
+                showed.insert(idx, {"field_name": fld, "read_tal_condition": "", "write_tal_condition": ""})
                 update = True
             elif not active and fld in showed_ids:
                 showed = [dic for dic in showed if dic["field_name"] != fld]
@@ -460,14 +457,14 @@ def manage_classification(context, active):
         for brain in brains:
             col = brain.getObject()
             buf = list(col.customViewFields)
-            if active and u"classification_folders" not in buf:
+            if active and "classification_folders" not in buf:
                 if "actions" in buf:
-                    buf.insert(buf.index("actions"), u"classification_folders")
+                    buf.insert(buf.index("actions"), "classification_folders")
                 else:
-                    buf.append(u"classification_folders")
+                    buf.append("classification_folders")
                 col.customViewFields = tuple(buf)
-            elif not active and u"classification_folders" in buf:
-                buf.remove(u"classification_folders")
+            elif not active and "classification_folders" in buf:
+                buf.remove("classification_folders")
                 col.customViewFields = tuple(buf)
 
 
@@ -516,11 +513,11 @@ def remove_om_nplus1_wfadaptation(context):
         return
     val_states = ["validated", "proposed_to_n_plus_1"]
     p_t = "dmsoutgoingmail"
-    fct_id = u"n_plus_1"
+    fct_id = "n_plus_1"
     log = []
     site = context.getSite()
     applied_adaptations = [dic["adaptation"] for dic in get_applied_adaptations()]
-    if u"imio.dms.mail.wfadaptations.OMServiceValidation" not in applied_adaptations:
+    if "imio.dms.mail.wfadaptations.OMServiceValidation" not in applied_adaptations:
         logger.info(append(log, "OMServiceValidation already removed !"))
         return "\n".join(log)
     # are there oms ?
@@ -536,8 +533,8 @@ def remove_om_nplus1_wfadaptation(context):
     other_nplus = True
     functions = get_registry_functions()
     for wfa in (
-        u"imio.dms.mail.wfadaptations.TaskServiceValidation",
-        u"imio.dms.mail.wfadaptations.IMServiceValidation",
+        "imio.dms.mail.wfadaptations.TaskServiceValidation",
+        "imio.dms.mail.wfadaptations.IMServiceValidation",
     ):
         if wfa in applied_adaptations:
             logger.info(append(log, "Do not remove n_plus_1 function because it's used by another adaptation"))
@@ -655,7 +652,7 @@ def remove_om_nplus1_wfadaptation(context):
     # remove wfadaptation entry
     record = api.portal.get_registry_record(RECORD_NAME)
     api.portal.set_registry_record(
-        RECORD_NAME, [d for d in record if d["adaptation"] != u"imio.dms.mail.wfadaptations.OMServiceValidation"]
+        RECORD_NAME, [d for d in record if d["adaptation"] != "imio.dms.mail.wfadaptations.OMServiceValidation"]
     )
     return "\n".join(log)
 
@@ -675,8 +672,8 @@ def configure_wsclient(context):
         pmurl = gedurl = os.getenv("PUBLIC_URL", "")
         pmurl = pmurl.replace("-docs", "-pm")
         if pmurl != gedurl:
-            api.portal.set_registry_record("{}.pm_url".format(prefix), u"{}".format(pmurl))
-        api.portal.set_registry_record("{}.pm_username".format(prefix), u"admin")
+            api.portal.set_registry_record("{}.pm_url".format(prefix), "{}".format(pmurl))
+        api.portal.set_registry_record("{}.pm_username".format(prefix), "admin")
         pmpass = os.getenv("PM_PASS", "")  # not used
         if pmpass:
             api.portal.set_registry_record("{}.pm_password".format(prefix), pmpass)
@@ -686,20 +683,20 @@ def configure_wsclient(context):
         orig_call = pm_item_data_vocabulary.__call__
         pm_item_data_vocabulary.__call__ = lambda self, ctxt: SimpleVocabulary(
             [
-                SimpleTerm(u"title"),
-                SimpleTerm(u"description"),
-                SimpleTerm(u"detailedDescription"),
+                SimpleTerm("title"),
+                SimpleTerm("description"),
+                SimpleTerm("detailedDescription"),
             ]
         )
         api.portal.set_registry_record(
             "{}.field_mappings".format(prefix),
             [
-                {"field_name": u"title", "expression": u"context/title"},
+                {"field_name": "title", "expression": "context/title"},
                 {
-                    "field_name": u"description",
-                    "expression": u"python: u'{}\\n{}'.format(context.description, "
-                    u"context.restrictedTraverse('@@IncomingmailRestWSClient')"
-                    u".detailed_description())",
+                    "field_name": "description",
+                    "expression": "python: u'{}\\n{}'.format(context.description, "
+                    "context.restrictedTraverse('@@IncomingmailRestWSClient')"
+                    ".detailed_description())",
                 },
                 # {'field_name': u'detailedDescription',
                 #  'expression': u'context/@@IncomingmailRestWSClient/detailed_description'},
@@ -713,7 +710,7 @@ def configure_wsclient(context):
 
         orig_call = pm_meeting_config_id_vocabulary.__call__
         pm_meeting_config_id_vocabulary.__call__ = lambda self, ctxt: SimpleVocabulary(
-            [SimpleTerm(u"meeting-config-college")]
+            [SimpleTerm("meeting-config-college")]
         )
         from imio.dms.mail.subscribers import wsclient_configuration_changed
         from plone.registry.interfaces import IRecordModifiedEvent
@@ -724,13 +721,13 @@ def configure_wsclient(context):
             "{}.generated_actions".format(prefix),
             [
                 {
-                    "pm_meeting_config_id": u"meeting-config-college",
-                    "condition": u"python: context.getPortalTypeName() in ('dmsincomingmail', 'dmsincoming_email')",
+                    "pm_meeting_config_id": "meeting-config-college",
+                    "condition": "python: context.getPortalTypeName() in ('dmsincomingmail', 'dmsincoming_email')",
                     "permissions": "Modify view template",
                 }
             ],
         )
-        api.portal.set_registry_record("{}.viewlet_display_condition".format(prefix), u"isLinked")
+        api.portal.set_registry_record("{}.viewlet_display_condition".format(prefix), "isLinked")
         pm_meeting_config_id_vocabulary.__call__ = orig_call
         gsm.registerHandler(wsclient_configuration_changed, (IRecordModifiedEvent,))
     [logger.info(msg) for msg in log]
@@ -744,16 +741,17 @@ def configure_demo_site(context):
     site = context.getSite()
     # change workflow of Document type to intranet_workflow, so the page can be published
     logger.info("Configure demo site")
-    site.portal_workflow.setChainForPortalTypes(['Document'], ('intranet_workflow',))
+    site.portal_workflow.setChainForPortalTypes(["Document"], ("intranet_workflow",))
 
     # add a default home page on portal root
     if "demo-front-page" not in site.objectIds():
         page = api.content.create(
             type="Document",
-            title=u"Accueil démo de la gestion du courrier 3.1",
+            title="Accueil démo de la gestion du courrier 3.1",
             id="demo-front-page",
             container=site,
-            text=u"""
+            text=richtextval(
+                """
 <p>L'application contient actuellement les <strong>fonctionnalités suivantes</strong>:</p>
 <ul>
 <li>Création d'une fiche courrier entrant
@@ -804,23 +802,27 @@ services sélectionnables.</p>
 <p>&nbsp;</p>
 <p>La <a href="https://docs.imio.be/iadocs/" target="_blank">documentation complète</a> est disponible en ligne: elle
 comprend les nouveautés de la version 3.1.</p>
-""")
-        page.setPresentation(False)
-        page.setExcludeFromNav(True)
+"""
+            ),
+        )
+        page.exclude_from_nav = True
+        page.reindexObject()
         site.setDefaultPage("demo-front-page")
         do_transitions(page, ["publish_internally", "publish_externally"])
         # exclude front-page from nav
-        site["front-page"].setExcludeFromNav(True)
-        site["front-page"].reindexObject()
+        if "front-page" in site.objectIds():
+            site["front-page"].exclude_from_nav = True
+            site["front-page"].reindexObject()
 
     # Add an help document
     if "aide" not in site.objectIds():
         page = api.content.create(
             type="Document",
-            title=u"AIDE",
+            title="AIDE",
             id="aide",
             container=site,
-            text=u"""
+            text=richtextval(
+                """
 <p><strong>Connexion</strong></p>
 <p>Connectez-vous suivant le profil expliqué en page d'accueil</p>
 <p>&nbsp;</p>
@@ -867,8 +869,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
 <p><strong>Manuel d'utilisation</strong></p>
 <p>La <a href="https://docs.imio.be/iadocs" target="_blank">documentation complète</a> est disponible en ligne.</p>
 """
+            ),
         )
-        page.setPresentation(False)
         do_transitions(page, ["publish_internally", "publish_externally"])
 
     # Add a content type portlet on Document type (to display on demo-front-page
@@ -876,22 +878,22 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     content_type_category = left_column[CONTENT_TYPE_CATEGORY]
     if "Document" not in content_type_category:
         content_type_category["Document"] = PortletAssignmentMapping(
-            manager="plone.leftcolumn",
-            category=CONTENT_TYPE_CATEGORY,
-            name="Document"
+            manager="plone.leftcolumn", category=CONTENT_TYPE_CATEGORY, name="Document"
         )
     mapping = content_type_category["Document"]
     if "aide" not in mapping:
         portlet = StaticAssignment(
-            header=u"AIDE",
-            text=u"""
+            header="AIDE",
+            text=richtextval(
+                """
 <p>&nbsp;</p>
 <p><strong>Connexion</strong></p>
 <p>Connectez-vous suivant le profil expliqué en page d'accueil</p>
 <p><strong>Explications sommaires</strong></p>
 <p>Ouvrir le <a href="./aide">document d'aide</a> pour avoir une ligne de conduite rapide dans le site de démo.</p>
-""",
-            omit_border=False
+"""
+            ),
+            omit_border=False,
         )
         mapping["aide"] = portlet
 
@@ -912,7 +914,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             i18n_domain="imio.dms.mail",
             url_expr="string:${globals_view/navigationRootUrl}/import_scanned",
             available_expr="python:context.getId() == 'incoming-mail' or (context.getId() == 'mail-searches' and "
-                           "context.aq_parent.getId() == 'incoming-mail')",
+            "context.aq_parent.getId() == 'incoming-mail')",
             permissions=("collective.dms.batchimport: Batch import",),
             visible=True,
         )
@@ -924,7 +926,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             i18n_domain="imio.dms.mail",
             url_expr="string:${globals_view/navigationRootUrl}/import_scanned?ptype=dmsincoming_email",
             available_expr="python:context.getId() == 'incoming-mail' or (context.getId() == 'mail-searches' and "
-                           "context.aq_parent.getId() == 'incoming-mail')",
+            "context.aq_parent.getId() == 'incoming-mail')",
             permissions=("collective.dms.batchimport: Batch import",),
             visible=True,
         )
@@ -936,7 +938,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             i18n_domain="imio.dms.mail",
             url_expr="string:${globals_view/navigationRootUrl}/import_scanned2",
             available_expr="python:context.getId() == 'outgoing-mail' or (context.getId() == 'mail-searches' and "
-                           "context.aq_parent.getId() == 'outgoing-mail')",
+            "context.aq_parent.getId() == 'outgoing-mail')",
             permissions=("collective.dms.batchimport: Batch import",),
             visible=True,
         )
@@ -945,9 +947,10 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     api.user.grant_roles(username="encodeur", roles=["Batch importer"])
 
     # Add N+1 validation
-    applied_adaptations = [dic["adaptation"] for dic in get_applied_adaptations()
-                           if dic["workflow"] == "outgoingmail_workflow"]
-    if u"imio.dms.mail.wfadaptations.OMServiceValidation" not in applied_adaptations:
+    applied_adaptations = [
+        dic["adaptation"] for dic in get_applied_adaptations() if dic["workflow"] == "outgoingmail_workflow"
+    ]
+    if "imio.dms.mail.wfadaptations.OMServiceValidation" not in applied_adaptations:
         site.portal_setup.runImportStepFromProfile(
             "profile-imio.dms.mail:singles", "imiodmsmail-im_n_plus_1_wfadaptation", run_dependencies=False
         )
@@ -967,16 +970,16 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     )
     activated_orgs = get_registry_organizations()
     if not get_esign_registry_vat_number():
-        set_esign_registry_vat_number(u"BE0000000097")
-        set_esign_registry_seal_code(u"PADES_SEAL")
-        set_esign_registry_seal_email(u"sceau@imio.be")
+        set_esign_registry_vat_number("BE0000000097")
+        set_esign_registry_seal_code("PADES_SEAL")
+        set_esign_registry_seal_email("sceau@imio.be")
         # set_esign_registry_sign_code(u"BULK_VISA")
 
         for dic in om_signer_rules:
             dic["esign"] = True
-            dic["approvings"] = [u"_themself_"]
+            dic["approvings"] = ["_themself_"]
             dic["treating_groups"] = activated_orgs
-            dic["tal_condition"] = u"python: member.getId() in ('admin', 'agent', 'agent1', 'chef', 'dirg')"
+            dic["tal_condition"] = "python: member.getId() in ('admin', 'agent', 'agent1', 'chef', 'dirg')"
         api.portal.set_registry_record(osr_rk, om_signer_rules)
 
     # activate sign request
@@ -986,7 +989,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         "profile-imio.dms.mail:singles", "imiodmsmail-activate-sign-request", run_dependencies=False
     )
     for dic in req_signer_rules:
-        dic["tal_condition"] = u"python: member.getId() in ('admin', 'agent', 'agent1', 'chef', 'dirg')"
+        dic["tal_condition"] = "python: member.getId() in ('admin', 'agent', 'agent1', 'chef', 'dirg')"
     api.portal.set_registry_record(rsr_rk, req_signer_rules)
 
     # Change user passwords to 'courrier'
@@ -1022,7 +1025,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             user_ids.append(safe_encode(u_id))
             if group_titles:
                 for group_title in group_titles.split("\n"):
-                    for (g_id, title) in groups:
+                    for g_id, title in groups:
                         if title == safe_encode(group_title):
                             if u_id not in api.user.get_users(groupname=g_id):
                                 api.group.add_user(groupname=g_id, user=user)
@@ -1051,7 +1054,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                             "organization",
                             oid,
                             title=oid.upper(),
-                            organization_type=u"service",
+                            organization_type="service",
                         )
                         own_service = parent[oid]
                         activated_orgs = get_registry_organizations()
@@ -1083,12 +1086,12 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                                 "number": 1,
                                 "signer": hp.UID(),
                                 "esign": True,
-                                "approvings": [u"_themself_"],
+                                "approvings": ["_themself_"],
                                 "editor": False,
                                 "treating_groups": [],
                                 "mail_types": [],
                                 "send_modes": [],
-                                "tal_condition": u"python: member.getId() == '{}'".format(u_id),
+                                "tal_condition": "python: member.getId() == '{}'".format(u_id),
                             },
                         )
                     if hp.UID() not in [dic["signer"] for dic in req_signer_rules]:
@@ -1097,41 +1100,47 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
                                 "number": 1,
                                 "signer": hp.UID(),
                                 "esign": True,
-                                "approvings": [u"_themself_"],
+                                "approvings": ["_themself_"],
                                 "editor": False,
                                 "treating_groups": [],
-                                "tal_condition": u"python: member.getId() == '{}'".format(u_id),
+                                "tal_condition": "python: member.getId() == '{}'".format(u_id),
                             },
                         )
                     if own_service:
-                        if not [rule for rule in om_signer_rules
-                                if rule["signer"] == hp.UID() and rule["treating_groups"] == [own_service.UID()]]:
+                        if not [
+                            rule
+                            for rule in om_signer_rules
+                            if rule["signer"] == hp.UID() and rule["treating_groups"] == [own_service.UID()]
+                        ]:
                             om_signer_rules.insert(
                                 0,
                                 {
                                     "number": 1,
                                     "signer": hp.UID(),
                                     "esign": True,
-                                    "approvings": [u"_themself_"],
+                                    "approvings": ["_themself_"],
                                     "editor": True,
                                     "treating_groups": [own_service.UID()],
                                     "mail_types": [],
                                     "send_modes": [],
-                                    "tal_condition": u"",
+                                    "tal_condition": "",
                                 },
                             )
-                        if not [rule for rule in req_signer_rules
-                                if rule["signer"] == hp.UID() and rule["treating_groups"] == [own_service.UID()]]:
+                        if not [
+                            rule
+                            for rule in req_signer_rules
+                            if rule["signer"] == hp.UID() and rule["treating_groups"] == [own_service.UID()]
+                        ]:
                             req_signer_rules.insert(
                                 0,
                                 {
                                     "number": 1,
                                     "signer": hp.UID(),
                                     "esign": True,
-                                    "approvings": [u"_themself_"],
+                                    "approvings": ["_themself_"],
                                     "editor": True,
                                     "treating_groups": [own_service.UID()],
-                                    "tal_condition": u"",
+                                    "tal_condition": "",
                                 },
                             )
                 # set primary org
@@ -1147,8 +1156,8 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     # Configure delib link
     prefix = "imio.pm.wsclient.browser.settings.IWS4PMClientSettings"
     if not api.portal.get_registry_record("{}.pm_password".format(prefix), default=False):
-        api.portal.set_registry_record("{}.pm_url".format(prefix), u"https://demo-pm.imio.be")
-        api.portal.set_registry_record("{}.pm_username".format(prefix), u"docs_delib")
+        api.portal.set_registry_record("{}.pm_url".format(prefix), "https://demo-pm.imio.be")
+        api.portal.set_registry_record("{}.pm_username".format(prefix), "docs_delib")
         pmpass = os.getenv("PM_PASS", "")  # not used
         if pmpass:
             api.portal.set_registry_record("{}.pm_password".format(prefix), pmpass)
@@ -1158,35 +1167,35 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         orig_call = pm_item_data_vocabulary.__call__
         pm_item_data_vocabulary.__call__ = lambda self, ctxt: SimpleVocabulary(
             [
-                SimpleTerm(u"title"),
-                SimpleTerm(u"description"),
-                SimpleTerm(u"detailedDescription"),
-                SimpleTerm(u"ignore_validation_for"),
+                SimpleTerm("title"),
+                SimpleTerm("description"),
+                SimpleTerm("detailedDescription"),
+                SimpleTerm("ignore_validation_for"),
             ]
         )
         api.portal.set_registry_record(
             "{}.field_mappings".format(prefix),
             [
-                {"field_name": u"title", "expression": u"context/title"},
-                {"field_name": u"description", "expression": u"context/Description"},
+                {"field_name": "title", "expression": "context/title"},
+                {"field_name": "description", "expression": "context/Description"},
                 {
-                    "field_name": u"detailedDescription",
-                    "expression": u"python: u'{}\\n{}'.format(context.description, "
-                    u"context.restrictedTraverse('@@IncomingmailRestWSClient')"
-                    u".detailed_description())",
+                    "field_name": "detailedDescription",
+                    "expression": "python: u'{}\\n{}'.format(context.description, "
+                    "context.restrictedTraverse('@@IncomingmailRestWSClient')"
+                    ".detailed_description())",
                 },
-                {"field_name": u"ignore_validation_for", "expression": u"string:groupsInCharge"},
+                {"field_name": "ignore_validation_for", "expression": "string:groupsInCharge"},
             ],
         )
         pm_item_data_vocabulary.__call__ = orig_call
-        api.portal.set_registry_record("{}.user_mappings".format(prefix),
-                                       [{"local_userid": safe_unicode(u_id), "pm_userid": u"dgen"}
-                                        for u_id in user_ids])
+        api.portal.set_registry_record(
+            "{}.user_mappings".format(prefix),
+            [{"local_userid": safe_unicode(user_id), "pm_userid": "dgen"} for user_id in user_ids],
+        )
         from imio.pm.wsclient.browser.vocabularies import pm_meeting_config_id_vocabulary
 
         orig_call = pm_meeting_config_id_vocabulary.__call__
-        terms = [SimpleTerm(u"meeting-config-college"), SimpleTerm(u"meeting-config-council"),
-                 SimpleTerm(u"bourgmestre")]
+        terms = [SimpleTerm("meeting-config-college"), SimpleTerm("meeting-config-council"), SimpleTerm("bourgmestre")]
         pm_meeting_config_id_vocabulary.__call__ = lambda self, ctxt: SimpleVocabulary(terms)
         from imio.dms.mail.subscribers import wsclient_configuration_changed
         from plone.registry.interfaces import IRecordModifiedEvent
@@ -1198,9 +1207,10 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             [
                 {
                     "pm_meeting_config_id": term.value,
-                    "condition": u"python: context.getPortalTypeName() in ('dmsincomingmail', 'dmsincoming_email')",
+                    "condition": "python: context.getPortalTypeName() in ('dmsincomingmail', 'dmsincoming_email')",
                     "permissions": "Modify view template",
-                } for term in terms
+                }
+                for term in terms
             ],
         )
         pm_meeting_config_id_vocabulary.__call__ = orig_call
@@ -1208,15 +1218,15 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
 
     # Add demo contacts in contact folder
     params = {
-        "lastname": u"Kordi",
-        "firstname": u"Annie",
-        "gender": u"F",
-        "person_title": u"Madame",
-        "zip_code": u"5032",
-        "city": u"Isnes",
-        "street": u"Rue du Yoyo",
-        "number": u"1",
-        "email": u"tata_yoyo@gmail.com",
+        "lastname": "Kordi",
+        "firstname": "Annie",
+        "gender": "F",
+        "person_title": "Madame",
+        "zip_code": "5032",
+        "city": "Isnes",
+        "street": "Rue du Yoyo",
+        "number": "1",
+        "email": "tata_yoyo@gmail.com",
         "use_parent_address": False,
     }
     if "anniekordi" not in site.contacts:
@@ -1226,18 +1236,18 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         image_path = os.path.join(PRODUCT_DIR, "profiles", "examples", "images", "Annie_Kordi.jpg")
         with open(image_path, "rb") as img_file:
             image_data = img_file.read()
-        named_image = NamedImage(data=image_data, filename=u"Annie_Kordi.jpg", contentType="image/jpeg")
+        named_image = NamedImage(data=image_data, filename="Annie_Kordi.jpg", contentType="image/jpeg")
         anniekordi.photo = named_image
         anniekordi.reindexObject()
 
     params = {
-        "title": u"IMIO",
-        "organization_type": u"sa",
-        "zip_code": u"5032",
-        "city": u"Isnes",
-        "street": u"Rue Léon Morel",
-        "number": u"1",
-        "email": u"contak@imio.be",
+        "title": "IMIO",
+        "organization_type": "sa",
+        "zip_code": "5032",
+        "city": "Isnes",
+        "street": "Rue Léon Morel",
+        "number": "1",
+        "email": "contak@imio.be",
         "use_parent_address": False,
     }
     if "imio" not in site.contacts:
@@ -1247,12 +1257,13 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     mailhost = get_mail_host(check=False)
     if not mailhost.smtp_host:
         mailhost.smtp_host = "localhost"
-        site.email_from_name = "Gestion courrier 3.1"
-        site.email_from_address = "support-docs@imio.be"
+        api.portal.set_registry_record("plone.email_from_name", "Gestion courrier 3.1")
+        api.portal.set_registry_record("plone.email_from_address", "support-docs@imio.be")
 
     # Removed template edition for OM editor
-    api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit",
-                                   False)
+    api.portal.set_registry_record(
+        "imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit", False
+    )
 
     api.portal.show_message(u"Configurer lien iA·Delib ? Modifier numbering session ?", type="warn", request=api.portal.get().REQUEST)
 
@@ -1264,7 +1275,7 @@ def contact_import_pipeline(context):
     logger.info("Set contact import pipeline")
     api.portal.set_registry_record(
         "collective.contact.importexport.interfaces.IPipelineConfiguration.pipeline",
-        u"""[transmogrifier]
+        """[transmogrifier]
 pipeline =
     initialization
     csv_disk_source

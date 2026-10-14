@@ -50,7 +50,7 @@ def remove_duplicates(all_relations):
             unique_relations.append(i)
             seen_add(hashable)
         else:
-            logger.info(u"Dropping duplicate: {}".format(hashable))
+            logger.info("Dropping duplicate: {}".format(hashable))
 
     if len(unique_relations) < len(all_relations):
         logger.info("Dropping {0} duplicates".format(len(all_relations) - len(unique_relations)))
@@ -70,8 +70,9 @@ def restore_relations(portal, batch_value):
     modified_relation_lists = defaultdict(list)
     load_pickle("modified_relation_lists.pkl", modified_relation_lists)
     intids = getUtility(IIntIds)
-    batch_keys, config = batch_get_keys("restored_relations.pkl", ar_len,
-                                        add_files=[os.path.abspath("modified_relation_lists.pkl")])
+    batch_keys, config = batch_get_keys(
+        "restored_relations.pkl", ar_len, add_files=[os.path.abspath("modified_relation_lists.pkl")]
+    )
     for item in all_relations:
         hashable = tuple(item.items())
         if batch_skip_key(hashable, batch_keys, config):
@@ -81,25 +82,25 @@ def restore_relations(portal, batch_value):
         target_obj = uuidToObject(item["to_uuid"])
 
         if not source_obj:
-            logger.info(u"{} source is missing".format(item["from_uuid"]))
+            logger.info("{} source is missing".format(item["from_uuid"]))
             if batch_handle_key(hashable, batch_keys, config):
                 break
             continue
 
         if not target_obj:
-            logger.info(u"{} target is missing".format(item["to_uuid"]))
+            logger.info("{} target is missing".format(item["to_uuid"]))
             if batch_handle_key(hashable, batch_keys, config):
                 break
             continue
 
         if not IDexterityContent.providedBy(source_obj):
-            logger.info(u"{} source is no dexterity content".format(source_obj.portal_type))
+            logger.info("{} source is no dexterity content".format(source_obj.portal_type))
             if batch_handle_key(hashable, batch_keys, config):
                 break
             continue
 
         if not IDexterityContent.providedBy(target_obj):
-            logger.info(u"{} target is no dexterity content".format(target_obj.portal_type))
+            logger.info("{} target is no dexterity content".format(target_obj.portal_type))
             if batch_handle_key(hashable, batch_keys, config):
                 break
             continue
@@ -124,7 +125,7 @@ def restore_relations(portal, batch_value):
         if field_and_schema is None:
             # the from_attribute is no field
             # we could either create a fresh relation or log the case
-            logger.info(u"No field. Setting relation: {}".format(item))
+            logger.info("No field. Setting relation: {}".format(item))
             event._setRelation(source_obj, from_attribute, RelationValue(to_id))
             if batch_handle_key(hashable, batch_keys, config):
                 break

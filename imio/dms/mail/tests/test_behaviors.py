@@ -7,6 +7,8 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.content.behaviors import PlonegroupUserLinkUseridValidator
+from imio.dms.mail.content.behaviors import signing_request_signers
+from imio.dms.mail.content.behaviors import signing_signers
 from imio.dms.mail.content.behaviors import UsagesSignerRulesValidator
 from imio.dms.mail.Extensions.demo import activate_signing
 from imio.dms.mail.interfaces import IPersonnelContact
@@ -58,14 +60,16 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             treating_groups=self.pgof["direction-generale"].UID(),
             mail_type="courrier",
             esign=True,
-            signers=[{
-                "number": 1,
-                "signer": self.pf["dirg"]["directeur-general"].UID(),
-                "approvings": [u"_themself_"],
-                "editor": True,
-            }],
+            signers=[
+                {
+                    "number": 1,
+                    "signer": self.pf["dirg"]["directeur-general"].UID(),
+                    "approvings": ["_themself_"],
+                    "editor": True,
+                }
+            ],
         )
-        filename = u"Réponse salle.odt"
+        filename = "Réponse salle.odt"
         ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
         with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=filename)
@@ -84,7 +88,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 }
@@ -98,7 +102,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_themself_", dirg.UID()],
+                    "approvings": ["_themself_", dirg.UID()],
                     "number": 1,
                     "editor": True,
                 }
@@ -106,15 +110,15 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"La ligne 1 des signataires a un doublon d'approbateur avec lui-même."
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        error_msg = "La ligne 1 des signataires a un doublon d'approbateur avec lui-même."
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
 
         # Test duplicate approvers between signers
         data = {
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 },
@@ -128,8 +132,8 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"L'utilisateur dirg existe déjà dans les approbateurs lignes 1 <=> 2"
-        self.assertEqual(_tr(errors[0].message, mapping={"userid": "dirg", "o": "1", "c": "2"}), error_msg)
+        error_msg = "L'utilisateur dirg existe déjà dans les approbateurs lignes 1 <=> 2"
+        self.assertEqual(_tr(errors[0].args[0], mapping={"userid": "dirg", "o": "1", "c": "2"}), error_msg)
 
         # Test duplicate signing persons
         params = {
@@ -145,13 +149,13 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 },
                 {
                     "signer": dirg_hp2.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 2,
                     "editor": True,
                 },
@@ -159,8 +163,8 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Vous ne pouvez pas avoir le m\xeame signataire plusieurs fois (Monsieur Maxime DG) !"
-        self.assertEqual(_tr(errors[0].message, mapping={"signer_title": dirg_hp.get_person_title()}), error_msg)
+        error_msg = "Vous ne pouvez pas avoir le m\xeame signataire plusieurs fois (Monsieur Maxime DG) !"
+        self.assertEqual(_tr(errors[0].args[0], mapping={"signer_title": dirg_hp.get_person_title()}), error_msg)
 
         # Test duplicate emails in signers
         api.user.get("bourgmestre").setMemberProperties({"email": "duplicate@belleville.eb"})
@@ -169,13 +173,13 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 },
                 {
                     "signer": bourgmestre_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 2,
                     "editor": True,
                 },
@@ -183,8 +187,8 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Vous ne pouvez pas avoir le même email (duplicate@belleville.eb) pour plusieurs signataires !"
-        self.assertEqual(_tr(errors[0].message, mapping={"email": "duplicate@belleville.eb"}), error_msg)
+        error_msg = "Vous ne pouvez pas avoir le même email (duplicate@belleville.eb) pour plusieurs signataires !"
+        self.assertEqual(_tr(errors[0].args[0], mapping={"email": "duplicate@belleville.eb"}), error_msg)
 
         # Test signer with no userid
         jeancourant_hp = self.portal["contacts"]["jeancourant"]["agent-electrabel"]
@@ -192,7 +196,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             "signers": [
                 {
                     "signer": jeancourant_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 }
@@ -201,16 +205,16 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = (
-            u"Le signataire 'Monsieur Jean Courant' n'a pas d'utilisateur Plone s\xe9lectionn\xe9 sur sa personne !"
+            "Le signataire 'Monsieur Jean Courant' n'a pas d'utilisateur Plone s\xe9lectionn\xe9 sur sa personne !"
         )
-        self.assertEqual(_tr(errors[0].message, mapping={"signer_title": jeancourant_hp.get_person_title()}), error_msg)
+        self.assertEqual(_tr(errors[0].args[0], mapping={"signer_title": jeancourant_hp.get_person_title()}), error_msg)
 
         # Test signer with wrong uid
         data = {
             "signers": [
                 {
-                    "signer": u"wrong-uid",
-                    "approvings": [u"_themself_"],
+                    "signer": "wrong-uid",
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 }
@@ -218,17 +222,15 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = (
-            u"Le signataire avec la position occupée dont l'UID est wrong-uid n'existe pas !"
-        )
-        self.assertEqual(_tr(errors[0].message, mapping={"uid": "wrong-uid"}), error_msg)
+        error_msg = "Le signataire avec la position occupée dont l'UID est wrong-uid n'existe pas !"
+        self.assertEqual(_tr(errors[0].args[0], mapping={"uid": "wrong-uid"}), error_msg)
 
         # Test approver with wrong uid
         data = {
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"wrong-uid"],
+                    "approvings": ["wrong-uid"],
                     "number": 1,
                     "editor": True,
                 }
@@ -236,23 +238,21 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = (
-            u"L'approbateur dont le UID de sa personne est wrong-uid n'existe pas !"
-        )
-        self.assertEqual(_tr(errors[0].message, mapping={"uid": "wrong-uid"}), error_msg)
+        error_msg = "L'approbateur dont le UID de sa personne est wrong-uid n'existe pas !"
+        self.assertEqual(_tr(errors[0].args[0], mapping={"uid": "wrong-uid"}), error_msg)
 
         # Test duplicate numbers
         data = {
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 },
                 {
                     "signer": bourgmestre_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 },
@@ -260,8 +260,8 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Vous ne pouvez pas utiliser le même numéro pour plusieurs signataires !"
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        error_msg = "Vous ne pouvez pas utiliser le même numéro pour plusieurs signataires !"
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
 
         # Test missing numbers in sequence
         bourgmestre = self.portal["contacts"]["personnel-folder"]["bourgmestre"]
@@ -270,13 +270,13 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 },
                 {
                     "signer": bourgmestre_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 3,
                     "editor": True,
                 },
@@ -284,15 +284,15 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Un signataire est manquant aux positions 2 !"
-        self.assertEqual(_tr(errors[0].message, mapping={"positions": "2"}), error_msg)
+        error_msg = "Un signataire est manquant aux positions 2 !"
+        self.assertEqual(_tr(errors[0].args[0], mapping={"positions": "2"}), error_msg)
 
         # Test no approvings with esign activated
         data = {
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "number": 1,
                     "editor": True,
                 },
@@ -301,15 +301,17 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        self.assertEqual(_tr(errors[0].message), u"Vous devez définir des approbateurs pour chaque signataire si "
-                                                 u"la signature électronique est utilisée !")
+        self.assertEqual(
+            _tr(errors[0].args[0]),
+            "Vous devez définir des approbateurs pour chaque signataire si " "la signature électronique est utilisée !",
+        )
 
         # Test no approvings with esign deactivated
         data = {
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "number": 1,
                     "editor": True,
                 },
@@ -324,7 +326,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_empty_"],
+                    "approvings": ["_empty_"],
                     "number": 1,
                     "editor": True,
                 },
@@ -338,15 +340,15 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Vous ne pouvez pas avoir des lignes avec des approbateurs parfois vides, parfois non !"
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        error_msg = "Vous ne pouvez pas avoir des lignes avec des approbateurs parfois vides, parfois non !"
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
 
         # Test seal with no esign activated
         data = {
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 },
@@ -356,15 +358,15 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Vous ne pouvez pas avoir de cachet et de signataire sans cocher 'Signature élec.' !"
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        error_msg = "Vous ne pouvez pas avoir de cachet et de signataire sans cocher 'Signature élec.' !"
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
 
         # Test edit signers
         data = {
             "signers": [
                 {
                     "signer": dirg_hp.UID(),
-                    "approvings": [u"_themself_"],
+                    "approvings": ["_themself_"],
                     "number": 1,
                     "editor": True,
                 },
@@ -384,9 +386,11 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.change_user("dirg")
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = (u"Vous ne pouvez pas modifier les signataires une fois le processus d'approbation commencé ou "
-                     u"terminé. Revenez dans un état précédent ou demandez à votre référent.")
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        error_msg = (
+            "Vous ne pouvez pas modifier les signataires une fois le processus d'approbation commencé ou "
+            "terminé. Revenez dans un état précédent ou demandez à votre référent."
+        )
+        self.assertEqual(_tr(errors[0].args[0]), error_msg)
 
         # Test template context: outgoing-mail-specific checks are skipped
         self.change_user("siteadmin")
@@ -396,7 +400,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         # Valid signers on template: no error
         data = {
             "signers": [
-                {"signer": dirg_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+                {"signer": dirg_hp.UID(), "approvings": ["_themself_"], "number": 1, "editor": True},
             ],
             "esign": True,
             "seal": False,
@@ -407,8 +411,8 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         # Generic validations still apply on template: duplicate numbers
         data = {
             "signers": [
-                {"signer": dirg_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
-                {"signer": bourgmestre_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+                {"signer": dirg_hp.UID(), "approvings": ["_themself_"], "number": 1, "editor": True},
+                {"signer": bourgmestre_hp.UID(), "approvings": ["_themself_"], "number": 1, "editor": True},
             ],
         }
         errors = tpl_invariants.validate(data)
@@ -417,7 +421,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         # Seal without esign on template: still an error (generic check)
         data = {
             "signers": [
-                {"signer": dirg_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+                {"signer": dirg_hp.UID(), "approvings": ["_themself_"], "number": 1, "editor": True},
             ],
             "esign": False,
             "seal": True,
@@ -428,7 +432,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         # Approval state check is skipped on template (only runs on IImioDmsOutgoingMail)
         data = {
             "signers": [
-                {"signer": dirg_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+                {"signer": dirg_hp.UID(), "approvings": ["_themself_"], "number": 1, "editor": True},
             ],
             "esign": True,
             "seal": False,
@@ -439,7 +443,7 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         # File format validation is skipped on template (only runs on IImioDmsOutgoingMail)
         data = {
             "signers": [
-                {"signer": dirg_hp.UID(), "approvings": [u"_themself_"], "number": 1, "editor": True},
+                {"signer": dirg_hp.UID(), "approvings": ["_themself_"], "number": 1, "editor": True},
             ],
             "esign": True,
             "seal": False,
@@ -459,16 +463,18 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         api.group.create("real_group", "Real group")
         api.user.create(email="withgroup@example.be", username="user_with_group", password="Password123!")
         api.group.add_user(groupname="real_group", username="user_with_group")
-        person_g = createContentInContainer(self.pf, "person", id="person_g", lastname=u"WithGroup",
-                                            use_parent_address=False)
+        person_g = createContentInContainer(
+            self.pf, "person", id="person_g", lastname="WithGroup", use_parent_address=False
+        )
         person_g.userid = "user_with_group"
         with self.assertRaises(Invalid):
             _validate(person_g, "")
 
         # User only in the virtual AuthenticatedUsers group -> emptying is allowed
         api.user.create(email="lonely@example.be", username="lonely_user", password="Password123!")
-        person_l = createContentInContainer(self.pf, "person", id="person_l", lastname=u"Lonely",
-                                            use_parent_address=False)
+        person_l = createContentInContainer(
+            self.pf, "person", id="person_l", lastname="Lonely", use_parent_address=False
+        )
         person_l.userid = "lonely_user"
         self.assertIsNone(_validate(person_l, ""))
 
@@ -485,23 +491,46 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.assertIsNone(person_validator.validate(["signer"]))
         # held position is outside personnel folder
         outside_hp_validator = UsagesSignerRulesValidator(
-            self.dir["sergerobinet"]["agent-swde"], request, None, field, None)
+            self.dir["sergerobinet"]["agent-swde"], request, None, field, None
+        )
         self.assertIsNone(outside_hp_validator.validate(["signer"]))
 
         # Edit scenario: context is the HeldPosition
-        api.portal.set_registry_record(rk_rules, [{
-            "number": 1,
-            "signer": bourgmestre_hp.UID(),
-            "esign": True,
-            "approvings": [u"_empty_"],
-            "editor": False,
-            "treating_groups": [],
-            "mail_types": [],
-            "send_modes": [],
-            "tal_condition": None,
-        }])
+        api.portal.set_registry_record(
+            rk_rules,
+            [
+                {
+                    "number": 1,
+                    "signer": bourgmestre_hp.UID(),
+                    "esign": True,
+                    "approvings": ["_empty_"],
+                    "editor": False,
+                    "treating_groups": [],
+                    "mail_types": [],
+                    "send_modes": [],
+                    "tal_condition": None,
+                }
+            ],
+        )
         hp_validator = UsagesSignerRulesValidator(bourgmestre_hp, request, None, field, None)
         self.assertRaises(Invalid, hp_validator.validate, [])
         # Keeping the signer usage: no conflict.
         self.assertIsNone(hp_validator.validate(["signer"]))
         api.portal.set_registry_record(rk_rules, [])
+
+    def test_signing_signers(self):
+        values = [term.value for term in signing_signers(self.portal)]
+        # a value must be chosen, "no signature" is possible
+        self.assertListEqual(values[:2], [None, "_empty_"])
+        # the personnel held positions with the signer usage
+        self.assertIn(self.pf["dirg"]["directeur-general"].UID(), values)
+        self.assertIn(self.pf["bourgmestre"]["bourgmestre"].UID(), values)
+        self.assertNotIn(self.pf["agent"]["agent-grh"].UID(), values)
+
+    def test_signing_request_signers(self):
+        values = [term.value for term in signing_request_signers(self.portal)]
+        # a signature is mandatory: no "no signature" choice
+        self.assertEqual(values[0], None)
+        self.assertNotIn("_empty_", values)
+        self.assertIn(self.pf["dirg"]["directeur-general"].UID(), values)
+        self.assertIn(self.pf["bourgmestre"]["bourgmestre"].UID(), values)
