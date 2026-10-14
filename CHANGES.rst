@@ -13,9 +13,7 @@ Changelog
   [chris-adam,sgeulette]
 - Updated the incoming email routing and state set descriptions (DMS-1215).
   [chris-adam]
-- Added Collabora edit on files and templates, installed by the migrations (DMS-1106).
-  [chris-adam]
-- Added the Manager-only ``collabora_edit`` setting, off by default, to use Collabora instead of ZopeEdit (DMS-1243).
+- Added Collabora edit on files and templates (DMS-1106).
   [chris-adam]
 
 3.1.6 (2026-08-14)
