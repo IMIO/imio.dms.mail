@@ -3,6 +3,9 @@ from AccessControl import getSecurityManager
 from borg.localrole.interfaces import ILocalRoleProvider
 from collective.classification.folder.interfaces import IServiceInCharge
 from collective.classification.folder.interfaces import IServiceInCopy
+from collective.collabora.adapters import DXStoredFile
+from collective.collabora.interfaces import IStoredFile
+from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.content.person import IPerson
 from collective.contact.core.indexers import contact_source
@@ -16,6 +19,7 @@ from collective.dms.basecontent.dmsfile import IDmsFile
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator import _ as _dg
+from collective.documentgenerator.content.pod_template import IPODTemplate
 from collective.documentgenerator.utils import convert_and_save_file
 from collective.documentgenerator.utils import convert_file
 from collective.documentgenerator.utils import convert_odt
@@ -2070,3 +2074,11 @@ class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
         base_infos["conv_from_uid"] = getattr(self.obj, "conv_from_uid", None)
         base_infos["esigned"] = getattr(self.obj, "esigned", False)
         return base_infos
+
+
+@adapter(IPODTemplate)
+@implementer(IStoredFile)
+class StoredPodTemplate(DXStoredFile):
+    """Access the ``odt_file`` of a POD or style template."""
+
+    file_field_name = "odt_file"

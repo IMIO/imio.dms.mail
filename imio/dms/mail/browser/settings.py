@@ -37,6 +37,7 @@ from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.z3cform.wysiwyg import WysiwygFieldWidget
 from plone.autoform.directives import widget
+from plone.autoform.directives import write_permission
 from plone.dexterity.fti import DexterityFTIModificationDescription
 from plone.dexterity.fti import ftiModified
 from plone.dexterity.interfaces import IDexterityFTI
@@ -973,7 +974,7 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         "general",
         label=_(u"General config tab"),
-        fields=["groups_hidden_in_dashboard_filter", "users_hidden_in_dashboard_filter"],
+        fields=["groups_hidden_in_dashboard_filter", "users_hidden_in_dashboard_filter", "collabora_edit"],
     )
 
     groups_hidden_in_dashboard_filter = schema.List(
@@ -991,6 +992,13 @@ class IImioDmsMailConfig(model.Schema):
         default=[],
     )
     widget("users_hidden_in_dashboard_filter", OrderedSelectFieldWidget, size=10)
+
+    collabora_edit = schema.Bool(
+        title=_(u"Edit with Collabora"),
+        description=_(u"Enable for online editing of documents. Disable to use ZopeEdit."),
+        default=False,
+    )
+    write_permission(collabora_edit="cmf.ManagePortal")
 
     @invariant
     def validate_settings(data):  # noqa

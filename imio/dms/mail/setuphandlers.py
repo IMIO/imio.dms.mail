@@ -205,6 +205,20 @@ def setup_classification(site):
     logger.info("Classification configured")
 
 
+def configure_collabora():
+    """Set collective.collabora's server url: the site's own origin, /collabora proxied.
+
+    One origin for both the browser and Plone's /hosting/discovery call.
+    No PUBLIC_URL or COLLABORA_DEV_MODE means dev: reach the container directly.
+    """
+    url = u"http://localhost:9980"
+    public_url = os.getenv("PUBLIC_URL", "")
+    if public_url and not os.getenv("COLLABORA_DEV_MODE"):
+        url = u"{0}/collabora".format(public_url.rstrip("/"))
+    api.portal.set_registry_record("collective.collabora.collabora_server_url", url)
+    logger.info("collabora_server_url set to %s", url)
+
+
 def postInstall(context):
     """Called as at the end of the setup process."""
     # the right place for your custom code
@@ -215,6 +229,9 @@ def postInstall(context):
 
     # we adapt default portal
     adaptDefaultPortal(context)
+
+    # we configure the Collabora server url (per environment)
+    configure_collabora()
 
     # we change searched types
     changeSearchedTypes(site)

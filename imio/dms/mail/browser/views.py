@@ -3,6 +3,8 @@ from AccessControl import getSecurityManager
 from AccessControl import Unauthorized
 from Acquisition import aq_inner
 from collective.ckeditortemplates.cktemplate import ICKTemplate
+from collective.collabora.browser.edit import CollaboraEditView
+from collective.externaleditor.browser.views import ExternalEditView as ZopeEditView
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
 from imio.dms.mail import _
@@ -63,6 +65,14 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
     """Create a document from a collective.documentgenerator template."""
 
     root = "/templates/om"
+
+    @property
+    def form_target(self):
+        """Open Collabora edit in a new tab."""
+        collabora = api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_edit", default=False
+        )
+        return "_blank" if collabora else None
 
     def label(self):
         return translate(
@@ -731,3 +741,18 @@ class ObjectRenameTitleView(BrowserView):
         self.title = safe_unicode(self.context.Title())
         self.orig_template = self.request.get("HTTP_REFERER", "").split("?")[0]
         return self.index()
+
+
+class CollaboraOrZopeEditView(CollaboraEditView):
+    """Edit with Collabora or ZopeEdit, following the collabora_edit setting."""
+
+    def __call__(self):
+        if api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_edit", default=False
+        ):
+            return super(CollaboraOrZopeEditView, self).__call__()
+        # page permission is View for collabora read-only mode
+        if not api.user.has_permission("Modify portal content", obj=self.context):
+            raise Unauthorized
+        # built directly: this view shadows ZopeEdit's external_edit
+        return ZopeEditView(self.context, self.request)()
