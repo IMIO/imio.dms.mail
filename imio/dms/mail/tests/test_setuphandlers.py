@@ -2,10 +2,11 @@
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from imio.dms.mail.interfaces import IPersonnelDashboard
-from imio.dms.mail.setuphandlers import collabora_server_url
+from imio.dms.mail.setuphandlers import configure_collabora
 from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from plone import api
 
 import os
 import unittest
@@ -78,17 +79,17 @@ class TestSetuphandlers(unittest.TestCase):
         for brain in brains:
             self.assertFalse(brain._unrestrictedGetObject().predefined_title)
 
-    def test_collabora_server_url(self):
+    def test_configure_collabora(self):
         original = os.environ.get("PUBLIC_URL")
         try:
-            os.environ["PUBLIC_URL"] = "https://xxx-docs.imio-app.be"
-            self.assertEqual(collabora_server_url(), u"https://xxx-docs.imio-app.be/collabora")
-            # a trailing slash must not double up
-            os.environ["PUBLIC_URL"] = "https://xxx-docs.imio-app.be/"
-            self.assertEqual(collabora_server_url(), u"https://xxx-docs.imio-app.be/collabora")
-            # no PUBLIC_URL: dev container, see docker-compose.yaml
-            os.environ["PUBLIC_URL"] = ""
-            self.assertEqual(collabora_server_url(), u"http://localhost:9980")
+            for public_url, expected in (
+                ("https://xxx-docs.imio-app.be", u"https://xxx-docs.imio-app.be/collabora"),
+                ("https://xxx-docs.imio-app.be/", u"https://xxx-docs.imio-app.be/collabora"),  # no double slash
+                ("", u"http://localhost:9980"),  # no PUBLIC_URL: dev container, see docker-compose.yaml
+            ):
+                os.environ["PUBLIC_URL"] = public_url
+                configure_collabora()
+                self.assertEqual(api.portal.get_registry_record("collective.collabora.collabora_server_url"), expected)
         finally:
             if original is None:
                 del os.environ["PUBLIC_URL"]
