@@ -842,6 +842,16 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/models_icon.png');
 }
 
+.apButtonAction_export-to-pdf-after-signature {
+    background-image: url('&dtml-portal_url;/++resource++collective.documentgenerator/pdf.svg');
+    background-size: 15px auto;
+}
+
+.apButtonAction_export-to-pdf-before-signature {
+    background-image: url('&dtml-portal_url;/++resource++collective.documentgenerator/pdf.svg');
+    background-size: 15px auto;
+}
+
 .apButtonAction_sendemail {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/send_email.svg');
     background-size: 18px 18px;
