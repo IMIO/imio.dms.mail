@@ -10,8 +10,8 @@ from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
 from dexterity.localroles.browser.interfaces import ILocalRoleListUpdatedEvent
-from dexterity.localroles.subscriber import local_role_related_configuration_updated
 from dexterity.localroles.utils import add_fti_configuration
+from dexterity.localrolesfield.subscriber import local_role_related_configuration_updated
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import CONTACTS_PART_SUFFIX
@@ -1820,14 +1820,14 @@ def configure_group_encoder(field_name, contacts_part=False):
 
         # local roles
         if config.get(portal_type):
-            if save_ram:
-                getGlobalSiteManager().unregisterHandler(
-                    local_role_related_configuration_updated, (ILocalRoleListUpdatedEvent,)
-                )
+            # only re-register what was really unregistered, to never add a handler that wasn't there
+            unregistered = save_ram and getGlobalSiteManager().unregisterHandler(
+                local_role_related_configuration_updated, (ILocalRoleListUpdatedEvent,)
+            )
             try:
                 msg = add_fti_configuration(portal_type, config[portal_type], keyname="creating_group")
             finally:
-                if save_ram:
+                if unregistered:
                     getGlobalSiteManager().registerHandler(
                         local_role_related_configuration_updated, (ILocalRoleListUpdatedEvent,)
                     )

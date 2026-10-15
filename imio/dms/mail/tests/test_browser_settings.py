@@ -7,7 +7,7 @@ from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.utils import get_person_from_userid
 from dexterity.localroles.browser.interfaces import ILocalRoleListUpdatedEvent
-from dexterity.localroles.subscriber import local_role_related_configuration_updated
+from dexterity.localrolesfield.subscriber import local_role_related_configuration_updated
 from dexterity.localrolesfield.utils import get_localrole_fields
 from eea.facetednavigation.criteria.interfaces import ICriteria
 from imio.dms.mail import _tr
@@ -28,8 +28,8 @@ from plone.app.testing import logout
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from z3c.form import validator
-from zope.component import getUtility
 from zope.component import getGlobalSiteManager
+from zope.component import getUtility
 from zope.component import queryUtility
 from zope.i18n import ITranslationDomain
 from zope.interface import Invalid
@@ -415,9 +415,9 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         # user logout
         logout()
 
-    def test_configure_group_encoder_safe_ram(self):
+    def test_configure_group_encoder_save_ram(self):
         change_user(self.portal)
-        with mock.patch.dict(os.environ, {"SAFE_RAM": "1"}):
+        with mock.patch.dict(os.environ, {"SAVE_RAM": "1"}):
             activate_group_encoder(self.portal)
         fti = getUtility(IDexterityFTI, name="dmsincomingmail")
         self.assertTrue(fti.localroles.get("creating_group"))
