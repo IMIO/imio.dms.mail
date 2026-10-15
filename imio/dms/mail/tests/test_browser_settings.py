@@ -14,6 +14,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail import FIRST_LEVEL_TABS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.settings import SettingsEditForm
 from imio.dms.mail.browser.views import ImioCatalogNavigationTabs
 from imio.dms.mail.browser.views import PlusPortaltabContent
 from imio.dms.mail.content.behaviors import default_creating_group
@@ -30,6 +31,7 @@ from zope.component import getUtility
 from zope.component import queryUtility
 from zope.i18n import ITranslationDomain
 from zope.interface import Invalid
+from zope.schema import ASCIILine
 from zope.schema.interfaces import IVocabularyFactory
 
 import unittest
@@ -450,3 +452,22 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         for fid in ("orgs-searches", "persons-searches", "hps-searches", "cls-searches"):
             crit = ICriteria(self.portal["contacts"][fid])
             self.assertIn("c90", crit.keys())
+
+
+class TestSettingsEditForm(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+
+    def test_updateFields(self):
+        form = SettingsEditForm(self.portal, self.portal.REQUEST)
+        form.update()
+        widget = [grp.widgets["batch_approval_signers"] for grp in form.groups
+                  if "batch_approval_signers" in grp.widgets][0]
+        bourgmestre = self.portal["contacts"]["personnel-folder"]["bourgmestre"]["bourgmestre"]
+        self.assertIn(bourgmestre.UID(), [term.value for term in widget.terms])
+        # the registry record only stores ids
+        self.assertIsInstance(IImioDmsMailConfig["batch_approval_signers"].value_type, ASCIILine)

@@ -12,6 +12,7 @@ from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
+from imio.dms.mail.browser.batchactions import BATCH_APPROVAL_SIGNERS_RECORD
 from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.interfaces import IOMApproval
@@ -1730,6 +1731,13 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         hp.usages = ["signer"]
         modified(hp, Attributes(IBasic, "IBasic.title"))
         self.assertListEqual(self._person_usages(person), ["approving"])
+        # a held position no longer signer leaves the batch approval signers
+        api.portal.set_registry_record(BATCH_APPROVAL_SIGNERS_RECORD, [hp.UID(), "other"])
+        modified(hp, Attributes(IUsagesBehavior, "IUsagesBehavior.usages"))
+        self.assertListEqual(api.portal.get_registry_record(BATCH_APPROVAL_SIGNERS_RECORD), [hp.UID(), "other"])
+        hp.usages = ["approving"]
+        modified(hp, Attributes(IUsagesBehavior, "IUsagesBehavior.usages"))
+        self.assertListEqual(api.portal.get_registry_record(BATCH_APPROVAL_SIGNERS_RECORD), ["other"])
 
     def test_held_position_removed(self):
         person = api.content.create(container=self.pf, type="person", id="tester", lastname=u"Tester")
@@ -1740,9 +1748,11 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             usages=["signer"],
         )
         self.assertListEqual(self._person_usages(person), ["signer"])
+        api.portal.set_registry_record(BATCH_APPROVAL_SIGNERS_RECORD, [person["hp1"].UID(), "other"])
         # removing the held position reindexes the person (held_position_removed subscriber)
         api.content.delete(person["hp1"])
         self.assertListEqual(self._person_usages(person), [])
+        self.assertListEqual(api.portal.get_registry_record(BATCH_APPROVAL_SIGNERS_RECORD), ["other"])
 
 
 class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):

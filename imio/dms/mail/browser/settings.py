@@ -973,7 +973,12 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         "general",
         label=_(u"General config tab"),
-        fields=["groups_hidden_in_dashboard_filter", "users_hidden_in_dashboard_filter"],
+        fields=[
+            "groups_hidden_in_dashboard_filter",
+            "users_hidden_in_dashboard_filter",
+            "batch_approval_signers",
+            "batch_approval_limit",
+        ],
     )
 
     groups_hidden_in_dashboard_filter = schema.List(
@@ -991,6 +996,24 @@ class IImioDmsMailConfig(model.Schema):
         default=[],
     )
     widget("users_hidden_in_dashboard_filter", OrderedSelectFieldWidget, size=10)
+
+    batch_approval_signers = schema.List(
+        title=_(u"Signers with batch approval"),
+        description=_(u"Their approvers can approve their files from the \"To approve\" dashboard collection."),
+        required=False,
+        # not a Choice: a registry import would reset the whole record when a stored id left the vocabulary
+        value_type=schema.ASCIILine(),
+        default=[],
+    )
+    widget("batch_approval_signers", CheckBoxFieldWidget, multiple="multiple")
+
+    batch_approval_limit = schema.Int(
+        title=_(u"Maximum number of elements per batch approval"),
+        description=_(u"Converting the files to PDF can take a few seconds per file. 0 means no limit."),
+        required=True,
+        default=10,
+        min=0,
+    )
 
     @invariant
     def validate_settings(data):  # noqa
@@ -1505,6 +1528,14 @@ class SettingsEditForm(RegistryEditForm):
     schema = IImioDmsMailConfig
 
     _DATAGRID_VALUE_TYPES = datagrid_value_types(IImioDmsMailConfig)
+
+    def updateFields(self):
+        """Choose the batch approval signers among the signers vocabulary, the record only stores ids."""
+        super(SettingsEditForm, self).updateFields()
+        group = next(grp for grp in self.groups if "batch_approval_signers" in grp.fields)
+        field = copy.copy(group.fields["batch_approval_signers"].field)
+        field.value_type = schema.Choice(vocabulary=u"imio.dms.mail.OMSignersVocabulary")
+        group.fields["batch_approval_signers"].field = field
 
     def update(self):
         heal_datagrid_value_types(self._DATAGRID_VALUE_TYPES)

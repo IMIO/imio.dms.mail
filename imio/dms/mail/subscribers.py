@@ -34,6 +34,7 @@ from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.adapters import SignRequestApprovalAdapter
+from imio.dms.mail.browser.batchactions import BATCH_APPROVAL_SIGNERS_RECORD
 # from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
@@ -1554,6 +1555,8 @@ def held_position_modified(obj, event):
         if mod_attr:
             update_approvers_settings()
             reindex_person_usages(obj)
+            if "signer" not in (obj.usages or []):
+                remove_batch_approval_signer(obj.UID())
 
 
 def held_position_removed(obj, event):
@@ -1565,6 +1568,7 @@ def held_position_removed(obj, event):
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningApprovingsVocabulary")
         invalidate_cachekey_volatile_for("imio.dms.mail.vocabularies.SigningRequestApprovingsVocabulary")
         reindex_person_usages(obj)
+        remove_batch_approval_signer(obj.UID())
 
 
 def mark_contact(contact, event):
@@ -1811,3 +1815,10 @@ def i_annex_created(obj, event):
     if not filename or obj.title not in (None, u"", filename):
         return
     obj.title = safe_unicode(filename).rsplit(u".", 1)[0] or safe_unicode(filename)
+
+
+def remove_batch_approval_signer(hp_uid):
+    """Remove a held position from the batch approval signers."""
+    signers = api.portal.get_registry_record(BATCH_APPROVAL_SIGNERS_RECORD, default=None) or []
+    if hp_uid in signers:
+        api.portal.set_registry_record(BATCH_APPROVAL_SIGNERS_RECORD, [uid for uid in signers if uid != hp_uid])
