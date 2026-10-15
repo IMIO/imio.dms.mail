@@ -27,6 +27,7 @@ from imio.dms.mail.adapters import OutgoingMailValidationCriterion
 from imio.dms.mail.adapters import ready_for_email_index
 from imio.dms.mail.adapters import ScanSearchableExtender
 from imio.dms.mail.adapters import signrequest_approvings_index
+from imio.dms.mail.adapters import signrequest_searchable_text_index
 from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.adapters import SignRequestInCopyGroupCriterion
 from imio.dms.mail.adapters import SignRequestInTreatingGroupCriterion
@@ -231,6 +232,16 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(signrequest_approvings_index(request)(), [])
         self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
         self.assertEqual(signrequest_approvings_index(request)(), ["dirg"])
+
+    def test_signrequest_searchable_text_index(self):
+        # a sign request whose file holds the acroform tags of 2 signers
+        request, files = create_sign_request(self.portal, oid="sr-acroform")
+        text = signrequest_searchable_text_index(request)()
+        self.assertIn("Belleville", text)
+        self.assertNotIn("Signer1", text)
+        request.reindexObject(idxs=["SearchableText"])
+        self.assertEqual(len(api.content.find(UID=request.UID(), SearchableText="belleville")), 1)
+        self.assertEqual(len(api.content.find(UID=request.UID(), SearchableText="signer1")), 0)
 
     def test_TaskInAssignedGroupCriterion(self):
         crit = TaskInAssignedGroupCriterion(self.portal)
@@ -1824,7 +1835,13 @@ class TestAcroformTagsCleaner(unittest.TestCase, ImioTestHelpers):
         # utf-8 bytes, as the document viewer reads its page texts
         self.assertEqual(cleaner.clean("D\xc3\xa9but " + tag), "D\xc3\xa9but  ")
         Converter(afile)()
-        # the document viewer search does not find the acroform tags
-        words = Settings(afile).catalog["text"].index._lexicon.words()
+        # neither the document viewer search nor its text tab show the acroform tags
+        settings = Settings(afile)
+        words = settings.catalog["text"].index._lexicon.words()
         self.assertIn("belleville", words)
         self.assertNotIn("signer1", words)
+        page_texts = "".join(
+            [settings.blob_files["text/dump_%d.txt" % nb].open().read() for nb in range(1, settings.num_pages + 1)]
+        )
+        self.assertIn("Belleville", page_texts)
+        self.assertNotIn("Signer1", page_texts)

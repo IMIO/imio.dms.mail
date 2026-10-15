@@ -5,7 +5,6 @@ from collective.documentviewer.convert import DUMP_FILENAME
 from collective.documentviewer.convert import Page
 from collective.documentviewer.convert import TEXT_REL_PATHNAME
 from collective.documentviewer.interfaces import IPageTextCleaner
-from collective.documentviewer.settings import Settings
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
@@ -26,6 +25,7 @@ from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import BLDT_DIR
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import DEFAULT_DISPLAYED_TABS
+from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
@@ -60,6 +60,7 @@ from plone.registry.events import RecordModifiedEvent
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
+from zope.annotation.interfaces import IAnnotations
 from zope.component import getGlobalSiteManager
 from zope.event import notify
 from zope.interface import alsoProvides
@@ -695,35 +696,40 @@ class Migrate_To_3_1(Migrator):  # noqa
                                      and b.id in om_print_to_sign_cols]
 
     def reindex_acroform_tagged_files(self):
-        """Reindex the files whose searchable texts still hold acroform tags."""
+        """Reindex the files and sign requests whose searchable texts still hold acroform tags."""
 
         def rebuild_text_catalog(obj):
-            """Rebuild the document viewer text catalog from the page texts kept in blobs."""
-            settings = Settings(obj)
-            blob_files = settings.blob_files or {}
+            """Clean the document viewer page texts kept in blobs and rebuild their catalog."""
+            dv_annot = IAnnotations(obj).get("collective.documentviewer") or {}
+            blob_files = dv_annot.get("blob_files") or {}
             dump_path = DUMP_FILENAME.rsplit(".", 1)[0]
             blobs = [blob_files.get("%s/%s_%i.txt" % (TEXT_REL_PATHNAME, dump_path, page_num))
-                     for page_num in range(1, (settings.num_pages or 0) + 1)]
-            if settings.catalog is None or not blobs or None in blobs:
-                return False  # no page texts: file storage, or removed by dv_clean
+                     for page_num in range(1, (dv_annot.get("num_pages") or 0) + 1)]
+            if dv_annot.get("catalog") is None or not blobs or None in blobs:
+                return False  # no page texts: not converted, file storage, or removed by dv_clean
+            cleaner = IPageTextCleaner(obj)
             catalog = CatalogFactory()
             for page_num, blob in enumerate(blobs, 1):
-                bfile = openBlob(blob)
-                catalog.index_doc(page_num, Page(page_num, bfile.name, IPageTextCleaner(obj)))
-                bfile.close()
-            settings.catalog = catalog
+                with openBlob(blob) as bfile:
+                    text = cleaner.clean(bfile.read())
+                with openBlob(blob, "w") as bfile:
+                    bfile.write(text)
+                with openBlob(blob) as bfile:
+                    catalog.index_doc(page_num, Page(page_num, bfile.name))
+            dv_annot["catalog"] = catalog
             return True
 
         # a valid set of signer tags starts with Signer1
         brains = self.catalog.unrestrictedSearchResults(
-            object_provides=IAnnex.__identifier__, SearchableText="signer1 OR sceau"
+            object_provides=[IAnnex.__identifier__, IImioDmsSignRequest.__identifier__],
+            SearchableText="signer1 OR sceau",
         )
         rebuilt = 0
         for brain in brains:
             obj = brain._unrestrictedGetObject()
             rebuilt += rebuild_text_catalog(obj)
             obj.reindexObject(idxs=["SearchableText"])
-        logger.info("Reindexed %d files holding acroform tags, %d viewer texts rebuilt", len(brains), rebuilt)
+        logger.info("Reindexed %d contents holding acroform tags, %d viewer texts rebuilt", len(brains), rebuilt)
 
 
 def migrate(context):  # noqa

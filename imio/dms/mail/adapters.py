@@ -13,6 +13,7 @@ from collective.dexteritytextindexer.interfaces import IDynamicTextIndexExtender
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from collective.dms.basecontent.dmsfile import IDmsFile
+from collective.dms.basecontent.indexers import document_dynamic_searchable_text_indexer
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator import _ as _dg
@@ -2093,6 +2094,13 @@ class DmsAppendixFilePrintableAdapter(CategorizedObjectPrintableAdapter):
 def annex_searchable_text_index(obj):
     """SearchableText of an annex, without its acroform tags."""
     text = SearchableText_file(obj)()
+    return text and IPageTextCleaner(obj).clean(text)
+
+
+@indexer(IImioDmsSignRequest)
+def signrequest_searchable_text_index(obj):
+    """SearchableText of a sign request, without the acroform tags of its files."""
+    text = document_dynamic_searchable_text_indexer(obj)()
     return text and IPageTextCleaner(obj).clean(text)
 
 
