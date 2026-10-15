@@ -1688,9 +1688,9 @@ def configure_group_encoder(field_name, contacts_part=False):
     Update portal_type to add behavior, configure localroles field
     """
     portal_types = GE_CONFIG[field_name]["pt"]
-    # SAFE_RAM env var: skip security and index updates on existing content, to be done in a separate batch with
+    # SAVE_RAM env var: skip security and index updates on existing content, to be done in a separate batch with
     # scripts/run-reindex-security.py
-    safe_ram = os.environ.get("SAFE_RAM")
+    save_ram = os.environ.get("SAVE_RAM")
     # function
     functions = get_registry_functions()
     if CREATING_GROUP_SUFFIX not in [fct["fct_id"] for fct in functions]:
@@ -1820,14 +1820,14 @@ def configure_group_encoder(field_name, contacts_part=False):
 
         # local roles
         if config.get(portal_type):
-            if safe_ram:
+            if save_ram:
                 getGlobalSiteManager().unregisterHandler(
                     local_role_related_configuration_updated, (ILocalRoleListUpdatedEvent,)
                 )
             try:
                 msg = add_fti_configuration(portal_type, config[portal_type], keyname="creating_group")
             finally:
-                if safe_ram:
+                if save_ram:
                     getGlobalSiteManager().registerHandler(
                         local_role_related_configuration_updated, (ILocalRoleListUpdatedEvent,)
                     )
@@ -1859,8 +1859,8 @@ def configure_group_encoder(field_name, contacts_part=False):
             api.portal.set_registry_record(key, fields)
 
     # set a value on existing content
-    if safe_ram:
-        logger.warn("SAFE_RAM: existing %s not updated (creating_group, index=%s, security)" %
+    if save_ram:
+        logger.warn("SAVE_RAM: existing %s not updated (creating_group, index=%s, security)" %
                     (portal_types, GE_CONFIG[field_name]["idx"]))
     else:
         set_group_encoder_on_existing_types(portal_types, portal=portal, index=GE_CONFIG[field_name]["idx"])
