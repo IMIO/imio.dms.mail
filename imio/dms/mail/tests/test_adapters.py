@@ -1808,7 +1808,21 @@ class TestAcroformTagsCleaner(unittest.TestCase, ImioTestHelpers):
         # a sign request file holding the acroform tags of 2 signers
         request, files = create_sign_request(self.portal, oid="sr-acroform")
         afile = files[0]
-        self.assertIsInstance(IPageTextCleaner(afile), AcroformTagsCleaner)
+        cleaner = IPageTextCleaner(afile)
+        self.assertIsInstance(cleaner, AcroformTagsCleaner)
+        tag = '{{#"ID":"Signer1","Size":{"Height":"70","Width":"200"}#}}'
+        self.assertEqual(cleaner.clean(u"no tag here"), u"no tag here")
+        # a tag, as pdftotext reads it from a generated mail; the words around it stay apart
+        self.assertEqual(cleaner.clean(u"Maxime DG\n" + tag + u"\nBourgmestre"), u"Maxime DG\n \nBourgmestre")
+        self.assertEqual(cleaner.clean(u"before" + tag + u"after"), u"before after")
+        # seal and malformed tags
+        self.assertEqual(
+            cleaner.clean(u'{{#"ID":"SCEAU","Size":{"Height":"200","Width":"200"}#}}{{#"ID":"Signer1"#}}'), u"  "
+        )
+        # a tag wrapped over lines by the text extraction
+        self.assertEqual(cleaner.clean(u'{{#"ID":"Signer1","Size":{"Height":"70",\n"Width":"200"}#}}'), u" ")
+        # utf-8 bytes, as the document viewer reads its page texts
+        self.assertEqual(cleaner.clean("D\xc3\xa9but " + tag), "D\xc3\xa9but  ")
         Converter(afile)()
         # the document viewer search does not find the acroform tags
         words = Settings(afile).catalog["text"].index._lexicon.words()

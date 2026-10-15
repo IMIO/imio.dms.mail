@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 from collective.documentgenerator.utils import update_oo_config
-from collective.documentviewer.convert import rebuildTextCatalog
+from collective.documentviewer.convert import CatalogFactory
+from collective.documentviewer.convert import DUMP_FILENAME
+from collective.documentviewer.convert import Page
+from collective.documentviewer.convert import TEXT_REL_PATHNAME
+from collective.documentviewer.interfaces import IPageTextCleaner
+from collective.documentviewer.settings import Settings
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
@@ -50,6 +55,7 @@ from imio.helpers.workflow import do_transitions
 from imio.migrator.migrator import Migrator
 from imio.pyutils.system import get_git_tag
 from plone import api
+from plone.app.blob.utils import openBlob
 from plone.registry.events import RecordModifiedEvent
 from Products.CMFPlone.utils import base_hasattr
 from Products.CMFPlone.utils import safe_unicode
@@ -690,6 +696,24 @@ class Migrate_To_3_1(Migrator):  # noqa
 
     def reindex_acroform_tagged_files(self):
         """Reindex the files whose searchable texts still hold acroform tags."""
+
+        def rebuild_text_catalog(obj):
+            """Rebuild the document viewer text catalog from the page texts kept in blobs."""
+            settings = Settings(obj)
+            blob_files = settings.blob_files or {}
+            dump_path = DUMP_FILENAME.rsplit(".", 1)[0]
+            blobs = [blob_files.get("%s/%s_%i.txt" % (TEXT_REL_PATHNAME, dump_path, page_num))
+                     for page_num in range(1, (settings.num_pages or 0) + 1)]
+            if settings.catalog is None or not blobs or None in blobs:
+                return False  # no page texts: file storage, or removed by dv_clean
+            catalog = CatalogFactory()
+            for page_num, blob in enumerate(blobs, 1):
+                bfile = openBlob(blob)
+                catalog.index_doc(page_num, Page(page_num, bfile.name, IPageTextCleaner(obj)))
+                bfile.close()
+            settings.catalog = catalog
+            return True
+
         # a valid set of signer tags starts with Signer1
         brains = self.catalog.unrestrictedSearchResults(
             object_provides=IAnnex.__identifier__, SearchableText="signer1 OR sceau"
@@ -697,7 +721,7 @@ class Migrate_To_3_1(Migrator):  # noqa
         rebuilt = 0
         for brain in brains:
             obj = brain._unrestrictedGetObject()
-            rebuilt += rebuildTextCatalog(obj)
+            rebuilt += rebuild_text_catalog(obj)
             obj.reindexObject(idxs=["SearchableText"])
         logger.info("Reindexed %d files holding acroform tags, %d viewer texts rebuilt", len(brains), rebuilt)
 

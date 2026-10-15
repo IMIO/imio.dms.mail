@@ -49,7 +49,7 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
-from imio.esign.acroform import remove_acroform_tags
+from imio.esign.acroform import ACROFORM_TAG_RE
 from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
@@ -912,7 +912,9 @@ class ScanSearchableExtender(object):
             transformed_value = transforms.convertTo("text/plain", value, mimetype=mimetype, filename=filename)
             if not transformed_value:
                 return self.searchable_text()
-            ret = _unicode_save_string_concat(self.searchable_text(), remove_acroform_tags(transformed_value.getData()))
+            ret = _unicode_save_string_concat(
+                self.searchable_text(), IPageTextCleaner(self.context).clean(transformed_value.getData())
+            )
             if ret.startswith(" "):
                 ret = ret[1:]
             return ret
@@ -2091,16 +2093,17 @@ class DmsAppendixFilePrintableAdapter(CategorizedObjectPrintableAdapter):
 def annex_searchable_text_index(obj):
     """SearchableText of an annex, without its acroform tags."""
     text = SearchableText_file(obj)()
-    return text and remove_acroform_tags(text)
+    return text and IPageTextCleaner(obj).clean(text)
 
 
 @adapter(IAnnex)
 @implementer(IPageTextCleaner)
 class AcroformTagsCleaner(object):
-    """Removes the acroform tags from the page texts indexed by the document viewer."""
+    """Removes the acroform tags from a file text, before its indexation."""
 
     def __init__(self, context):
         self.context = context
 
     def clean(self, text):
-        return remove_acroform_tags(text)
+        """Return the text with each acroform tag, valid or not, replaced by a space."""
+        return ACROFORM_TAG_RE.sub(" ", text)
