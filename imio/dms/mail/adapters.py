@@ -13,6 +13,7 @@ from collective.dexteritytextindexer.interfaces import IDynamicTextIndexExtender
 from collective.dms.basecontent.dmsdocument import IDmsDocument
 from collective.dms.basecontent.dmsfile import IDmsAppendixFile
 from collective.dms.basecontent.dmsfile import IDmsFile
+from collective.dms.basecontent.indexers import document_dynamic_searchable_text_indexer
 from collective.dms.mailcontent.indexers import add_parent_organizations
 from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator import _ as _dg
@@ -23,11 +24,13 @@ from collective.documentgenerator.utils import get_original_template
 from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentviewer.convert import Converter
+from collective.documentviewer.interfaces import IPageTextCleaner
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
 from collective.iconifiedcategory.adapter import CategorizedObjectPrintableAdapter
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.task.interfaces import ITaskContent
+from imio.annex.content.annex import IAnnex
 from imio.dms.mail import _
 from imio.dms.mail import BACK_OR_AGAIN_ICONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
@@ -47,6 +50,7 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
+from imio.esign.acroform import ACROFORM_TAG_RE
 from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
@@ -72,6 +76,7 @@ from plone.app.contentmenu.menu import ActionsSubMenuItem as OrigActionsSubMenuI
 from plone.app.contentmenu.menu import FactoriesSubMenuItem as OrigFactoriesSubMenuItem
 from plone.app.contentmenu.menu import WorkflowMenu as OrigWorkflowMenu
 from plone.app.contenttypes.indexers import _unicode_save_string_concat
+from plone.app.contenttypes.indexers import SearchableText_file
 from plone.indexer import indexer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
@@ -908,7 +913,9 @@ class ScanSearchableExtender(object):
             transformed_value = transforms.convertTo("text/plain", value, mimetype=mimetype, filename=filename)
             if not transformed_value:
                 return self.searchable_text()
-            ret = _unicode_save_string_concat(self.searchable_text(), transformed_value.getData())
+            ret = _unicode_save_string_concat(
+                self.searchable_text(), IPageTextCleaner(self.context).clean(transformed_value.getData())
+            )
             if ret.startswith(" "):
                 ret = ret[1:]
             return ret
@@ -2081,3 +2088,30 @@ class DmsAppendixFilePrintableAdapter(CategorizedObjectPrintableAdapter):
         if getattr(self.context.file, "contentType", None) != "application/pdf":
             return False
         return super(DmsAppendixFilePrintableAdapter, self).is_printable
+
+
+@indexer(IAnnex)
+def annex_searchable_text_index(obj):
+    """SearchableText of an annex, without its acroform tags."""
+    text = SearchableText_file(obj)()
+    return text and IPageTextCleaner(obj).clean(text)
+
+
+@indexer(IImioDmsSignRequest)
+def signrequest_searchable_text_index(obj):
+    """SearchableText of a sign request, without the acroform tags of its files."""
+    text = document_dynamic_searchable_text_indexer(obj)()
+    return text and IPageTextCleaner(obj).clean(text)
+
+
+@adapter(IAnnex)
+@implementer(IPageTextCleaner)
+class AcroformTagsCleaner(object):
+    """Removes the acroform tags from a file text, before its indexation."""
+
+    def __init__(self, context):
+        self.context = context
+
+    def clean(self, text):
+        """Return the text with each acroform tag, valid or not, replaced by a space."""
+        return ACROFORM_TAG_RE.sub(" ", text)
