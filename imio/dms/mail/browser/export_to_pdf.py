@@ -229,6 +229,7 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
             self.fields += Fields(schema.Bool(
                 __name__="close_content",
                 title=_(u"Close the exported elements?"),
+                description=_(u"Will made transition to final state and set an outgoing date"),
                 default=True,
                 required=False))
             self.fields["close_content"].widgetFactory = RadioFieldWidget
