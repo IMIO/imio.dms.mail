@@ -125,7 +125,7 @@ class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
             return
         if annex_info["UID"] in superseded_uids(context)[1]:
             reason = " [converted to pdf]"
-        elif not self._to_print(annex_info):
+        elif context.portal_type != "sign_request" and not self._to_print(annex_info):
             reason = " [not to print]"
         elif annex_info["contentType"] not in self._selectable_content_types(annex_info):
             reason = " [pdf required]"
