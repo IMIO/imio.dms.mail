@@ -25,7 +25,7 @@ Changelog
   [chris-adam,sgeulette]
 - Updated the incoming email routing and state set descriptions (DMS-1215).
   [chris-adam]
-- Added SAFE_RAM handling in configure_group_encoder settings method
+- Added SAVE_RAM handling in configure_group_encoder settings method
   [sgeulette]
 
 3.1.6 (2026-08-14)
