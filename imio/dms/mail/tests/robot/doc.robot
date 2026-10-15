@@ -284,7 +284,7 @@ CE manuel
     Capture and crop page screenshot  doc/utilisation/2-2-3-ged-1-creation-scan.png  id=content
     Click button  id=form-buttons-cancel
     ${im_path} =  Get mail path  oid=braderie-annuelle-septembre
-    Go to  ${PLONE_URL}/${im_path}/create_main_file?filename=60.PDF
+    Go to  ${PLONE_URL}/${im_path}/create_main_file?filename=demo-2.pdf
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note12}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
