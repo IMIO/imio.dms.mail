@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.documentgenerator.utils import update_oo_config
+from collective.documentviewer.convert import rebuildTextCatalog
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
@@ -14,6 +15,7 @@ from datetime import datetime
 from datetime import timedelta
 from dexterity.localroles.utils import fti_configuration
 from ftw.labels.interfaces import ILabelRoot
+from imio.annex.content.annex import IAnnex
 from imio.dms.mail import _tr as _
 from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import BLDT_DIR
@@ -86,6 +88,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             # Update d-print model
             if "d-print" in self.portal["templates"]["om"]:
                 self.update_print_template()
+            self.reindex_acroform_tagged_files()
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
@@ -684,6 +687,19 @@ class Migrate_To_3_1(Migrator):  # noqa
         cols = get_dashboard_collections(self.omf["mail-searches"])
         obj.dashboard_collections = [b.UID for b in cols if b.UID in obj.dashboard_collections
                                      and b.id in om_print_to_sign_cols]
+
+    def reindex_acroform_tagged_files(self):
+        """Reindex the files whose searchable texts still hold acroform tags."""
+        # a valid set of signer tags starts with Signer1
+        brains = self.catalog.unrestrictedSearchResults(
+            object_provides=IAnnex.__identifier__, SearchableText="signer1 OR sceau"
+        )
+        rebuilt = 0
+        for brain in brains:
+            obj = brain._unrestrictedGetObject()
+            rebuilt += rebuildTextCatalog(obj)
+            obj.reindexObject(idxs=["SearchableText"])
+        logger.info("Reindexed %d files holding acroform tags, %d viewer texts rebuilt", len(brains), rebuilt)
 
 
 def migrate(context):  # noqa

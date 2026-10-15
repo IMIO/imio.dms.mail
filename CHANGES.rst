@@ -27,6 +27,8 @@ Changelog
   [chris-adam]
 - Added SAFE_RAM handling in configure_group_encoder settings method
   [sgeulette]
+- Removed the acroform tags from the files searchable text and document viewer search (PARAF-183).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
