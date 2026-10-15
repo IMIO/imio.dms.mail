@@ -184,27 +184,27 @@ class TestExportToPDFElementsVocabulary(ExportToPdfTestCase):
         self._clean_cache()
         vocab = ExportToPDFAfterSignatureVocabulary()(self.omail)
         self.assertEqual([term.disabled for term in vocab._terms], [True, False, False])
-        self.assertIn(u"[pdf required]", vocab._terms[0].title)
+        self.assertIn(u"[format pdf requis]", vocab._terms[0].title)
         # ged files not to print and not e-signed are disabled
         self._set_infos(self.a_odt, to_print=False)
         self._set_infos(self.b_pdf, to_print=False)
         self._clean_cache()
         vocab = ExportToPDFAfterSignatureVocabulary()(self.omail)
         self.assertEqual([term.disabled for term in vocab._terms], [True, True, False])
-        self.assertIn(u"[not to print]", vocab._terms[0].title)
+        self.assertIn(u"[pas marqué à imprimer]", vocab._terms[0].title)
         # e-signed ged files are to print, but an odt is still not concatenable
         self._set_infos(self.a_odt, esigned=True)
         self._set_infos(self.b_pdf, esigned=True)
         self._clean_cache()
         vocab = ExportToPDFAfterSignatureVocabulary()(self.omail)
         self.assertEqual([term.disabled for term in vocab._terms], [True, False, False])
-        self.assertIn(u"[pdf required]", vocab._terms[0].title)
+        self.assertIn(u"[format pdf requis]", vocab._terms[0].title)
         # an odt converted to pdf is disabled, whatever the mode
         self._add_file(u"converted", PDF_PATH, conv_from_uid=self.a_odt.UID())
         self._clean_cache()
         vocab = ExportToPDFBeforeSignatureVocabulary()(self.omail)
         self.assertEqual(vocab.getTermByToken(self.a_odt.getId()).disabled, True)
-        self.assertIn(u"[converted to pdf]", vocab.getTermByToken(self.a_odt.getId()).title)
+        self.assertIn(u"[fichier source ignoré]", vocab.getTermByToken(self.a_odt.getId()).title)
 
 
 class TestExportToPDFForm(ExportToPdfTestCase):
