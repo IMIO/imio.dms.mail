@@ -25,6 +25,8 @@ Changelog
   [chris-adam,sgeulette]
 - Updated the incoming email routing and state set descriptions (DMS-1215).
   [chris-adam]
+- Scanner simulation in demo now rotates through 9 sample letters, whose senders are created by the demo step (DMS-1242).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------

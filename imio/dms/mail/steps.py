@@ -69,8 +69,10 @@ from plone.portlets.interfaces import IPortletManager
 from Products.CMFCore.ActionInformation import Action
 from Products.CMFPlone.utils import safe_unicode
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
+from z3c.relationfield import RelationValue
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
+from zope.intid import IIntIds
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
@@ -871,7 +873,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         page.setPresentation(False)
         do_transitions(page, ["publish_internally", "publish_externally"])
 
-    # Add a content type portlet on Document type (to display on demo-front-page
+    # Add a content type portlet on Document type (to display on demo-front-page)
     left_column = getUtility(IPortletManager, name="plone.leftcolumn")
     content_type_category = left_column[CONTENT_TYPE_CATEGORY]
     if "Document" not in content_type_category:
@@ -1242,6 +1244,77 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     }
     if "imio" not in site.contacts:
         site.contacts.invokeFactory("organization", "imio", **params)
+
+    # Add senders of the demo incoming mails and emails (Extensions/demo.py)
+    belle_ville = {"zip_code": u"5670", "city": u"Belle-Ville"}
+    demo_orgs = [
+        ("belle-ville-runners", dict(belle_ville, title=u"Club de Course Belle-Ville Runners",
+                                     street=u"Rue des Fossés", number=u"14")),
+        ("paysages-biotopes", {"title": u"SPRL Paysages & Biotopes", "enterprise_number": u"BE0876234591",
+                               "street": u"Rue de l'Écluse", "number": u"8", "zip_code": u"4020", "city": u"Liège",
+                               "email": u"info@paysages-biotopes.be", "phone": u"042887621"}),
+        ("comite-parents-ecole-centre", dict(belle_ville, title=u"Comité de Parents de l'École du Centre",
+                                             street=u"Avenue des Tilleuls", number=u"22")),
+        ("rock-en-stock", {"title": u"ASBL Rock en Stock", "enterprise_number": u"BE0654912387",
+                           "street": u"Chaussée de Tournai", "number": u"45", "zip_code": u"7500",
+                           "city": u"Belle-Ville", "email": u"contact@rockenstock.be", "phone": u"069441290"}),
+        ("metallerie-dubuisson", {"title": u"Métallerie Dubuisson", "organization_type": u"sa",
+                                  "enterprise_number": u"BE0745108362",
+                                  "street": u"Zoning industriel de la Sucrerie", "number": u"12",
+                                  "zip_code": u"7500", "city": u"Belle-Ville",
+                                  "email": u"direction@metallerie-dubuisson.be", "phone": u"069553041"}),
+        ("comite-quartier-gare", dict(belle_ville, title=u"Comité de Quartier de la Gare",
+                                      street=u"Rue de la Station", number=u"3")),
+        ("3p", {"title": u"3P", "email": u"facturation@3p.be"}),
+        ("spw", {"title": u"Service public de Wallonie"}),
+    ]
+    for oid, params in demo_orgs:
+        if oid not in site.contacts:
+            site.contacts.invokeFactory("organization", oid, use_parent_address=False, **params)
+    # person id, person fields, organization id and held position fields
+    demo_persons = [
+        ("julienvandersmissen", {"firstname": u"Julien", "lastname": u"Vandersmissen", "gender": u"M"},
+         "belle-ville-runners", {"label": u"Représentant", "email": u"juliend.vandersmissen@gmail.com",
+                                 "cell_phone": u"0478221456"}),
+        ("sophierenard", {"firstname": u"Sophie", "lastname": u"Renard", "gender": u"F"},
+         "paysages-biotopes", {"label": u"Gérante"}),
+        ("nadiaelamrani", {"firstname": u"Nadia", "lastname": u"El Amrani", "gender": u"F"},
+         "comite-parents-ecole-centre", {"label": u"Représentante", "email": u"nadia.elamrani@outlook.com",
+                                         "cell_phone": u"0491357703"}),
+        ("marcdevos", {"firstname": u"Marc", "lastname": u"Devos", "gender": u"M"},
+         "rock-en-stock", {"label": u"Président"}),
+        ("ahmedbelkacemi", dict(belle_ville, firstname=u"Ahmed", lastname=u"Belkacemi", gender=u"M",
+                                street=u"Rue du Marché", number=u"6", email=u"ahmed.belkacemi@yahoo.fr",
+                                cell_phone=u"0472901488"), None, None),
+        ("chantalwauthier", {"firstname": u"Chantal", "lastname": u"Wauthier", "gender": u"F",
+                             "street": u"Rue des Alliés", "number": u"31", "zip_code": u"6000",
+                             "city": u"Charleroi", "email": u"chantal.wauthier@skynet.be",
+                             "cell_phone": u"0475612309"}, None, None),
+        ("pierrelefebvre", dict(belle_ville, firstname=u"Pierre", lastname=u"Lefebvre", gender=u"M",
+                                street=u"Avenue du Parc", number=u"9", email=u"pierre.lefebvre78@gmail.com",
+                                cell_phone=u"0498774512"), None, None),
+        ("isabelledubuisson", {"firstname": u"Isabelle", "lastname": u"Dubuisson", "gender": u"F"},
+         "metallerie-dubuisson", {"label": u"Administratrice déléguée"}),
+        ("thierrymaertens", {"firstname": u"Thierry", "lastname": u"Maertens", "gender": u"M"},
+         "comite-quartier-gare", {"label": u"Représentant", "email": u"thierry.maertens@hotmail.com",
+                                  "cell_phone": u"0487126640"}),
+        ("stephangeulette", {"firstname": u"Stéphan", "lastname": u"Geulette", "gender": u"M",
+                             "street": u"Rue Léon Morel", "number": u"1", "zip_code": u"5032", "city": u"Isnes",
+                             "email": u"s.geul@mail.com"}, None, None),
+        ("josianebalasko", {"firstname": u"Josiane", "lastname": u"Balasko", "gender": u"F",
+                            "email": u"josiane@gmail.com"}, None, None),
+        ("mariebourgeois", {"firstname": u"Marie", "lastname": u"Bourgeois", "gender": u"F"},
+         "spw", {"email": u"m.bou@rw.be"}),
+    ]
+    intids = getUtility(IIntIds)
+    for pid, params, oid, hp_params in demo_persons:
+        if pid in site.contacts:
+            continue
+        person_title = {u"M": u"Monsieur", u"F": u"Madame"}[params["gender"]]
+        site.contacts.invokeFactory("person", pid, person_title=person_title, use_parent_address=False, **params)
+        if oid:
+            site.contacts[pid].invokeFactory("held_position", oid, use_parent_address=True,
+                                             position=RelationValue(intids.getId(site.contacts[oid])), **hp_params)
 
     # Add mailhost config
     mailhost = get_mail_host(check=False)

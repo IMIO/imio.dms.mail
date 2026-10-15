@@ -1228,7 +1228,7 @@ Ajouter un contact
     [TAGS]  RUN09
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned?redirect=&only=59.PDF
+    Go to  ${PLONE_URL}/import_scanned?redirect=&only=demo-1.pdf
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
@@ -1904,7 +1904,7 @@ Utiliser les recherches
 
     ${note1}  Add pointy note  css=#c2_widget form
     ...  Le filtre sur un code-barre est particulier: on peut entrer le code complet (préfixé par IMIO ou non).  position=bottom  color=blue  width=300
-    Input text  id=c2  010500000000001
+    Input text  id=c2  090555500030000
     sleep  ${L_S}
     Add clic  id=c2_button
     Remove element  id=${note1}

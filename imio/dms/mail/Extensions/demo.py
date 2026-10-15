@@ -29,6 +29,7 @@ from imio.helpers.transmogrifier import get_correct_id
 from imio.helpers.workflow import do_transitions
 from imio.pyutils.utils import safe_encode
 from itertools import cycle
+from itertools import islice
 from plone import api
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
@@ -43,7 +44,10 @@ from zope.intid import IIntIds
 
 import copy
 import os
-import time
+
+
+# barcodes printed on the demo incoming mails Extensions/demo-N.pdf
+DEMO_SCAN_IDS = ["0905555000300%02d" % i for i in range(9)]
 
 
 def get_org_user(directory, keys, userid=""):
@@ -89,34 +93,25 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
     intids = getUtility(IIntIds)
     onlys = only.split(",")
     docs = {
-        "dmsincomingmail": {  # i_e ok
-            "59.PDF": {
-                "c": {"mail_type": "courrier", "file_title": "010500000000001.pdf", "recipient_groups": [],
-                      "send_modes": ["post"]},
-                "f": {
-                    "scan_id": "010500000000001",
-                    "pages_number": 1,
-                    "scan_date": now,
-                    "scan_user": "Opérateur",
-                    "scanner": "Ricola",
-                    "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
-                                                              ["incoming-dms-file"]),
+        "dmsincomingmail": OrderedDict(  # i_e ok
+            (
+                "demo-%d.pdf" % i,
+                {
+                    "c": {"mail_type": "courrier", "file_title": "%s.pdf" % scan_id, "recipient_groups": [],
+                          "send_modes": ["post"]},
+                    "f": {
+                        "scan_id": scan_id,
+                        "pages_number": 1,
+                        "scan_date": now,
+                        "scan_user": "Opérateur",
+                        "scanner": "Ricola",
+                        "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
+                                                                  ["incoming-dms-file"]),
+                    },
                 },
-            },
-            "60.PDF": {
-                "c": {"mail_type": "courrier", "file_title": "010500000000002.pdf", "recipient_groups": [],
-                      "send_modes": ["post"]},
-                "f": {
-                    "scan_id": "010500000000002",
-                    "pages_number": 1,
-                    "scan_date": now,
-                    "scan_user": "Opérateur",
-                    "scanner": "Ricola",
-                    "content_category": calculate_category_id(portal["annexes_types"]["incoming_dms_files"]
-                                                              ["incoming-dms-file"])
-                },
-            },
-        },
+            )
+            for i, scan_id in enumerate(DEMO_SCAN_IDS, 1)
+        ),
         "dmsincoming_email": OrderedDict(
             [
                 (
@@ -219,10 +214,12 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
     }
     # update config with tg, user, sender
     for fil in docs[ptype]:
+        # tg + user
         if "tg" in docs[ptype][fil]["c"]:
             org, user = get_org_user(contacts, docs[ptype][fil]["c"].pop("tg"), docs[ptype][fil]["c"].pop("user"))
             if org:
                 docs[ptype][fil]["c"].update({"treating_groups": org.UID(), "assigned_user": user})
+        # email sender
         if "orig_sender_email" in docs[ptype][fil]["c"]:
             results = pc.unrestrictedSearchResults(
                 email=docs[ptype][fil]["c"]["orig_sender_email"],
@@ -233,15 +230,13 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                     RelationValue(intids.getId(brain._unrestrictedGetObject())) for brain in results
                 ]
 
-    docs_cycle = cycle(docs[ptype])
+    files = [doc for doc in docs[ptype] if not only or doc in onlys]
+    start = 0
+    if ptype == "dmsincomingmail" and not only:  # rotation: skip as many letters as already injected
+        scan_ids = [docs[ptype][doc]["f"]["scan_id"] for doc in files]
+        start = len(pc.unrestrictedSearchResults(portal_type="dmsmainfile", scan_id=scan_ids)) % len(files)
     folder = portal["incoming-mail"]
-    count = 1
-    limit = int(number)
-    while count <= limit:
-        doc = docs_cycle.next()
-        if only and doc not in onlys:
-            time.sleep(0.5)
-            continue
+    for doc in islice(cycle(files), start, start + int(number)):
         with open(add_path("Extensions/%s" % doc), "rb") as fo:
             file_object = NamedBlobFile(fo.read(), filename=safe_unicode(doc))
 
@@ -294,7 +289,6 @@ def import_scanned(self, number=2, only="", ptype="dmsincomingmail", redirect="1
                 )
                 state = api.content.get_state(document)
                 i += 1
-        count += 1
     if redirect:
         return portal.REQUEST.response.redirect(folder.absolute_url())
 
