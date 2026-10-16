@@ -19,6 +19,7 @@ Changelog
 - Added setting to duplicate publipostage if multiple post sending types are checked
 - Fixed file read for annexes
 - Updated intro template for send_modes and mailing mention
+- Added SAVE_RAM handling in configure_group_encoder settings method
 
 3.0.60
 ------

@@ -6,7 +6,9 @@ from collective.contact.plonegroup.utils import get_selected_org_suffix_principa
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.z3cform.datagridfield import DataGridFieldFactory
 from collective.z3cform.datagridfield.registry import DictRow
+from dexterity.localroles.browser.interfaces import ILocalRoleListUpdatedEvent
 from dexterity.localroles.utils import add_fti_configuration
+from dexterity.localrolesfield.subscriber import local_role_related_configuration_updated
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import CONTACTS_PART_SUFFIX
@@ -45,6 +47,7 @@ from z3c.form.browser.orderedselect import OrderedSelectFieldWidget
 # from z3c.form.interfaces import WidgetActionExecutionError
 from z3c.form.validator import NoInputData
 from zope import schema
+from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 # from zope.interface import provider
 # from zope.schema.interfaces import IContextSourceBinder
@@ -59,6 +62,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 import copy
 import logging
+import os
 import re
 
 
@@ -976,6 +980,9 @@ def configure_group_encoder(field_name, contacts_part=False):
     Update portal_type to add behavior, configure localroles field
     """
     portal_types = GE_CONFIG[field_name]["pt"]
+    # SAVE_RAM env var: skip security and index updates on existing content, to be done in a separate batch with
+    # scripts/run-reindex-security.py
+    save_ram = os.environ.get("SAVE_RAM")
     # function
     functions = get_registry_functions()
     if CREATING_GROUP_SUFFIX not in [fct["fct_id"] for fct in functions]:
@@ -1104,7 +1111,17 @@ def configure_group_encoder(field_name, contacts_part=False):
 
         # local roles
         if config.get(portal_type):
-            msg = add_fti_configuration(portal_type, config[portal_type], keyname="creating_group")
+            # only re-register what was really unregistered, to never add a handler that wasn't there
+            unregistered = save_ram and getGlobalSiteManager().unregisterHandler(
+                local_role_related_configuration_updated, (ILocalRoleListUpdatedEvent,)
+            )
+            try:
+                msg = add_fti_configuration(portal_type, config[portal_type], keyname="creating_group")
+            finally:
+                if unregistered:
+                    getGlobalSiteManager().registerHandler(
+                        local_role_related_configuration_updated, (ILocalRoleListUpdatedEvent,)
+                    )
             if msg:
                 logger.warn(msg)
 
@@ -1133,7 +1150,11 @@ def configure_group_encoder(field_name, contacts_part=False):
             api.portal.set_registry_record(key, fields)
 
     # set a value on existing content
-    set_group_encoder_on_existing_types(portal_types, portal=portal, index=GE_CONFIG[field_name]["idx"])
+    if save_ram:
+        logger.warn("SAVE_RAM: existing %s not updated (creating_group, index=%s, security)" %
+                    (portal_types, GE_CONFIG[field_name]["idx"]))
+    else:
+        set_group_encoder_on_existing_types(portal_types, portal=portal, index=GE_CONFIG[field_name]["idx"])
 
 
 class IImioDmsMailConfig2(Interface):
