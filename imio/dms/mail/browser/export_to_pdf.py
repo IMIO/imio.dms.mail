@@ -152,7 +152,6 @@ class ExportToPDFForm(ExportPDFForm):
 
     def available(self):
         """Condition of the object action: only computed on the object view, it is hidden in dashboards."""
-        import ipdb; ipdb.set_trace()  # noqa
         if not getattr(self.context, self.condition)():
             return False
         terms = getUtility(IVocabularyFactory, self.vocabulary)(self.context)

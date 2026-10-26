@@ -2843,9 +2843,10 @@ def list_templates():
         (110, "templates/om/intro", os.path.join(dpath, "om-intro.odt"), 3),
         (120, "templates/om/ending", os.path.join(dpath, "om-ending.odt"), 4),
         (125, "templates/om/download_barcode", os.path.join(dpath, "om-download-barcode.odt"), 5),
-        (150, "templates/om/mailing", os.path.join(dpath, "om-mailing.odt"), 9),
-        (200, "templates/om/d-print-to-sign", os.path.join(dpath, "d-print.odt"), 7),
-        (201, "templates/om/d-print-signed", os.path.join(dpath, "d-print.odt"), 8),
+        (150, "templates/om/mailing", os.path.join(dpath, "om-mailing.odt"), 7),
+        # replaced by the "export to pdf" forms. Will be deleted after pdf export validation
+        # (200, "templates/om/d-print-to-sign", os.path.join(dpath, "d-print.odt"), 7),
+        # (201, "templates/om/d-print-signed", os.path.join(dpath, "d-print.odt"), 8),
         (205, "templates/om/main", os.path.join(dpath, "om-main.odt"), 6),
         (210, "templates/om/common/receipt", os.path.join(dpath, "om-receipt.odt"), 0),
     ]
@@ -3051,38 +3052,39 @@ def add_templates(site):
     cids = create(templates, pos=False, cids=cids)
 
     data = {
-        200: {
-            "title": _(u"To sign files print template"),
-            "type": "DashboardPODTemplate",
-            "trans": ["show_internally"],
-            "attrs": {
-                "pod_formats": ["odt"],
-                "dashboard_collections": [
-                    b.UID
-                    for b in get_dashboard_collections(site["outgoing-mail"]["mail-searches"])
-                    if b.id in OM_PRINT_TO_SIGN_COLS
-                ],
-                "style_template": [cids[90].UID()],
-                "rename_page_styles": True,
-                "enabled": False,
-            },
-        },
-        201: {
-            "title": _(u"E-signed files print template"),
-            "type": "DashboardPODTemplate",
-            "trans": ["show_internally"],
-            "attrs": {
-                "pod_formats": ["odt"],
-                "dashboard_collections": [
-                    b.UID
-                    for b in get_dashboard_collections(site["outgoing-mail"]["mail-searches"])
-                    if b.id in OM_PRINT_SIGNED_COLS
-                ],
-                "style_template": [cids[90].UID()],
-                "rename_page_styles": True,
-                "enabled": False,
-            },
-        },
+        # replaced by the "export to pdf" forms
+        # 200: {
+        #     "title": _(u"To sign files print template"),
+        #     "type": "DashboardPODTemplate",
+        #     "trans": ["show_internally"],
+        #     "attrs": {
+        #         "pod_formats": ["odt"],
+        #         "dashboard_collections": [
+        #             b.UID
+        #             for b in get_dashboard_collections(site["outgoing-mail"]["mail-searches"])
+        #             if b.id in OM_PRINT_TO_SIGN_COLS
+        #         ],
+        #         "style_template": [cids[90].UID()],
+        #         "rename_page_styles": True,
+        #         "enabled": False,
+        #     },
+        # },
+        # 201: {
+        #     "title": _(u"E-signed files print template"),
+        #     "type": "DashboardPODTemplate",
+        #     "trans": ["show_internally"],
+        #     "attrs": {
+        #         "pod_formats": ["odt"],
+        #         "dashboard_collections": [
+        #             b.UID
+        #             for b in get_dashboard_collections(site["outgoing-mail"]["mail-searches"])
+        #             if b.id in OM_PRINT_SIGNED_COLS
+        #         ],
+        #         "style_template": [cids[90].UID()],
+        #         "rename_page_styles": True,
+        #         "enabled": False,
+        #     },
+        # },
         205: {
             "title": _(u"Base template"),
             "type": "ConfigurablePODTemplate",

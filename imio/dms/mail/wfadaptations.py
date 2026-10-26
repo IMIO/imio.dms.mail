@@ -948,13 +948,11 @@ class OMServiceValidation(WorkflowAdaptationBase):
             folder["to_validate"].enabled = True
             folder["to_validate"].reindexObject()
 
-        # Add collection to template (state before signature)
-        tmpl = portal["templates"]["om"]["d-print-to-sign"]
-        cols = tmpl.dashboard_collections
+        # Add collection to template (state before signature), no more created on new sites
+        tmpl = portal["templates"]["om"].get("d-print-to-sign")
         col = folder["searchfor_{}".format(val_state_id)]
-        if col.UID() not in cols:
-            cols.append(col.UID())
-            tmpl.dashboard_collections = cols
+        if tmpl is not None and col.UID() not in tmpl.dashboard_collections:
+            tmpl.dashboard_collections = tmpl.dashboard_collections + [col.UID()]
 
         # update configuration annotation
         config = get_dms_config(["review_levels", "dmsoutgoingmail"])
@@ -1518,12 +1516,10 @@ class OMToPrintAdaptation(WorkflowAdaptationBase):
             col.reindexObject(["Subject"])
             col.setLayout("tabular_view")
             folder.moveObjectToPosition(col_id, folder.getObjectPosition("searchfor_to_be_signed"))
-            # Add collection to template (state before signature)
-            tmpl = portal["templates"]["om"]["d-print-to-sign"]
-            cols = tmpl.dashboard_collections
-            if col.UID() not in cols:
-                cols.append(col.UID())
-                tmpl.dashboard_collections = cols
+            # Add collection to template (state before signature), no more created on new sites
+            tmpl = portal["templates"]["om"].get("d-print-to-sign")
+            if tmpl is not None and col.UID() not in tmpl.dashboard_collections:
+                tmpl.dashboard_collections = tmpl.dashboard_collections + [col.UID()]
 
         # update treating collection
         col = folder["om_treating"]

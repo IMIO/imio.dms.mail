@@ -10,6 +10,9 @@ Changelog
   [sgeulette]
 - Added "Export to PDF" batch actions on outgoing mail and requests dashboards.
   [sgeulette]
+- Removed "d-print-to-sign" and "d-print-signed" templates from new sites and disabled them
+  in migration: they are replaced by "Export to PDF".
+  [sgeulette]
 - Replaced "doc" file format by "docx" in settings and considered it in "Export to PDF".
   [sgeulette]
 - Only a pdf appendix file can be set "to print" (IIconifiedPrintable adapter).

@@ -341,7 +341,8 @@ class DocumentGenerationDocsDashboardHelper(ATDocumentGenerationHelperView, Dash
 
 class DocumentGenerationOMDashboardHelper(DocumentGenerationDocsDashboardHelper):
     """
-    Methods used in document generation view, for IOMDashboard
+    Methods used in document generation view, for IOMDashboard. All for print templates.
+    METHODS CAN BE REMOVED AFTER PDF EXPORT VALIDATION
     """
 
     def get_dms_files(self, signed=False, limit=None):

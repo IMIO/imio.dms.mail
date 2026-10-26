@@ -618,7 +618,9 @@ def remove_om_nplus1_wfadaptation(context):
         col.query = query
     # Remove collection from template
     for name in ("d-print-to-sign", "d-print-signed"):
-        tmpl = site["templates"]["om"][name]
+        tmpl = site["templates"]["om"].get(name)
+        if tmpl is None:  # no more created, replaced by the "export to pdf" forms
+            continue
         cols = tmpl.dashboard_collections
         if val_col_uid in cols:
             cols.remove(val_col_uid)

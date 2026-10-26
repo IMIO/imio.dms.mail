@@ -40,6 +40,12 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
             # new "export to pdf" actions on dmsoutgoingmail and sign_request
             load_type_from_package("dmsoutgoingmail", "imio.dms.mail:default")
             load_type_from_package("sign_request", "imio.dms.mail:default")
+            # d-print templates replaced by the "export to pdf" forms: disabled, not yet removed
+            for tid in ("d-print-to-sign", "d-print-signed"):
+                tmpl = self.portal["templates"]["om"].get(tid)
+                if tmpl is not None and tmpl.enabled:
+                    tmpl.enabled = False
+                    tmpl.reindexObject(idxs=["enabled"])
             # batch actions on requests dashboard
             if req_folder is not None:
                 col_folder = req_folder["requests-searches"]
