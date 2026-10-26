@@ -1697,7 +1697,11 @@ def imiodmsmail_settings_changed(event):
 
 
 def default_creating_group(user=None, strict=False):
-    """default to current user creating group. With strict, only from its group encoder groups, else None"""
+    """Get the creating group of a user, defaulting to the first creating group.
+
+    :param user: user whose groups are checked, the current user when None
+    :param strict: only checks the user's group encoder groups and returns None when there is none
+    """
     voc = ActiveCreatingGroupVocabulary()(None)
     creating_groups = set([term.value for term in voc])
     if not creating_groups:
