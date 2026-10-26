@@ -1103,8 +1103,8 @@ class IImioDmsMailConfig(model.Schema):
                                           ("user_value", "tg_value")),
                                          ("iemail_state_set", _tr(u"${type} state set", mapping={"type": ""}),
                                           ("state_value", )),
-                                         ("iemail_creating_group", _tr(u"${type} creating group",
-                                                                       mapping={"type": ""}), ("cg_value", ))):
+                                         ("iemail_creating_group", _tr(u"${type} creating group", mapping={"type": ""}),
+                                          ("cg_value", ))):
                 for i, rule in enumerate(getattr(data, fld) or [], start=1):
                     # check patterns
                     for col, col_tit in (("transfer_email_pat", u"Transfer email pattern"),
@@ -1696,8 +1696,8 @@ def imiodmsmail_settings_changed(event):
                 folder.reindexObject(idxs=["exclude_from_nav"])
 
 
-def default_creating_group(user=None):
-    """default to current user creating group"""
+def default_creating_group(user=None, strict=False):
+    """default to current user creating group. With strict, only from its group encoder groups, else None"""
     voc = ActiveCreatingGroupVocabulary()(None)
     creating_groups = set([term.value for term in voc])
     if not creating_groups:
@@ -1709,7 +1709,7 @@ def default_creating_group(user=None):
     if user.getId():
         user_groups = get_plone_groups_for_user(user=user)
         # we check if user is in creating_group for incoming and contact_part for outgoing and contact
-        for fct in (CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX):
+        for fct in strict and (CREATING_GROUP_SUFFIX, ) or (CREATING_GROUP_SUFFIX, CONTACTS_PART_SUFFIX):
             user_orgs = set([gp[:-14] for gp in user_groups if gp.endswith(fct)])
             inter = creating_groups & user_orgs
             if inter:
@@ -1718,6 +1718,8 @@ def default_creating_group(user=None):
                     return pers.primary_organization
                 ordered = [uid for uid in [term.value for term in voc] if uid in inter]
                 return ordered[0]
+    if strict:
+        return None
     return [term.value for term in voc][0]  # take the first term (following plonegroup-organization items order)
 
 

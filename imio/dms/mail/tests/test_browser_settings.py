@@ -426,9 +426,11 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(default_creating_group(), orgs[3])  # primary org
         # user not in selected groups: no interaction
         self.assertEqual(default_creating_group(api.user.get(userid="agent1")), orgs[1])
+        self.assertIsNone(default_creating_group(api.user.get(userid="agent1"), strict=True))
         # we change the primary organization
         get_person_from_userid("agent").primary_organization = None
         self.assertEqual(default_creating_group(api.user.get(userid="agent")), orgs[1])
+        self.assertEqual(default_creating_group(api.user.get(userid="agent"), strict=True), orgs[1])
         # user logout
         logout()
 
