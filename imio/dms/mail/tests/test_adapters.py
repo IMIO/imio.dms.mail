@@ -1815,6 +1815,23 @@ class TestOMItemOrderProvider(unittest.TestCase, ImioTestHelpers):
         # all mainfiles before all appendixfiles
         self.assertLess(order[main0.UID()], order[alpha_annex.UID()])
 
+        # pdf files split from a mailed document: newest group first, in title (recipient) order
+        split = []
+        for title in (u"Main first_01", u"Main first_02"):
+            with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+                split.append(createContentInContainer(
+                    omail,
+                    "dmsommainfile",
+                    title=title,
+                    scan_id="012999900000601",
+                    file=NamedBlobFile(fo.read(), filename=filename),
+                    content_category=calculate_category_id(ct),
+                    conv_from_uid=main0.UID(),
+                ))
+        order = getAdapter(omail, IItemOrderProvider).get_item_order()
+        self.assertEqual(sorted([main0, main2] + split, key=lambda obj: order[obj.UID()]),
+                         split + [main2, main0])
+
         # a sign request only holds appendix files, ordered the same way
         request, files = create_sign_request(self.portal, oid="sr-order", nb_files=2)
         order = getAdapter(request, IItemOrderProvider).get_item_order()

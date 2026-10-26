@@ -67,6 +67,7 @@ from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
 from imio.zamqp.core.utils import next_scan_id
+from natsort import natsorted
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
 from plone import api
@@ -1182,30 +1183,37 @@ class BaseItemOrderProvider(DefaultItemOrderProvider):
     """Orders items by their position in the context container.
 
     Canonical file order: types are grouped in `portal_types` order.
-
-    Types in `newest_first` are ordered by container position, reversed. The others keep
-    the `categorized_elements` order.
+    Files are naturally sorted on their title.
+    Types in `newest_first` are ordered by container position, reversed.
+    The pdf files converted from the same file (`conv_from_uid`, one by recipient for a mailed document) are grouped
+    at the position of the newest one and keep their title order.
     """
 
     portal_types = ()
     newest_first = ()
 
     def get_item_order(self):
+        ids = self.context.objectIds()  # container order: the last one is the newest
         order = {}
+        # each portal_type is a block, following the previous one
         for portal_type in self.portal_types:
-            reverse = portal_type in self.newest_first
-            uids = [
-                elt["UID"] for elt in get_categorized_elements(
-                    self.context,
-                    result_type="dict",
-                    portal_type=portal_type,
-                    sort_on=reverse and "getObjPositionInParent" or None,
-                )
-            ]
-            if reverse:
-                uids.reverse()
+            elements = natsorted(
+                get_categorized_elements(self.context, portal_type=portal_type),
+                key=lambda elt: safe_unicode(elt["title"]).lower(),
+            )
+            if portal_type in self.newest_first:
+                # the pdf files converted from the same file (one by recipient for a mailing) form a group,
+                # their source stays alone. Any other file is a group by itself.
+                def group(elt):
+                    return elt.get("conv_from_uid") and ("conv", elt["conv_from_uid"]) or elt["UID"]
+
+                newest = {}  # position of the newest file of each group
+                for elt in elements:
+                    newest[group(elt)] = max(newest.get(group(elt), -1), ids.index(elt["id"]))
+                # newest group first. The sort is stable: files of a group keep their title order
+                elements = sorted(elements, key=lambda elt: -newest[group(elt)])
             base = len(order)
-            order.update({uid: base + idx for idx, uid in enumerate(uids)})
+            order.update({elt["UID"]: base + idx for idx, elt in enumerate(elements)})
         return order
 
 
