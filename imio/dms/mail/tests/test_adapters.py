@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.documentviewer.convert import Converter
+from collective.documentviewer.interfaces import IPageTextCleaner
+from collective.documentviewer.settings import Settings
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.adapters import AcroformTagsCleaner
+from imio.dms.mail.adapters import annex_searchable_text_index
 from imio.dms.mail.adapters import default_criterias
 from imio.dms.mail.adapters import DmsAppendixFilePrintableAdapter
 from imio.dms.mail.adapters import IdmSearchableExtender
@@ -22,6 +27,7 @@ from imio.dms.mail.adapters import OutgoingMailValidationCriterion
 from imio.dms.mail.adapters import ready_for_email_index
 from imio.dms.mail.adapters import ScanSearchableExtender
 from imio.dms.mail.adapters import signrequest_approvings_index
+from imio.dms.mail.adapters import signrequest_searchable_text_index
 from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.adapters import SignRequestInCopyGroupCriterion
 from imio.dms.mail.adapters import SignRequestInTreatingGroupCriterion
@@ -211,11 +217,31 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         request, files = create_sign_request(self.portal, oid="sr-disp", signers=[], nb_files=0)
         self.assertIsInstance(request.approval(), SignRequestApprovalAdapter)
 
+    def test_annex_searchable_text_index(self):
+        # a sign request file holding the acroform tags of 2 signers
+        request, files = create_sign_request(self.portal, oid="sr-acroform")
+        afile = files[0]
+        text = annex_searchable_text_index(afile)()
+        self.assertIn("Belleville", text)
+        self.assertNotIn("Signer1", text)
+        self.assertEqual(len(api.content.find(UID=afile.UID(), SearchableText="belleville")), 1)
+        self.assertEqual(len(api.content.find(UID=afile.UID(), SearchableText="signer1")), 0)
+
     def test_signrequest_approvings_index(self):
         request, files = create_sign_request(self.portal, oid="sr-idx", nb_files=1)
         self.assertEqual(signrequest_approvings_index(request)(), [])
         self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
         self.assertEqual(signrequest_approvings_index(request)(), ["dirg"])
+
+    def test_signrequest_searchable_text_index(self):
+        # a sign request whose file holds the acroform tags of 2 signers
+        request, files = create_sign_request(self.portal, oid="sr-acroform")
+        text = signrequest_searchable_text_index(request)()
+        self.assertIn("Belleville", text)
+        self.assertNotIn("Signer1", text)
+        request.reindexObject(idxs=["SearchableText"])
+        self.assertEqual(len(api.content.find(UID=request.UID(), SearchableText="belleville")), 1)
+        self.assertEqual(len(api.content.find(UID=request.UID(), SearchableText="signer1")), 0)
 
     def test_TaskInAssignedGroupCriterion(self):
         crit = TaskInAssignedGroupCriterion(self.portal)
@@ -355,6 +381,20 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         )
         ext = ScanSearchableExtender(obj)
         self.assertEqual(ext(), "testid2 title 010999900000690 IMIO010999900000690 description One word\n")
+        # an outgoing mail file holding the acroform tags of 2 signers
+        filename = u"3-degradation-voirie.odt"
+        with open("%s/batchimport/toprocess/requests/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            obj = createContentInContainer(
+                get_object(oid="reponse1", ptype="dmsoutgoingmail"),
+                "dmsommainfile",
+                file=NamedBlobFile(fo.read(), filename=filename),
+                content_category=calculate_category_id(
+                    self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+                ),
+            )
+        text = ScanSearchableExtender(obj)()
+        self.assertIn("Belleville", text)
+        self.assertNotIn("Signer1", text)
 
     def test_IdmSearchableExtender(self):
         imail = sub_create(
@@ -1765,3 +1805,43 @@ class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.approval.roles, {})
         self.pw.doActionFor(self.request, "propose_to_approve")
         self.assertEqual(self.approval.roles, {"dirg": ("Reader", "Reviewer", "Editor")})
+
+
+class TestAcroformTagsCleaner(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+
+    def test_clean(self):
+        # a sign request file holding the acroform tags of 2 signers
+        request, files = create_sign_request(self.portal, oid="sr-acroform")
+        afile = files[0]
+        cleaner = IPageTextCleaner(afile)
+        self.assertIsInstance(cleaner, AcroformTagsCleaner)
+        tag = '{{#"ID":"Signer1","Size":{"Height":"70","Width":"200"}#}}'
+        self.assertEqual(cleaner.clean(u"no tag here"), u"no tag here")
+        # a tag, as pdftotext reads it from a generated mail; the words around it stay apart
+        self.assertEqual(cleaner.clean(u"Maxime DG\n" + tag + u"\nBourgmestre"), u"Maxime DG\n \nBourgmestre")
+        self.assertEqual(cleaner.clean(u"before" + tag + u"after"), u"before after")
+        # seal and malformed tags
+        self.assertEqual(
+            cleaner.clean(u'{{#"ID":"SCEAU","Size":{"Height":"200","Width":"200"}#}}{{#"ID":"Signer1"#}}'), u"  "
+        )
+        # a tag wrapped over lines by the text extraction
+        self.assertEqual(cleaner.clean(u'{{#"ID":"Signer1","Size":{"Height":"70",\n"Width":"200"}#}}'), u" ")
+        # utf-8 bytes, as the document viewer reads its page texts
+        self.assertEqual(cleaner.clean("D\xc3\xa9but " + tag), "D\xc3\xa9but  ")
+        Converter(afile)()
+        # neither the document viewer search nor its text tab show the acroform tags
+        settings = Settings(afile)
+        words = settings.catalog["text"].index._lexicon.words()
+        self.assertIn("belleville", words)
+        self.assertNotIn("signer1", words)
+        page_texts = "".join(
+            [settings.blob_files["text/dump_%d.txt" % nb].open().read() for nb in range(1, settings.num_pages + 1)]
+        )
+        self.assertIn("Belleville", page_texts)
+        self.assertNotIn("Signer1", page_texts)

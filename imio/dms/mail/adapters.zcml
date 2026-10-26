@@ -107,6 +107,10 @@
              name="imio.dms.mail.adapters.IdmSearchableExtender" />
     <adapter factory=".adapters.OdmSearchableExtender"
              name="imio.dms.mail.adapters.OdmSearchableExtender" />
+    <adapter name="SearchableText" factory=".adapters.annex_searchable_text_index" />
+    <adapter name="SearchableText" factory=".adapters.signrequest_searchable_text_index" />
+    <adapter factory=".adapters.AcroformTagsCleaner" />
+    <adapter for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest" factory=".adapters.AcroformTagsCleaner" />
 
     <adapter name="approvings" factory=".adapters.approvings_index" />
     <adapter name="approvings" factory=".adapters.signrequest_approvings_index" />

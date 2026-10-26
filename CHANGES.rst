@@ -30,6 +30,8 @@ Changelog
   [chris-adam]
 - Added SAVE_RAM handling in configure_group_encoder settings method
   [sgeulette]
+- Removed the acroform tags from the searchable text of files and sign requests, and from the document viewer texts (PARAF-183).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
