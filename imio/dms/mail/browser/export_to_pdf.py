@@ -14,14 +14,15 @@ from imio.dms.mail import _
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.setuphandlers import OM_PRINT_SIGNED_COLS
 from imio.dms.mail.setuphandlers import OM_PRINT_TO_SIGN_COLS
+from imio.esign.interfaces import IItemOrderProvider
 from imio.helpers.workflow import get_transitions
 from plone import api
 from plone.app.uuid.utils import uuidToObject
-from Products.CMFPlone.utils import safe_unicode
 from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.field import Fields
 from zope import schema
 from zope.annotation import IAnnotations
+from zope.component import getAdapter
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.lifecycleevent import Attributes
@@ -71,7 +72,7 @@ def pdf_content(afile):
 class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
     """Files of an outgoing mail or a signing request that may be exported to PDF.
 
-    GED files are listed first, then the appendix files, each group alphabetically.
+    Files are listed in the IItemOrderProvider order: GED files first, then the appendix files.
     Files superseded by their mailing are dropped, the others are disabled when they
     are not to be printed, when a PDF was generated from them or when they cannot be
     concatenated.
@@ -95,9 +96,10 @@ class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
 
     def _prepare_annex_infos(self, context, annex_infos):
         mailed = superseded_uids(context)[0]
+        order = getAdapter(context, IItemOrderProvider).get_item_order()
         return sorted(
             [infos for infos in annex_infos if infos["UID"] not in mailed],
-            key=lambda infos: (infos["portal_type"] != GED, safe_unicode(infos["title"]).lower()))
+            key=lambda infos: order.get(infos["UID"], len(order)))
 
     def _portal_type_title(self, context, annex_info):
         """Tell ged files and appendix files apart, the FTI titles are not readable."""

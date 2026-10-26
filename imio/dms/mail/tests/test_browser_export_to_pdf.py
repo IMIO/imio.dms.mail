@@ -3,6 +3,7 @@
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.eeafaceted.batchactions.browser.viewlets import BatchActionsViewlet
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.iconifiedcategory.utils import get_categorized_elements
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from datetime import datetime
@@ -113,7 +114,7 @@ class TestExportToPDFElementsVocabulary(ExportToPdfTestCase):
     """Test imio.dms.mail.browser.export_to_pdf.ExportToPDFElementsVocabulary."""
 
     def test___call__(self):
-        """Ged files first, then appendix files, each group alphabetically."""
+        """IItemOrderProvider order: ged files newest first, then appendix files."""
         vocab = ExportToPDFBeforeSignatureVocabulary()(self.omail)
         self.assertEqual([term.token for term in vocab._terms],
                          [self.a_odt.getId(), self.b_pdf.getId(), self.appendix.getId()])
@@ -127,15 +128,13 @@ class TestExportToPDFElementsVocabulary(ExportToPdfTestCase):
         self._clean_cache()
         vocab = ExportToPDFBeforeSignatureVocabulary()(self.omail)
         self.assertEqual([term.token for term in vocab._terms],
-                         [self.a_odt.getId(), mailed.getId(), self.appendix.getId()])
+                         [mailed.getId(), self.a_odt.getId(), self.appendix.getId()])
 
     def test__prepare_annex_infos(self):
-        """Only ordering and the mailing exclusion, see test___call__."""
-        infos = [{"UID": "1", "portal_type": "dmsappendixfile", "title": u"a"},
-                 {"UID": "2", "portal_type": "dmsommainfile", "title": u"z"},
-                 {"UID": "3", "portal_type": "dmsommainfile", "title": u"B"}]
+        """The given infos are reordered by IItemOrderProvider, see test___call__ for the mailing exclusion."""
+        infos = list(reversed(get_categorized_elements(self.omail)))
         res = ExportToPDFBeforeSignatureVocabulary()._prepare_annex_infos(self.omail, infos)
-        self.assertEqual([i["UID"] for i in res], ["3", "2", "1"])
+        self.assertEqual([i["UID"] for i in res], [self.a_odt.UID(), self.b_pdf.UID(), self.appendix.UID()])
 
     def test__to_print(self):
         before = ExportToPDFBeforeSignatureVocabulary()
