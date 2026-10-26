@@ -271,6 +271,20 @@ class StatesRoutingValueVocabulary(object):
         )
 
 
+@implementer(IVocabularyFactory)
+class CgRoutingValueVocabulary(object):
+
+    def __call__(self, context):
+        return SimpleVocabulary(
+            [
+                SimpleTerm(value=None, title=_("Choose a value !")),
+                SimpleTerm(value=u"_transferer_", title=_("Transferer")),
+                SimpleTerm(value=u"_treating_group_", title=_("Following treating group")),
+            ] + vocabularyname_to_terms("imio.dms.mail.CreatingGroupVocabulary", context=api.portal.get(),
+                                        sort_on="title")
+        )
+
+
 class InvalidApprovings(ValidationError):
     __doc__ = _(u"You cannot select approvings and no validation at the same time.")
 
@@ -386,6 +400,15 @@ class IStateSetSchema(IBaseRoutingRuleSchema):
     state_value = schema.Choice(
         title=_(u"State value"),
         vocabulary="imio.dms.mail.StatesRoutingValueVocabulary",
+        required=True,
+    )
+
+
+class ICreatingGroupSetSchema(IBaseRoutingRuleSchema):
+
+    cg_value = schema.Choice(
+        title=_(u"Creating group value"),
+        vocabulary="imio.dms.mail.CgRoutingValueVocabulary",
         required=True,
     )
 
@@ -682,7 +705,7 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         "incoming_email",
         label=_(u"Incoming email"),
-        fields=["iemail_routing", "iemail_state_set"],)
+        fields=["iemail_routing", "iemail_state_set", "iemail_creating_group"],)
 
     iemail_routing = schema.List(
         title=_(u"${type} routing", mapping={"type": _("Incoming email")}),
@@ -707,6 +730,20 @@ class IImioDmsMailConfig(model.Schema):
     )
     widget(
         "iemail_state_set",
+        DataGridFieldFactory,
+        allow_reorder=True,
+        auto_append=False,
+    )
+
+    iemail_creating_group = schema.List(
+        title=_(u"${type} creating group", mapping={"type": _("Incoming email")}),
+        description=_(u"Configure creating group rules carefully. You can order with arrows. Only first rule giving "
+                      u"a usable creating group is used. Rules are applied after routing ones."),
+        required=False,
+        value_type=DictRow(title=_(u"Creating group"), schema=ICreatingGroupSetSchema, required=False),
+    )
+    widget(
+        "iemail_creating_group",
         DataGridFieldFactory,
         allow_reorder=True,
         auto_append=False,
@@ -1065,7 +1102,9 @@ class IImioDmsMailConfig(model.Schema):
             for fld, fld_tit, needed in (("iemail_routing", _tr(u"${type} routing", mapping={"type": ""}),
                                           ("user_value", "tg_value")),
                                          ("iemail_state_set", _tr(u"${type} state set", mapping={"type": ""}),
-                                          ("state_value", ))):
+                                          ("state_value", )),
+                                         ("iemail_creating_group", _tr(u"${type} creating group",
+                                                                       mapping={"type": ""}), ("cg_value", ))):
                 for i, rule in enumerate(getattr(data, fld) or [], start=1):
                     # check patterns
                     for col, col_tit in (("transfer_email_pat", u"Transfer email pattern"),
@@ -1536,6 +1575,15 @@ class SettingsEditForm(RegistryEditForm):
                         mapping={"list": u", ".join(unconfigured)},
                     ),
                 )
+
+    def updateFields(self):
+        super(SettingsEditForm, self).updateFields()
+        # creating group rules are only used with incoming mail group encoding
+        if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder"):
+            return
+        for grp in self.groups:
+            if grp.__name__ == "incoming_email":
+                grp.fields = grp.fields.omit("iemail_creating_group")
 
 
 SettingsView = layout.wrap_form(SettingsEditForm, ControlPanelFormWrapper)

@@ -16,6 +16,7 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail import FIRST_LEVEL_TABS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.browser.settings import SettingsEditForm
 from imio.dms.mail.browser.views import ImioCatalogNavigationTabs
 from imio.dms.mail.browser.views import PlusPortaltabContent
 from imio.dms.mail.content.behaviors import default_creating_group
@@ -93,6 +94,22 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
             _tr(errors[0].message, mapping={"tab": _tr("Incoming mail"), "field": _tr("Activate group encoder")}),
             error_msg,
         )
+        # test iemail_creating_group
+        data = {"iemail_routing": [], "iemail_state_set": []}
+        rule = {"forward": u"agent", "transfer_email_pat": u"", "original_email_pat": u"", "tal_condition_1": u"",
+                "cg_value": u"_transferer_"}
+        data["iemail_creating_group"] = [rule]
+        self.assertFalse(invariants.validate(data))
+        rule["cg_value"] = None
+        errors = invariants.validate(data)
+        self.assertEqual(errors[0].message, u"${tab} tab: « ${field} » rule ${rule} is configured with no values "
+                                            u"defined")
+        self.assertEqual(errors[0].message.mapping["rule"], 1)
+        rule.update({"cg_value": u"_transferer_", "transfer_email_pat": u"agent(@"})
+        errors = invariants.validate(data)
+        self.assertEqual(errors[0].message, u"${tab} tab: « ${field} » rule ${rule} has an invalid pattern in "
+                                            u"« ${col} »")
+        self.assertEqual(errors[0].message.mapping["rule"], 1)
 
     def test_omail_signer_substitutes_validation(self):
         """Check omail_signer_substitutes invariant validation."""
@@ -465,3 +482,29 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         for fid in ("orgs-searches", "persons-searches", "hps-searches", "cls-searches"):
             crit = ICriteria(self.portal["contacts"][fid])
             self.assertIn("c90", crit.keys())
+
+    def test_CgRoutingValueVocabulary(self):
+        voc = getUtility(IVocabularyFactory, "imio.dms.mail.CgRoutingValueVocabulary")
+        self.assertListEqual([t.value for t in voc(self.portal)], [None, u"_transferer_", u"_treating_group_"])
+        change_user(self.portal)
+        activate_group_encoder(self.portal)
+        pgof = self.portal["contacts"]["plonegroup-organization"]
+        self.assertListEqual(
+            [(t.value, t.title) for t in voc(self.portal)][3:],
+            [
+                (pgof["direction-generale"]["secretariat"].UID(), u"Direction générale - Secrétariat"),
+                (pgof["evenements"].UID(), u"Événements"),
+            ],
+        )
+
+    def test_SettingsEditForm_updateFields(self):
+        def iem_widgets():
+            form = SettingsEditForm(self.portal, self.portal.REQUEST)
+            form.update()
+            return [grp for grp in form.groups if grp.__name__ == "incoming_email"][0].widgets.keys()
+
+        # creating group rules are hidden while incoming mail group encoding is off
+        self.assertListEqual(iem_widgets(), ["iemail_routing", "iemail_state_set"])
+        change_user(self.portal)
+        activate_group_encoder(self.portal)
+        self.assertListEqual(iem_widgets(), ["iemail_routing", "iemail_state_set", "iemail_creating_group"])
