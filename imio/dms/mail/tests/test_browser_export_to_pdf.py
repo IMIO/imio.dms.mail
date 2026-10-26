@@ -230,6 +230,53 @@ class TestExportToPDFForm(ExportToPdfTestCase):
         form.update()
         self.assertEqual(form.widgets["elements"].value, [self.appendix.getId()])
 
+    def test_available(self):
+        """The action needs its condition and more than one exportable file."""
+        form = self.omail.restrictedTraverse("@@export-to-pdf-before-signature")
+        self.assertTrue(form.available())
+        # 2 exportable files
+        self._set_infos(self.appendix, to_print=False)
+        self._clean_cache()
+        self.assertTrue(form.available())
+        # 1 exportable file
+        self._set_infos(self.b_pdf, to_print=False)
+        self._clean_cache()
+        self.assertFalse(form.available())
+        # no exportable file
+        self._set_infos(self.a_odt, to_print=False)
+        self._clean_cache()
+        self.assertFalse(form.available())
+        # condition not met: not signed, even with exportable files
+        for obj in (self.a_odt, self.b_pdf, self.appendix):
+            self._set_infos(obj, to_print=True)
+        self._clean_cache()
+        self.assertFalse(self.omail.restrictedTraverse("@@export-to-pdf-after-signature").available())
+
+    def test_actions_panel(self):
+        """The object action is shown on the mail view only, not in dashboards."""
+        self.assertIn("export-to-pdf-before-signature",
+                      [act["id"] for act in self.omail.restrictedTraverse("@@actions_panel").listObjectButtonsActions()])
+        self.request["URL"] = "http://nohost/plone/@@faceted_query"
+        self.assertNotIn("export-to-pdf-before-signature",
+                         [act["id"] for act in self.omail.restrictedTraverse("@@actions_panel").listObjectButtonsActions()])
+        # only one exportable file
+        self.request["URL"] = "http://nohost/plone/outgoing-mail/om-export"
+        self._set_infos(self.appendix, to_print=False)
+        self._set_infos(self.b_pdf, to_print=False)
+        self._clean_cache()
+        self.assertNotIn("export-to-pdf-before-signature",
+                         [act["id"] for act in self.omail.restrictedTraverse("@@actions_panel").listObjectButtonsActions()])
+
+    def test_actions_panel_cache(self):
+        """The cached panel follows the files changes, that don't modify the mail."""
+        self.assertIn("export-to-pdf-before-signature",
+                      self.omail.restrictedTraverse("@@actions_panel")(useIcons=False, showActions=True))
+        self._set_infos(self.appendix, to_print=False)
+        self._set_infos(self.b_pdf, to_print=False)
+        self._clean_cache()
+        self.assertNotIn("export-to-pdf-before-signature",
+                         self.omail.restrictedTraverse("@@actions_panel")(useIcons=False, showActions=True))
+
     @unittest.skip("Skipping test_update_oo_warning")
     def test_update_oo_warning(self):
         """A warning is shown when LibreOffice does not answer."""

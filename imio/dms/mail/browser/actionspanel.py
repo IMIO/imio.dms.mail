@@ -35,6 +35,19 @@ def actionspanelview_cachekey(
     return ret
 
 
+def export_actionspanelview_cachekey(method, self, *args, **kwargs):
+    """actionspanelview_cachekey completed for the panels displaying the export actions. We will add:
+    * faceted navigation
+    * contained files infos
+    """
+    faceted = self.isInFacetedNavigation()
+    # files changes don't modify the mail, but the export actions (hidden in dashboards) depend on them
+    return actionspanelview_cachekey(method, self, *args, **kwargs) + (
+        faceted,
+        not faceted and repr(sorted(getattr(self.context, "categorized_elements", {}).items())),
+    )
+
+
 class MultipleAnnexesMixin(object):
     typeupload = None
 
@@ -249,6 +262,8 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
         # portal_actions.object_buttons action ids to keep
         # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
         self.ACCEPTABLE_ACTIONS = ["delete", "export-to-pdf-before-signature", "export-to-pdf-after-signature"]
+        if self.isInFacetedNavigation():  # export condition is too costly to be computed for each listed mail
+            self.ACCEPTABLE_ACTIONS = ["delete"]
         self.SECTIONS_TO_RENDER += (
             "render_create_from_template_button",
             "render_create_new_message",
@@ -304,7 +319,7 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
             return ViewPageTemplateFile("templates/actions_panel_send_email.pt")(self)
         return ""
 
-    @ram.cache(actionspanelview_cachekey)
+    @ram.cache(export_actionspanelview_cachekey)
     def DmsOMActionsPanelView__call__(
         self,
         useIcons=True,
@@ -360,13 +375,15 @@ class DmsSignRequestActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
         super(DmsSignRequestActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         self.ACCEPTABLE_ACTIONS = ["delete", "export-to-pdf-after-signature"]
+        if self.isInFacetedNavigation():  # export condition is too costly to be computed for each listed request
+            self.ACCEPTABLE_ACTIONS = ["delete"]
         self.SECTIONS_TO_RENDER += ("render_multiple_annexes_button",)
 
     def sortTransitions(self, lst):
         """Sort transitions following transitions list order"""
         lst.sort(lambda x, y: cmp(self.tr_order.get(x["id"], 99), self.tr_order.get(y["id"], 99)))  # noqa F821
 
-    @ram.cache(actionspanelview_cachekey)
+    @ram.cache(export_actionspanelview_cachekey)
     def DmsSignRequestActionsPanelView__call__(self, **kwargs):
         return super(DmsSignRequestActionsPanelView, self).__call__(**kwargs)
 

@@ -22,9 +22,11 @@ from z3c.form.browser.radio import RadioFieldWidget
 from z3c.form.field import Fields
 from zope import schema
 from zope.annotation import IAnnotations
+from zope.component import getUtility
 from zope.i18n import translate
 from zope.lifecycleevent import Attributes
 from zope.lifecycleevent import modified
+from zope.schema.interfaces import IVocabularyFactory
 
 import datetime
 import socket
@@ -146,6 +148,16 @@ class ExportToPDFAfterSignatureVocabulary(ExportToPDFElementsVocabulary):
 class ExportToPDFForm(ExportPDFForm):
     """Concatenate the selected files of an outgoing mail or a signing request."""
 
+    condition = None  # name of the context method telling if the export is possible
+
+    def available(self):
+        """Condition of the object action: only computed on the object view, it is hidden in dashboards."""
+        import ipdb; ipdb.set_trace()  # noqa
+        if not getattr(self.context, self.condition)():
+            return False
+        terms = getUtility(IVocabularyFactory, self.vocabulary)(self.context)
+        return len([term for term in terms if not getattr(term, "disabled", False)]) > 1
+
     def __init__(self, context, request):
         super(ExportToPDFForm, self).__init__(context, request)
         self.fields["two_sided"].field.default = True
@@ -166,6 +178,7 @@ class ExportToPDFBeforeSignatureForm(ExportToPDFForm):
 
     label = _(u"Export to PDF before signature")
     vocabulary = u"imio.dms.mail.ExportToPDFBeforeSignatureVocabulary"
+    condition = "can_do_export_to_pdf_before_signature"
 
     def update_not_used(self):
         super(ExportToPDFBeforeSignatureForm, self).update()
@@ -185,6 +198,7 @@ class ExportToPDFAfterSignatureForm(ExportToPDFForm):
 
     label = _(u"Export to PDF after signature")
     vocabulary = u"imio.dms.mail.ExportToPDFAfterSignatureVocabulary"
+    condition = "can_do_export_to_pdf_after_signature"
 
 
 class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
