@@ -6,8 +6,6 @@ from collective.contact.plonegroup.config import get_registry_functions
 from collective.contact.plonegroup.config import get_registry_organizations
 from collective.contact.plonegroup.config import set_registry_functions
 from collective.contact.plonegroup.utils import get_person_from_userid
-from dexterity.localroles.browser.interfaces import ILocalRoleListUpdatedEvent
-from dexterity.localrolesfield.subscriber import local_role_related_configuration_updated
 from dexterity.localrolesfield.utils import get_localrole_fields
 from eea.facetednavigation.criteria.interfaces import ICriteria
 from imio.dms.mail import _tr
@@ -22,13 +20,13 @@ from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.Extensions.demo import activate_group_encoder
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.app.testing import logout
 from plone.dexterity.interfaces import IDexterityFTI
 from plone.registry.interfaces import IRegistry
 from z3c.form import validator
-from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.component import queryUtility
 from zope.i18n import ITranslationDomain
@@ -415,20 +413,36 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         # user logout
         logout()
 
-    def test_configure_group_encoder_save_ram(self):
+    def _ge_security(self, imail):
+        """Return agent1 Contributor role on imail and imail catalog security for the creating group"""
+        principal = "user:{}_{}".format(imail.creating_group, CREATING_GROUP_SUFFIX)
+        brains = self.portal.portal_catalog.unrestrictedSearchResults(UID=imail.UID(), allowedRolesAndUsers=principal)
+        return "Contributor" in api.user.get_roles(username="agent1", obj=imail), len(brains) == 1
+
+    def test_configure_group_encoder_defer_security_update(self):
         change_user(self.portal)
-        with mock.patch.dict(os.environ, {"SAVE_RAM": "1"}):
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(api.content.get_state(imail), "created")
+        imail.creating_group = self.portal["contacts"]["plonegroup-organization"]["evenements"].UID()
+        self.assertEqual(self._ge_security(imail), (False, False))
+        with mock.patch.dict(os.environ, {"DEFER_SECURITY_UPDATE": "1"}):
             activate_group_encoder(self.portal)
         fti = getUtility(IDexterityFTI, name="dmsincomingmail")
         self.assertTrue(fti.localroles.get("creating_group"))
-        handlers = [reg.factory for reg in getGlobalSiteManager().registeredHandlers()
-                    if reg.required == (ILocalRoleListUpdatedEvent,)]
-        self.assertIn(local_role_related_configuration_updated, handlers)
+        # role is given but catalog security is not updated
+        self.assertEqual(self._ge_security(imail), (True, False))
+        # request flag is restored
+        self.assertFalse(self.portal.REQUEST.get("DEFER_SECURITY_UPDATE", False))
 
     def test_configure_group_encoder(self):
         change_user(self.portal)
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(api.content.get_state(imail), "created")
+        imail.creating_group = self.portal["contacts"]["plonegroup-organization"]["evenements"].UID()
+        self.assertEqual(self._ge_security(imail), (False, False))
         # activate imail group encoder
         activate_group_encoder(self.portal)
+        self.assertEqual(self._ge_security(imail), (True, True))
         self.assertIn(CREATING_GROUP_SUFFIX, [fct["fct_id"] for fct in get_registry_functions()])
         for portal_type in ("dmsincomingmail", "dmsincoming_email"):
             fti = getUtility(IDexterityFTI, name=portal_type)
