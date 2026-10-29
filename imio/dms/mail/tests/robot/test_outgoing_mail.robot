@@ -30,7 +30,7 @@ Create the document of an outgoing mail from a template
     Click the panel button  create-from-template
     The modal is open
     Choose the template in the modal  Modèle de base
-    # the testing layer disables the redirection after the generation: the browser stays on a blank page
-    Wait until location contains  persistent-document-generation
-    Go to the mail  reponse2  dmsoutgoingmail
-    The mail files list  Modèle de base
+    # no redirection to the external edition in the testing layer: the browser stays on the mail, like a download
+    The modal is closed
+    # the server sent events reload the mail once the generated file is closed (never locked here)
+    Wait until keyword succeeds  30s  1s  The mail files list  Modèle de base

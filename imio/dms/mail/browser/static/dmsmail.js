@@ -44,8 +44,9 @@ function dmsmailFancytreeModalRendered(modal) {
     activate: function (event, data) {
       if (!data.node.folder) {
         uidInput.attr('value', data.node.key);
-        // native submit: the page goes to the created document
+        // native submit: the generated file is downloaded and the page stays, so the modal is closed
         form[0].submit();
+        modal.hide();
       } else {
         submitButton.prop('disabled', true);
       }

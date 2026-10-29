@@ -363,11 +363,11 @@ class DmsmailRobotLayer(Layer):
         gsm = getGlobalSiteManager()
         gsm.registerHandler(set_session, (IPubStart,))
         gsm.registerUtility(dict(defaultSessionConfig, type="memory"), ISessionConfig)
-        # no redirection after the generation (see DmsmailLayer): a blank page, not a 204 the browser stays on
+        # no redirection after the generation (see DmsmailLayer): a 204 the browser stays on, like the zem download
         from imio.dms.mail.browser.documentgenerator import OMPDGenerationView
 
         self.view, self.redirects = OMPDGenerationView, OMPDGenerationView.redirects
-        OMPDGenerationView.redirects = lambda view, doc: view.request.response.setHeader("Content-Type", "text/html")
+        OMPDGenerationView.redirects = lambda view, doc: view.request.response.setStatus(204)
 
     def tearDown(self):
         self.view.redirects = self.redirects

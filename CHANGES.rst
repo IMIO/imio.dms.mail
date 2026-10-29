@@ -26,6 +26,9 @@ Changelog
 - Dashboards: the sticky table header no longer overlaps the first rows, and the document generation links no
   longer overlap the search box.
   [chris-adam]
+- "Create from template": the modal closes after the template choice, and the mail reloads once the generated file
+  is closed (no more waiting for the dropped documentviewer conversion).
+  [chris-adam]
 
 3.1.7 (unreleased)
 ------------------

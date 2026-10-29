@@ -246,7 +246,6 @@ class TestServerSentEvents(unittest.TestCase):
         eee_vw = omf.restrictedTraverse("@@externalEditorEnabled")
 
         # a dmsommainfile has been added manually and we go back on the dmsoutgoingmail
-        omf.conversion_finished = True  # set by the collective.documentviewer conversion (dropped on Plone 6)
         self.assertFalse(hasattr(omf, "generated"))
         self.assertEqual(sse_vw(), "")  # no refresh
         response = sse_vw.request.response
@@ -255,7 +254,6 @@ class TestServerSentEvents(unittest.TestCase):
 
         # a dmsommainfile has been generated
         omf.generated = 1
-        omf.conversion_finished = True
         self.assertEqual(sse_vw(), "")  # no refresh
         self.assertEqual(omf.generated, 2)  # waiting external edition
         # we lock like zopeedit
@@ -275,14 +273,10 @@ class TestServerSentEvents(unittest.TestCase):
 
         # a dmsommainfile is edited with zopeedit
         self.assertFalse(hasattr(omf, "generated"))
-        self.assertFalse(hasattr(omf, "conversion_finished"))
         self.assertEqual(sse_vw(), "")  # no refresh
         # we lock like zopeedit
         omf.restrictedTraverse("lock-unlock")()
         self.assertTrue(eee_vw.isObjectLocked())
-        self.assertEqual(sse_vw(), "")  # no refresh
-        # we save the file in the editor but dont close it
-        omf.conversion_finished = True
         self.assertEqual(sse_vw(), "")  # no refresh
         self.assertEqual(omf.generated, 3)  # set as no more waiting
         # we unlock

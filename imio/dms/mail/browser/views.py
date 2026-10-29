@@ -35,6 +35,7 @@ from imio.helpers.xhtml import object_link
 from plone import api
 from plone.protect import CheckAuthenticator
 from plone.protect import createToken
+from plone.protect.utils import safeWrite
 from Products.CMFPlone.browser.navigation import CatalogNavigationTabs
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five import BrowserView
@@ -194,7 +195,7 @@ class SenderSuggest(BrowserView):
 
 
 class ServerSentEvents(BrowserView):
-    """Send SSE for all file in this context that have just finished its documentviewer conversion.
+    """Send a refresh SSE for each file of this context that was generated or edited, once it is closed.
     See https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events.
 
     This view is called by javascript every 2 seconds. The javascript is available on dmsoutgooingmail.
@@ -206,28 +207,28 @@ class ServerSentEvents(BrowserView):
         self.request.response.setHeader("Pragma", "no-cache")
         response = ""
         for child in self.context.listFolderContents():
-            if IImioDmsFile.providedBy(child) and getattr(child, "conversion_finished", False):
+            if IImioDmsFile.providedBy(child):
                 # generated is added by creation subscriber, only when file is generated
                 # generated <= 2: wait to be sure zopedit redirection has been made
                 # generated > 3 and locked: wait else: refresh
                 if hasattr(child, "generated") and child.generated <= 2:
+                    safeWrite(child, self.request)  # GET request
                     child.generated += 1
                     continue
                 view = getMultiAdapter((child, self.request), name="externalEditorEnabled")
                 if view.isObjectLocked():
                     # a manually or generated file is edited a second time: like it was generated
                     if not hasattr(child, "generated"):
+                        safeWrite(child, self.request)
                         child.generated = 3
                     # object is locked we wait
                     continue
                 elif not hasattr(child, "generated"):
-                    # avoid to refresh if file was added manually and we return on the parent
-                    delattr(child, "conversion_finished")
                     continue
                 info = {"id": child.getId(), "path": "/".join(child.getPhysicalPath()), "refresh": True}
                 line = "data: {}\n\n".format(json.dumps(info))
                 response = "{}{}".format(response, line)
-                delattr(child, "conversion_finished")
+                safeWrite(child, self.request)
                 delattr(child, "generated")
         return response
 
