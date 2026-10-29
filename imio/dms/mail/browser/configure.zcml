@@ -1156,6 +1156,7 @@
             permission="zope2.View"
             template="browser/templates/sessions.pt"
             layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+            allowed_attributes="available"
         />
 
         <!--browser:page  keep original check permission only for now

@@ -936,6 +936,13 @@ class TestImioSessionsListingView(unittest.TestCase):
         self.request.set("esign_portal_type", "dmsoutgoingmail")
         self.assertListEqual([sess["id"] for sess in view.get_sessions()], [om_sid])
 
+    def test_portal_tab(self):
+        activate_signing(self.portal)
+        change_user(self.portal, "dirg")
+        # the tab condition "portal/@@parapheo/available" is restricted code: it must not hide every tab
+        tabs = self.portal.portal_actions.listActionInfos(object=self.portal, categories=("portal_tabs",))
+        self.assertIn("parapheo", [tab["id"] for tab in tabs])
+
     def test_available(self):
         with api.env.adopt_roles(["Manager"]):
             if api.group.get("esign_watchers") is None:

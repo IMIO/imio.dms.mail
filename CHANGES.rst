@@ -20,6 +20,9 @@ Changelog
   [chris-adam]
 - Dropped imio.dms.soap2pm and collective.iconifieddocumentactions.
   [chris-adam]
+- Allowed `available` on the `parapheo` override: its tab condition raised once imio.esign was installed,
+  hiding every top tab.
+  [chris-adam]
 
 3.1.7 (unreleased)
 ------------------
