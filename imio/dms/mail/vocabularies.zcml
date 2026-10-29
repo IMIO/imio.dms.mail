@@ -170,6 +170,11 @@
         />
 
     <utility
+        name="imio.dms.mail.CgRoutingValueVocabulary"
+        factory="imio.dms.mail.browser.settings.CgRoutingValueVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.SigningApprovingsVocabulary"
         factory="imio.dms.mail.vocabularies.SigningApprovingsVocabulary"
         />

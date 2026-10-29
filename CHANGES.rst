@@ -34,6 +34,8 @@ Changelog
   [chris-adam]
 - Fixed the ``@@approvals`` view listing files order (PARAF-510).
   [chris-adam]
+- Added the incoming email creating group rules setting, shown when the incoming mail group encoder is activated (DMS-1252).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
