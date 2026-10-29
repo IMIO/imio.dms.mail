@@ -7,6 +7,7 @@ from collective.iconifiedcategory.browser.actionview import ApprovedChangeView a
 from collective.iconifiedcategory.browser.actionview import SignedChangeView as BaseSignedChangeView
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
 from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSignedColumn
+from imio.dms.mail import _
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import logger  # noqa F401
 # from imio.esign.audit import audit as esign_audit
@@ -244,6 +245,11 @@ class SignedColumn(BaseSignedColumn):
         super(SignedColumn, self).__init__(context, request, table)
         # self.context is the mail here
 
+    def alt(self, content):
+        if getattr(content, "esigned", False):
+            return translate(_(u"Element is electronically signed"), context=self.request)
+        return super(SignedColumn, self).alt(content)
+
     def css_class(self, content):
         av = self.get_action_view(content)
         # is_editable:
@@ -272,6 +278,8 @@ class SignedColumn(BaseSignedColumn):
             return " deactivated"
         else:  # state >= to_approve and to_sign is True
             base_css = self.is_active(content) and ' active' or ''  # signed is True ?
+            if getattr(content, "esigned", False):  # electronically signed: pink icon, not editable
+                return '{0} esigned'.format(base_css)
             if av.p_state in self.mark_signed_states:
                 # we don't want to unset to_sign if to_approve is True
                 if editable and (not content.to_sign or not content.to_approve):
@@ -280,7 +288,7 @@ class SignedColumn(BaseSignedColumn):
 
     def get_url(self, content):
         av = self.get_action_view(content)
-        if av.p_state in self.disabled_url_states:
+        if av.p_state in self.disabled_url_states or getattr(content, "esigned", False):
             return "#"
         return '{url}/@@{action}'.format(
             url=content.getURL(),
@@ -340,7 +348,7 @@ class SignedChangeView(BaseSignedChangeView):
         return status, values
 
     def _may_set_values(self, values):
-        if self.p_state in ("to_approve", "to_print", "sent"):
+        if self.p_state in ("to_approve", "to_print", "sent") or getattr(self.context, "esigned", False):
             return False
         return super(SignedChangeView, self)._may_set_values(values)
 

@@ -2,6 +2,8 @@
 from collective.dms.basecontent.browser.listing import CategorizedContent
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.iconifiedcategory.utils import get_category_object
+from collective.iconifiedcategory.utils import update_categorized_elements
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
@@ -327,11 +329,20 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         )  # Set file2 as signed
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
         self.assertEqual(col.css_class(file2_cc), " active")
+        # electronically signed: no more editable
+        self.file2.esigned = True
+        update_categorized_elements(self.omail2,
+                                    self.file2, get_category_object(self.file2, self.file2.content_category))
+        file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
+        self.assertEqual(col.css_class(file2_cc), " active esigned")
+        self.assertEqual(col.get_url(file2_cc), "#")
+        self.assertEqual(col.alt(file2_cc), u"Cet élément est signé électroniquement")
+        self.assertFalse(col.get_action_view(file2_cc)._may_set_values({}))
         # "sent"
         self.change_user("encodeur")
         self.pw.doActionFor(self.omail2, "mark_as_signed")
         self.pw.doActionFor(self.omail2, "mark_as_sent")
-        self.assertEqual(col.css_class(file2_cc), " active")
+        self.assertEqual(col.css_class(file2_cc), " active esigned")
         self.assertEqual(col.css_class(file3_cc), " deactivated")
 
     def test_signed_change_view(self):

@@ -619,6 +619,15 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
 }
 /* end */
 
+#content .iconified-listing td.iconified-signed a.active.esigned {
+    cursor: help;
+}
+/* !important to also override the base :hover color */
+#content .iconified-listing td.iconified-signed a.active.esigned,
+#content .iconified-listing td.iconified-signed span.active.esigned {
+    color: darkorchid !important;
+}
+
 #content .iconified-listing td.iconified-approved a.to-approve::before,
 #content .iconified-listing td.iconified-approved span.to-approve::before,
 #content .iconified-listing td.iconified-signed a.deactivated::before,
