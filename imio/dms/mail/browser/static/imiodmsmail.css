@@ -104,6 +104,17 @@ body.template-view.portaltype-sign_request #form-widgets-ISignRequestSigningBeha
   white-space: pre-wrap;
 }
 
+/* the overflow of the results wrapper (Bootstrap .table-responsive) would be the scroll container of the sticky
+   table header (plonetheme.imioapps): the header was shifted down over the first rows */
+#faceted-results .eea-preview-items.table-responsive {
+  overflow: visible;
+}
+/* the document generation links (collective.eeafaceted.dashboard puts them 32px up) overlapped the search box */
+#faceted-results #viewlet-top-above-nav #doc-generation-view {
+  position: static;
+  margin-top: 0;
+}
+
 /* read mode */
 
 .template-view.portaltype-dmsoutgoingmail.read-mode #fieldset-versions,

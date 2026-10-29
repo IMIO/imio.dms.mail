@@ -14,6 +14,25 @@ The incoming mail dashboard lists the mails
     The dashboard row contains  E0001 - Courrier 1  Electrabel
     The dashboard collection count is  État: en création  9
 
+The dashboard table header is above the first row
+    Log in as  encodeur
+    Open the dashboard  incoming-mail
+    ${offset}=  Execute javascript
+    ...  var th = document.querySelector("table.faceted-table-results th");
+    ...  return th.getBoundingClientRect().top - th.closest("table").getBoundingClientRect().top;
+    Should be true  ${offset} < 5
+
+The dashboard generation links are below the search box
+    Log in as  encodeur
+    Open the dashboard  incoming-mail
+    # the links are shown with a reception date filter
+    Go to  ${PLONE_URL}/incoming-mail/mail-searches#c10=01/01/2020&c10=31/12/2030
+    Wait until element is visible  id=doc-generation-view
+    ${offset}=  Execute javascript
+    ...  return document.getElementById("doc-generation-view").getBoundingClientRect().top
+    ...  - document.getElementById("faceted-results").getBoundingClientRect().top;
+    Should be true  ${offset} >= 0
+
 A dashboard collection filters the mails
     Log in as  encodeur
     Fire the mail transition  courrier1  propose_to_manager

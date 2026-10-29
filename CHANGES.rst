@@ -23,6 +23,9 @@ Changelog
 - Allowed `available` on the `parapheo` override: its tab condition raised once imio.esign was installed,
   hiding every top tab.
   [chris-adam]
+- Dashboards: the sticky table header no longer overlaps the first rows, and the document generation links no
+  longer overlap the search box.
+  [chris-adam]
 
 3.1.7 (unreleased)
 ------------------
