@@ -1639,11 +1639,13 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         # having group
         self.assertRaises(Redirect, api.user.delete, "lecteur")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'lecteur', utilisé dans les groupes.")
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer l'utilisateur 'lecteur', utilisé dans les groupes.")
         # is used in content
         self.assertRaises(Redirect, api.user.delete, username=TEST_USER_ID)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'test_user_1_', utilisé dans l'index 'Auteur'.")
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer l'utilisateur 'test_user_1_', utilisé dans l'index 'Auteur'.")
         # is used as person user_id
         api.user.create("test@test.be", "testuser", "Password#1")
         agent = self.portal.contacts["personnel-folder"]["agent"]
@@ -1651,7 +1653,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         agent.reindexObject()
         self.assertRaises(Redirect, api.user.delete, username="testuser")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'testuser', utilisé dans l'index 'userid'.")
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer l'utilisateur 'testuser', utilisé dans l'index 'userid'.")
 
     def test_group_deleted(self):
         request = self.portal.REQUEST
@@ -1666,7 +1669,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         set_registry_organizations(get_registry_organizations()[1:])
         self.assertRaises(Redirect, api.group.delete, groupname=group)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer le groupe '%s', utilisé dans l'index 'Groupe assigné'." % group)
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer le groupe '%s', utilisé dans l'index 'Groupe assigné'." % group)
 
     def test_group_assignment(self):
         self.portal.ok = True

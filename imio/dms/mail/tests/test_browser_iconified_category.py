@@ -333,19 +333,19 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         clean_borg_cache(col.request)  # because transition was done
         # "to_be_signed"
         self.change_user("agent")
-        self.assertEqual(col.css_class(file2_cc), "")
+        self.assertEqual(col.css_class(file2_cc), " editable")
         self.assertEqual(col.css_class(file3_cc), " deactivated")
         self.assertEqual(
             col.get_action_view(file2_cc)(), u'{"msg":"Cet élément est signé","status":1}'
         )  # Set file2 as signed (call "click" view)
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
-        self.assertEqual(col.css_class(file2_cc), " active")
+        self.assertEqual(col.css_class(file2_cc), " active editable")
         # "signed"
         self.change_user("encodeur")
         self.pw.doActionFor(self.omail2, "mark_as_signed")
         self.assertEqual(api.content.get_state(self.omail2), "signed")
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
-        self.assertEqual(col.css_class(file2_cc), " active")
+        self.assertEqual(col.css_class(file2_cc), " active")  # no more editable in signed state
         self.assertEqual(col.get_url(file2_cc), "#")
         self.assertEqual(col.alt(file2_cc), u"Cet élément est signé")
         self.assertEqual(col.css_class(file3_cc), " deactivated")

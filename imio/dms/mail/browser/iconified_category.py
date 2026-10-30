@@ -63,7 +63,7 @@ class ApprovedColumn(BaseApprovedColumn):
     def alt(self, content):
         return translate(
             self.msg,
-            context=self.table.request,
+            context=self.request,
             domain="collective.iconifiedcategory",
         )
 
@@ -256,7 +256,7 @@ class SignedColumn(BaseSignedColumn):
     # workflow states at or after "to_approve" (i.e. the "created" free-edit phase is over)
     after_creation_states = ("to_approve", "to_print", "to_be_signed", "signed", "sent")
     # states where the file can still be (un)marked as signed
-    mark_signed_states = ("to_be_signed", "signed")
+    mark_signed_states = ("to_be_signed", )
     # states where the icon must not be clickable anymore
     disabled_url_states = ("to_approve", "signed", "sent")
 
@@ -296,12 +296,10 @@ class SignedColumn(BaseSignedColumn):
             return " deactivated"
         else:  # state >= to_approve and to_sign is True
             base_css = self.is_active(content) and ' active' or ''  # signed is True ?
-            if getattr(content, "esigned", False):  # electronically signed: pink icon, not editable
+            if getattr(content, "esigned", False):  # electronically signed: purple icon, not editable
                 return '{0} esigned'.format(base_css)
-#            if av.p_state in self.mark_signed_states:
-            if av.p_state == "to_be_signed":
-                # we don't want to unset to_sign if to_approve is True
-                if editable and (not content.to_sign or not content.to_approve):
+            if av.p_state in self.mark_signed_states:
+                if editable:
                     return '{0} editable'.format(base_css)
             return base_css
 

@@ -822,7 +822,7 @@ def _correct_to_approve(file_obj):
     orig_value = getattr(file_obj, "to_approve", False)
     om_obj = file_obj.__parent__
     approval = om_obj.approval()
-    new_value = bool(orig_value and approval.is_file_eligible(file_obj))
+    new_value = bool(orig_value and approval.approvers and approval.is_file_eligible(file_obj))
     if new_value:
         approval.add_file_to_approval(file_obj.UID())
     if orig_value != new_value:  # only when passing from True to False normally
