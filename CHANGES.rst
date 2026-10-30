@@ -36,6 +36,8 @@ Changelog
   [chris-adam]
 - Reloaded in migration the unmodified stock templates altered by the collective.documentgenerator expressions cleaning (DMS-1249).
   [chris-adam]
+- Made the Solr sync keep the changes made on the site during the run: each object is read fresh and sent at once (DMS-1249).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
