@@ -337,9 +337,18 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.css_class(file3_cc), " deactivated")
         self.assertEqual(
             col.get_action_view(file2_cc)(), u'{"msg":"Cet élément est signé","status":1}'
-        )  # Set file2 as signed
+        )  # Set file2 as signed (call "click" view)
         file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
         self.assertEqual(col.css_class(file2_cc), " active")
+        # "signed"
+        self.change_user("encodeur")
+        self.pw.doActionFor(self.omail2, "mark_as_signed")
+        self.assertEqual(api.content.get_state(self.omail2), "signed")
+        file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))  # reload metadata
+        self.assertEqual(col.css_class(file2_cc), " active")
+        self.assertEqual(col.get_url(file2_cc), "#")
+        self.assertEqual(col.alt(file2_cc), u"Cet élément est signé")
+        self.assertEqual(col.css_class(file3_cc), " deactivated")
         # electronically signed: no more editable
         self.file2.esigned = True
         update_categorized_elements(self.omail2,
@@ -349,17 +358,8 @@ class TestBrowserIconifiedCategory(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(col.get_url(file2_cc), "#")
         self.assertEqual(col.alt(file2_cc), u"Cet élément est signé électroniquement")
         self.assertFalse(col.get_action_view(file2_cc)._may_set_values({}))
-        # "signed"
-        self.change_user("encodeur")
-        self.pw.doActionFor(self.omail2, "mark_as_signed")
-        self.assertEqual(api.content.get_state(self.omail2), "signed")
-        file2_cc = CategorizedContent(self.omail2, uuidToCatalogBrain(self.file2.UID()))
-        self.assertEqual(col.css_class(file2_cc), " active")
-        self.assertEqual(col.get_url(file2_cc), "#")
-        self.assertEqual(col.css_class(file3_cc), " deactivated")
         # "sent"
         self.change_user("encodeur")
-        self.pw.doActionFor(self.omail2, "mark_as_signed")
         self.pw.doActionFor(self.omail2, "mark_as_sent")
         self.assertEqual(col.css_class(file2_cc), " active esigned")
         self.assertEqual(col.css_class(file3_cc), " deactivated")
