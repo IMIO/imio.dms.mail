@@ -445,7 +445,7 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
         self._processed = 0
 
         # Look up objects
-        uid_rid_get = cat_results.get
+        uid_rid_get = uid_index._index.get  # live index: an object cataloged meanwhile must not be unindexed
         rid_path_get = catalog._catalog.paths.get
         catalog_traverse = catalog.unrestrictedTraverse
 
