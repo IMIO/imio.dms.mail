@@ -1366,13 +1366,23 @@ class ApprovalAdapter(object):
         to_sign and not exempt (a pdf conversion or a mailing file, which may be signed without approval).
 
         Single source of truth shared by ``_correct_to_approve`` (setter) and
-        ``ImioDmsOutgoingMail.invalid_sign_approve_files`` (checker) so they cannot drift.
+        ``invalid_sign_approve_files`` (checker) so they cannot drift.
         """
         return bool(
             getattr(file_obj, "to_sign", False)
             and not base_hasattr(file_obj, "conv_from_uid")
             and not getattr(file_obj, "need_mailing", False)
         )
+
+    def invalid_sign_approve_files(self):
+        """Return the context files whose (to_sign, to_approve) combination is invalid."""
+        if not self.approvers:
+            return []
+        return [
+            f for f in self.context.objectValues()
+            if f.portal_type in ("dmsommainfile", "dmsappendixfile")
+            and bool(getattr(f, "to_approve", False)) != self.is_file_eligible(f)
+        ]
 
     @property
     def current_nb(self):

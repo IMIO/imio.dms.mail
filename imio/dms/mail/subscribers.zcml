@@ -95,7 +95,7 @@
     <subscriber
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
              Products.DCWorkflow.interfaces.IBeforeTransitionEvent"
-        handler=".subscribers.dmsoutgoingmail_before_transition"
+        handler=".subscribers.sign_approve_before_transition"
       />
     <subscriber
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
@@ -116,6 +116,11 @@
       />
 
     <!-- IImioDmsSignRequest -->
+    <subscriber
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+             Products.DCWorkflow.interfaces.IBeforeTransitionEvent"
+        handler=".subscribers.sign_approve_before_transition"
+      />
     <subscriber
         for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
              Products.DCWorkflow.interfaces.IAfterTransitionEvent"

@@ -18,6 +18,7 @@ from plone.autoform.interfaces import OMITTED_KEY
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from Products.PluginIndexes.common.UnIndex import _marker
+from zope.interface import Invalid
 
 import unittest
 
@@ -126,6 +127,18 @@ class TestDmsSignRequest(unittest.TestCase, ImioTestHelpers):
         # empty reference is not indexed
         request.internal_reference_no = u""
         self.assertEqual(signrequest_internal_reference_number_indexer(request)(), _marker)
+
+    def test_sign_approve_before_transition(self):
+        """propose_to_approve is blocked while a file has an invalid sign/approve combination."""
+        request, files = create_sign_request(self.portal, oid="sr-inv", nb_files=2)
+        files[1].to_approve = False  # to_sign but not approved => invalid
+        self.assertEqual(request.approval().invalid_sign_approve_files(), [files[1]])
+        with self.assertRaises(Invalid):
+            self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
+        self.assertEqual(api.content.get_state(request), "created")
+        files[1].to_approve = True
+        self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
+        self.assertEqual(api.content.get_state(request), "to_approve")
 
     def test_file_added_in_to_approve(self):
         """A file added in to_approve is neither to sign nor to approve."""

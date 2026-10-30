@@ -699,21 +699,21 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
         self.assertTrue(OMApprovalAdapter(om).approvers)
         # both True / both False => valid
         f.to_sign, f.to_approve = True, True
-        self.assertEqual(om.invalid_sign_approve_files(), [])
+        self.assertEqual(om.approval().invalid_sign_approve_files(), [])
         f.to_sign, f.to_approve = False, False
-        self.assertEqual(om.invalid_sign_approve_files(), [])
+        self.assertEqual(om.approval().invalid_sign_approve_files(), [])
         # eligible file to_sign without to_approve => invalid
         f.to_sign, f.to_approve = True, False
-        self.assertEqual(om.invalid_sign_approve_files(), [f])
+        self.assertEqual(om.approval().invalid_sign_approve_files(), [f])
         # to_approve without to_sign => invalid
         f.to_sign, f.to_approve = False, True
-        self.assertEqual(om.invalid_sign_approve_files(), [f])
+        self.assertEqual(om.approval().invalid_sign_approve_files(), [f])
         # exempt (mailing / pdf conversion) may be to_sign without to_approve => valid
         f.to_sign, f.to_approve, f.need_mailing = True, False, True
-        self.assertEqual(om.invalid_sign_approve_files(), [])
+        self.assertEqual(om.approval().invalid_sign_approve_files(), [])
         f.need_mailing = False
         f.conv_from_uid = "some-source-uid"
-        self.assertEqual(om.invalid_sign_approve_files(), [])
+        self.assertEqual(om.approval().invalid_sign_approve_files(), [])
         del f.conv_from_uid
         # no approvers => never invalid (Approb. column is hidden anyway)
         om2 = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "noappr")
@@ -728,4 +728,4 @@ class TestDmsmail(unittest.TestCase, ImioTestHelpers):
             )
         f2.to_sign, f2.to_approve = True, False  # would be invalid if approvers existed
         self.assertFalse(OMApprovalAdapter(om2).approvers)
-        self.assertEqual(om2.invalid_sign_approve_files(), [])
+        self.assertEqual(om2.approval().invalid_sign_approve_files(), [])

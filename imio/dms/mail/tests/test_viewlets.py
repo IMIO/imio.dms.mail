@@ -7,6 +7,7 @@ from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.browser.viewlets import ContactContentBackrefsViewlet
 from imio.dms.mail.browser.viewlets import ContextInformationViewlet
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
+from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
@@ -153,3 +154,9 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         # render() wraps the (possibly empty) banner in an AJAX-refreshable container
         om_inv_v.index = lambda: u"BODY"
         self.assertEqual(om_inv_v.render(), u'<div id="dms-context-messages">BODY</div>')
+        # same banner on a sign request
+        request, files = create_sign_request(self.portal, oid="sr-viewlet")
+        files[0].to_approve = False  # to_sign but not approved => invalid
+        sr_v = ContextInformationViewlet(request, self.elec.REQUEST, None)
+        combo = [m for m in sr_v.getAllMessages() if u"invalid signature/approval combination" in m.text.output]
+        self.assertEqual(len(combo), 1)

@@ -128,9 +128,9 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
     def getAllMessages(self):
         """Warn about incomplete recipient addresses and invalid sign/approve combinations."""
         ret = []
-        # invalid to_sign/to_approve combination on an outgoing mail with approvers
-        if IImioDmsOutgoingMail.providedBy(self.context):
-            for afile in self.context.invalid_sign_approve_files():
+        # invalid to_sign/to_approve combination on an outgoing mail or a sign request with approvers
+        if self.context.portal_type in ("dmsoutgoingmail", "sign_request"):
+            for afile in self.context.approval().invalid_sign_approve_files():
                 msg = translate(
                     u"The file '${title}' has an invalid signature/approval combination: "
                     u"a file to be signed must also be approved, and vice versa.",

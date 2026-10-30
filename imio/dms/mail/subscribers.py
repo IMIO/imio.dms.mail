@@ -415,9 +415,9 @@ def dmsincomingmail_transition(mail, event):
             mail.portal_catalog.reindexObject(mail, ["assigned_user"], update_metadata=0)
 
 
-def dmsoutgoingmail_before_transition(mail, event):
+def sign_approve_before_transition(mail, event):
     """
-    Block entering the approval/signing process while a file has an invalid sign/approve
+    On outgoing mail and sign request, block entering the approval/signing process while a file has an invalid sign/approve
     combination. Both entry transitions are guarded: ``propose_to_approve`` and ``propose_to_be_signed``.
     Only checked from a state before "to_approve": the automatic post-approval transition must never fail.
     """
@@ -426,7 +426,7 @@ def dmsoutgoingmail_before_transition(mail, event):
         and event.transition.id in ("propose_to_approve", "propose_to_be_signed")
         and mail.approval().is_state_before_approve(state=event.old_state.id)
     ):
-        invalid = mail.invalid_sign_approve_files()
+        invalid = mail.approval().invalid_sign_approve_files()
         if invalid:
             raise Invalid(
                 _(

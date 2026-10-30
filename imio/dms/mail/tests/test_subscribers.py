@@ -1399,7 +1399,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         approval.approve_file(files[1], "bourgmestre", transition="propose_to_be_signed")
         approval.approve_file(files[0], "bourgmestre", transition="propose_to_be_signed")
 
-    def test_dmsoutgoingmail_before_transition(self):
+    def test_sign_approve_before_transition(self):
         """Both entry transitions (propose_to_approve / propose_to_be_signed) raise Invalid while a
         file has an invalid sign/approve combination; other transitions are never blocked; and the
         process proceeds once every file is valid again."""
@@ -1408,7 +1408,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         # two invalid combinations: eligible-but-not-approved, and approved-but-not-to_sign
         files[0].to_sign, files[0].to_approve = True, False
         files[1].to_sign, files[1].to_approve = False, True
-        invalid = omail.invalid_sign_approve_files()
+        invalid = omail.approval().invalid_sign_approve_files()
         self.assertIn(files[0], invalid)
         self.assertIn(files[1], invalid)
         with self.assertRaises(Invalid) as cm:
@@ -1419,14 +1419,14 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertIn(safe_unicode(files[0].Title()), files_listed)
         self.assertEqual(files_listed.count(u", ") + 1, len(invalid))
         # make every file valid (to_approve must match eligibility) => transition proceeds
-        for f in omail.invalid_sign_approve_files():
+        for f in omail.approval().invalid_sign_approve_files():
             f.to_approve = approval.is_file_eligible(f)
-        self.assertEqual(omail.invalid_sign_approve_files(), [])
+        self.assertEqual(omail.approval().invalid_sign_approve_files(), [])
         pw.doActionFor(omail, "propose_to_approve")
         self.assertEqual(api.content.get_state(omail), "to_approve")
         # the guard covers only the two transitions: an invalid combo blocks nothing else
         files[0].to_sign, files[0].to_approve = True, False
-        self.assertIn(files[0], omail.invalid_sign_approve_files())
+        self.assertIn(files[0], omail.approval().invalid_sign_approve_files())
         pw.doActionFor(omail, "back_to_creation")
         self.assertEqual(api.content.get_state(omail), "created")
         # "propose_to_be_signed" must be blocked.
@@ -1434,7 +1434,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             approval.remove_file_from_approval(f.UID())
         files[1].to_sign, files[1].to_approve = False, False  # keep files[1] valid
         self.assertFalse(omail.has_approvings())
-        self.assertEqual(omail.invalid_sign_approve_files(), [files[0]])
+        self.assertEqual(omail.approval().invalid_sign_approve_files(), [files[0]])
         with self.assertRaises(Invalid):
             pw.doActionFor(omail, "propose_to_be_signed")
         self.assertEqual(api.content.get_state(omail), "created")
@@ -1460,7 +1460,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertNotIn(new_file.UID(), approval.files_uids)
         # an invalid combination (forced) does not block the post-approval transition
         new_file.to_sign = True
-        self.assertIn(new_file, omail.invalid_sign_approve_files())
+        self.assertIn(new_file, omail.approval().invalid_sign_approve_files())
         approval.approve_file(files[0], "dirg", transition="propose_to_be_signed")
         approval.approve_file(files[1], "dirg", transition="propose_to_be_signed")
         approval.approve_file(files[1], "bourgmestre", transition="propose_to_be_signed")
