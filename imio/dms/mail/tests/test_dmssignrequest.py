@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test the sign_request content type (dmssignrequest.py)."""
 from collective.contact.plonegroup.config import get_registry_organizations
+from collective.iconifiedcategory.utils import calculate_category_id
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail.dmssignrequest import filter_signrequest_assigned_users
 from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
@@ -14,6 +15,8 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.autoform.interfaces import OMITTED_KEY
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
 from Products.PluginIndexes.common.UnIndex import _marker
 
 import unittest
@@ -123,6 +126,27 @@ class TestDmsSignRequest(unittest.TestCase, ImioTestHelpers):
         # empty reference is not indexed
         request.internal_reference_no = u""
         self.assertEqual(signrequest_internal_reference_number_indexer(request)(), _marker)
+
+    def test_file_added_in_to_approve(self):
+        """A file added in to_approve is neither to sign nor to approve."""
+        request, files = create_sign_request(self.portal, oid="sr-add")
+        self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
+        approval = ISignRequestApproval(request)
+        ct = self.portal["annexes_types"]["sign_request_appendix_files"]["sign-request-appendix-file"]
+        new_file = createContentInContainer(
+            request,
+            "dmsappendixfile",
+            id="file_added",
+            scan_id="012999900000602",
+            file=NamedBlobFile("content", filename=u"added.odt"),
+            content_category=calculate_category_id(ct),
+        )
+        self.assertFalse(new_file.to_sign)
+        self.assertFalse(new_file.to_approve)
+        self.assertNotIn(new_file.UID(), approval.files_uids)
+        for userid in ("dirg", "bourgmestre"):
+            approval.approve_file(files[0], userid, transition="propose_to_be_signed")
+        self.assertEqual(api.content.get_state(request), "to_be_signed")
 
     def test_schema(self):
         self.assertTrue(IImioDmsSignRequest["treating_groups"].required)

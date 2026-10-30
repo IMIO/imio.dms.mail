@@ -1439,6 +1439,34 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             pw.doActionFor(omail, "propose_to_be_signed")
         self.assertEqual(api.content.get_state(omail), "created")
 
+    def test_file_added_in_to_approve(self):
+        """A file added in to_approve is neither to sign nor to approve, and an invalid file never blocks
+        the automatic post-approval transition."""
+        omail, files, approval = self._setup_omail_with_esign()
+        self.portal.portal_workflow.doActionFor(omail, "propose_to_approve")
+        approval.start_approval_process()
+        # scanned category: to_sign=True, to_approve=False by default
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-scanned-dms-file"]
+        new_file = createContentInContainer(
+            omail,
+            "dmsommainfile",
+            id="file_added",
+            scan_id="012999900000602",
+            file=NamedBlobFile("content", filename=u"added.odt"),
+            content_category=calculate_category_id(ct),
+        )
+        self.assertFalse(new_file.to_sign)
+        self.assertFalse(new_file.to_approve)
+        self.assertNotIn(new_file.UID(), approval.files_uids)
+        # an invalid combination (forced) does not block the post-approval transition
+        new_file.to_sign = True
+        self.assertIn(new_file, omail.invalid_sign_approve_files())
+        approval.approve_file(files[0], "dirg", transition="propose_to_be_signed")
+        approval.approve_file(files[1], "dirg", transition="propose_to_be_signed")
+        approval.approve_file(files[1], "bourgmestre", transition="propose_to_be_signed")
+        approval.approve_file(files[0], "bourgmestre", transition="propose_to_be_signed")
+        self.assertEqual(api.content.get_state(omail), "to_be_signed")
+
     def test_i_annex_removed_pdf_file(self):
         """Test i_annex_removed Case 1: removing a generated PDF removes it from approval."""
         omail, files, approval = self._setup_omail_with_esign()
