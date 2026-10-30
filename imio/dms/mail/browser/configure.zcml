@@ -1050,6 +1050,16 @@
             />
 
         <browser:viewlet
+            for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+            layer="collective.messagesviewlet.interfaces.ICollectiveMessagesviewletLayer"
+            name="information-message-viewlet"
+            manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
+            class="imio.dms.mail.browser.viewlets.ContextInformationViewlet"
+            template="browser/messagesviewlet.pt"
+            permission="zope2.View"
+            />
+
+        <browser:viewlet
             for="collective.contact.widget.interfaces.IContactContent"
             layer="collective.messagesviewlet.interfaces.ICollectiveMessagesviewletLayer"
             name="information-message-viewlet"

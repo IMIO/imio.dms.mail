@@ -415,6 +415,28 @@ def dmsincomingmail_transition(mail, event):
             mail.portal_catalog.reindexObject(mail, ["assigned_user"], update_metadata=0)
 
 
+def sign_approve_before_transition(mail, event):
+    """
+    On outgoing mail and sign request, block entering the approval/signing process while a file has an invalid sign/approve
+    combination. Both entry transitions are guarded: ``propose_to_approve`` and ``propose_to_be_signed``.
+    Only checked from a state before "to_approve": the automatic post-approval transition must never fail.
+    """
+    if (
+        event.transition
+        and event.transition.id in ("propose_to_approve", "propose_to_be_signed")
+        and mail.approval().is_state_before_approve(state=event.old_state.id)
+    ):
+        invalid = mail.approval().invalid_sign_approve_files()
+        if invalid:
+            raise Invalid(
+                _(
+                    u"The following file(s) have an invalid signature/approval combination "
+                    u"(a file to be signed must also be approved, and vice versa): ${files}.",
+                    mapping={"files": u", ".join(safe_unicode(f.Title()) for f in invalid)},
+                )
+            )
+
+
 def dmsoutgoingmail_transition(mail, event):
     """When closing an outgoing mail, add the outgoing_date if necessary."""
     if event.transition and event.transition.id == "mark_as_sent" and mail.outgoing_date is None:
@@ -795,28 +817,33 @@ def _correct_to_sign(file_obj):
     return False
 
 
+def _reset_sign_approve_in_to_approve(file_obj):
+    """A file added to an outgoing mail or a sign request in "to_approve" state is neither to sign nor
+    to approve: it cannot join the running approval and could not be corrected anymore.
+    (Pdf files created at final approval get their esign attributes after creation.)
+    """
+    om_obj = file_obj.__parent__
+    if om_obj.portal_type not in ("dmsoutgoingmail", "sign_request") or api.content.get_state(om_obj) != "to_approve":
+        return
+    if not (getattr(file_obj, "to_sign", False) or getattr(file_obj, "to_approve", False)):
+        return
+    file_obj.to_sign = file_obj.signed = file_obj.to_approve = file_obj.approved = False
+    category_object = get_category_object(file_obj, file_obj.content_category)
+    update_categorized_elements(om_obj, file_obj, category_object, limited=True, sort=False, logging=True)
+
+
 def _correct_to_approve(file_obj):
     """Correct to_approve value following context.
-    Force from True to False except if:
-    * to_sign is True
-    * approvers are defined on parent om
-    * file is not a pdf conversion
-    * file doesn't need_mailing
-    Then the file is added to the approval process.
+    Keep True only if the file is approval-eligible (to_sign, approvers defined, not a pdf
+    conversion, no mailing -- see OMApprovalAdapter.is_file_eligible), then add it to the approval
+    process; otherwise force to False.
     """
     # handle to_approve attribute
     orig_value = getattr(file_obj, "to_approve", False)
-    new_value = False
     om_obj = file_obj.__parent__
     approval = om_obj.approval()
-    if (
-        orig_value
-        and getattr(file_obj, "to_sign", False)
-        and approval.approvers
-        and not base_hasattr(file_obj, "conv_from_uid")
-        and not getattr(file_obj, "need_mailing", False)
-    ):
-        new_value = True
+    new_value = bool(orig_value and approval.approvers and approval.is_file_eligible(file_obj))
+    if new_value:
         approval.add_file_to_approval(file_obj.UID())
     if orig_value != new_value:  # only when passing from True to False normally
         file_obj.to_approve = new_value
@@ -866,6 +893,7 @@ def i_annex_added(obj, event):
     elif obj.portal_type == "dmsommainfile":
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
+        _reset_sign_approve_in_to_approve(obj)
         # TODO add unit tests for the following
         if getattr(obj, "to_sign", False):
             _correct_to_sign(obj)
@@ -885,6 +913,7 @@ def i_annex_added(obj, event):
                 if not mail.signers:
                     mail.signers = get_empty_signers_value()
                 zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        _reset_sign_approve_in_to_approve(obj)
         if getattr(obj, "to_sign", False):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):
