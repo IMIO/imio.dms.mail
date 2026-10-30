@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.documentgenerator.utils import update_oo_config
+from collective.documentgenerator.utils import update_templates
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
@@ -30,6 +31,7 @@ from imio.dms.mail.setuphandlers import create_personnel_dashboard
 from imio.dms.mail.setuphandlers import createReqCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import get_dashboard_collections
+from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import setup_iconified_categories
 from imio.dms.mail.utils import message_status
@@ -352,7 +354,14 @@ class Migrate_To_3_1(Migrator):  # noqa
             # collective.iconifiedcategory (on existing objects, folders only if the first time)
             # imio.pm.wsclient
             # collective.contact.plonegroup
+            # collective.documentgenerator 16 replaces banned expressions: unmodified stock templates are reloaded
+            stock_tmpls = []
+            for tup in list_templates():
+                obj = self.portal.unrestrictedTraverse(tup[1], None)
+                if obj is not None and not obj.has_been_modified():
+                    stock_tmpls.append((tup[1], tup[2]))
             self.upgradeAll(omit=[u"imio.dms.mail:default"])
+            update_templates(stock_tmpls, force=True)
 
         self.run_parts()
 
