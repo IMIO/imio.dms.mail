@@ -130,7 +130,9 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
         ret = []
         # invalid to_sign/to_approve combination on an outgoing mail or a sign request with approvers
         if self.context.portal_type in ("dmsoutgoingmail", "sign_request"):
-            for afile in self.context.approval().invalid_sign_approve_files():
+            approval = self.context.approval()
+            invalid_files = approval.invalid_sign_approve_files() if approval.is_state_before_approve() else []
+            for afile in invalid_files:
                 msg = translate(
                     u"The file '${title}' has an invalid signature/approval combination: "
                     u"a file to be signed must also be approved, and vice versa.",
