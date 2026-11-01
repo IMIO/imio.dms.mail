@@ -33,6 +33,18 @@
     conditionalcomment=""
     cookable="True"
     enabled="True"
+    expression="python:object.getPortalTypeName() in ('dmsoutgoingmail', 'sign_request') and '/view' in request.URL0"
+    id="++resource++imio.dms.mail/iconified.js"
+    inline="False"/>
+
+  <javascript
+    authenticated="True"
+    bundle=""
+    cacheable="True"
+    compression="safe"
+    conditionalcomment=""
+    cookable="True"
+    enabled="True"
     expression=""
     id="++resource++select2/select2_locale_fr.js"
     inline="False"/>
@@ -336,6 +348,8 @@
   <javascript id="++resource++imio.dms.mail/dmsmail.js" insert-after="++resource++imio.dms.mail/js.cookie-3.0.5.min.js" />
 
   <javascript id="++resource++imio.dms.mail/outgoingmail.js" insert-after="++resource++imio.dms.mail/dmsmail.js" />
+
+  <javascript id="++resource++imio.dms.mail/iconified.js" insert-after="++resource++imio.dms.mail/outgoingmail.js" />
 
 
 </object>

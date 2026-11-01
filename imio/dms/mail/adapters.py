@@ -1361,6 +1361,29 @@ class ApprovalAdapter(object):
             approvers = approvers.union(set(i_approvers))
         return list(approvers)
 
+    def is_file_eligible(self, file_obj):
+        """Whether a file should be approved when the mail has approvers (not checked here!): it is
+        to_sign and not exempt (a pdf conversion or a mailing file, which may be signed without approval).
+
+        Single source of truth shared by ``_correct_to_approve`` (setter) and
+        ``invalid_sign_approve_files`` (checker) so they cannot drift.
+        """
+        return bool(
+            getattr(file_obj, "to_sign", False)
+            and not base_hasattr(file_obj, "conv_from_uid")
+            and not getattr(file_obj, "need_mailing", False)
+        )
+
+    def invalid_sign_approve_files(self):
+        """Return the context files whose (to_sign, to_approve) combination is invalid."""
+        if not self.approvers:
+            return []
+        return [
+            f for f in self.context.objectValues()
+            if f.portal_type in ("dmsommainfile", "dmsappendixfile")
+            and bool(getattr(f, "to_approve", False)) != self.is_file_eligible(f)
+        ]
+
     @property
     def current_nb(self):
         """Return the current store approbal number."""
