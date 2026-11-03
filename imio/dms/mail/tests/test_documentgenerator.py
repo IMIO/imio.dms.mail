@@ -545,7 +545,6 @@ class TestDocumentGenerator(unittest.TestCase):
             {"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}
         ]
         empty_value = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
-        original_mail_signers = rep1.signers
         original_rules = api.portal.get_registry_record(rk_rules, default=[])
         different_signers = [
             {"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}
@@ -674,14 +673,6 @@ class TestDocumentGenerator(unittest.TestCase):
         mailing_view._copy_template_signers(mailing_tpl)
         self.assertEqual(rep1.signers, template_signers)
 
-        # Cleanup
-        api.portal.set_registry_record(rk_so, u"rules")
-        api.portal.set_registry_record(rk_rules, original_rules)
-        template.signers = None
-        template.seal = None
-        template.esign = None
-        rep1.signers = original_mail_signers
-
     def test_get_template_signers_source(self):
         # the mixin methods are reachable from any of its users
         mixin = TemplateSignersColumn(self.portal, self.portal.REQUEST, None)
@@ -694,8 +685,6 @@ class TestDocumentGenerator(unittest.TestCase):
         tpl_signers = [{"number": 1, "signer": dirg_hp.UID(), "editor": True, "approvings": [u"_empty_"]}]
         sub_signers = [{"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}]
         empty_value = [{"number": 1, "signer": u"_empty_", "editor": False, "approvings": [u"_empty_"]}]
-        original_signers = template.signers
-        original_merge = list(template.merge_templates or [])
 
         sub = templates["ending"]
         sub.signers = sub_signers
@@ -740,7 +729,6 @@ class TestDocumentGenerator(unittest.TestCase):
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
         rep1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
         view = rep1.restrictedTraverse("persistent-document-generation")
-        original_rep1_signers = rep1.signers
         sub.signers = sub_signers
         sub.seal = False
         sub.esign = True
@@ -753,12 +741,6 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertTrue(rep1.esign)
         self.assertFalse(rep1.seal)
 
-        # Cleanup
-        api.portal.set_registry_record(rk_so, u"rules")
-        template.signers = original_signers
-        template.merge_templates = original_merge
-        rep1.signers = original_rep1_signers
-
     def test_render_signers_icon(self):
         mixin = TemplateSignersColumn(self.portal, self.portal.REQUEST, None)
 
@@ -768,7 +750,6 @@ class TestDocumentGenerator(unittest.TestCase):
         pf = self.portal["contacts"]["personnel-folder"]
         signers = [{"number": 1, "signer": pf["dirg"]["directeur-general"].UID(), "editor": True,
                     "approvings": [u"_empty_"]}]
-        originals = (template.signers, template.merge_templates, sub.signers, other_sub.signers)
         template.signers, sub.signers, other_sub.signers = None, None, None
         template.merge_templates = [
             {"template": sub.UID(), "pod_context_name": u"a", "do_rendering": False},
@@ -812,16 +793,12 @@ class TestDocumentGenerator(unittest.TestCase):
         # a type without the signing behavior never gets an icon
         self.assertEqual(mixin.render_signers_icon(self.portal), u"")
 
-        # Cleanup
-        template.signers, template.merge_templates, sub.signers, other_sub.signers = originals
-
     def test_dg_templates_listing_signers_column(self):
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
         folder = self.portal["templates"]["om"]
         template = folder["main"]
         pf = self.portal["contacts"]["personnel-folder"]
         dirg_hp = pf["dirg"]["directeur-general"]
-        original_signers = template.signers
         request = self.portal.REQUEST
 
         def column_names():
@@ -848,8 +825,6 @@ class TestDocumentGenerator(unittest.TestCase):
         # renderCell reflects whether the template defines signers
         bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
         sub = folder["ending"]
-        original_merge = list(template.merge_templates or [])
-        original_sub_signers = sub.signers
 
         # no signers anywhere: empty cell
         template.signers = None
@@ -874,12 +849,6 @@ class TestDocumentGenerator(unittest.TestCase):
         finally:
             noLongerProvides(request, IImioDmsMailLayer)
 
-        # Cleanup
-        api.portal.set_registry_record(rk_so, u"rules")
-        template.signers = original_signers
-        template.merge_templates = original_merge
-        sub.signers = original_sub_signers
-
     def test_sub_templates_usage_signers_icon(self):
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
         templates = self.portal["templates"]["om"]
@@ -887,7 +856,6 @@ class TestDocumentGenerator(unittest.TestCase):
         pf = self.portal["contacts"]["personnel-folder"]
         dirg_hp = pf["dirg"]["directeur-general"]
         request = self.portal.REQUEST
-        original_sub_signers = sub.signers
 
         view = self.portal.restrictedTraverse("sub-templates-usage")
         view.update()
@@ -935,10 +903,6 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertNotIn(u"sub-template-column", rendered)
         self.assertNotIn(u"_signers", rendered)
 
-        # Cleanup
-        api.portal.set_registry_record(rk_so, u"rules")
-        sub.signers = original_sub_signers
-
     def test_copy_template_signers_substitutes(self):
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
         rk_subs = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_substitutes"
@@ -949,9 +913,6 @@ class TestDocumentGenerator(unittest.TestCase):
         pf = self.portal["contacts"]["personnel-folder"]
         dirg_hp = pf["dirg"]["directeur-general"]
         bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
-        original_signers = template.signers
-        original_subs = api.portal.get_registry_record(rk_subs, default=[])
-        original_rep1_signers = rep1.signers
 
         template.signers = [
             {"number": 1, "signer": bourgmestre_hp.UID(), "editor": True, "approvings": [u"_empty_"]}
@@ -981,12 +942,6 @@ class TestDocumentGenerator(unittest.TestCase):
         rep1.signers = None
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers[0]["signer"], bourgmestre_hp.UID())
-
-        # Cleanup
-        api.portal.set_registry_record(rk_so, u"rules")
-        api.portal.set_registry_record(rk_subs, original_subs)
-        template.signers = original_signers
-        rep1.signers = original_rep1_signers
 
     def test_filter_signing_fieldset(self):
         from imio.dms.mail.browser.documentgenerator import _filter_signing_fieldset
