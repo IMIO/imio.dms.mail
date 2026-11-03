@@ -968,7 +968,7 @@ class VariousUtilsMethods(UtilsMethods):
                 u"{} ({}) in {} ({})".format(obj.scan_id, obj.version, mail.internal_reference_no, object_link(mail))
             )
             found += 1
-            if found == limit:
+            if found >= limit:
                 break
         sep = u"\n<br />"
         return sep.join(out)
