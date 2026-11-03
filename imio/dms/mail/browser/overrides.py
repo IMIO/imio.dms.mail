@@ -72,6 +72,7 @@ from zope.interface.exceptions import Invalid
 
 import os
 import sys
+import transaction
 
 
 class IMRenderCategoryView(RenderCategoryView):
@@ -392,7 +393,10 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
         in the catalog but not in Solr will be indexed and records not
         contained in the catalog will be removed.
         Overrided following c99d607cc9af47ca7614ba09016b17483e441ce5 version
+        Each object is read fresh and sent at once, so live changes made meanwhile are kept.
         """
+        # lookup aborts to see live changes: keep the caller's pending ones (e.g. collective.solr.active)
+        transaction.commit()
         manager = queryUtility(ISolrConnectionManager)
         proc = SolrIndexProcessor(manager)
         conn = manager.getConnection()
@@ -441,13 +445,14 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
         self._processed = 0
 
         # Look up objects
-        uid_rid_get = cat_results.get
+        uid_rid_get = uid_index._index.get  # live index: an object cataloged meanwhile must not be unindexed
         rid_path_get = catalog._catalog.paths.get
         catalog_traverse = catalog.unrestrictedTraverse
 
         def lookup(
             uid, rid=None, uid_rid_get=uid_rid_get, rid_path_get=rid_path_get, catalog_traverse=catalog_traverse
         ):
+            transaction.abort()  # sees changes committed meanwhile by other instances
             if rid is None:
                 rid = uid_rid_get(uid)
             if not rid:
@@ -479,6 +484,7 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
                 obj = lookup(uid)
                 if obj is None:
                     conn.delete(id=uid)
+                    conn.flush()
                     self._processed += 1
                 else:
                     log("not unindexing existing object %r.\n" % uid)
@@ -512,6 +518,7 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
                 obj = lookup(uid)
                 if ICheckIndexable(obj)():
                     proc.index(obj)
+                    conn.flush()
                     self._processed += 1
                 else:
                     log("not indexing unindexable object %r.\n" % uid)
@@ -552,6 +559,7 @@ class DocsSolrMaintenanceView(BaseMaintenanceView):
                     obj = lookup(uid, rid=rid)
                     if ICheckIndexable(obj)():
                         proc.reindex(obj)
+                        conn.flush()
                         self._processed += 1
                     else:
                         log("not reindexing unindexable object %r.\n" % uid)

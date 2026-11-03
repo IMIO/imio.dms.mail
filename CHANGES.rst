@@ -4,9 +4,46 @@ Changelog
 3.1.7 (unreleased)
 ------------------
 
+- Added "Export to PDF" actions on dmsoutgoingmail and sign_request, using the
+  imio.annex export form: before signature when neither "esign" nor "seal" is set,
+  after signature otherwise.
+  [sgeulette]
+- Added "Export to PDF" batch actions on outgoing mail and requests dashboards.
+  [sgeulette]
+- Removed "d-print-to-sign" and "d-print-signed" templates from new sites and disabled them
+  in migration: they are replaced by "Export to PDF".
+  [sgeulette]
+- Replaced "doc" file format by "docx" in settings and considered it in "Export to PDF".
+  [sgeulette]
+- Only a pdf appendix file can be set "to print" (IIconifiedPrintable adapter).
+  [sgeulette]
+- Added "odt", "ods" and "odp" documentviewer auto layout file types.
+  [sgeulette]
+- Added items count on the "requests" tab.
+  [sgeulette]
+- Updated robotframework tests to include electronic signature (PARAF-166).
+  [chris-adam]
+- Fixed "ConnectionStateError" crash when rendering datagrid fields
+  in settings through robotframework tests (DMS-434).
+  [chris-adam,sgeulette]
+- Updated the incoming email routing and state set descriptions (DMS-1215).
+  [chris-adam]
+- Added DEFER_SECURITY_UPDATE env var handling in configure_group_encoder settings method
+  [sgeulette]
+- Improved file ordering in eSign session: ged files most recent first, appendices sorted alphabetically.
+  [chris-adam]
+- Fixed the ``@@approvals`` view listing files order (PARAF-510).
+  [chris-adam]
+- Improved "Approb." and "Signed" icons behavior and validation (PARAF-483).
+  [chris-adam,sgeulette]
+- Reloaded in migration the unmodified stock templates altered by the collective.documentgenerator expressions cleaning (DMS-1249).
+  [chris-adam]
+- Made the Solr sync keep the changes made on the site during the run: each object is read fresh and sent at once (DMS-1249).
+  [chris-adam]
+- Used DmsCategorizedObjectInfoAdapter on appendix files
+  [sgeulette]
 - Adapted list_last_scan to discriminate incoming mails and emails on the parent type (DMS-1235).
   [chris-adam]
-
 
 3.1.6 (2026-08-14)
 ------------------

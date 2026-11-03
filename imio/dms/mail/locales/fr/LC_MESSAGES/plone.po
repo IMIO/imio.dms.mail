@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-07-14 09:27+0000\n"
+"POT-Creation-Date: 2026-10-15 09:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,6 +30,10 @@ msgstr "Activer l'élément"
 #: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Active"
 msgstr "Activé"
+
+#: profiles/default/types/dmsoutgoingmail.xml
+msgid "Annotation info"
+msgstr "Info sur l'annotation d'approbation"
 
 #: profiles/default/sharing.xml
 msgid "Base Field Writer"
@@ -75,6 +79,14 @@ msgstr "Ajout fichier ged"
 msgid "DmsMainFile"
 msgstr "Fichier ged"
 
+#: profiles/default/types/dmsoutgoingmail.xml
+msgid "Export to PDF after signature"
+msgstr "PDF sign. élec."
+
+#: profiles/default/types/dmsoutgoingmail.xml
+msgid "Export to PDF before signature"
+msgstr "PDF sign. man."
+
 #: profiles/default/sharing.xml
 msgid "IM Field Writer"
 msgstr "Éditeur champs base"
@@ -114,6 +126,10 @@ msgstr "Rend l'élément visible en interne."
 #: profiles/default/workflows/internal_application_workflow/definition.xml
 msgid "Making an item private means that it will not be visible to anyone but the owner and the site administrator."
 msgstr "Un élément privé est visible uniquement par le créateur et l'admin."
+
+#: profiles/default/types/dmsoutgoingmail.xml
+msgid "Manage approvals"
+msgstr "Gestion des approbations"
 
 #: profiles/default/types/member_area.xml
 msgid "Member Area"

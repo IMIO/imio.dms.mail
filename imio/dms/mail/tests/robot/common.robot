@@ -50,3 +50,46 @@ Add clic
     sleep  ${C_S}
     Remove element  id=${pt1}
     # 4dfc02 green
+
+Activate esigning
+    [Documentation]  Activate approbation/electronic signature and signing request (singles profile).
+    ...  Meant to be called in Suite Setup so every scenario shows the complete configuration.
+    Enable autologin as  Manager
+    Set autologin username  dirg
+    Apply profile step  imio.dms.mail:singles  imiodmsmail-activate-om-signing
+    Apply profile step  imio.dms.mail:singles  imiodmsmail-activate-sign-request
+    Disable autologin
+
+Show connected user
+    [Documentation]  Display a top banner naming the currently connected user (so a video viewer
+    ...  always knows who is acting), capture a screenshot, then remove the banner.
+    [Arguments]  ${name}  ${shot}
+    ${unote}  Add main note  Connecté en tant que : ${name}
+    Capture and crop page screenshot  doc/utilisation/${shot}  id=portal-top  ${unote}
+    Remove element  id=${unote}
+
+Add outgoing mail for signing
+    [Documentation]  Create an outgoing mail (as the current user) filling every required field
+    ...  (title, recipients, send_modes via UI ; treating_groups and sender).
+    ...  Returns the mail relative path.
+    [Arguments]  ${title}
+    Go to  ${PLONE_URL}/outgoing-mail
+    Wait until element is visible  newOMCreation  10
+    Click element  newOMCreation
+    Wait until element is visible  css=.template-dmsoutgoingmail #formfield-form-widgets-sender  10
+    Sleep  0.5
+    Create content  type=person  container=/${PLONE_SITE_ID}/contacts  firstname=Dale  lastname=Cooper  zip_code=4000  city=Belleville  street=Rue Moyenne  number=1991  email=dale.cooper@twinpeaks.com
+    Input text  name=form.widgets.IDublinCore.title  ${title}
+    Input text  name=form.widgets.recipients.widgets.query  cooper
+    Wait until element is visible  css=.ac_results:not([style*="display: none"])  10
+    Click element  css=.ac_results:not([style*="display: none"]) li
+    Select checkbox  id=form-widgets-send_modes-0
+    Click button  id=form-buttons-save
+    Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
+    ${om_path} =  Get mail path  ptype=dmsoutgoingmail  title=${title}
+    ${UID} =  Path to uid  /${PLONE_SITE_ID}/${om_path}
+    ${TG} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
+    Set field value  ${UID}  treating_groups  ${TG}  str
+    ${SENDER} =  Path to uid  /${PLONE_SITE_ID}/contacts/personnel-folder/agent/agent-grh
+    Set field value  ${UID}  sender  ${SENDER}  str
+    [Return]  ${om_path}

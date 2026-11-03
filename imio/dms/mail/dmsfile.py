@@ -48,6 +48,8 @@ class IImioDmsFile(IDmsFile):
         required=True,
     )
 
+    form.order_after(file="title")
+
 
 @implementer(IImioDmsFile)
 class ImioDmsFile(DmsFile):

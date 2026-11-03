@@ -898,6 +898,14 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
     def has_mailing(self, document):
         return need_mailing_value(document=document)
 
+    def can_do_export_to_pdf_before_signature(self):
+        """Condition of the "export-to-pdf-before-signature" action"""
+        return not (self.esign or self.seal) and api.content.get_state(obj=self) not in ("signed", "sent")
+
+    def can_do_export_to_pdf_after_signature(self):
+        """Condition of the "export-to-pdf-after-signature" action"""
+        return bool(self.esign or self.seal) and api.content.get_state(obj=self) in ("signed", "sent")
+
 
 @implementer(IImioDmsOutgoingMailWfConditions)
 class ImioDmsOutgoingMailWfConditionsAdapter(object):
@@ -961,6 +969,9 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
             if self.context.email_status:  # has been sent
                 return True
             return False  # consumer will not can "close": ok
+        state = api.content.get_state(self.context)
+        if state in ("to_be_signed",):
+            return False
         return True
 
     security.declarePublic("can_be_validated")

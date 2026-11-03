@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from collective.documentgenerator.utils import update_oo_config
+from collective.documentgenerator.utils import update_templates
+from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
 from collective.iconifiedcategory.utils import calculate_category_id
@@ -21,7 +23,7 @@ from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
-from imio.dms.mail.interfaces import IReqDashboard
+from imio.dms.mail.interfaces import IReqDashboardBatchActions
 from imio.dms.mail.setuphandlers import add_db_col_folder
 from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
@@ -29,6 +31,7 @@ from imio.dms.mail.setuphandlers import create_personnel_dashboard
 from imio.dms.mail.setuphandlers import createReqCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import get_dashboard_collections
+from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import setup_iconified_categories
 from imio.dms.mail.utils import message_status
@@ -90,6 +93,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                 api.group.create("esign_watchers", "2 Observateurs module signature")
 
                 self.remove_category_predefined_titles()
+                self.runProfileSteps("imio.dms.mail", steps=["catalog"])
                 self.setup_personnel_dashboard()
                 self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
 
@@ -231,13 +235,13 @@ class Migrate_To_3_1(Migrator):  # noqa
             if "incoming_dms_files" not in a_t_f:
                 self.runProfileSteps("collective.dms.basecontent", steps=["actions"])  # for actions columns
                 odt_only = self.registry.get("imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile")
-                self.runProfileSteps("imio.dms.mail", steps=["catalog", "plone.app.registry", "actions"])
+                self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry", "actions"])
                 if odt_only is not None:
                     del self.registry.records["imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_odt_mainfile"]
                     if odt_only:
                         formats = ["odt"]
                     else:
-                        formats = ["odt", "pdf", "doc"]
+                        formats = ["odt", "pdf", "docx"]
                     api.portal.set_registry_record(
                         "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile",
                         formats
@@ -350,7 +354,14 @@ class Migrate_To_3_1(Migrator):  # noqa
             # collective.iconifiedcategory (on existing objects, folders only if the first time)
             # imio.pm.wsclient
             # collective.contact.plonegroup
+            # collective.documentgenerator 16 replaces banned expressions: unmodified stock templates are reloaded
+            stock_tmpls = []
+            for tup in list_templates():
+                obj = self.portal.unrestrictedTraverse(tup[1], None)
+                if obj is not None and not obj.has_been_modified():
+                    stock_tmpls.append((tup[1], tup[2]))
             self.upgradeAll(omit=[u"imio.dms.mail:default"])
+            update_templates(stock_tmpls, force=True)
 
         self.run_parts()
 
@@ -514,12 +525,12 @@ class Migrate_To_3_1(Migrator):  # noqa
             req_folder.setExcludeFromNav(True)
             alsoProvides(req_folder, INextPrevNotNavigable)
             alsoProvides(req_folder, ILabelRoot)
-            # alsoProvides(req_folder, ICountableTab)
+            alsoProvides(req_folder, ICountableTab)
             alsoProvides(req_folder, IProtectedItem)
             # add searches
             col_folder = add_db_col_folder(req_folder, "requests-searches", _("Requests searches"), _("Requests"))
             alsoProvides(col_folder, INextPrevNotNavigable)
-            alsoProvides(col_folder, IReqDashboard)
+            alsoProvides(col_folder, IReqDashboardBatchActions)
             createReqCollections(col_folder)
             createStateCollections(col_folder, "sign_request")
             configure_faceted_folder(col_folder, xml="requests-searches.xml",

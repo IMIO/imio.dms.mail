@@ -40,6 +40,7 @@ from plone.app.testing import TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield import RelationValue
 from zExceptions import Redirect
@@ -960,7 +961,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message, u"The chef already exists in the approvings with another order 1 <=> 2"
+            cm.exception.message, u"L'utilisateur chef existe déjà dans les approbateurs lignes 1 <=> 2"
         )
 
         # Test signers have same email
@@ -996,8 +997,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.message, u"You cannot have the same email (duplicate@belleville.eb) "
-                                               u"for multiple signers !")
+        self.assertEqual(cm.exception.message, u"Vous ne pouvez pas avoir le même email (duplicate@belleville.eb) "
+                                               u"pour plusieurs signataires !")
         api.user.get("dirg").setMemberProperties({"email": "deduplicate@belleville.eb"})
 
         # Test mail in sent or to_be_signed states
@@ -1398,6 +1399,74 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         approval.approve_file(files[1], "bourgmestre", transition="propose_to_be_signed")
         approval.approve_file(files[0], "bourgmestre", transition="propose_to_be_signed")
 
+    def test_sign_approve_before_transition(self):
+        """Both entry transitions (propose_to_approve / propose_to_be_signed) raise Invalid while a
+        file has an invalid sign/approve combination; other transitions are never blocked; and the
+        process proceeds once every file is valid again."""
+        omail, files, approval = self._setup_omail_with_esign()
+        pw = self.portal.portal_workflow
+        # two invalid combinations: eligible-but-not-approved, and approved-but-not-to_sign
+        files[0].to_sign, files[0].to_approve = True, False
+        files[1].to_sign, files[1].to_approve = False, True
+        invalid = omail.approval().invalid_sign_approve_files()
+        self.assertIn(files[0], invalid)
+        self.assertIn(files[1], invalid)
+        with self.assertRaises(Invalid) as cm:
+            pw.doActionFor(omail, "propose_to_approve")
+        self.assertEqual(api.content.get_state(omail), "created")  # raised before state change
+        # the raised message lists every invalid file
+        files_listed = cm.exception.args[0].mapping["files"]
+        self.assertIn(safe_unicode(files[0].Title()), files_listed)
+        self.assertEqual(files_listed.count(u", ") + 1, len(invalid))
+        # make every file valid (to_approve must match eligibility) => transition proceeds
+        for f in omail.approval().invalid_sign_approve_files():
+            f.to_approve = approval.is_file_eligible(f)
+        self.assertEqual(omail.approval().invalid_sign_approve_files(), [])
+        pw.doActionFor(omail, "propose_to_approve")
+        self.assertEqual(api.content.get_state(omail), "to_approve")
+        # the guard covers only the two transitions: an invalid combo blocks nothing else
+        files[0].to_sign, files[0].to_approve = True, False
+        self.assertIn(files[0], omail.approval().invalid_sign_approve_files())
+        pw.doActionFor(omail, "back_to_creation")
+        self.assertEqual(api.content.get_state(omail), "created")
+        # "propose_to_be_signed" must be blocked.
+        for f in files:
+            approval.remove_file_from_approval(f.UID())
+        files[1].to_sign, files[1].to_approve = False, False  # keep files[1] valid
+        self.assertFalse(omail.has_approvings())
+        self.assertEqual(omail.approval().invalid_sign_approve_files(), [files[0]])
+        with self.assertRaises(Invalid):
+            pw.doActionFor(omail, "propose_to_be_signed")
+        self.assertEqual(api.content.get_state(omail), "created")
+
+    def test_file_added_in_to_approve(self):
+        """A file added in to_approve is neither to sign nor to approve, and an invalid file never blocks
+        the automatic post-approval transition."""
+        omail, files, approval = self._setup_omail_with_esign()
+        self.portal.portal_workflow.doActionFor(omail, "propose_to_approve")
+        approval.start_approval_process()
+        # scanned category: to_sign=True, to_approve=False by default
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-scanned-dms-file"]
+        new_file = createContentInContainer(
+            omail,
+            "dmsommainfile",
+            id="file_added",
+            scan_id="012999900000602",
+            file=NamedBlobFile("content", filename=u"added.odt"),
+            content_category=calculate_category_id(ct),
+        )
+        self.assertFalse(new_file.to_sign)
+        self.assertFalse(new_file.to_approve)
+        self.assertNotIn(new_file.UID(), approval.files_uids)
+        # an invalid combination (forced) does not block the post-approval transition
+        new_file.to_sign = True
+        self.assertIn(new_file, omail.approval().invalid_sign_approve_files())
+        approval.approve_file(files[0], "dirg", transition="propose_to_be_signed")
+        approval.approve_file(files[1], "dirg", transition="propose_to_be_signed")
+        approval.approve_file(files[1], "bourgmestre", transition="propose_to_be_signed")
+        approval.approve_file(files[0], "bourgmestre", transition="propose_to_be_signed")
+        self.assertEqual(api.content.get_state(omail), "to_be_signed")
+
     def test_i_annex_removed_pdf_file(self):
         """Test i_annex_removed Case 1: removing a generated PDF removes it from approval."""
         omail, files, approval = self._setup_omail_with_esign()
@@ -1594,15 +1663,17 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.user.delete, username="scanner")
         smi = IStatusMessage(request)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'scanner'.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'scanner'.")
         # having group
         self.assertRaises(Redirect, api.user.delete, "lecteur")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'lecteur', used in following groups.")
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer l'utilisateur 'lecteur', utilisé dans les groupes.")
         # is used in content
         self.assertRaises(Redirect, api.user.delete, username=TEST_USER_ID)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'test_user_1_', used in 'Creator' index.")
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer l'utilisateur 'test_user_1_', utilisé dans l'index 'Auteur'.")
         # is used as person user_id
         api.user.create("test@test.be", "testuser", "Password#1")
         agent = self.portal.contacts["personnel-folder"]["agent"]
@@ -1610,7 +1681,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         agent.reindexObject()
         self.assertRaises(Redirect, api.user.delete, username="testuser")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'testuser', used in 'userid' index.")
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer l'utilisateur 'testuser', utilisé dans l'index 'userid'.")
 
     def test_group_deleted(self):
         request = self.portal.REQUEST
@@ -1618,14 +1690,15 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.group.delete, groupname="expedition")
         smi = IStatusMessage(request)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group 'expedition'.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer le groupe 'expedition'.")
         # is used in content
         group = "%s_editeur" % get_registry_organizations()[0]
         # we remove this organization to escape plonegroup subscriber
         set_registry_organizations(get_registry_organizations()[1:])
         self.assertRaises(Redirect, api.group.delete, groupname=group)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index." % group)
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer le groupe '%s', utilisé dans l'index 'Groupe assigné'." % group)
 
     def test_group_assignment(self):
         self.portal.ok = True

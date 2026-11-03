@@ -413,7 +413,7 @@ def add_test_mails(context):
     files = sorted([
         safe_unicode(name)
         for name in os.listdir(filespath)  # noqa
-        if Path(name).suffix[1:] in ("pdf", "doc", "jpg")
+        if Path(name).suffix[1:] in ("pdf", "docx", "jpg")
     ])
     files_cycle = cycle(files)
 

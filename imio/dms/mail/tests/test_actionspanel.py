@@ -46,18 +46,18 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.view.useIcons = True
         self.assertEqual(
             self.view.renderReplyButton(),
-            '<td class="noPadding">\n  <a target="_parent" href="{}'
-            '/@@reply">\n     \n     <img title="Reply" src=" http://nohost/plone/'
-            '++resource++imio.dms.mail/reply_icon.png" />\n  </a>\n</td>'
+            u'<td class="noPadding">\n  <a target="_parent" href="{}'
+            u'/@@reply">\n     \n     <img title="Répondre" src=" http://nohost/plone/'
+            u'++resource++imio.dms.mail/reply_icon.png" />\n  </a>\n</td>'
             "\n".format(self.im2.absolute_url()),
         )
         #                         '<td class="noPadding"></td>\n'.format(self.im2.absolute_url()))
         self.view.useIcons = False
         self.assertEqual(
             self.view.renderReplyButton(),
-            '<td class="noPadding">\n  <a target="_parent" href="{}'
-            '/@@reply">\n     <input type="button" value="Reply" class="apButton apButtonAction '
-            'apButtonAction_reply" />\n     \n  </a>\n</td>'
+            u'<td class="noPadding">\n  <a target="_parent" href="{}'
+            u'/@@reply">\n     <input type="button" value="Répondre" class="apButton apButtonAction '
+            u'apButtonAction_reply" />\n     \n  </a>\n</td>'
             "\n".format(self.im2.absolute_url()),
         )
 
@@ -74,7 +74,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
             u'<td>\n    <form action="">\n      <select name="Assign" onchange="javascript:'
             u"callViewAndReload(base_url='{}', view_name='@@update_item', params={{'assigned_user': "
             u'this.value}})" class="apButton apButtonSelect apButtonAction apButtonAction_assign">\n'
-            u'        <option style="display:none" value="#">Assign</option>\n        \n        '
+            u'        <option style="display:none" value="#">Assigner</option>\n        \n        '
             u'<option value="agent">Fred Agent</option>\n        <option value="encodeur">Jean Encodeur'
             u"</option>\n      </select>\n    </form>\n</td>"
             u"\n".format(self.im2.absolute_url()),
@@ -118,7 +118,7 @@ class TestDmsIMActionsPanelView(unittest.TestCase):
         self.view.useIcons = False
         result = self.view.render_multiple_annexes_button()
         self.assertIn("quick_upload?typeupload=dmsappendixfile", result)
-        self.assertIn("Multiple annexes", result)
+        self.assertIn("Annexes multiples", result)
 
         # not shown when in faceted navigation
         self.view.request["URL"] = "http://nohost/plone/@@faceted_query"
@@ -158,7 +158,7 @@ class TestDmsOMActionsPanelView(unittest.TestCase):
         self.view.useIcons = False
         result = self.view.render_multiple_annexes_button()
         self.assertIn("quick_upload?typeupload=dmsappendixfile", result)
-        self.assertIn("Multiple annexes", result)
+        self.assertIn("Annexes multiples", result)
 
         # not shown when in faceted navigation
         self.view.request["URL"] = "http://nohost/plone/@@faceted_query"

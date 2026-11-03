@@ -1,11 +1,16 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.iconifiedcategory.interfaces import IIconifiedInfos
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.iconifiedcategory.utils import get_category_object
+from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import default_criterias
+from imio.dms.mail.adapters import DmsAppendixFilePrintableAdapter
+from imio.dms.mail.adapters import DmsCategorizedObjectInfoAdapter
 from imio.dms.mail.adapters import IdmSearchableExtender
 from imio.dms.mail.adapters import im_sender_email_index
 from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
@@ -37,7 +42,9 @@ from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
+from imio.esign.interfaces import IItemOrderProvider
 from imio.esign.utils import get_session_annotation
+from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from imio.helpers.tests.test_pdf import _pdf_page_count
 from plone import api
@@ -45,6 +52,7 @@ from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from plone.registry.interfaces import IRegistry
 from z3c.relationfield.relation import RelationValue
+from zope.component import getAdapter
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 from zope.lifecycleevent import Attributes
@@ -466,7 +474,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         settings.mail_types = settings.mail_types[1:]
         view.updateWidgets()
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
-        self.assertIn("Missing", view.widgets["mail_type"].render())
+        self.assertIn("Valeur manquante", view.widgets["mail_type"].render())
 
     def test_OMMCTV(self):
         omail = sub_create(
@@ -494,7 +502,7 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         settings.omail_types = settings.omail_types[1:]
         view.updateWidgets()
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
-        self.assertIn("Missing", view.widgets["mail_type"].render())
+        self.assertIn("Valeur manquante", view.widgets["mail_type"].render())
 
 
 class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
@@ -650,6 +658,27 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.approval.get_approver_nb("chef"), 1)
         self.assertIsNone(self.approval.get_approver_nb("agent"))
         self.assertIsNone(self.approval.get_approver_nb("unknown"))
+
+    def test_is_file_eligible(self):
+        """A file is approval-eligible only when to_sign, and it is neither a pdf conversion nor a
+        mailing file."""
+        f = self.files[0]
+        # to_sign + not conversion + not mailing => eligible
+        f.to_sign = True
+        self.assertTrue(self.approval.is_file_eligible(f))
+        # not to_sign => not eligible
+        f.to_sign = False
+        self.assertFalse(self.approval.is_file_eligible(f))
+        # exempt: pdf conversion (has conv_from_uid)
+        f.to_sign = True
+        f.conv_from_uid = "some-source-uid"
+        self.assertFalse(self.approval.is_file_eligible(f))
+        del f.conv_from_uid
+        # exempt: mailing file
+        f.need_mailing = True
+        self.assertFalse(self.approval.is_file_eligible(f))
+        f.need_mailing = False
+        self.assertTrue(self.approval.is_file_eligible(f))
 
     def test_roles(self):
         # Empty, no approval session started
@@ -1627,28 +1656,32 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
 
-    def test_create_pdf_file_from_doc(self):
-        """Through the esignature process, a DOC file is converted to PDF
+    def test_create_pdf_file_from_docx(self):
+        """Through the esignature process, a DOCX file is converted to PDF
         with a QR barcode page appended."""
 
         api.portal.set_registry_record(
             "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats",
-            ["odt", "pdf", "doc"],
+            ["odt", "pdf", "docx"],
         )
 
         try:
-            # Remove existing ODT files from approval, then add a DOC file
+            # Remove existing ODT files from approval, then add a DOCX file
             self.approval.remove_file_from_approval(self.files[0].UID())
             self.approval.remove_file_from_approval(self.files[1].UID())
             ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
-            with open("%s/batchimport/toprocess/incoming-mail/in-courrier4.doc" % PRODUCT_DIR, "rb") as fo:
+            with open("%s/batchimport/toprocess/incoming-mail/in-courrier4.docx" % PRODUCT_DIR, "rb") as fo:
                 doc_data = fo.read()
             doc_fobj = createContentInContainer(
                 self.omail,
                 "dmsommainfile",
                 id="docfile",
                 scan_id="012999900000601",
-                file=NamedBlobFile(doc_data, contentType="application/msword", filename=u"in-courrier4.doc"),
+                file=NamedBlobFile(
+                    doc_data,
+                    contentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    filename=u"in-courrier4.docx",
+                ),
                 content_category=calculate_category_id(ct),
             )
 
@@ -1663,7 +1696,7 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
                 ["odt", "pdf"],
             )
 
-        # 2 ODT originals + 1 converted PDF tahts replaces doc
+        # 2 ODT originals + 1 converted PDF that replaces docx
         self.assertEqual(len(list(self.omail.objectIds())), 3)
 
         # At least 1 converted content page + 1 barcode page
@@ -1680,6 +1713,64 @@ class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertFalse(pdf_file.to_print)
         self.assertEqual(pdf_file.content_category, "plone-annexes_types_-_outgoing_dms_files_-_outgoing-dms-file")
         self.assertFalse(hasattr(pdf_file, "conv_from_uid"))
+
+
+class TestDmsAppendixFilePrintableAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+        self.omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        self.category = calculate_category_id(
+            self.portal["annexes_types"]["outgoing_appendix_files"]["outgoing-appendix-file"])
+
+    def _add_appendix(self, filename):
+        """Add an appendix file from the batchimport files"""
+        with open("%s/batchimport/toprocess/incoming-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            return createContentInContainer(self.omail, "dmsappendixfile", content_category=self.category,
+                                            file=NamedBlobFile(fo.read(), filename=filename))
+
+    def test_is_printable(self):
+        pdf = self._add_appendix(u"in-courrier2.pdf")
+        self.assertTrue(DmsAppendixFilePrintableAdapter(pdf).is_printable)
+        self.assertIsNotNone(pdf.to_print)
+        # a non pdf appendix cannot be set to print
+        odt = self._add_appendix(u"in-courrier3.odt")
+        self.assertFalse(DmsAppendixFilePrintableAdapter(odt).is_printable)
+        self.assertIsNone(odt.to_print)
+        self.assertIsNone(self.omail.categorized_elements[odt.UID()]["to_print"])
+        # even when clicking on the icon
+        self.portal.REQUEST.form["iconified-value"] = "true"
+        odt.restrictedTraverse("@@iconified-print")()
+        self.assertIsNone(odt.to_print)
+        # the file is replaced by a pdf: to_print can be set again
+        odt.file = NamedBlobFile(pdf.file.data, filename=u"in-courrier2.pdf")
+        zope.event.notify(ObjectModifiedEvent(odt))
+        self.assertTrue(DmsAppendixFilePrintableAdapter(odt).is_printable)
+        self.assertIsNotNone(odt.to_print)
+
+
+class TestDmsCategorizedObjectInfoAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+
+    def test_appendix_infos(self):
+        # a sign request only contains appendices
+        request, files = create_sign_request(self.portal, oid="sr-infos")
+        afile = files[0]
+        self.assertIsInstance(getAdapter(afile, IIconifiedInfos), DmsCategorizedObjectInfoAdapter)
+        afile.esigned = True
+        update_categorized_elements(request, afile, get_category_object(afile, afile.content_category))
+        infos = request.categorized_elements[afile.UID()]
+        self.assertTrue(infos["esigned"])
+        self.assertEqual(infos["scan_id"], "012999900000601")
+        self.assertIsNone(infos["conv_from_uid"])
 
 
 class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):
@@ -1722,3 +1813,72 @@ class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(self.approval.roles, {})
         self.pw.doActionFor(self.request, "propose_to_approve")
         self.assertEqual(self.approval.roles, {"dirg": ("Reader", "Reviewer", "Editor")})
+
+
+class TestOMItemOrderProvider(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+
+    def test_get_item_order(self):
+        """OMItemOrderProvider returns dmsommainfile recent-first, then dmsappendixfile by title."""
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        omail = sub_create(self.portal["outgoing-mail"], "dmsoutgoingmail", datetime.now(), "om-order")
+
+        filename = u"Réponse salle.odt"
+        # titles chosen so creation order and alphabetical order differ, with mixed case
+        # and with numbers, to check the natural sort ("annexe2" before "annexe10")
+        titles = [u"Main first", u"zeta annex", u"Main second", u"Alpha annex", u"annexe10", u"annexe2"]
+        ptypes = ["dmsommainfile", "dmsappendixfile", "dmsommainfile", "dmsappendixfile",
+                  "dmsappendixfile", "dmsappendixfile"]
+        created = []
+        for i, ptype in enumerate(ptypes):
+            with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+                obj = createContentInContainer(
+                    omail,
+                    ptype,
+                    id="order-file%s" % i,
+                    title=titles[i],
+                    scan_id="012999900000601",
+                    file=NamedBlobFile(fo.read(), filename=filename),
+                    content_category=calculate_category_id(ct),
+                )
+                created.append(obj)
+
+        main0, zeta_annex, main2, alpha_annex, annexe10, annexe2 = created
+        order = getAdapter(omail, IItemOrderProvider).get_item_order()
+
+        # mainfiles: reversed, so main2 comes before main0
+        self.assertLess(order[main2.UID()], order[main0.UID()])
+        # appendixfiles: alphabetical on title, case insensitive, so "Alpha" comes before
+        # "zeta", the opposite of their creation order
+        self.assertLess(order[alpha_annex.UID()], order[zeta_annex.UID()])
+        # appendixfiles are naturally sorted: "annexe2" before "annexe10"
+        self.assertLess(order[annexe2.UID()], order[annexe10.UID()])
+        # all mainfiles before all appendixfiles
+        self.assertLess(order[main0.UID()], order[alpha_annex.UID()])
+
+        # pdf files split from a mailed document: newest group first, in title (recipient) order
+        split = []
+        for title in (u"Main first_01", u"Main first_02"):
+            with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+                split.append(createContentInContainer(
+                    omail,
+                    "dmsommainfile",
+                    title=title,
+                    scan_id="012999900000601",
+                    file=NamedBlobFile(fo.read(), filename=filename),
+                    content_category=calculate_category_id(ct),
+                    conv_from_uid=main0.UID(),
+                ))
+        order = getAdapter(omail, IItemOrderProvider).get_item_order()
+        self.assertEqual(sorted([main0, main2] + split, key=lambda obj: order[obj.UID()]),
+                         split + [main2, main0])
+
+        # a sign request only holds appendix files, ordered the same way
+        request, files = create_sign_request(self.portal, oid="sr-order", nb_files=2)
+        order = getAdapter(request, IItemOrderProvider).get_item_order()
+        self.assertEqual([order[f.UID()] for f in files], [0, 1])

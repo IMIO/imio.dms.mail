@@ -323,7 +323,8 @@ class ISigningBehavior(model.Schema):
                                         for v in OMFileFormatsVocabulary()(None)
                                         if v.token
                                         in api.portal.get_registry_record(
-                                            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_esign_formats"
+                                            "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}_esign_formats"
+                                            .format("omail" if context.portal_type == "dmsoutgoingmail" else "request")
                                         )
                                     ]
                                 ),

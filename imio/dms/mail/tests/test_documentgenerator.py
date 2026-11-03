@@ -259,10 +259,10 @@ class TestDocumentGenerator(unittest.TestCase):
         brains[1].treating_groups = None
         res = {
             tg1.UID(): {"mails": [view.objs[0]], "title": u"Direction générale"},
-            "1_no_group": {"mails": [view.objs[1]], "title": u"No treating group"},
+            "1_no_group": {"mails": [view.objs[1]], "title": u"Courrier sans service traitant"},
         }
         self.assertDictEqual(view.group_by_tg(brains[:2]), res)
-        res = [[u"Direction générale", view.objs[0]], [u"No treating group", view.objs[1]]]
+        res = [[u"Courrier sans service traitant", view.objs[1]], [u"Direction générale", view.objs[0]]]
         self.assertListEqual(view.flatten_group_by_tg(view.group_by_tg(brains[:2])), res)
         brains[1].treating_groups = backup
         brains2 = self.pc(portal_type="dmsoutgoingmail", sort_on="id")
@@ -411,7 +411,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertListEqual(view.get_print_pages(appendix), [])
         msgs = IStatusMessage(view.request).show()
         self.assertEqual(len(msgs), 1)
-        self.assertIn(u"no preview image found", msgs[0].message)
+        self.assertIn(u"aucune prévisualisation pour le document", msgs[0].message)
         # restore the borrowed annotation for the following assertions
         IAnnotations(appendix)["collective.documentviewer"] = dv_annot
 

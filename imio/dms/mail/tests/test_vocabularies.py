@@ -78,12 +78,12 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                ("created", u"Created"),
-                ("to_assign", u"To assign"),
-                ("to_do", u"To do"),
-                ("in_progress", u"In progress"),
-                ("realized", u"Realized"),
-                ("closed", u"Closed"),
+                ("created", u"En création"),
+                ("to_assign", u"À assigner"),
+                ("to_do", u"À faire"),
+                ("in_progress", u"En cours"),
+                ("realized", u"Réalisé"),
+                ("closed", u"Clôturé"),
             ],
         )
 

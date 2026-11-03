@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from eea.facetednavigation.subtypes.interfaces import IFacetedNavigable
 from imio.dms.mail.interfaces import IPersonnelDashboard
 from imio.dms.mail.setuphandlers import list_templates
@@ -31,11 +32,12 @@ class TestSetuphandlers(unittest.TestCase):
             folder = self.portal.unrestrictedTraverse("/".join(parts[:-1]))
             self.assertEqual(folder.getObjectPosition(parts[-1]), tup[3], parts[-1])
         # subfolders are not moved: om stays first in templates, common first in om
-        self.assertEqual(self.portal["templates"]["om"].getObjectPosition("common"), 10)
+        self.assertEqual(self.portal["templates"]["om"].getObjectPosition("common"), 8)
 
     def test_requests_dashboard(self):
         self.assertTrue(hasattr(self.portal, "requests"))
         req_folder = self.portal["requests"]
+        self.assertTrue(ICountableTab.providedBy(req_folder))
         self.assertIn("requests-searches", req_folder)
         col_folder = req_folder["requests-searches"]
         self.assertEqual(

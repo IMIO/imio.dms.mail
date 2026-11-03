@@ -341,7 +341,9 @@ body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-I
 }
 
 body.template-dmsdocument-edit.portaltype-dmsoutgoingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label,
-body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-4 label {
+body.template-dmsdocument-edit.portaltype-sign_request #formfield-form-widgets-ISignRequestSigningBehavior-signers .cell-4 label,
+body.template-reply.portaltype-dmsincomingmail #formfield-form-widgets-ISigningBehavior-signers .cell-4 label,
+body.template-reply.portaltype-dmsincoming_email #formfield-form-widgets-ISigningBehavior-signers .cell-4 label{
     display: none;
 }
 
@@ -617,6 +619,15 @@ body.template-facetednavigation_view.portaltype-classificationsubfolder #content
 }
 /* end */
 
+#content .iconified-listing td.iconified-signed a.active.esigned {
+    cursor: help;
+}
+/* !important to also override the base :hover color */
+#content .iconified-listing td.iconified-signed a.active.esigned,
+#content .iconified-listing td.iconified-signed span.active.esigned {
+    color: darkorchid !important;
+}
+
 #content .iconified-listing td.iconified-approved a.to-approve::before,
 #content .iconified-listing td.iconified-approved span.to-approve::before,
 #content .iconified-listing td.iconified-signed a.deactivated::before,
@@ -838,6 +849,16 @@ dl.portletWidgetCollection div.portlet_add_icons a {
 
 .apButtonAction_create-from-template {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/models_icon.png');
+}
+
+.apButtonAction_export-to-pdf-after-signature {
+    background-image: url('&dtml-portal_url;/++resource++collective.documentgenerator/pdf.svg');
+    background-size: 15px auto;
+}
+
+.apButtonAction_export-to-pdf-before-signature {
+    background-image: url('&dtml-portal_url;/++resource++collective.documentgenerator/pdf.svg');
+    background-size: 15px auto;
 }
 
 .apButtonAction_sendemail {

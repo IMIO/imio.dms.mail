@@ -14,19 +14,19 @@
         profile="imio.dms.mail:default" /-->
 
     <genericsetup:upgradeStep
-        title="Go to imio.dms.mail 3.1.6"
+        title="Go to imio.dms.mail 3.1.7"
         description=""
         source="3.0"
-        destination="3.1.6"
+        destination="3.1.7"
         handler="imio.dms.mail.migrations.migrate_to_3_1.migrate"
         profile="imio.dms.mail:default" />
 
     <genericsetup:upgradeStep
-        title="Go to imio.dms.mail 3.1.6a"
+        title="Go to imio.dms.mail 3.1.7"
         description=""
-        source="3.1.5"
-        destination="3.1.6a"
-        handler="imio.dms.mail.migrations.migrate_to_3_1_6.migrate"
+        source="3.1.6"
+        destination="3.1.7a"
+        handler="imio.dms.mail.migrations.migrate_to_3_1_7.migrate"
         profile="imio.dms.mail:default" />
 
 </configure>
