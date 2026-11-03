@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.iconifiedcategory.interfaces import IIconifiedInfos
 from collective.iconifiedcategory.utils import calculate_category_id
+from collective.iconifiedcategory.utils import get_category_object
+from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import default_criterias
 from imio.dms.mail.adapters import DmsAppendixFilePrintableAdapter
+from imio.dms.mail.adapters import DmsCategorizedObjectInfoAdapter
 from imio.dms.mail.adapters import IdmSearchableExtender
 from imio.dms.mail.adapters import im_sender_email_index
 from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
@@ -1746,6 +1750,27 @@ class TestDmsAppendixFilePrintableAdapter(unittest.TestCase, ImioTestHelpers):
         zope.event.notify(ObjectModifiedEvent(odt))
         self.assertTrue(DmsAppendixFilePrintableAdapter(odt).is_printable)
         self.assertIsNotNone(odt.to_print)
+
+
+class TestDmsCategorizedObjectInfoAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+
+    def test_appendix_infos(self):
+        # a sign request only contains appendices
+        request, files = create_sign_request(self.portal, oid="sr-infos")
+        afile = files[0]
+        self.assertIsInstance(getAdapter(afile, IIconifiedInfos), DmsCategorizedObjectInfoAdapter)
+        afile.esigned = True
+        update_categorized_elements(request, afile, get_category_object(afile, afile.content_category))
+        infos = request.categorized_elements[afile.UID()]
+        self.assertTrue(infos["esigned"])
+        self.assertEqual(infos["scan_id"], "012999900000601")
+        self.assertIsNone(infos["conv_from_uid"])
 
 
 class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):

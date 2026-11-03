@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
+from collective.iconifiedcategory.utils import update_all_categorized_elements
 from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.interfaces import IReqDashboardBatchActions
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
@@ -57,6 +58,15 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                         obj.customViewFields = (u"select_row",) + tuple(obj.customViewFields)
             # new iconified.js for sign/approve icons on dmsoutgoingmail and sign_request
             self.runProfileSteps("imio.dms.mail", steps=["jsregistry"])
+            # appendix files now get scan_id, conv_from_uid and esigned in categorized_elements
+            parents = set()
+            for brain in api.content.find(portal_type="dmsappendixfile"):
+                parent = brain.getObject().__parent__
+                if parent.portal_type in ("dmsoutgoingmail", "sign_request"):
+                    parents.add(parent)
+            for parent in parents:
+                update_all_categorized_elements(parent, limited=True, sort=False)
+            logger.info("categorized_elements updated on %d containers with appendix files", len(parents))
 
         if self.is_in_part("t"):  # final steps
             if self.old_version != self.new_version:

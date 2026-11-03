@@ -40,6 +40,8 @@ Changelog
   [chris-adam]
 - Made the Solr sync keep the changes made on the site during the run: each object is read fresh and sent at once (DMS-1249).
   [chris-adam]
+- Used DmsCategorizedObjectInfoAdapter on appendix files
+  [sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

@@ -300,6 +300,12 @@
 
     <adapter
         for="collective.dms.basecontent.dmsfile.IDmsAppendixFile"
+        provides="collective.iconifiedcategory.interfaces.IIconifiedInfos"
+        factory="imio.dms.mail.adapters.DmsCategorizedObjectInfoAdapter"
+        />
+
+    <adapter
+        for="collective.dms.basecontent.dmsfile.IDmsAppendixFile"
         provides="collective.iconifiedcategory.interfaces.IIconifiedPrintable"
         factory="imio.dms.mail.adapters.DmsAppendixFilePrintableAdapter"
         />
