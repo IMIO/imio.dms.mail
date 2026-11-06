@@ -46,6 +46,8 @@ Changelog
   [chris-adam]
 - Added signer rules icon on sub-templates usage view. (PARAF-512)
   [chris-adam]
+- Added consistency to signature use cases
+  [sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

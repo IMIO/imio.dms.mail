@@ -10,6 +10,7 @@ from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSig
 from imio.dms.mail import _
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import logger  # noqa F401
+from imio.dms.mail.utils import is_esign
 # from imio.esign.audit import audit as esign_audit
 from plone import api
 from plone.memoize.interfaces import ICacheChooser
@@ -276,7 +277,7 @@ class SignedColumn(BaseSignedColumn):
         # permission: View
         # category group : signed_activated
         # allowed file type for signing
-        allowed_type = (not getattr(self.context, "esign", False)
+        allowed_type = (not is_esign(self.context)
                         or content.contentType in get_allowed_content_types(
                             esign=True, portal_type=self.context.portal_type))
         editable = allowed_type and self.is_editable(content) and " editable" or ""

@@ -1689,6 +1689,23 @@ def update_approvers_settings():
         set_dms_config(["approvings"], approvings)
 
 
+def has_real_signers(signers):
+    """Tell if signers contains at least one signer other than the _empty_ placeholder."""
+    return any(s["signer"] != u"_empty_" for s in signers or [])
+
+
+def has_signing_values(obj):
+    """Tell if obj (content or template) defines a signing configuration: signers or a seal."""
+    return bool(getattr(obj, "signers", None) or getattr(obj, "seal", False))
+
+
+def is_esign(obj):
+    """Tell if obj (or form data) is signed electronically: by its signers or by a seal.
+    A seal requires now esign, but seal is also checked to cover objects created before that constraint.
+    """
+    return bool(getattr(obj, "esign", False) or getattr(obj, "seal", False))
+
+
 def get_allowed_content_types(esign=False, portal_type=None):
     """Get allowed configured content types.
 

@@ -10,6 +10,7 @@ from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
@@ -19,6 +20,7 @@ from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.subscribers import i_annex_removed
 from imio.dms.mail.subscribers import reindex_person_usages
+from imio.dms.mail.subscribers import sign_request_transition
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
@@ -299,15 +301,17 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             content_category=calculate_category_id(ct),
         )
 
-        # Branch D: seal handling (seal without signers, due to constraints)
+        # Branch D: seal only (seal and esign without real signer) → files directly sent to a seal session
 
-        # D0: esign=True → seal block skipped, OMApprovalAdapter never instantiated
+        # D0: seal with real signers → seal block skipped (the session is created after approvals)
         omail.esign = True
         omail.seal = True
+        omail.signers = [{"signer": self.pf["dirg"]["directeur-general"].UID(), "approvings": [u"_themself_"],
+                          "number": 1, "editor": False}]
         with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
             dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
             MockAdapter.assert_not_called()
-        omail.esign = False
+        omail.signers = get_empty_signers_value()
 
         # D1: seal=False → OMApprovalAdapter never instantiated
         omail.seal = False
@@ -639,15 +643,17 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 },
             ],
         )
-        self.assertIsNone(omail.seal)
+        self.assertFalse(omail.seal)
         modified(omail)
         self.assertTrue(omail.seal)
+        self.assertTrue(omail.esign)  # a seal alone is an electronic signature
         self.assertEqual(
             omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
         )
 
         # Test sort signers
         omail.signers = None
+        omail.seal = False  # a seal is a signing value: rules would not be applied
         api.portal.set_registry_record(
             rk,
             [
@@ -886,9 +892,30 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(
-            cm.exception.message, u"You cannot have a seal without electronic signature ! You have to adapt the rules !"
-        )
+        self.assertEqual(cm.exception.message, u"A seal can only be used with electronic signature !")
+        # same result whatever the rules order
+        api.portal.set_registry_record(rk, list(reversed(api.portal.get_registry_record(rk))))
+        omail.signers = None
+        omail.seal = False
+        with self.assertRaises(Invalid):
+            modified(omail)
+
+        # seal and esign are reset before applying rules: esign comes from the rule
+        omail.signers = None
+        omail.seal = False
+        omail.esign = True
+        api.portal.set_registry_record(rk, [r for r in api.portal.get_registry_record(rk) if r["number"] == 1])
+        modified(omail)
+        self.assertFalse(omail.seal)
+        self.assertFalse(omail.esign)
+        # a seal is a signing value: rules are not applied, seal and esign are kept
+        omail.signers = None
+        omail.seal = omail.esign = True
+        modified(omail)
+        self.assertTrue(omail.seal)
+        self.assertTrue(omail.esign)
+        self.assertEqual(omail.signers, get_empty_signers_value())
+        omail.seal = omail.esign = False
 
         # Test mail already has signers
         omail.signers = [
@@ -1838,6 +1865,21 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertIsNone(ISignRequestApproval(request).current_nb)
         self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
         self.assertEqual(ISignRequestApproval(request).current_nb, 0)
+
+    def test_sign_request_transition_seal(self):
+        request, _files = create_sign_request(self.portal, oid="sr-seal", nb_files=1)
+        event = Mock()
+        event.transition.id = "propose_to_be_signed"
+        # seal with real signers: the session is created after approvals
+        request.seal = True
+        with patch("imio.dms.mail.subscribers.start_seal_session") as mock_start:
+            sign_request_transition(request, event)
+            mock_start.assert_not_called()
+        # seal only: the files go directly to a seal session
+        request.signers = []
+        with patch("imio.dms.mail.subscribers.start_seal_session") as mock_start:
+            sign_request_transition(request, event)
+            mock_start.assert_called_once()
 
     def test_sign_request_modified(self):
         request, _files = create_sign_request(self.portal, oid="sr-mod", nb_files=0)

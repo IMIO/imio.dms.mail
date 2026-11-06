@@ -579,13 +579,15 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(len(msgs), 1)
         self.assertEqual(msgs[0].type, u"warning")
 
-        # "template_first", template has no signers
+        # "template_first", template has no signing values (no signers nor seal)
         template.signers = None
+        template.seal = False
         # fall back to signer rules if mail has no signers
         rep1.signers = different_signers
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers, different_signers)
         rep1.signers = None
+        rep1.seal = False  # a seal is a signing value
         view._copy_template_signers(template)
         self.assertEqual(len(rep1.signers), 2)  # rules applied
         # With empty rules, nothing is found anywhere: an _empty_ value is set.
@@ -595,6 +597,7 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(rep1.signers, empty_value)
         api.portal.set_registry_record(rk_rules, original_rules)
         template.signers = template_signers
+        template.seal = True
 
         # "template_first", conflict: mail has different real signers: warning, no copy
         IStatusMessage(request).show()  # consume existing messages
@@ -605,13 +608,19 @@ class TestDocumentGenerator(unittest.TestCase):
         self.assertEqual(len(msgs), 1)
         self.assertEqual(msgs[0].type, u"warning")
 
-        # "template_first", same signers as template: no warning, no change
+        # "template_first", same signing values as template: no warning, no change
         rep1.signers = list(template_signers)
-        rep1.esign = False
+        rep1.seal = rep1.esign = True
         view._copy_template_signers(template)
         msgs = IStatusMessage(request).show()
         self.assertEqual(len(msgs), 0)
-        self.assertFalse(rep1.esign)  # no change at all
+        # same signers but different flags: signers, seal and esign form a whole, warning and no change
+        rep1.esign = False
+        view._copy_template_signers(template)
+        msgs = IStatusMessage(request).show()
+        self.assertEqual(len(msgs), 1)
+        self.assertFalse(rep1.esign)
+        rep1.seal = False
 
         # "rules_first", mail already has real signers (from rules): template ignored, no warning
         api.portal.set_registry_record(rk_so, u"rules_first")
@@ -629,6 +638,7 @@ class TestDocumentGenerator(unittest.TestCase):
 
         # "rules_first", mail is an empty list (rules produced nothing): fall back to the template
         rep1.signers = []
+        rep1.seal = False  # the previous copy set the template seal
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers, template_signers)
 
@@ -643,12 +653,16 @@ class TestDocumentGenerator(unittest.TestCase):
         # "rules_first", neither rules nor template provide signers: _empty_ value is set
         # (consistent with template_first)
         template.signers = None
+        template.seal = False
         rep1.signers = None
+        rep1.seal = False
         view._copy_template_signers(template)
         self.assertEqual(rep1.signers, empty_value)
+        self.assertFalse(rep1.seal)
         template.signers = template_signers
+        template.seal = True
 
-        # "template_first", seal-only template: no signers to copy, but its flags still are
+        # "template_first", seal-only template: _empty_ placeholder copied with its flags, rules not used
         api.portal.set_registry_record(rk_so, u"template_first")
         api.portal.set_registry_record(rk_rules, [])
         template.signers = None
@@ -670,6 +684,7 @@ class TestDocumentGenerator(unittest.TestCase):
         mailing_tpl = self.portal["templates"]["om"]["mailing"]
         mailing_view.orig_template = template
         rep1.signers = None
+        rep1.seal = False  # the seal-only template case set it
         mailing_view._copy_template_signers(mailing_tpl)
         self.assertEqual(rep1.signers, template_signers)
 

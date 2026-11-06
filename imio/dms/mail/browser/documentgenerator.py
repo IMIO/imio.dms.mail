@@ -30,6 +30,8 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.subscribers import apply_signer_rules
 from imio.dms.mail.subscribers import apply_substitutes_to_signers
+from imio.dms.mail.utils import has_signing_values
+from imio.dms.mail.utils import is_esign
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
@@ -66,16 +68,16 @@ class TemplateSignersMixin(object):
 
         pod_template itself comes first, then its merge_templates sub-templates in their
         configured order. Only the first one is ever applied, so more than one match means
-        the signers configuration is ambiguous. A 'seal' counts as a definition.
+        the signers configuration is ambiguous. Signers or a seal count as a definition.
         With first_match, return that first (sub/)template, or None when there is none;
         the whole list otherwise.
         """
         sources = []
-        if bool(getattr(pod_template, "signers", None)) or bool(getattr(pod_template, "seal", None)):
+        if has_signing_values(pod_template):
             sources.append(pod_template)
         for line in getattr(pod_template, "merge_templates", None) or []:
             sub = uuidToObject(line.get("template"), unrestricted=True)
-            if sub is not None and (bool(getattr(sub, "signers", None)) or bool(getattr(sub, "seal", None))):
+            if sub is not None and has_signing_values(sub):
                 sources.append(sub)
         if first_match:
             return sources and sources[0] or None
@@ -703,13 +705,15 @@ class OMPDGenerationView(TemplateSignersMixin, PersistentDocumentGenerationView)
         """Set outgoing mail signers from the template, depending on the omail_signers_origin mode.
 
         - "rules": signers come from the signer rules only, nothing is done here.
-        - "template_first": copy the template signers; if the template defines none, fall back to
+        - "template_first": copy the template signing values; if the template defines none, fall back to
           the signer rules.
         - "rules_first": rules are authoritative; the template is only used as a fallback when the
-          rules produced no signer (empty or only the _empty_ placeholder).
+          rules produced no signing values.
 
-        In both non-"rules" modes, when neither the template nor the rules provide any signer, an
-        _empty_ placeholder is set so the field is no longer reprocessed on next modification.
+        Signing values are the signers or a seal (see has_signing_values). The template signers, seal and esign
+        are copied together (the template configuration is validated as coherent). In both non-"rules" modes,
+        when the signers stay empty, an _empty_ placeholder is set so the field is no longer reprocessed on next
+        modification.
         """
         mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
         if mode == u"rules":
@@ -720,22 +724,17 @@ class OMPDGenerationView(TemplateSignersMixin, PersistentDocumentGenerationView)
         if not isinstance(source, ConfigurablePODTemplate):
             return
         mail = self.context
-        mail_has_signers = bool(mail.signers)
+        mail_has_values = has_signing_values(mail)
 
-        # "rules_first": when the rules already produced signers, the template configuration is ignored.
-        if mode == u"rules_first" and mail_has_signers:
+        # "rules_first": when the rules already produced signing values, the template configuration is ignored.
+        if mode == u"rules_first" and mail_has_values:
             return
 
         signers_source = self.get_template_signers_source(source)
-        template_signers = getattr(signers_source, "signers", None)
-        if not template_signers:
-            # a seal-only source defines no signers but still configures the mail flags
-            if signers_source is not None:
-                mail.seal = getattr(signers_source, "seal", False) or False
-                mail.esign = getattr(signers_source, "esign", False) or False
-            if mail_has_signers:
+        if signers_source is None:
+            if mail_has_values:
                 return
-            # we are in rules_first or template_first and mail has not signer
+            # we are in rules_first or template_first and mail has no signing values
             if mode == u"template_first":
                 # fall back to the signer rules to set signers
                 apply_signer_rules(mail)
@@ -745,12 +744,16 @@ class OMPDGenerationView(TemplateSignersMixin, PersistentDocumentGenerationView)
             zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
             return
 
-        # copy the template signers, applying the active signer substitutes (as the rules do)
-        resolved_signers = apply_substitutes_to_signers(copy.deepcopy(template_signers))
+        # copy the template signers, applying the active signer substitutes (as the rules do).
+        # A seal-only template has no signers: the _empty_ placeholder is used.
+        resolved_signers = (apply_substitutes_to_signers(copy.deepcopy(signers_source.signers or []))
+                            or get_empty_signers_value())
+        seal = bool(signers_source.seal)
+        esign = bool(signers_source.esign)
 
-        # "template_first": warn (and skip) if the mail already has different signers (manual edit).
-        if mail_has_signers:
-            if mail.signers != resolved_signers:
+        # "template_first": warn (and skip) if the mail already has different signing values (manual edit).
+        if mail_has_values:
+            if (mail.signers, bool(mail.seal), bool(mail.esign)) != (resolved_signers, seal, esign):
                 api.portal.show_message(
                     message=translate(
                         _(u"Warning: the mail already has signers configured that differ from the template. "
@@ -761,8 +764,8 @@ class OMPDGenerationView(TemplateSignersMixin, PersistentDocumentGenerationView)
                 )
             return
         mail.signers = resolved_signers
-        mail.seal = getattr(signers_source, "seal", False) or False
-        mail.esign = getattr(signers_source, "esign", False) or False
+        mail.seal = seal
+        mail.esign = esign
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
 
     def redirects(self, persisted_doc):
@@ -797,7 +800,7 @@ class OMPDGenerationView(TemplateSignersMixin, PersistentDocumentGenerationView)
                 "scan_id": scan_id,
                 "barcode": generate_barcode(scan_id).read(),
                 # for a non esign outgoingmail, the paragraph with the download url barcode is rendered but empty
-                "render_download_barcode": not (helper_view.real_context.esign or helper_view.real_context.seal),
+                "render_download_barcode": not is_esign(helper_view.real_context),
             },
             _dg("Error when merging 'scan_id' in generation context"),
         )
@@ -816,7 +819,7 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
         """
         generation_context = super(OMMLPDGenerationView, self)._get_generation_context(helper_view, pod_template)
 
-        if helper_view.real_context.esign or helper_view.real_context.seal:
+        if is_esign(helper_view.real_context):
             generation_context["page_break_after"] = False
         else:
             generation_context["page_break_after"] = True
