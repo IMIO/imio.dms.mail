@@ -13,6 +13,8 @@ from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.utils import get_allowed_content_types
+from imio.dms.mail.utils import has_real_signers
+from imio.dms.mail.utils import is_esign
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import vocabularyname_to_terms
 from imio.helpers.cache import get_plone_groups_for_user
@@ -91,6 +93,39 @@ class IUsagesBehavior(model.Schema):
                         fields=["usages"])
 
     # TODO: add invariant to check that userid is defined
+
+
+# Signing configuration (signers / esign / seal) of an outgoing mail, a signing request or a pod template.
+# "Signing values" (has_signing_values) = non empty signers or a seal: when present, rules and templates are not
+# applied. "Real signer" (has_real_signers) = a signer other than the _empty_ placeholder.
+# Validated by check_signing_combination (edit invariant and after signer rules application).
+#
+# | # | signers          | esign | seal | valid | meaning and processing                                              |
+# |---|------------------|-------|------|-------|---------------------------------------------------------------------|
+# | 0 | empty grid       | any   | no   | yes   | not yet defined: filled by rules or template (sign_request: esign)  |
+# | 1 | _empty_ only     | no    | no   | yes   | no signature, printable                                             |
+# | 2 | _empty_ only     | yes   | no   | NO    | esign needs a real signer or a seal                                 |
+# | 3 | no real signer   | no    | yes  | NO    | a seal is always electronic                                         |
+# | 4 | no real signer   | yes   | yes  | yes   | seal only: no approval, seal session at propose_to_be_signed        |
+# | 5 | real signers     | no    | no   | yes   | handwritten: optional approvals, no session, printable              |
+# | 6 | real signers     | yes   | no   | yes   | e-signature: approvals required, session created at last approval   |
+# | 7 | real signers     | yes   | yes  | yes   | e-signature + seal: as 6, the seal is added to the session          |
+# | 8 | real signers     | no    | yes  | NO    | a seal is always electronic                                         |
+#
+# Electronic cases (is_esign: 4, 6, 7): print transition blocked, file formats checked.
+# A signing request is always electronic: only cases 0, 4, 6 and 7 apply.
+# Signer rules: rule 0 "_seal_" without real signer gives case 4; with rule 1 esign signer, case 7.
+# Templates: signers, seal and esign are copied together (a seal-only template gives _empty_ + its flags).
+def check_signing_combination(obj):
+    """Raise Invalid on an incoherent seal / esign / signers combination of obj (or form data).
+
+    A seal is always electronic. An electronic signature needs real signers or a seal; an empty signers grid
+    means "not yet defined" (e.g. a new signing request, always esign) and is not checked.
+    """
+    if obj.seal and not obj.esign:
+        raise Invalid(_(u"A seal can only be used with electronic signature !"))
+    if obj.esign and not obj.seal and obj.signers and not has_real_signers(obj.signers):
+        raise Invalid(_(u"An electronic signature needs at least one real signer or a seal !"))
 
 
 @provider(IContextSourceBinder)
@@ -197,8 +232,7 @@ class ISigningBehavior(model.Schema):
                     raise Invalid(_(u"You cannot modify signers once the approval process has started or is done. "
                                     u"You may go back to a previous state or ask your admin."))
 
-        if data.seal and not data.esign and any([s["signer"] != u"_empty_" for s in (data.signers or [])]):
-            raise Invalid(_(u"You cannot have a seal and signers but no electronic signature !"))
+        check_signing_combination(data)
 
         if not data.signers or []:
             return
@@ -247,7 +281,8 @@ class ISigningBehavior(model.Schema):
                 )
             # check if there are no approvings at all
             if all(u"_empty_" in s["approvings"] for s in data.signers):
-                if data.esign:
+                # a seal alone (no real signer) is electronic but has no approvings
+                if data.esign and has_real_signers(data.signers):
                     raise Invalid(_(u"You have to define approvings for each signer if electronic signature is used !"))
             elif any(u"_empty_" in s["approvings"] for s in data.signers):
                 raise Invalid(_(u"You cannot have empty and defined approvings at the same time !"))
@@ -299,8 +334,8 @@ class ISigningBehavior(model.Schema):
                 approvers[userid] = signer["number"]
 
         # Validate file formats if eSignature is enabled (only on outgoing mail or sign request, not on templates)
-        if context and data.esign and (IImioDmsOutgoingMail.providedBy(context)
-                                       or IImioDmsSignRequest.providedBy(context)):
+        if context and is_esign(data) and (IImioDmsOutgoingMail.providedBy(context)
+                                           or IImioDmsSignRequest.providedBy(context)):
             for afile in context.values():
                 # Skip files already converted for esign
                 if base_hasattr(afile, "conv_from_uid"):

@@ -44,6 +44,10 @@ Changelog
   [sgeulette]
 - Adapted list_last_scan to discriminate incoming mails and emails on the parent type (DMS-1235).
   [chris-adam]
+- Added signer rules icon on sub-templates usage view. (PARAF-512)
+  [chris-adam]
+- Added consistency to signature use cases
+  [sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

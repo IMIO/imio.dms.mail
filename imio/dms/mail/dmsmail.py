@@ -51,6 +51,7 @@ from imio.dms.mail.utils import add_content_in_subfolder
 from imio.dms.mail.utils import back_or_again_state
 from imio.dms.mail.utils import do_next_transition
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import is_esign
 from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import is_n_plus_level_obsolete
 from imio.dms.mail.utils import manage_fields
@@ -900,11 +901,11 @@ class ImioDmsOutgoingMail(DmsOutgoingMail):
 
     def can_do_export_to_pdf_before_signature(self):
         """Condition of the "export-to-pdf-before-signature" action"""
-        return not (self.esign or self.seal) and api.content.get_state(obj=self) not in ("signed", "sent")
+        return not is_esign(self) and api.content.get_state(obj=self) not in ("signed", "sent")
 
     def can_do_export_to_pdf_after_signature(self):
         """Condition of the "export-to-pdf-after-signature" action"""
-        return bool(self.esign or self.seal) and api.content.get_state(obj=self) in ("signed", "sent")
+        return is_esign(self) and api.content.get_state(obj=self) in ("signed", "sent")
 
 
 @implementer(IImioDmsOutgoingMailWfConditions)
@@ -928,7 +929,7 @@ class ImioDmsOutgoingMailWfConditionsAdapter(object):
 
     def can_set_to_print(self):
         """Used in guard expression for to_print and back_to_print transitions."""
-        if self.context.esign:
+        if is_esign(self.context):
             return False
         if self.context.has_approvings() and not self.context.has_approvings(all_done=True):
             return False

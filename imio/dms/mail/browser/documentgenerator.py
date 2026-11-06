@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from cgi import escape
 from collective.contact.core.content.held_position import IHeldPosition
 from collective.contact.core.content.organization import IOrganization
 from collective.contact.core.content.person import IPerson
@@ -9,6 +10,7 @@ from collective.documentgenerator import utils
 from collective.documentgenerator.browser.generation_view import MailingLoopPersistentDocumentGenerationView
 from collective.documentgenerator.browser.generation_view import PersistentDocumentGenerationView
 from collective.documentgenerator.browser.overrides import DGDXDocumentViewerView
+from collective.documentgenerator.browser.table import SubTemplateColumn
 from collective.documentgenerator.browser.table import TemplatesTable
 from collective.documentgenerator.browser.views import EditConfigurablePodTemplate
 from collective.documentgenerator.browser.views import TemplatesListing
@@ -28,6 +30,8 @@ from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.subscribers import apply_signer_rules
 from imio.dms.mail.subscribers import apply_substitutes_to_signers
+from imio.dms.mail.utils import has_signing_values
+from imio.dms.mail.utils import is_esign
 from imio.helpers.barcode import generate_barcode
 from imio.helpers.content import uuidToObject
 from imio.zamqp.core import base
@@ -56,22 +60,58 @@ import zope.event
 # # # HELPERS # # #
 
 
-def get_template_signers_source(pod_template):
-    """Return the template object defining the signers to apply for pod_template.
+class TemplateSignersMixin(object):
+    """Tell where the signers of a pod template come from, and show it as an icon."""
 
-    Signers are taken from pod_template itself. If it defines none, its merge_templates
-    sub-templates are looked up in order and the first one defining signers is returned.
-    Returns a tuple:
-        - the sub/template or None
-        - a bool showing the template contains itself the signers
-    """
-    if bool(getattr(pod_template, "signers", None)) or bool(getattr(pod_template, "seal", None)):
-        return pod_template, True
-    for line in getattr(pod_template, "merge_templates", None) or []:
-        sub = uuidToObject(line.get("template"), unrestricted=True)
-        if sub is not None and (bool(getattr(sub, "signers", None)) or bool(getattr(sub, "seal", None))):
-            return sub, False
-    return None, True
+    def get_template_signers_source(self, pod_template, first_match=True):
+        """Return the (sub/)template(s) defining signers for pod_template, in precedence order.
+
+        pod_template itself comes first, then its merge_templates sub-templates in their
+        configured order. Only the first one is ever applied, so more than one match means
+        the signers configuration is ambiguous. Signers or a seal count as a definition.
+        With first_match, return that first (sub/)template, or None when there is none;
+        the whole list otherwise.
+        """
+        sources = []
+        if has_signing_values(pod_template):
+            sources.append(pod_template)
+        for line in getattr(pod_template, "merge_templates", None) or []:
+            sub = uuidToObject(line.get("template"), unrestricted=True)
+            if sub is not None and has_signing_values(sub):
+                sources.append(sub)
+        if first_match:
+            return sources and sources[0] or None
+        return sources
+
+    def render_signers_icon(self, pod_template):
+        """Return the icon showing where the signers of pod_template come from, or an empty string.
+
+        Green when pod_template defines them itself, orange when they come from one of its
+        merge sub-templates, red when several (sub/)templates define them and only the first
+        one applies.
+        """
+        if not base_hasattr(pod_template, "signers"):
+            # types without the signing behavior (e.g. style or mailing loop templates)
+            return u""
+        sources = self.get_template_signers_source(pod_template, first_match=False)
+        if not sources:
+            return u""
+        used = sources[0]
+        # the mapping has to be set on the message itself: zope.i18n.translate replaces the
+        # mapping it receives by the message one
+        mapping = {"template": safe_unicode(used.Title()),
+                   "templates": u", ".join(safe_unicode(src.Title()) for src in sources)}
+        if len(sources) > 1:
+            css_class = "pt_conflict_signers"
+            title = _(u"Conflicting signer rules: ${template} is being used out of ${templates}",
+                      mapping=mapping)
+        elif used is pod_template:
+            css_class, title = "pt_self_signers", _(u"Signers defined")
+        else:
+            css_class = "pt_sub_signers"
+            title = _(u"Signers defined via sub template: ${template}", mapping=mapping)
+        title = translate(title, context=self.request)
+        return u'<span class="svg-icon {0}" title="{1}"></span>'.format(css_class, escape(title, True))
 
 
 class BaseDGHelper(DXDocumentGenerationHelperView):
@@ -610,7 +650,7 @@ class DbDocumentGenerationView(DashboardDocumentGenerationView):
         return gen_context
 
 
-class OMPDGenerationView(PersistentDocumentGenerationView):
+class OMPDGenerationView(TemplateSignersMixin, PersistentDocumentGenerationView):
 
     """Generation view used on an outgoingmail"""
 
@@ -665,13 +705,15 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         """Set outgoing mail signers from the template, depending on the omail_signers_origin mode.
 
         - "rules": signers come from the signer rules only, nothing is done here.
-        - "template_first": copy the template signers; if the template defines none, fall back to
+        - "template_first": copy the template signing values; if the template defines none, fall back to
           the signer rules.
         - "rules_first": rules are authoritative; the template is only used as a fallback when the
-          rules produced no signer (empty or only the _empty_ placeholder).
+          rules produced no signing values.
 
-        In both non-"rules" modes, when neither the template nor the rules provide any signer, an
-        _empty_ placeholder is set so the field is no longer reprocessed on next modification.
+        Signing values are the signers or a seal (see has_signing_values). The template signers, seal and esign
+        are copied together (the template configuration is validated as coherent). In both non-"rules" modes,
+        when the signers stay empty, an _empty_ placeholder is set so the field is no longer reprocessed on next
+        modification.
         """
         mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
         if mode == u"rules":
@@ -682,18 +724,17 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
         if not isinstance(source, ConfigurablePODTemplate):
             return
         mail = self.context
-        mail_has_signers = bool(mail.signers)
+        mail_has_values = has_signing_values(mail)
 
-        # "rules_first": when the rules already produced signers, the template configuration is ignored.
-        if mode == u"rules_first" and mail_has_signers:
+        # "rules_first": when the rules already produced signing values, the template configuration is ignored.
+        if mode == u"rules_first" and mail_has_values:
             return
 
-        signers_source, _z = get_template_signers_source(source)
-        template_signers = getattr(signers_source, "signers", None) if signers_source is not None else None
-        if not template_signers:
-            if mail_has_signers:
+        signers_source = self.get_template_signers_source(source)
+        if signers_source is None:
+            if mail_has_values:
                 return
-            # we are in rules_first or template_first and mail has not signer
+            # we are in rules_first or template_first and mail has no signing values
             if mode == u"template_first":
                 # fall back to the signer rules to set signers
                 apply_signer_rules(mail)
@@ -703,12 +744,16 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
             zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
             return
 
-        # copy the template signers, applying the active signer substitutes (as the rules do)
-        resolved_signers = apply_substitutes_to_signers(copy.deepcopy(template_signers))
+        # copy the template signers, applying the active signer substitutes (as the rules do).
+        # A seal-only template has no signers: the _empty_ placeholder is used.
+        resolved_signers = (apply_substitutes_to_signers(copy.deepcopy(signers_source.signers or []))
+                            or get_empty_signers_value())
+        seal = bool(signers_source.seal)
+        esign = bool(signers_source.esign)
 
-        # "template_first": warn (and skip) if the mail already has different signers (manual edit).
-        if mail_has_signers:
-            if mail.signers != resolved_signers:
+        # "template_first": warn (and skip) if the mail already has different signing values (manual edit).
+        if mail_has_values:
+            if (mail.signers, bool(mail.seal), bool(mail.esign)) != (resolved_signers, seal, esign):
                 api.portal.show_message(
                     message=translate(
                         _(u"Warning: the mail already has signers configured that differ from the template. "
@@ -719,8 +764,8 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 )
             return
         mail.signers = resolved_signers
-        mail.seal = getattr(signers_source, "seal", False) or False
-        mail.esign = getattr(signers_source, "esign", False) or False
+        mail.seal = seal
+        mail.esign = esign
         zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
 
     def redirects(self, persisted_doc):
@@ -755,7 +800,7 @@ class OMPDGenerationView(PersistentDocumentGenerationView):
                 "scan_id": scan_id,
                 "barcode": generate_barcode(scan_id).read(),
                 # for a non esign outgoingmail, the paragraph with the download url barcode is rendered but empty
-                "render_download_barcode": not (helper_view.real_context.esign or helper_view.real_context.seal),
+                "render_download_barcode": not is_esign(helper_view.real_context),
             },
             _dg("Error when merging 'scan_id' in generation context"),
         )
@@ -774,7 +819,7 @@ class OMMLPDGenerationView(MailingLoopPersistentDocumentGenerationView, OMPDGene
         """
         generation_context = super(OMMLPDGenerationView, self)._get_generation_context(helper_view, pod_template)
 
-        if helper_view.real_context.esign or helper_view.real_context.seal:
+        if is_esign(helper_view.real_context):
             generation_context["page_break_after"] = False
         else:
             generation_context["page_break_after"] = True
@@ -807,7 +852,7 @@ class DmsViewConfigurablePodTemplate(DGDXDocumentViewerView):
 # # # TEMPLATES LISTING SIGNERS COLUMN # # #
 
 
-class TemplateSignersColumn(Column):
+class TemplateSignersColumn(TemplateSignersMixin, Column):
     """Column showing whether a template defines signers (directly or via a merge sub-template)."""
 
     header = _(u"Signers")
@@ -815,26 +860,7 @@ class TemplateSignersColumn(Column):
     cssClasses = {"td": "signers-column"}
 
     def renderCell(self, item):
-        if not base_hasattr(item, "signers"):
-            # types without the signing behavior (e.g. style or mailing loop templates)
-            return u""
-        tmpl, itself = get_template_signers_source(item)
-        if tmpl is not None:
-            if itself:
-                return u"<span class='svg-icon pt_self_signers' title='{0}'></span>".format(
-                    translate(_(u"Signers defined"), context=self.request)
-                )
-            else:
-                return u"<span class='svg-icon pt_sub_signers' title='{0}'></span>".format(
-                    translate(_(u"Signers defined via sub template"), context=self.request)
-                )
-            icon = ("++resource++imio.dms.mail/itemIsSignedYes.png",
-                    translate(_(u"Signers defined"), context=self.request))
-        else:
-            return u""
-        return u"<img class='svg-icon' title='{0}' src='{1}' />".format(
-            safe_unicode(icon[1]).replace("'", "&#39;"),
-            u"{0}/{1}".format(self.table.portal_url, icon[0]))
+        return self.render_signers_icon(item)
 
 
 class DmsTemplatesTable(TemplatesTable):
@@ -852,6 +878,19 @@ class DmsTemplatesListing(TemplatesListing):
     """'dg-templates-listing' variant using DmsTemplatesTable to add the signers column."""
 
     __table__ = DmsTemplatesTable
+
+
+class DmsSubTemplateColumn(TemplateSignersMixin, SubTemplateColumn):
+    """SubTemplateColumn variant flagging the sub-templates defining signer rules."""
+
+    def render_sub_template(self, item):
+        # the seam keeps the icon next to the sub-template name, above its merge variable
+        cell = super(DmsSubTemplateColumn, self).render_sub_template(item)
+        mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
+        if mode == u"rules":
+            return cell
+        icon = self.render_signers_icon(item["sub_template"].getObject())
+        return icon and u"{0} {1}".format(cell, icon) or cell
 
 
 class DmsAddConfigurablePodTemplateForm(DefaultAddForm):
