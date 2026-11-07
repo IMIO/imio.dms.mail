@@ -48,6 +48,8 @@ Changelog
   [chris-adam]
 - Added consistency to signature use cases
   [sgeulette]
+- Allowed ``dir_general`` group members to select any treating group on outgoing mail (DMS-823).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
