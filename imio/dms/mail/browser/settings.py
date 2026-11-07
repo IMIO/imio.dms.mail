@@ -22,6 +22,7 @@ from imio.dms.mail.browser.widgets import ExpandableDataGridFieldFactory
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import is_valid_identifier
 from imio.dms.mail.utils import list_wf_states
+from imio.dms.mail.utils import must_defer_security_update
 from imio.dms.mail.utils import reimport_faceted_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import vocabularyname_to_terms
@@ -71,7 +72,6 @@ from zope.schema.vocabulary import SimpleVocabulary
 import copy
 import datetime
 import logging
-import os
 import re
 
 
@@ -1685,9 +1685,7 @@ def configure_group_encoder(field_name, contacts_part=False):
     Update portal_type to add behavior, configure localroles field
     """
     portal_types = GE_CONFIG[field_name]["pt"]
-    # DEFER_SECURITY_UPDATE env var: skip security and index updates on existing content, to be done in a separate
-    # batch with scripts/run-reindex-security.py
-    defer_security_update = os.environ.get("DEFER_SECURITY_UPDATE")
+    defer_security_update = must_defer_security_update()
     # function
     functions = get_registry_functions()
     if CREATING_GROUP_SUFFIX not in [fct["fct_id"] for fct in functions]:

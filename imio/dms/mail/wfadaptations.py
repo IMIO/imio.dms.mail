@@ -6,13 +6,13 @@ from collective.contact.plonegroup.config import set_registry_functions
 from collective.wfadaptations.api import get_applied_adaptations
 from collective.wfadaptations.wfadaptation import WorkflowAdaptationBase
 from dexterity.localroles.utils import fti_configuration
-from dexterity.localroles.utils import get_affected_portal_types
 from dexterity.localroles.utils import update_roles_in_fti
 from dexterity.localroles.utils import update_security_index
 from imio.dms.mail import _tr
 from imio.dms.mail import _tr as _
 from imio.dms.mail import AUC_RECORD
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import must_defer_security_update
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
@@ -33,6 +33,23 @@ import logging
 logger = logging.getLogger("imio.dms.mail.wfadaptations")
 
 
+def update_security_index_or_defer(portal_types):
+    if must_defer_security_update():
+        logger.warn("DEFER_SECURITY_UPDATE: security index not updated for %s" % portal_types)
+        return
+    update_security_index(portal_types)
+
+
+def reindex_or_defer(portal_types, idxs):
+    """Reindex given indexes on portal_types objects, from parent to child"""
+    if must_defer_security_update():
+        logger.warn("DEFER_SECURITY_UPDATE: indexes %s not updated for %s" % (idxs, portal_types))
+        return
+    brains = api.portal.get_tool("portal_catalog").unrestrictedSearchResults(portal_type=portal_types)
+    for brain in sorted(brains, key=lambda b: b.getPath()):
+        brain._unrestrictedGetObject().reindexObject(idxs=idxs)
+
+
 """
   incomingmail_workflow adaptation
 """
@@ -48,12 +65,6 @@ class IIMPreValidationParameters(Interface):
 
     backward_transition_title = schema.TextLine(
         title=u"Backward transition title", default=u"Renvoyer pour prévalidation DG", required=True
-    )
-
-    defer_security_update = schema.Bool(
-        title=u"Defer security update",
-        default=False,
-        required=False,
     )
 
 
@@ -149,10 +160,6 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             portal["contacts"]["contact-lists-folder"].manage_addLocalRoles(
                 "pre_manager", ["Contributor", "Editor", "Reader"]
             )
-        if parameters["defer_security_update"]:
-            portal.REQUEST.set("DEFER_SECURITY_UPDATE", True)
-        # clear portal types storage
-        get_affected_portal_types(portal.REQUEST, clear=True)
 
         # TODO : include n+ levels if necessary
         # ajouter config local roles
@@ -182,21 +189,8 @@ class IMPreManagerValidation(WorkflowAdaptationBase):
             }
             for st in next_states:
                 updates.update({st: {"pre_manager": {"roles": ["Reader"]}}})
-            if update_roles_in_fti(ptype, updates):
-                if not parameters["defer_security_update"]:
-                    update_security_index([ptype])
-
-        affected = get_affected_portal_types(portal.REQUEST)
-        if affected:
-            if parameters["defer_security_update"]:
-                msg = u"Portal types for which security must be updated : {}".format(u", ".join(sorted(affected)))
-                m_typ = "warn"
-            else:
-                msg = u"Portal types that have been concerned by security updates : {}".format(
-                    u", ".join(sorted(affected)))
-                m_typ = "info"
-            logger.info(msg)
-            api.portal.show_message(msg, portal.REQUEST, type=m_typ)
+            if update_roles_in_fti(ptype, updates, notify=False):
+                update_security_index_or_defer([ptype])
 
         # add collection
         folder = portal["incoming-mail"]["mail-searches"]
@@ -475,7 +469,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
                     updates.update({st: {new_id: {"roles": ["Reader"]}}})
                 c3 = update_roles_in_fti(ptype, updates, keyname="recipient_groups", notify=False)
             if c1 or c2 or c3:
-                update_security_index([ptype])
+                update_security_index_or_defer([ptype])
         # add local roles config on folders
         for i, ptype in enumerate(("ClassificationFolder", "ClassificationSubfolder")):
             lr, fti = fti_configuration(portal_type=ptype)
@@ -493,7 +487,7 @@ class IMServiceValidation(WorkflowAdaptationBase):
             if rg_updates:
                 update_roles_in_fti(ptype, rg_updates, keyname="recipient_groups", notify=False)
             if tg_updates or rg_updates:
-                update_security_index([ptype])
+                update_security_index_or_defer([ptype])
 
         # add collection
         folder = portal["incoming-mail"]["mail-searches"]
@@ -574,14 +568,8 @@ class IMServiceValidation(WorkflowAdaptationBase):
             lst.insert(0, new_state_id)
             api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_remark_states", lst)
         if not self.reapply:
-            # update state_group (use dms_config), permissions
-            for brain in portal.portal_catalog.unrestrictedSearchResults(
-                portal_type=["dmsincomingmail", "dmsincoming_email"]
-            ):
-                obj = brain._unrestrictedGetObject()
-                obj.reindexObject(idxs=["allowedRolesAndUsers", "state_group"])
-                for child in obj.objectValues():
-                    child.reindexObject(idxs=["allowedRolesAndUsers"])
+            # update state_group (use dms_config). allowedRolesAndUsers already updated by update_security_index
+            reindex_or_defer(["dmsincomingmail", "dmsincoming_email"], ["state_group"])
 
         return True, ""
 
@@ -877,7 +865,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             updates.update({"signed": {new_id: {"roles": ["Reader"]}}})
             c3 = update_roles_in_fti("dmsoutgoingmail", updates, keyname="recipient_groups", notify=False)
         if c1 or c2 or c3:
-            update_security_index(["dmsoutgoingmail"])
+            update_security_index_or_defer(["dmsoutgoingmail"])
 
         # add local roles config on folders
         for i, ptype in enumerate(("ClassificationFolder", "ClassificationSubfolder")):
@@ -896,7 +884,7 @@ class OMServiceValidation(WorkflowAdaptationBase):
             if rg_updates:
                 update_roles_in_fti(ptype, rg_updates, keyname="recipient_groups", notify=False)
             if tg_updates or rg_updates:
-                update_security_index([ptype])
+                update_security_index_or_defer([ptype])
 
         # update dms config
         if (val_state_id, val_set_tr_id) not in wf_from_to["to"]:
@@ -1011,12 +999,8 @@ class OMServiceValidation(WorkflowAdaptationBase):
 
         # reindex
         if not self.reapply:
-            # update state_group (use dms_config), permissions
-            for brain in portal.portal_catalog.unrestrictedSearchResults(portal_type="dmsoutgoingmail"):
-                obj = brain._unrestrictedGetObject()
-                obj.reindexObject(idxs=["allowedRolesAndUsers", "state_group"])
-                for child in obj.objectValues():
-                    child.reindexObject(idxs=["allowedRolesAndUsers"])
+            # update state_group (use dms_config). allowedRolesAndUsers already updated by update_security_index
+            reindex_or_defer(["dmsoutgoingmail"], ["state_group"])
 
         return True, ""
 
@@ -1567,6 +1551,9 @@ class TaskServiceValidation(WorkflowAdaptationBase):
     * modify new transition back_in_created2 and back_in_to_assign
     """
 
+    # TODO : on ne passe pas par le subscriber de dexterity, donc la gestion des rel des taches existantes n'est pas
+    # faite !! Normal ?
+
     def patch_workflow(self, workflow_name, **parameters):
         if not workflow_name == "task_workflow":
             return False, _(
@@ -1652,7 +1639,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
             if rg_updates:
                 update_roles_in_fti(ptype, rg_updates, keyname="recipient_groups", notify=False)
             if tg_updates or rg_updates:
-                update_security_index([ptype])
+                update_security_index_or_defer([ptype])
 
         # update collections
         folder = portal["tasks"]["task-searches"]
@@ -1683,10 +1670,7 @@ class TaskServiceValidation(WorkflowAdaptationBase):
         # update cache
         invalidate_cachekey_volatile_for("collective.eeafaceted.collectionwidget.cachedcollectionvocabulary")
 
-        for brain in portal.portal_catalog.unrestrictedSearchResults(portal_type="task"):
-            obj = brain._unrestrictedGetObject()
-            obj.reindexObject(idxs=["allowedRolesAndUsers", "state_group"])
-            for child in obj.objectValues():
-                child.reindexObject(idxs=["allowedRolesAndUsers", "state_group"])
+        # local roles config changed directly: security index must be updated too
+        reindex_or_defer(["task"], ["allowedRolesAndUsers", "state_group"])
 
         return True, ""

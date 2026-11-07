@@ -44,6 +44,7 @@ from imio.helpers.security import check_zope_admin
 from imio.helpers.security import separate_fullname
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
+from imio.pyutils.utils import is_true_value
 from interfaces import IIMDashboard
 from natsort import natsorted
 from operator import attrgetter
@@ -118,6 +119,12 @@ dms_config
     ('from_states' est une valeur spéciale qui représente les transitions stockées dans from_states)
 * ['approvings'] : [user1, user2, ...] : liste des approbateurs configurés (pour test affichage collection)
 """
+
+
+def must_defer_security_update():
+    """DEFER_SECURITY_UPDATE env var: skip security update on existing content, to be done in a separate batch
+    with scripts/run-reindex-security.py"""
+    return is_true_value(os.environ.get("DEFER_SECURITY_UPDATE"))
 
 
 def add_remove_values_in_registry_list(record_name, to_add=(), to_remove=(), order=None):

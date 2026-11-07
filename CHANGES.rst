@@ -28,7 +28,7 @@ Changelog
   [chris-adam,sgeulette]
 - Updated the incoming email routing and state set descriptions (DMS-1215).
   [chris-adam]
-- Added DEFER_SECURITY_UPDATE env var handling in configure_group_encoder settings method
+- Added DEFER_SECURITY_UPDATE env var handling in configure_group_encoder settings and wf adaptations
   [sgeulette]
 - Improved file ordering in eSign session: ged files most recent first, appendices sorted alphabetically.
   [chris-adam]
