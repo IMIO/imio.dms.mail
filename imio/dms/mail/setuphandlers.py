@@ -926,7 +926,7 @@ def createIMailCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "dmsincomingmail-validation",
+                    "v": ["dmsincomingmail-validation"],
                 },
             ],
             "cond": u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsincomingmail')",  # i_e ok
@@ -1062,7 +1062,7 @@ def createIMailCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "dmsincomingmail-in-treating-group",
+                    "v": ["dmsincomingmail-in-treating-group"],
                 },
             ],
             "cond": u"",
@@ -1098,7 +1098,7 @@ def createIMailCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "dmsincomingmail-in-treating-group",
+                    "v": ["dmsincomingmail-in-treating-group"],
                 },
             ],
             "cond": u"",
@@ -1170,7 +1170,7 @@ def createIMailCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "dmsincomingmail-in-copy-group",
+                    "v": ["dmsincomingmail-in-copy-group"],
                 },
             ],
             "cond": u"",
@@ -1206,7 +1206,7 @@ def createIMailCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "dmsincomingmail-followed",
+                    "v": ["dmsincomingmail-followed"],
                 },
             ],
             "cond": u"",
@@ -1267,7 +1267,7 @@ def createTaskCollections(folder):
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["to_assign"]},
-                {"i": "CompoundCriterion", "o": "plone.app.querystring.operation.compound.is", "v": "task-validation"},
+                {"i": "CompoundCriterion", "o": "plone.app.querystring.operation.compound.is", "v": ["task-validation"]},
             ],
             "cond": u"python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
             "bypass": ["Manager", "Site Administrator"],
@@ -1375,7 +1375,7 @@ def createTaskCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "task-in-assigned-group",
+                    "v": ["task-in-assigned-group"],
                 },
             ],
             "cond": u"",
@@ -1404,7 +1404,7 @@ def createTaskCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "task-in-assigned-group",
+                    "v": ["task-in-assigned-group"],
                 },
             ],
             "cond": u"",
@@ -1458,7 +1458,7 @@ def createTaskCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "task-in-proposing-group",
+                    "v": ["task-in-proposing-group"],
                 },
             ],
             "cond": u"",
@@ -1485,7 +1485,7 @@ def createTaskCollections(folder):
             "query": [
                 {"i": "portal_type", "o": "plone.app.querystring.operation.selection.is", "v": ["task"]},
                 {"i": "review_state", "o": "plone.app.querystring.operation.selection.is", "v": ["realized"]},
-                {"i": "CompoundCriterion", "o": "plone.app.querystring.operation.compound.is", "v": "task-validation"},
+                {"i": "CompoundCriterion", "o": "plone.app.querystring.operation.compound.is", "v": ["task-validation"]},
             ],
             "cond": u"python:object.restrictedTraverse('idm-utils').user_has_review_level('task')",
             "bypass": ["Manager", "Site Administrator"],
@@ -1556,7 +1556,7 @@ def createOMailCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "dmsoutgoingmail-validation",
+                    "v": ["dmsoutgoingmail-validation"],
                 },
             ],
             "cond": u"python:object.restrictedTraverse('idm-utils').user_has_review_level('dmsoutgoingmail')",
@@ -1705,7 +1705,7 @@ def createOMailCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "dmsoutgoingmail-in-treating-group",
+                    "v": ["dmsoutgoingmail-in-treating-group"],
                 },
             ],
             "cond": u"",
@@ -1738,7 +1738,7 @@ def createOMailCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "dmsoutgoingmail-in-copy-group",
+                    "v": ["dmsoutgoingmail-in-copy-group"],
                 },
             ],
             "cond": u"",
@@ -1834,7 +1834,7 @@ def createReqCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "sign_request-in-treating-group",
+                    "v": ["sign_request-in-treating-group"],
                 },
             ],
             "cond": u"",
@@ -1853,7 +1853,7 @@ def createReqCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "sign_request-in-copy-group",
+                    "v": ["sign_request-in-copy-group"],
                 },
             ],
             "cond": u"",
@@ -1872,7 +1872,7 @@ def createReqCollections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "files-belonging-to-a-given-session",
+                    "v": ["files-belonging-to-a-given-session"],
                 },
             ],
             "cond": u"python:object.restrictedTraverse('various-utils').user_is_approving(user=member)",
@@ -2042,7 +2042,7 @@ def create_classification_folders_collections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "classificationfolder-in-treating-group",
+                    "v": ["classificationfolder-in-treating-group"],
                 },
             ],
             "cond": u"",
@@ -2075,7 +2075,7 @@ def create_classification_folders_collections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "classificationfolder-in-copy-group",
+                    "v": ["classificationfolder-in-copy-group"],
                 },
             ],
             "cond": u"",
@@ -2108,7 +2108,7 @@ def create_classification_folders_collections(folder):
                 {
                     "i": "CompoundCriterion",
                     "o": "plone.app.querystring.operation.compound.is",
-                    "v": "dmsincomingmail-followed",
+                    "v": ["dmsincomingmail-followed"],
                 },
             ],
             "cond": u"",
