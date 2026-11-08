@@ -50,6 +50,8 @@ Changelog
   [sgeulette]
 - Allowed ``dir_general`` group members to select any treating group on outgoing mail (DMS-823).
   [chris-adam]
+- Fixed filter collision in dashboard collections (PARAF-546).
+  [chris-adam,sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------
