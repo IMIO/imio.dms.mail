@@ -52,6 +52,8 @@ Changelog
   [chris-adam]
 - Fixed filter collision in dashboard collections (PARAF-546).
   [chris-adam,sgeulette]
+- Resynced the approval annotation when the signers field is emptied (PARAF-497).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------
