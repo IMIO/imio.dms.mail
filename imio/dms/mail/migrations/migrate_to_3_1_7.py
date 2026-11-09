@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
+from collective.iconifiedcategory.utils import get_category_icon_url
 from collective.iconifiedcategory.utils import update_all_categorized_elements
 from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.interfaces import IReqDashboardBatchActions
@@ -68,7 +69,24 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                     parents.add(parent)
             for parent in parents:
                 update_all_categorized_elements(parent, limited=True, sort=False)
+                parent._p_changed = True
             logger.info("categorized_elements updated on %d containers with appendix files", len(parents))
+            # icon_url stored by 3.1 migration before categories commit has bad image scale
+            icons = {brain.UID: get_category_icon_url(brain._unrestrictedGetObject())
+                     for brain in self.catalog.unrestrictedSearchResults(
+                         object_provides="collective.iconifiedcategory.content.category.ICategory")}
+            fixed = 0
+            for brain in self.catalog.unrestrictedSearchResults(
+                    portal_type=["dmsincomingmail", "dmsincoming_email", "dmsoutgoingmail"]):
+                obj = brain._unrestrictedGetObject()
+                elements = getattr(obj, "categorized_elements", None) or {}
+                if any(infos["icon_url"] != icons.get(infos["category_uid"], infos["icon_url"])
+                       for infos in elements.values()):
+                    # sort (default) sets _p_changed
+                    update_all_categorized_elements(obj, limited=True, sort=False)
+                    obj._p_changed = True
+                    fixed += 1
+            logger.info("categorized_elements icon_url corrected on %d mails", fixed)
 
         if self.is_in_part("t"):  # final steps
             if self.old_version != self.new_version:

@@ -65,6 +65,7 @@ import json
 import logging
 import OFS
 import os
+import transaction
 
 
 logger = logging.getLogger("imio.dms.mail")
@@ -270,6 +271,9 @@ class Migrate_To_3_1(Migrator):  # noqa
                     obj = template.getObject()
                     if not obj.default_content_category:
                         obj.default_content_category = category_id
+                # commit so category icon blobs get their _p_mtime: otherwise icon scales computed below are
+                # regenerated after commit with a new uid and stored icon_url are broken
+                transaction.commit()
 
             gsm = getGlobalSiteManager()
             gsm.unregisterHandler(content_updated, (IIconifiedCategorizationMarker, IObjectModifiedEvent))

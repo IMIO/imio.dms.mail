@@ -59,6 +59,8 @@ Changelog
 - Applied signer rules when a dmsommainfile is added manually first (not generated) on an outgoing mail
   with template_first mode activated. If no rule applies, set empty signers value.
   [sgeulette]
+- Fixed migration problem causing bad category icon_url (PARAF-547)
+  [sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------
