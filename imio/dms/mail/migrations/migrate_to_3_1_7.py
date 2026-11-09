@@ -6,6 +6,13 @@ from collective.iconifiedcategory.utils import update_all_categorized_elements
 from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.interfaces import IReqDashboardBatchActions
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
+from imio.helpers.batching import batch_delete_files
+from imio.helpers.batching import batch_get_keys
+from imio.helpers.batching import batch_handle_key
+from imio.helpers.batching import batch_hashed_filename
+from imio.helpers.batching import batch_loop_else
+from imio.helpers.batching import batch_skip_key
+from imio.helpers.batching import can_delete_batch_files
 from imio.helpers.setup import load_type_from_package
 from plone import api
 from zope.interface import alsoProvides
@@ -61,16 +68,6 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                         obj.customViewFields = (u"select_row",) + tuple(obj.customViewFields)
             # new iconified.js for sign/approve icons on dmsoutgoingmail and sign_request
             self.runProfileSteps("imio.dms.mail", steps=["jsregistry"])
-            # appendix files now get scan_id, conv_from_uid and esigned in categorized_elements
-            parents = set()
-            for brain in api.content.find(portal_type="dmsappendixfile"):
-                parent = brain.getObject().__parent__
-                if parent.portal_type in ("dmsoutgoingmail", "sign_request"):
-                    parents.add(parent)
-            for parent in parents:
-                update_all_categorized_elements(parent, limited=True, sort=False)
-                parent._p_changed = True
-            logger.info("categorized_elements updated on %d containers with appendix files", len(parents))
             # icon_url stored by 3.1 migration before categories commit has bad image scale
             icons = {brain.UID: get_category_icon_url(brain._unrestrictedGetObject())
                      for brain in self.catalog.unrestrictedSearchResults(
@@ -87,6 +84,29 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                     obj._p_changed = True
                     fixed += 1
             logger.info("categorized_elements icon_url corrected on %d mails", fixed)
+
+        if self.is_in_part("f"):
+            # appendix files now get scan_id, conv_from_uid and esigned in categorized_elements
+            # paths only, to avoid waking up all objects before batching
+            candidates = set(brain.getPath() for brain in self.catalog.unrestrictedSearchResults(
+                portal_type=["dmsoutgoingmail", "sign_request"]))
+            parents = sorted(set(brain.getPath().rsplit("/", 1)[0] for brain in
+                                 self.catalog.unrestrictedSearchResults(portal_type="dmsappendixfile")) & candidates)
+            pklfile = batch_hashed_filename("imio.dms.mail.migrate_to_3_1_7.pkl", ("f",))
+            batch_keys, batch_config = batch_get_keys(pklfile, loop_length=len(parents), log=True)
+            for path in parents:
+                if batch_skip_key(path, batch_keys, batch_config):
+                    continue
+                parent = self.portal.unrestrictedTraverse(path)
+                update_all_categorized_elements(parent, limited=True, sort=False)
+                parent._p_changed = True
+                if batch_handle_key(path, batch_keys, batch_config):
+                    break
+            else:
+                batch_loop_else(batch_keys, batch_config)
+            if can_delete_batch_files(batch_keys, batch_config):
+                batch_delete_files(batch_keys, batch_config, log=True)
+            logger.info("categorized_elements updated on %d containers with appendix files", len(parents))
 
         if self.is_in_part("t"):  # final steps
             if self.old_version != self.new_version:
