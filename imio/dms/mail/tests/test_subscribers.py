@@ -1108,12 +1108,13 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
 
     def test_i_annex_added_signers_template_first(self):
         # In "template_first" mode, signers stay empty until the first template generation. When an
-        # appendix (dmsappendixfile) is added before any template, the signer rules are applied here.
+        # appendix or a manual main file is added before any template, the signer rules are applied here.
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
         rk_osr = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
         dirg_hp = self.pf["dirg"]["directeur-general"]
         bourgmestre_hp = self.pf["bourgmestre"]["bourgmestre"]
         api.portal.set_registry_record(rk_so, u"template_first")
+        original_rules = api.portal.get_registry_record(rk_osr)
         omail = sub_create(
             self.omf,
             "dmsoutgoingmail",
@@ -1156,6 +1157,23 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         createContentInContainer(omail2, "dmsappendixfile", id="appendix1", title="Appendix 1")
         self.assertEqual(omail2.signers, [{"number": 1, "signer": u"_empty_", "editor": False,
                                            "approvings": [u"_empty_"]}])
+
+        # a manually added main file (not generated from a template) applies the signer rules too
+        api.portal.set_registry_record(rk_osr, original_rules)
+        omail3 = sub_create(
+            self.omf,
+            "dmsoutgoingmail",
+            datetime.now(),
+            "mainfile-tf-id3",
+            title="Main File First Test 3",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="courrier",
+        )
+        self.assertFalse(omail3.signers)
+        createContentInContainer(omail3, "dmsommainfile", id="main1", title="Main 1")
+        self.assertEqual([s["signer"] for s in omail3.signers], [dirg_hp.UID(), bourgmestre_hp.UID()])
 
     def test_dmsoutgoingmail_modified_signer_substitutes(self):
         dirg = self.pf["dirg"]

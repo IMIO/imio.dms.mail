@@ -56,6 +56,9 @@ Changelog
   [chris-adam]
 - Warned if existing documents have been generated with different signers than the parent ones
   [sgeulette]
+- Applied signer rules when a dmsommainfile is added manually first (not generated) on an outgoing mail
+  with template_first mode activated. If no rule applies, set empty signers value.
+  [sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

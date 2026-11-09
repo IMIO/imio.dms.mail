@@ -893,6 +893,20 @@ def _correct_to_print(file_obj):
         update_categorized_elements(om, file_obj, category, limited=True, sort=False, logging=True)
 
 
+def _apply_template_first_signer_rules(mail):
+    """In "template_first" mode, the signer rules are applied only when the first main document is
+    generated from a template (see browser.documentgenerator._copy_template_signers). When a file is added
+    otherwise (appendix or manually added main file), signers would stay empty, so we apply the rules here too.
+    If the rules produce no signer, an _empty_ placeholder is set. A generated main file is added after
+    _copy_template_signers has set signing values, so nothing is done for it."""
+    mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
+    if mode == u"template_first" and not has_signing_values(mail):
+        apply_signer_rules(mail)
+        if not mail.signers:
+            mail.signers = get_empty_signers_value()
+        zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+
+
 def i_annex_added(obj, event):
     """Called for IAnnex (appendix, mainfile, annex)"""
     blacklistPortletCategory(obj)
@@ -909,6 +923,8 @@ def i_annex_added(obj, event):
     elif obj.portal_type == "dmsommainfile":
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
+        if obj.__parent__.portal_type == "dmsoutgoingmail":  # always True
+            _apply_template_first_signer_rules(obj.__parent__)
         _reset_sign_approve_in_to_approve(obj)
         # TODO add unit tests for the following
         if getattr(obj, "to_sign", False):
@@ -917,18 +933,8 @@ def i_annex_added(obj, event):
             _correct_to_approve(obj)
         _correct_to_print(obj)
     elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type in ("dmsoutgoingmail", "sign_request"):
-        mail = obj.__parent__
-        if mail.portal_type == "dmsoutgoingmail":
-            # In "template_first" mode, the signer rules are applied only when the first main document is
-            # generated from a template (see browser.documentgenerator._copy_template_signers). When an
-            # appendix is added before any template generation, signers would otherwise stay empty, so we
-            # apply the rules here too. If the rules produce no signer, an _empty_ placeholder is set.
-            mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
-            if mode == u"template_first" and not has_signing_values(mail):
-                apply_signer_rules(mail)
-                if not mail.signers:
-                    mail.signers = get_empty_signers_value()
-                zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        if obj.__parent__.portal_type == "dmsoutgoingmail":
+            _apply_template_first_signer_rules(obj.__parent__)
         _reset_sign_approve_in_to_approve(obj)
         if getattr(obj, "to_sign", False):
             _correct_to_sign(obj)
