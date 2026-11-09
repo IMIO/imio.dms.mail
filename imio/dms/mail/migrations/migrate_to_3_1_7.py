@@ -84,6 +84,7 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                        for infos in elements.values()):
                     # sort (default) sets _p_changed
                     update_all_categorized_elements(obj, limited=True, sort=False)
+                    obj._p_changed = True
                     fixed += 1
             logger.info("categorized_elements icon_url corrected on %d mails", fixed)
 
