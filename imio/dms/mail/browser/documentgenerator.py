@@ -24,12 +24,14 @@ from collective.documentviewer.views import DXDocumentViewerView
 from collective.eeafaceted.dashboard.browser.overrides import DashboardDocumentGenerationView
 from collective.iconifiedcategory.utils import get_categorized_elements
 from imio.dms.mail import _
+from imio.dms.mail import GENERATED_SIGNING_KEY
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.subscribers import apply_signer_rules
 from imio.dms.mail.subscribers import apply_substitutes_to_signers
+from imio.dms.mail.subscribers import get_generated_signing_values
 from imio.dms.mail.utils import has_signing_values
 from imio.dms.mail.utils import is_esign
 from imio.helpers.barcode import generate_barcode
@@ -699,6 +701,8 @@ class OMPDGenerationView(TemplateSignersMixin, PersistentDocumentGenerationView)
             )
         # store informations on persisted doc
         self.add_mailing_infos(persisted_doc, gen_context)
+        # store the rendered signing values, to warn when the mail ones change afterwards
+        IAnnotations(persisted_doc)[GENERATED_SIGNING_KEY] = get_generated_signing_values(self.context)
         return persisted_doc
 
     def _copy_template_signers(self, pod_template):

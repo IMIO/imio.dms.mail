@@ -54,6 +54,8 @@ Changelog
   [chris-adam,sgeulette]
 - Resynced the approval annotation when the signers field is emptied (PARAF-497).
   [chris-adam]
+- Warned if existing documents have been generated with different signers than the parent ones
+  [sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

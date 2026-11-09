@@ -500,6 +500,30 @@ class TestDocumentGenerator(unittest.TestCase):
         doc = view.generate_persistent_doc(view.pod_template, view.output_format)
         self.assertEqual(doc.portal_type, "dmsommainfile")
         self.assertIsNone(doc.scan_user)
+        # the rendered signing values are stored on the generated doc
+        approval = rep1.approval()
+        stored = IAnnotations(doc)["dmsmail.generated_signing"]
+        self.assertEqual(stored, {"signers": approval.signers_details, "esign": bool(rep1.esign),
+                                  "seal": bool(rep1.seal)})
+        # same signing values: no warning
+        request = self.portal.REQUEST
+        IStatusMessage(request).show()  # consume existing messages
+        zope.event.notify(ObjectModifiedEvent(rep1, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        self.assertEqual(IStatusMessage(request).show(), [])
+        # seal added (esign unchanged): warning
+        rep1.seal = not rep1.seal
+        zope.event.notify(ObjectModifiedEvent(rep1, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        self.assertEqual(len(IStatusMessage(request).show()), 1)
+        rep1.seal = stored["seal"]
+        # other signers: warning naming the generated doc
+        bourgmestre_hp = self.portal["contacts"]["personnel-folder"]["bourgmestre"]["bourgmestre"]
+        rep1.signers = [{"number": 1, "signer": bourgmestre_hp.UID(), "editor": False, "approvings": [u"_empty_"]}]
+        zope.event.notify(ObjectModifiedEvent(rep1, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        self.assertNotEqual(approval.signers_details, stored["signers"])
+        msgs = IStatusMessage(request).show()
+        self.assertEqual(len(msgs), 1)
+        self.assertEqual(msgs[0].type, u"warning")
+        self.assertIn(safe_unicode(doc.Title()), msgs[0].message)
 
         # Test redirects
         # redirects has be monkey patched in tests !!

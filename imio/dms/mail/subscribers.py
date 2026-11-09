@@ -29,6 +29,7 @@ from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import DV_AVOIDED_TYPES
 from imio.dms.mail import GE_CONFIG
+from imio.dms.mail import GENERATED_SIGNING_KEY
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
@@ -477,6 +478,8 @@ def dmsoutgoingmail_transition(mail, event):
         mail.outgoing_date = datetime.datetime.now()
         # TODO must use in a second time the future imio.helpers reindex_object
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
+    if event.transition and event.transition.id in ("propose_to_approve", "propose_to_be_signed"):
+        warn_outdated_generated_files(mail)
     if event.transition and event.transition.id == "propose_to_approve":
         approval = OMApprovalAdapter(mail)
         approval.start_approval_process()
@@ -609,6 +612,31 @@ def apply_request_signer_rules(request):
     return _apply_signer_rules(request, "request_signer_rules", True)
 
 
+def get_generated_signing_values(mail):
+    """Return the mail signing values rendered in a generated document: signers details, esign and seal."""
+    return {"signers": OMApprovalAdapter(mail).signers_details, "esign": bool(mail.esign), "seal": bool(mail.seal)}
+
+
+def warn_outdated_generated_files(mail):
+    """Warn when main files were generated with other signing values than the current mail ones.
+
+    Files generated before the signing values were stored are ignored."""
+    current = get_generated_signing_values(mail)
+    titles = [safe_unicode(obj.Title()) for obj in mail.objectValues()
+              if obj.portal_type == "dmsommainfile"
+              and IAnnotations(obj).get(GENERATED_SIGNING_KEY, current) != current]
+    if titles:
+        api.portal.show_message(
+            message=translate(
+                _(u"The following documents have been generated with other signers than the current "
+                  u"ones. You may have to delete and generate them again: ${titles}.",
+                  mapping={"titles": u", ".join(titles)}),
+                context=mail.REQUEST),
+            request=mail.REQUEST,
+            type="warning",
+        )
+
+
 def dmsoutgoingmail_modified(mail, event):
     """Mainly set signers.value following omail_signers_origin mode:
 
@@ -651,6 +679,7 @@ def dmsoutgoingmail_modified(mail, event):
                 approval.update_signers()
             except ValueError as e:
                 raise Invalid(translate(e.message, context=mail.REQUEST))
+        warn_outdated_generated_files(mail)
 
 
 def dmsoutgoingmail_added(mail, event):
