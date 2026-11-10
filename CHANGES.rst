@@ -61,6 +61,8 @@ Changelog
   [sgeulette]
 - Fixed migration problem causing bad category icon_url (PARAF-547)
   [sgeulette]
+- Removed a deleted pdf file from the approval annotation even when it is not in an esign session
+  [sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

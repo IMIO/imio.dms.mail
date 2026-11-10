@@ -29,6 +29,7 @@ from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import get_session_annotation
+from imio.esign.utils import remove_files_from_session
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
@@ -1556,6 +1557,22 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertNotIn(pdf_uid, [uid for lst in approval.pdf_files_uids for uid in lst])
         # Source file stays in approval (Case 1 only removes the PDF, not the source)
         self.assertIn(files[0].UID(), approval.files_uids)
+        self.assertIn(files[1].UID(), approval.files_uids)
+
+    def test_i_annex_removed_pdf_file_not_in_session(self):
+        """Test i_annex_removed Case 3: removing a generated PDF that is no longer in a session
+        still removes it from approval."""
+        omail, files, approval = self._setup_omail_with_esign()
+        self._approve_all_files(omail, files, approval)
+        pdf_uid = approval.pdf_files_uids[1][0]
+        pdf_obj = uuidToObject(pdf_uid)
+        remove_files_from_session([pdf_uid])
+        self.assertNotIn(pdf_uid, get_session_annotation()["uids"])
+        self.assertIn(pdf_uid, approval.pdf_files_uids[1])
+
+        event = ObjectRemovedEvent(pdf_obj, omail, pdf_obj.getId())
+        i_annex_removed(pdf_obj, event)
+        self.assertNotIn(pdf_uid, [uid for lst in approval.pdf_files_uids for uid in lst])
         self.assertIn(files[1].UID(), approval.files_uids)
 
     def test_i_annex_removed_pdf_file_not_draft(self):

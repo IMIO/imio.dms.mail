@@ -999,7 +999,7 @@ def i_annex_removed(obj, event):
     ):
         current_uid = obj.UID()
         approval = obj.__parent__.approval()
-        # Case 1: We are removing a file in a session. Can be a pdf from odt, a direct pdf, a sealed odf
+        # Case 1: We are removing a file in a session. Can be a pdf from odt, a direct pdf, a sealed pdf
         session_annot = get_session_annotation()
         if current_uid in session_annot["uids"]:
             session_id = session_annot["uids"][current_uid]
@@ -1021,6 +1021,9 @@ def i_annex_removed(obj, event):
                 "delete_file_1",
                 "mail={} session={} file={}".format(obj.__parent__.UID(), session_id, current_uid)
             )
+        # Case 3: we are removing a pdf file not in a session but referenced in the approval annotation
+        else:
+            approval.remove_pdf_file_from_approval(current_uid)
 
         # Case 2: We are removing a source file: odt or direct pdf
         if current_uid in approval.files_uids:
