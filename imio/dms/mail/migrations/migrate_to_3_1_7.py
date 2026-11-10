@@ -3,6 +3,7 @@ from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.iconifiedcategory.utils import get_category_icon_url
 from collective.iconifiedcategory.utils import update_all_categorized_elements
+from collective.quickupload.browser.quickupload_settings import IQuickUploadControlPanel
 from imio.dms.mail.interfaces import IReqDashboard
 from imio.dms.mail.interfaces import IReqDashboardBatchActions
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
@@ -84,6 +85,8 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                     obj._p_changed = True
                     fixed += 1
             logger.info("categorized_elements icon_url corrected on %d mails", fixed)
+            # unique id for each uploaded file: no 'file already exists' error
+            IQuickUploadControlPanel(self.portal).set_object_unique_id(True)
 
         if self.is_in_part("f"):
             # appendix files now get scan_id, conv_from_uid and esigned in categorized_elements

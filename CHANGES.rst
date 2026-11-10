@@ -63,6 +63,8 @@ Changelog
   [sgeulette]
 - Removed a deleted pdf file from the approval annotation even when it is not in an esign session
   [sgeulette]
+- Set quick upload object_unique_id to True to avoid 'file already exists' error
+  [sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

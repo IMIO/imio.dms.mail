@@ -573,6 +573,8 @@ def postInstall(context):
 
     # set sim_upload_limit to 1 to prevent ZODB conflicts on concurrent uploads
     IQuickUploadControlPanel(site).set_sim_upload_limit(1)
+    # unique id for each uploaded file: no 'file already exists' error
+    IQuickUploadControlPanel(site).set_object_unique_id(True)
 
     # remove collective.ckeditortemplates folder
     if DEFAULT_CKE_TEMPL_FOLDER in site:
