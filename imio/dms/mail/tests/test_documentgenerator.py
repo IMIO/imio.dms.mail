@@ -819,14 +819,15 @@ class TestDocumentGenerator(unittest.TestCase):
         icon = mixin.render_signers_icon(template)
         self.assertIn(u"pt_conflict_signers", icon)
         # the tooltip names the source that applies, then every source found
-        self.assertIn(u"{0} is being used out of {0}, {1}".format(
+        self.assertIn(u"Signataires définis à plusieurs endroits : seul « {0} » sera utilisé parmi « {0}, {1} »".format(
             safe_unicode(template.Title()), safe_unicode(sub.Title())), icon)
+
         # two sub-templates conflicting: the first merge_templates row wins
         template.signers = None
         other_sub.signers = signers
         icon = mixin.render_signers_icon(template)
         self.assertIn(u"pt_conflict_signers", icon)
-        self.assertIn(u"{0} is being used out of {0}, {1}".format(
+        self.assertIn(u"Signataires définis à plusieurs endroits : seul « {0} » sera utilisé parmi « {0}, {1} »".format(
             safe_unicode(sub.Title()), safe_unicode(other_sub.Title())), icon)
 
         # a type without the signing behavior never gets an icon

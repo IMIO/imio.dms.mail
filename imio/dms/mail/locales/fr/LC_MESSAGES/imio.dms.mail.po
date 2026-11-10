@@ -496,7 +496,7 @@ msgstr "<span class='beware'>À modifier en toute connaissance de cause !</span>
 
 #: ./browser/documentgenerator.py:108
 msgid "Conflicting signer rules: ${template} is being used out of ${templates}"
-msgstr "Signataires définis à plusieurs endroits : seul « ${template} » sera utilisé (parmi ${templates})"
+msgstr "Signataires définis à plusieurs endroits : seul « ${template} » sera utilisé parmi « ${templates} »"
 
 #: ./migrations/migrate_to_2_1.py:418
 #: ./setuphandlers.py:421
