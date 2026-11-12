@@ -10,15 +10,18 @@ from collective.wfadaptations.api import add_applied_adaptation
 from datetime import datetime
 from imio.dms.mail import _tr
 from imio.dms.mail import CREATING_GROUP_SUFFIX
+from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
+from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.subscribers import dmsoutgoingmail_transition
 from imio.dms.mail.subscribers import i_annex_removed
 from imio.dms.mail.subscribers import reindex_person_usages
+from imio.dms.mail.subscribers import sign_request_transition
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import DummyView
@@ -26,6 +29,7 @@ from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import get_session_annotation
+from imio.esign.utils import remove_files_from_session
 from imio.helpers import EMPTY_STRING
 from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
@@ -40,6 +44,7 @@ from plone.app.testing import TEST_USER_ID
 from plone.app.users.browser.personalpreferences import UserDataConfiglet
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from Products.CMFPlone.utils import safe_unicode
 from Products.statusmessages.interfaces import IStatusMessage
 from z3c.relationfield import RelationValue
 from zExceptions import Redirect
@@ -298,15 +303,17 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             content_category=calculate_category_id(ct),
         )
 
-        # Branch D: seal handling (seal without signers, due to constraints)
+        # Branch D: seal only (seal and esign without real signer) → files directly sent to a seal session
 
-        # D0: esign=True → seal block skipped, OMApprovalAdapter never instantiated
+        # D0: seal with real signers → seal block skipped (the session is created after approvals)
         omail.esign = True
         omail.seal = True
+        omail.signers = [{"signer": self.pf["dirg"]["directeur-general"].UID(), "approvings": [u"_themself_"],
+                          "number": 1, "editor": False}]
         with patch("imio.dms.mail.subscribers.OMApprovalAdapter") as MockAdapter:
             dmsoutgoingmail_transition(omail, make_event("propose_to_be_signed"))
             MockAdapter.assert_not_called()
-        omail.esign = False
+        omail.signers = get_empty_signers_value()
 
         # D1: seal=False → OMApprovalAdapter never instantiated
         omail.seal = False
@@ -638,15 +645,17 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
                 },
             ],
         )
-        self.assertIsNone(omail.seal)
+        self.assertFalse(omail.seal)
         modified(omail)
         self.assertTrue(omail.seal)
+        self.assertTrue(omail.esign)  # a seal alone is an electronic signature
         self.assertEqual(
             omail.signers, [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
         )
 
         # Test sort signers
         omail.signers = None
+        omail.seal = False  # a seal is a signing value: rules would not be applied
         api.portal.set_registry_record(
             rk,
             [
@@ -885,9 +894,30 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(
-            cm.exception.message, u"You cannot have a seal without electronic signature ! You have to adapt the rules !"
-        )
+        self.assertEqual(cm.exception.message, u"A seal can only be used with electronic signature !")
+        # same result whatever the rules order
+        api.portal.set_registry_record(rk, list(reversed(api.portal.get_registry_record(rk))))
+        omail.signers = None
+        omail.seal = False
+        with self.assertRaises(Invalid):
+            modified(omail)
+
+        # seal and esign are reset before applying rules: esign comes from the rule
+        omail.signers = None
+        omail.seal = False
+        omail.esign = True
+        api.portal.set_registry_record(rk, [r for r in api.portal.get_registry_record(rk) if r["number"] == 1])
+        modified(omail)
+        self.assertFalse(omail.seal)
+        self.assertFalse(omail.esign)
+        # a seal is a signing value: rules are not applied, seal and esign are kept
+        omail.signers = None
+        omail.seal = omail.esign = True
+        modified(omail)
+        self.assertTrue(omail.seal)
+        self.assertTrue(omail.esign)
+        self.assertEqual(omail.signers, get_empty_signers_value())
+        omail.seal = omail.esign = False
 
         # Test mail already has signers
         omail.signers = [
@@ -960,7 +990,7 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         with self.assertRaises(Invalid) as cm:
             modified(omail)
         self.assertEqual(
-            cm.exception.message, u"The chef already exists in the approvings with another order 1 <=> 2"
+            cm.exception.message, u"L'utilisateur chef existe déjà dans les approbateurs lignes 1 <=> 2"
         )
 
         # Test signers have same email
@@ -996,8 +1026,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             modified(omail)
-        self.assertEqual(cm.exception.message, u"You cannot have the same email (duplicate@belleville.eb) "
-                                               u"for multiple signers !")
+        self.assertEqual(cm.exception.message, u"Vous ne pouvez pas avoir le même email (duplicate@belleville.eb) "
+                                               u"pour plusieurs signataires !")
         api.user.get("dirg").setMemberProperties({"email": "deduplicate@belleville.eb"})
 
         # Test mail in sent or to_be_signed states
@@ -1079,12 +1109,13 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
 
     def test_i_annex_added_signers_template_first(self):
         # In "template_first" mode, signers stay empty until the first template generation. When an
-        # appendix (dmsappendixfile) is added before any template, the signer rules are applied here.
+        # appendix or a manual main file is added before any template, the signer rules are applied here.
         rk_so = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin"
         rk_osr = "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signer_rules"
         dirg_hp = self.pf["dirg"]["directeur-general"]
         bourgmestre_hp = self.pf["bourgmestre"]["bourgmestre"]
         api.portal.set_registry_record(rk_so, u"template_first")
+        original_rules = api.portal.get_registry_record(rk_osr)
         omail = sub_create(
             self.omf,
             "dmsoutgoingmail",
@@ -1127,6 +1158,23 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         createContentInContainer(omail2, "dmsappendixfile", id="appendix1", title="Appendix 1")
         self.assertEqual(omail2.signers, [{"number": 1, "signer": u"_empty_", "editor": False,
                                            "approvings": [u"_empty_"]}])
+
+        # a manually added main file (not generated from a template) applies the signer rules too
+        api.portal.set_registry_record(rk_osr, original_rules)
+        omail3 = sub_create(
+            self.omf,
+            "dmsoutgoingmail",
+            datetime.now(),
+            "mainfile-tf-id3",
+            title="Main File First Test 3",
+            description="Description",
+            send_modes=["post"],
+            treating_groups=self.pgof["direction-generale"].UID(),
+            mail_type="courrier",
+        )
+        self.assertFalse(omail3.signers)
+        createContentInContainer(omail3, "dmsommainfile", id="main1", title="Main 1")
+        self.assertEqual([s["signer"] for s in omail3.signers], [dirg_hp.UID(), bourgmestre_hp.UID()])
 
     def test_dmsoutgoingmail_modified_signer_substitutes(self):
         dirg = self.pf["dirg"]
@@ -1328,6 +1376,23 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
             },
         )
         # we remove a signer
+        omail.signers = [{"signer": bourg_hp.UID(), "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        modified(omail, Attributes(ISigningBehavior, "ISigningBehavior.signers"))
+        annot = OMApprovalAdapter(omail).annot
+        self.assertEqual(annot["signers"], [("bourgmestre", u"Paul BM", u"Bourgmestre")])
+        self.assertEqual(annot["approvers"], [[]])
+        self.assertEqual(annot["editors"], [False])
+        # we remove all signers: the annotation must be resynced, not keep the previous approvers.
+        # "template_first" avoids the "rules" mode _empty_ placeholder, so signers really stay empty.
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_signers_origin", u"template_first"
+        )
+        omail.signers = []
+        modified(omail, Attributes(ISigningBehavior, "ISigningBehavior.signers"))
+        annot = OMApprovalAdapter(omail).annot
+        self.assertEqual(annot["signers"], [])
+        self.assertEqual(annot["approvers"], [])
+        self.assertEqual(annot["editors"], [])
 
     def _setup_omail_with_esign(self):
         """Helper to create an outgoing mail with esign approval and files."""
@@ -1398,6 +1463,74 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         approval.approve_file(files[1], "bourgmestre", transition="propose_to_be_signed")
         approval.approve_file(files[0], "bourgmestre", transition="propose_to_be_signed")
 
+    def test_sign_approve_before_transition(self):
+        """Both entry transitions (propose_to_approve / propose_to_be_signed) raise Invalid while a
+        file has an invalid sign/approve combination; other transitions are never blocked; and the
+        process proceeds once every file is valid again."""
+        omail, files, approval = self._setup_omail_with_esign()
+        pw = self.portal.portal_workflow
+        # two invalid combinations: eligible-but-not-approved, and approved-but-not-to_sign
+        files[0].to_sign, files[0].to_approve = True, False
+        files[1].to_sign, files[1].to_approve = False, True
+        invalid = omail.approval().invalid_sign_approve_files()
+        self.assertIn(files[0], invalid)
+        self.assertIn(files[1], invalid)
+        with self.assertRaises(Invalid) as cm:
+            pw.doActionFor(omail, "propose_to_approve")
+        self.assertEqual(api.content.get_state(omail), "created")  # raised before state change
+        # the raised message lists every invalid file
+        files_listed = cm.exception.args[0].mapping["files"]
+        self.assertIn(safe_unicode(files[0].Title()), files_listed)
+        self.assertEqual(files_listed.count(u", ") + 1, len(invalid))
+        # make every file valid (to_approve must match eligibility) => transition proceeds
+        for f in omail.approval().invalid_sign_approve_files():
+            f.to_approve = approval.is_file_eligible(f)
+        self.assertEqual(omail.approval().invalid_sign_approve_files(), [])
+        pw.doActionFor(omail, "propose_to_approve")
+        self.assertEqual(api.content.get_state(omail), "to_approve")
+        # the guard covers only the two transitions: an invalid combo blocks nothing else
+        files[0].to_sign, files[0].to_approve = True, False
+        self.assertIn(files[0], omail.approval().invalid_sign_approve_files())
+        pw.doActionFor(omail, "back_to_creation")
+        self.assertEqual(api.content.get_state(omail), "created")
+        # "propose_to_be_signed" must be blocked.
+        for f in files:
+            approval.remove_file_from_approval(f.UID())
+        files[1].to_sign, files[1].to_approve = False, False  # keep files[1] valid
+        self.assertFalse(omail.has_approvings())
+        self.assertEqual(omail.approval().invalid_sign_approve_files(), [files[0]])
+        with self.assertRaises(Invalid):
+            pw.doActionFor(omail, "propose_to_be_signed")
+        self.assertEqual(api.content.get_state(omail), "created")
+
+    def test_file_added_in_to_approve(self):
+        """A file added in to_approve is neither to sign nor to approve, and an invalid file never blocks
+        the automatic post-approval transition."""
+        omail, files, approval = self._setup_omail_with_esign()
+        self.portal.portal_workflow.doActionFor(omail, "propose_to_approve")
+        approval.start_approval_process()
+        # scanned category: to_sign=True, to_approve=False by default
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-scanned-dms-file"]
+        new_file = createContentInContainer(
+            omail,
+            "dmsommainfile",
+            id="file_added",
+            scan_id="012999900000602",
+            file=NamedBlobFile("content", filename=u"added.odt"),
+            content_category=calculate_category_id(ct),
+        )
+        self.assertFalse(new_file.to_sign)
+        self.assertFalse(new_file.to_approve)
+        self.assertNotIn(new_file.UID(), approval.files_uids)
+        # an invalid combination (forced) does not block the post-approval transition
+        new_file.to_sign = True
+        self.assertIn(new_file, omail.approval().invalid_sign_approve_files())
+        approval.approve_file(files[0], "dirg", transition="propose_to_be_signed")
+        approval.approve_file(files[1], "dirg", transition="propose_to_be_signed")
+        approval.approve_file(files[1], "bourgmestre", transition="propose_to_be_signed")
+        approval.approve_file(files[0], "bourgmestre", transition="propose_to_be_signed")
+        self.assertEqual(api.content.get_state(omail), "to_be_signed")
+
     def test_i_annex_removed_pdf_file(self):
         """Test i_annex_removed Case 1: removing a generated PDF removes it from approval."""
         omail, files, approval = self._setup_omail_with_esign()
@@ -1424,6 +1557,22 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertNotIn(pdf_uid, [uid for lst in approval.pdf_files_uids for uid in lst])
         # Source file stays in approval (Case 1 only removes the PDF, not the source)
         self.assertIn(files[0].UID(), approval.files_uids)
+        self.assertIn(files[1].UID(), approval.files_uids)
+
+    def test_i_annex_removed_pdf_file_not_in_session(self):
+        """Test i_annex_removed Case 3: removing a generated PDF that is no longer in a session
+        still removes it from approval."""
+        omail, files, approval = self._setup_omail_with_esign()
+        self._approve_all_files(omail, files, approval)
+        pdf_uid = approval.pdf_files_uids[1][0]
+        pdf_obj = uuidToObject(pdf_uid)
+        remove_files_from_session([pdf_uid])
+        self.assertNotIn(pdf_uid, get_session_annotation()["uids"])
+        self.assertIn(pdf_uid, approval.pdf_files_uids[1])
+
+        event = ObjectRemovedEvent(pdf_obj, omail, pdf_obj.getId())
+        i_annex_removed(pdf_obj, event)
+        self.assertNotIn(pdf_uid, [uid for lst in approval.pdf_files_uids for uid in lst])
         self.assertIn(files[1].UID(), approval.files_uids)
 
     def test_i_annex_removed_pdf_file_not_draft(self):
@@ -1594,15 +1743,17 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.user.delete, username="scanner")
         smi = IStatusMessage(request)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'scanner'.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer l'utilisateur 'scanner'.")
         # having group
         self.assertRaises(Redirect, api.user.delete, "lecteur")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'lecteur', used in following groups.")
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer l'utilisateur 'lecteur', utilisé dans les groupes.")
         # is used in content
         self.assertRaises(Redirect, api.user.delete, username=TEST_USER_ID)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'test_user_1_', used in 'Creator' index.")
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer l'utilisateur 'test_user_1_', utilisé dans l'index 'Auteur'.")
         # is used as person user_id
         api.user.create("test@test.be", "testuser", "Password#1")
         agent = self.portal.contacts["personnel-folder"]["agent"]
@@ -1610,7 +1761,8 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         agent.reindexObject()
         self.assertRaises(Redirect, api.user.delete, username="testuser")
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the user name 'testuser', used in 'userid' index.")
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer l'utilisateur 'testuser', utilisé dans l'index 'userid'.")
 
     def test_group_deleted(self):
         request = self.portal.REQUEST
@@ -1618,14 +1770,15 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.assertRaises(Redirect, api.group.delete, groupname="expedition")
         smi = IStatusMessage(request)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group 'expedition'.")
+        self.assertEqual(msgs[0].message, u"Vous ne pouvez pas effacer le groupe 'expedition'.")
         # is used in content
         group = "%s_editeur" % get_registry_organizations()[0]
         # we remove this organization to escape plonegroup subscriber
         set_registry_organizations(get_registry_organizations()[1:])
         self.assertRaises(Redirect, api.group.delete, groupname=group)
         msgs = smi.show()
-        self.assertEqual(msgs[0].message, u"You cannot delete the group '%s', used in 'Assigned group' index." % group)
+        self.assertEqual(msgs[0].message,
+                         u"Vous ne pouvez pas effacer le groupe '%s', utilisé dans l'index 'Groupe assigné'." % group)
 
     def test_group_assignment(self):
         self.portal.ok = True
@@ -1766,12 +1919,38 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
         self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
         self.assertEqual(ISignRequestApproval(request).current_nb, 0)
 
+    def test_sign_request_transition_seal(self):
+        request, _files = create_sign_request(self.portal, oid="sr-seal", nb_files=1)
+        event = Mock()
+        event.transition.id = "propose_to_be_signed"
+        # seal with real signers: the session is created after approvals
+        request.seal = True
+        with patch("imio.dms.mail.subscribers.start_seal_session") as mock_start:
+            sign_request_transition(request, event)
+            mock_start.assert_not_called()
+        # seal only: the files go directly to a seal session
+        request.signers = []
+        with patch("imio.dms.mail.subscribers.start_seal_session") as mock_start:
+            sign_request_transition(request, event)
+            mock_start.assert_called_once()
+
     def test_sign_request_modified(self):
         request, _files = create_sign_request(self.portal, oid="sr-mod", nb_files=0)
         request.signers = [{"number": 1, "signer": self.pf["bourgmestre"]["bourgmestre"].UID(),
                             "approvings": [u"_themself_"], "editor": True}]
         modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
         self.assertEqual(ISignRequestApproval(request).annot["approvers"], [["bourgmestre"]])
+        # removing all signers resyncs the annotation instead of keeping the previous approvers.
+        # Rules are emptied first, otherwise they would recompute signers.
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.request_signer_rules", []
+        )
+        request.signers = []
+        modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
+        annot = ISignRequestApproval(request).annot
+        self.assertEqual(annot["signers"], [])
+        self.assertEqual(annot["approvers"], [])
+        self.assertEqual(annot["editors"], [])
 
     def test_sign_request_modified_duplicate_email(self):
         request, _files = create_sign_request(self.portal, oid="sr-dup", nb_files=0)

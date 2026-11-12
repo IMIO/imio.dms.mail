@@ -356,8 +356,23 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         }
         errors = invariants.validate(data)
         self.assertTrue(isinstance(errors[0], Invalid))
-        error_msg = u"Vous ne pouvez pas avoir de cachet et de signataire sans cocher 'Signature élec.' !"
-        self.assertEqual(_tr(errors[0].message), error_msg)
+        self.assertEqual(errors[0].message, u"A seal can only be used with electronic signature !")
+
+        # Test seal only (no real signer): esign is required, but no approvings
+        empty_signers = [{"signer": u"_empty_", "approvings": [u"_empty_"], "number": 1, "editor": False}]
+        errors = invariants.validate({"signers": empty_signers, "esign": False, "seal": True})
+        self.assertEqual(errors[0].message, u"A seal can only be used with electronic signature !")
+        errors = invariants.validate({"signers": None, "esign": False, "seal": True})
+        self.assertEqual(errors[0].message, u"A seal can only be used with electronic signature !")
+        self.assertEqual(invariants.validate({"signers": empty_signers, "esign": True, "seal": True}), ())
+        # esign needs real signers or a seal, except when the signers grid is still empty (not yet defined)
+        errors = invariants.validate({"signers": empty_signers, "esign": True, "seal": False})
+        self.assertEqual(errors[0].message, u"An electronic signature needs at least one real signer or a seal !")
+        self.assertEqual(invariants.validate({"signers": None, "esign": True, "seal": False}), ())
+
+        # Test seal with real signers and esign
+        data["esign"] = True
+        self.assertEqual(invariants.validate(data), ())
 
         # Test edit signers
         data = {
@@ -382,7 +397,18 @@ class TestBehaviors(unittest.TestCase, ImioTestHelpers):
         self.change_user("siteadmin")
         self.pw.doActionFor(omail, "propose_to_approve")
         self.change_user("dirg")
+        # unchanged form: stored seal is None, submitted one is False
+        self.assertIsNone(omail.seal)
         errors = invariants.validate(data)
+        self.assertEqual(errors, ())
+
+        # same with esign and signers never set on the mail
+        omail.esign = omail.seal = omail.signers = None
+        errors = invariants.validate({"signers": [], "esign": False, "seal": False})
+        self.assertEqual(errors, ())
+
+        # a real modification is still refused
+        errors = invariants.validate({"signers": [], "esign": True, "seal": False})
         self.assertTrue(isinstance(errors[0], Invalid))
         error_msg = (u"Vous ne pouvez pas modifier les signataires une fois le processus d'approbation commencé ou "
                      u"terminé. Revenez dans un état précédent ou demandez à votre référent.")

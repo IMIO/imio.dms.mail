@@ -24,6 +24,8 @@ from collective.documentgenerator.utils import odfsplit
 from collective.documentgenerator.utils import update_dict_with_validation
 from collective.documentviewer.convert import Converter
 from collective.iconifiedcategory.adapter import CategorizedObjectInfoAdapter
+from collective.iconifiedcategory.adapter import CategorizedObjectPrintableAdapter
+from collective.iconifiedcategory.utils import get_categorized_elements
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.task.interfaces import ITaskContent
@@ -46,6 +48,7 @@ from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import is_dv_conv_in_error
 from imio.dms.mail.utils import logger
+from imio.esign.adapters import DefaultItemOrderProvider
 from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
 from imio.esign.utils import add_files_to_session
@@ -64,6 +67,7 @@ from imio.helpers.workflow import do_transitions
 from imio.pm.wsclient.interfaces import ISendableAnnexesToPM
 from imio.prettylink.adapters import PrettyLinkAdapter
 from imio.zamqp.core.utils import next_scan_id
+from natsort import natsorted
 from persistent.list import PersistentList
 from persistent.mapping import PersistentMapping
 from plone import api
@@ -1175,6 +1179,61 @@ class ItemSignersAdapter(SignableAdapter):
         #         yield sub_content.UID()
 
 
+class BaseItemOrderProvider(DefaultItemOrderProvider):
+    """Orders items by their position in the context container.
+
+    Canonical file order: types are grouped in `portal_types` order.
+    Files are naturally sorted on their title.
+    Types in `newest_first` are ordered by container position, reversed.
+    The pdf files converted from the same file (`conv_from_uid`, one by recipient for a mailed document) are grouped
+    at the position of the newest one and keep their title order.
+    """
+
+    portal_types = ()
+    newest_first = ()
+
+    def get_item_order(self):
+        ids = self.context.objectIds()  # container order: the last one is the newest
+        order = {}
+        # each portal_type is a block, following the previous one
+        for portal_type in self.portal_types:
+            elements = natsorted(
+                get_categorized_elements(self.context, portal_type=portal_type),
+                key=lambda elt: safe_unicode(elt["title"]).lower(),
+            )
+            if portal_type in self.newest_first:
+                # the pdf files converted from the same file (one by recipient for a mailing) form a group,
+                # their source stays alone. Any other file is a group by itself.
+                def group(elt):
+                    return elt.get("conv_from_uid") and ("conv", elt["conv_from_uid"]) or elt["UID"]
+
+                newest = {}  # position of the newest file of each group
+                for elt in elements:
+                    newest[group(elt)] = max(newest.get(group(elt), -1), ids.index(elt["id"]))
+                # newest group first. The sort is stable: files of a group keep their title order
+                elements = sorted(elements, key=lambda elt: -newest[group(elt)])
+            base = len(order)
+            order.update({elt["UID"]: base + idx for idx, elt in enumerate(elements)})
+        return order
+
+
+class IMItemOrderProvider(BaseItemOrderProvider):
+
+    portal_types = ("dmsmainfile", "dmsappendixfile")
+    newest_first = ("dmsmainfile",)
+
+
+class OMItemOrderProvider(BaseItemOrderProvider):
+
+    portal_types = ("dmsommainfile", "dmsappendixfile")
+    newest_first = ("dmsommainfile",)
+
+
+class SignRequestItemOrderProvider(BaseItemOrderProvider):
+
+    portal_types = ("dmsappendixfile",)
+
+
 @implementer(ILocalRoleProvider)
 class ApprovalRoleAdapter(object):
     """borg.localrole adapter to set localrole for signing approvers and signers"""
@@ -1301,6 +1360,29 @@ class ApprovalAdapter(object):
         for i_approvers in self.annot["approvers"]:
             approvers = approvers.union(set(i_approvers))
         return list(approvers)
+
+    def is_file_eligible(self, file_obj):
+        """Whether a file should be approved when the mail has approvers (not checked here!): it is
+        to_sign and not exempt (a pdf conversion or a mailing file, which may be signed without approval).
+
+        Single source of truth shared by ``_correct_to_approve`` (setter) and
+        ``invalid_sign_approve_files`` (checker) so they cannot drift.
+        """
+        return bool(
+            getattr(file_obj, "to_sign", False)
+            and not base_hasattr(file_obj, "conv_from_uid")
+            and not getattr(file_obj, "need_mailing", False)
+        )
+
+    def invalid_sign_approve_files(self):
+        """Return the context files whose (to_sign, to_approve) combination is invalid."""
+        if not self.approvers:
+            return []
+        return [
+            f for f in self.context.objectValues()
+            if f.portal_type in ("dmsommainfile", "dmsappendixfile")
+            and bool(getattr(f, "to_approve", False)) != self.is_file_eligible(f)
+        ]
 
     @property
     def current_nb(self):
@@ -2070,3 +2152,13 @@ class DmsCategorizedObjectInfoAdapter(CategorizedObjectInfoAdapter):
         base_infos["conv_from_uid"] = getattr(self.obj, "conv_from_uid", None)
         base_infos["esigned"] = getattr(self.obj, "esigned", False)
         return base_infos
+
+
+class DmsAppendixFilePrintableAdapter(CategorizedObjectPrintableAdapter):
+    """Only a pdf appendix file can be printed: it is concatenated as is when exporting to pdf."""
+
+    @property
+    def is_printable(self):
+        if getattr(self.context.file, "contentType", None) != "application/pdf":
+            return False
+        return super(DmsAppendixFilePrintableAdapter, self).is_printable

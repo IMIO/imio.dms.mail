@@ -44,6 +44,7 @@ from imio.helpers.security import check_zope_admin
 from imio.helpers.security import separate_fullname
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
+from imio.pyutils.utils import is_true_value
 from interfaces import IIMDashboard
 from natsort import natsorted
 from operator import attrgetter
@@ -118,6 +119,12 @@ dms_config
     ('from_states' est une valeur spéciale qui représente les transitions stockées dans from_states)
 * ['approvings'] : [user1, user2, ...] : liste des approbateurs configurés (pour test affichage collection)
 """
+
+
+def must_defer_security_update():
+    """DEFER_SECURITY_UPDATE env var: skip security update on existing content, to be done in a separate batch
+    with scripts/run-reindex-security.py"""
+    return is_true_value(os.environ.get("DEFER_SECURITY_UPDATE"))
 
 
 def add_remove_values_in_registry_list(record_name, to_add=(), to_remove=(), order=None):
@@ -951,21 +958,25 @@ class VariousUtilsMethods(UtilsMethods):
             "portal_type": "dmsmainfile",
             "sort_on": "scan_id",
             "sort_order": "descending",
-            "sort_limit": limit,
         }
-        if typ == "im":
-            criterias["id"] = {"not": "email.pdf"}
-        elif typ == "iem":
-            criterias["id"] = "email.pdf"
-        elif typ == "om":
+        # incoming email files are named as incoming mail ones: only the parent type discriminates them,
+        # hence no sort_limit (an index would be needed if this gets slow)
+        parent_type = {"im": "dmsincomingmail", "iem": "dmsincoming_email"}.get(typ)
+        if typ == "om":
             criterias["portal_type"] = "dmsommainfile"
-        brains = pc.unrestrictedSearchResults(**criterias)[:limit]
-        for brain in brains:
+            criterias["sort_limit"] = limit
+        found = 0
+        for brain in pc.unrestrictedSearchResults(**criterias):
             obj = brain._unrestrictedGetObject()
             mail = obj.getParentNode()
+            if parent_type and mail.portal_type != parent_type:
+                continue
             out.append(
                 u"{} ({}) in {} ({})".format(obj.scan_id, obj.version, mail.internal_reference_no, object_link(mail))
             )
+            found += 1
+            if found >= limit:
+                break
         sep = u"\n<br />"
         return sep.join(out)
 
@@ -1685,6 +1696,23 @@ def update_approvers_settings():
         set_dms_config(["approvings"], approvings)
 
 
+def has_real_signers(signers):
+    """Tell if signers contains at least one signer other than the _empty_ placeholder."""
+    return any(s["signer"] != u"_empty_" for s in signers or [])
+
+
+def has_signing_values(obj):
+    """Tell if obj (content or template) defines a signing configuration: signers or a seal."""
+    return bool(getattr(obj, "signers", None) or getattr(obj, "seal", False))
+
+
+def is_esign(obj):
+    """Tell if obj (or form data) is signed electronically: by its signers or by a seal.
+    A seal requires now esign, but seal is also checked to cover objects created before that constraint.
+    """
+    return bool(getattr(obj, "esign", False) or getattr(obj, "seal", False))
+
+
 def get_allowed_content_types(esign=False, portal_type=None):
     """Get allowed configured content types.
 
@@ -1695,7 +1723,7 @@ def get_allowed_content_types(esign=False, portal_type=None):
     ct_by_type = {
         "pdf": ("application/pdf",),
         "odt": ("application/vnd.oasis.opendocument.text",),
-        "doc": ("application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"),
+        "docx": ("application/vnd.openxmlformats-officedocument.wordprocessingml.document",),
     }
     if portal_type == "sign_request":
         key = "request_esign_formats"

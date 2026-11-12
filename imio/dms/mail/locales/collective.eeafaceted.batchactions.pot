@@ -17,6 +17,10 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: collective.eeafaceted.batchactions\n"
 
+#. Default: "<p>This will concatenate selected annex types PDF annexes of selected items into one single PDF file with a limit of <strong>${max_size}</strong>. If your PDF file is too large you will have a message, in this case select less elements and download it separately.<p>"
+msgid "concatenate_annexes_batch_action_descr"
+msgstr ""
+
 #. Default: "Change state"
 msgid "copy-to-batch-action-but"
 msgstr ""
@@ -27,6 +31,14 @@ msgstr ""
 
 #. Default: "Change outgoing date"
 msgid "outgoingdate-batch-action-but"
+msgstr ""
+
+#. Default: "PDF elec. sign."
+msgid "export-to-pdf-after-signature-batch-action-but"
+msgstr ""
+
+#. Default: "PDF wet sign."
+msgid "export-to-pdf-before-signature-batch-action-but"
 msgstr ""
 
 #. Default: "Change recipient groups"

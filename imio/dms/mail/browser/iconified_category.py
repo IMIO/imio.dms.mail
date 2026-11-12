@@ -7,8 +7,10 @@ from collective.iconifiedcategory.browser.actionview import ApprovedChangeView a
 from collective.iconifiedcategory.browser.actionview import SignedChangeView as BaseSignedChangeView
 from collective.iconifiedcategory.browser.tabview import ApprovedColumn as BaseApprovedColumn
 from collective.iconifiedcategory.browser.tabview import SignedColumn as BaseSignedColumn
+from imio.dms.mail import _
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import logger  # noqa F401
+from imio.dms.mail.utils import is_esign
 # from imio.esign.audit import audit as esign_audit
 from plone import api
 from plone.memoize.interfaces import ICacheChooser
@@ -31,6 +33,26 @@ from zope.i18n import translate
 """  # noqa
 
 
+def _add_client_hints(json_resp, view):
+    """Append client-side action hints to the JSON response.
+
+    ``reload`` -> full page reload
+    ``refresh_context_messages`` -> AJAX-refresh the context messages
+    """
+    if getattr(view, "reload", False):
+        hints = ['"reload": true']
+    else:
+        hints = []
+        if getattr(view, "refresh_context_messages", False):
+            hints.append('"refresh_context_messages": true')
+    if not hints:
+        return json_resp
+    resp = json_resp.rstrip()
+    if resp.endswith("}"):
+        return resp[:-1] + "," + ",".join(hints) + "}"
+    return json_resp
+
+
 class ApprovedColumn(BaseApprovedColumn):
 
     def __init__(self, context, request, table):
@@ -42,7 +64,7 @@ class ApprovedColumn(BaseApprovedColumn):
     def alt(self, content):
         return translate(
             self.msg,
-            context=self.table.request,
+            context=self.request,
             domain="collective.iconifiedcategory",
         )
 
@@ -58,7 +80,7 @@ class ApprovedColumn(BaseApprovedColumn):
         if self.approval.is_state_before_approve(state=state):  # state < to_approve
             # to-approve class is used when state is prior to to_approve
             if self.is_deactivated(content):  # to_approve is False
-                if (not self.approval.approvers or not content.to_sign or not editable or  # noqa W504
+                if (not self.approval.approvers or not editable or  # noqa W504
                         need_mailing_value(document=content.getObject())):
                     self.msg = u"Deactivated for approval"
                     return " to-approve "
@@ -131,8 +153,9 @@ class ApprovedChangeView(BaseApprovedChangeView):
         self.approval = self.parent.approval()
         self.uid = self.context.UID()
         self.msg = u""
-        self.reload = False
+        self.reload = False  # full page reload
         self.could_reload = False
+        self.refresh_context_messages = False  # AJAX: refresh the warning banner
 
     @property
     def p_state(self):
@@ -215,20 +238,18 @@ class ApprovedChangeView(BaseApprovedChangeView):
         status, values = self._get_next_values(old_values)
         super(BaseApprovedChangeView, self).set_values(values)
         if self.could_reload:
-            # new_approval_status = self.parent.has_approvings()
-            new_approval_status = self.parent.has_approvings()
-            if old_approval_status != new_approval_status:
+            if old_approval_status != self.parent.has_approvings():
                 cache_chooser = getUtility(ICacheChooser)
                 the_cache = cache_chooser("imio.dms.mail.browser.actionspanel.DmsOMActionsPanelView__call__")
                 the_cache.ramcache.invalidate("imio.dms.mail.browser.actionspanel.DmsOMActionsPanelView__call__")
                 self.reload = True
+            else:
+                self.refresh_context_messages = True
         return status, self.msg
 
     def __call__(self):
         json_resp = super(ApprovedChangeView, self).__call__()
-        if self.reload and json_resp.rstrip().endswith("}"):
-            json_resp = json_resp.rstrip()[:-1] + ',"reload": true}'
-        return json_resp
+        return _add_client_hints(json_resp, self)
 
 
 class SignedColumn(BaseSignedColumn):
@@ -236,13 +257,18 @@ class SignedColumn(BaseSignedColumn):
     # workflow states at or after "to_approve" (i.e. the "created" free-edit phase is over)
     after_creation_states = ("to_approve", "to_print", "to_be_signed", "signed", "sent")
     # states where the file can still be (un)marked as signed
-    mark_signed_states = ("to_be_signed", "signed")
+    mark_signed_states = ("to_be_signed", )
     # states where the icon must not be clickable anymore
     disabled_url_states = ("to_approve", "signed", "sent")
 
     def __init__(self, context, request, table):
         super(SignedColumn, self).__init__(context, request, table)
         # self.context is the mail here
+
+    def alt(self, content):
+        if getattr(content, "esigned", False):
+            return translate(_(u"Element is electronically signed"), context=self.request)
+        return super(SignedColumn, self).alt(content)
 
     def css_class(self, content):
         av = self.get_action_view(content)
@@ -251,7 +277,7 @@ class SignedColumn(BaseSignedColumn):
         # permission: View
         # category group : signed_activated
         # allowed file type for signing
-        allowed_type = (not getattr(self.context, "esign", False)
+        allowed_type = (not is_esign(self.context)
                         or content.contentType in get_allowed_content_types(
                             esign=True, portal_type=self.context.portal_type))
         editable = allowed_type and self.is_editable(content) and " editable" or ""
@@ -263,8 +289,7 @@ class SignedColumn(BaseSignedColumn):
                     return " deactivated "
                 else:
                     return " deactivated editable"
-            # we don't want to unset to_sign if to_approve is True
-            elif editable and (not content.to_sign or not content.to_approve):
+            elif editable:
                 return " editable"
             else:
                 return ""
@@ -272,15 +297,16 @@ class SignedColumn(BaseSignedColumn):
             return " deactivated"
         else:  # state >= to_approve and to_sign is True
             base_css = self.is_active(content) and ' active' or ''  # signed is True ?
+            if getattr(content, "esigned", False):  # electronically signed: purple icon, not editable
+                return '{0} esigned'.format(base_css)
             if av.p_state in self.mark_signed_states:
-                # we don't want to unset to_sign if to_approve is True
-                if editable and (not content.to_sign or not content.to_approve):
+                if editable:
                     return '{0} editable'.format(base_css)
             return base_css
 
     def get_url(self, content):
         av = self.get_action_view(content)
-        if av.p_state in self.disabled_url_states:
+        if av.p_state in self.disabled_url_states or getattr(content, "esigned", False):
             return "#"
         return '{url}/@@{action}'.format(
             url=content.getURL(),
@@ -302,6 +328,7 @@ class SignedChangeView(BaseSignedChangeView):
         super(SignedChangeView, self).__init__(context, request)
         self.parent = self.context.__parent__
         self.reload = False
+        self.refresh_context_messages = False
 
     @property
     def p_state(self):
@@ -324,7 +351,7 @@ class SignedChangeView(BaseSignedChangeView):
                 values['signed'] = False
                 status = -1
 #                esign_audit("disable_to_sign", "mail={} file={}".format(self.parent.UID(), self.context.UID()))
-            self.reload = True
+            self.refresh_context_messages = True
         elif old_values['to_sign'] and self.p_state in ("to_be_signed", "signed"):
             if old_values['signed'] is False:
                 values['to_sign'] = True
@@ -340,12 +367,10 @@ class SignedChangeView(BaseSignedChangeView):
         return status, values
 
     def _may_set_values(self, values):
-        if self.p_state in ("to_approve", "to_print", "sent"):
+        if self.p_state in ("to_approve", "to_print", "sent") or getattr(self.context, "esigned", False):
             return False
         return super(SignedChangeView, self)._may_set_values(values)
 
     def __call__(self):
         json_resp = super(SignedChangeView, self).__call__()
-        if self.reload and json_resp.rstrip().endswith("}"):
-            json_resp = json_resp.rstrip()[:-1] + ',"reload": true}'
-        return json_resp
+        return _add_client_hints(json_resp, self)

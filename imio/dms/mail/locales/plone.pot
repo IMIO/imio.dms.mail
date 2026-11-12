@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-07-14 09:27+0000\n"
+"POT-Creation-Date: 2026-10-15 09:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,6 +31,10 @@ msgstr ""
 
 #: profiles/default/workflows/active_inactive_workflow/definition.xml
 msgid "Active"
+msgstr ""
+
+#: profiles/default/types/dmsoutgoingmail.xml
+msgid "Annotation info"
 msgstr ""
 
 #: profiles/default/sharing.xml
@@ -77,6 +81,14 @@ msgstr ""
 msgid "DmsMainFile"
 msgstr ""
 
+#: profiles/default/types/dmsoutgoingmail.xml
+msgid "Export to PDF after signature"
+msgstr ""
+
+#: profiles/default/types/dmsoutgoingmail.xml
+msgid "Export to PDF before signature"
+msgstr ""
+
 #: profiles/default/sharing.xml
 msgid "IM Field Writer"
 msgstr ""
@@ -115,6 +127,10 @@ msgstr ""
 
 #: profiles/default/workflows/internal_application_workflow/definition.xml
 msgid "Making an item private means that it will not be visible to anyone but the owner and the site administrator."
+msgstr ""
+
+#: profiles/default/types/dmsoutgoingmail.xml
+msgid "Manage approvals"
 msgstr ""
 
 #: profiles/default/types/member_area.xml

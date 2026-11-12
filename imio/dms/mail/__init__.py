@@ -86,6 +86,7 @@ GE_CONFIG = {  # group_encoder config
     "contact_group_encoder": {"pt": ["organization", "person", "held_position", "contact_list"], "idx": None},
 }
 DV_AVOIDED_TYPES = ("ContentCategory",)  # not used now (subscriber disabled: used default_view instead)
+GENERATED_SIGNING_KEY = "dmsmail.generated_signing"
 
 
 def _tr(msgid, domain="imio.dms.mail", mapping=None):

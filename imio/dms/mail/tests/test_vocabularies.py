@@ -78,12 +78,12 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(
             voc_list,
             [
-                ("created", u"Created"),
-                ("to_assign", u"To assign"),
-                ("to_do", u"To do"),
-                ("in_progress", u"In progress"),
-                ("realized", u"Realized"),
-                ("closed", u"Closed"),
+                ("created", u"En création"),
+                ("to_assign", u"À assigner"),
+                ("to_do", u"À faire"),
+                ("in_progress", u"En cours"),
+                ("realized", u"Réalisé"),
+                ("closed", u"Clôturé"),
             ],
         )
 
@@ -283,8 +283,10 @@ class TestVocabularies(unittest.TestCase, ImioTestHelpers):
     def test_encodeur_active_orgs0(self):
         factory = getUtility(IVocabularyFactory, u"collective.dms.basecontent.treating_groups")
         all_titles = [t.title for t in factory(self.omail)]
-        # expedition group or Manager
+        # expedition group, dir_general group or Manager
         self.change_user("encodeur")
+        self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
+        self.change_user("dirg")
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)
         self.change_user("admin")
         self.assertListEqual([t.title for t in encodeur_active_orgs(self.omail)], all_titles)

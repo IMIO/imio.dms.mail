@@ -527,6 +527,35 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
             view = VariousUtilsMethods(obj, obj.REQUEST)
             self.assertFalse(view.is_unprotected(), "obj {} is unprotected !!".format(obj.absolute_url_path()))
 
+    def test_VariousMethods_list_last_scan(self):
+        # both types of files are named "<scan_id>.pdf": only the parent type discriminates them
+        im = sub_create(self.imf, "dmsincomingmail", datetime.now(), "im-scan", internal_reference_no=u"E9990")
+        iem = sub_create(self.imf, "dmsincoming_email", datetime.now(), "iem-scan", internal_reference_no=u"E9991")
+        for mail, scan_id in ((im, u"0109999000009991"), (iem, u"01Z9999000009991")):
+            filename = u"{}.pdf".format(scan_id)
+            createContentInContainer(
+                mail,
+                "dmsmainfile",
+                title=filename,
+                file=NamedBlobFile("", filename=filename),
+                scan_id=scan_id,
+                scan_date=datetime.now(),
+            )
+        obj = self.portal
+        view = VariousUtilsMethods(obj, obj.REQUEST)
+        self.assertIsNone(view.list_last_scan())  # reserved to the zope admin
+        self.change_user("admin")
+        out = view.list_last_scan(typ="im")
+        self.assertIn(u"0109999000009991", out)
+        self.assertNotIn(u"01Z9999000009991", out)
+        self.assertIn(u"E9990", out)
+        out = view.list_last_scan(typ="iem")
+        self.assertIn(u"01Z9999000009991", out)
+        self.assertNotIn(u"0109999000009991", out)
+        self.assertIn(u"E9991", out)
+        # nb limits the number of listed files (5 header lines)
+        self.assertEqual(len(view.list_last_scan(typ="iem", nb="1").split(u"\n<br />")), 6)
+
     def test_VariousMethods_pg_organizations(self):
         obj = self.portal
         view = VariousUtilsMethods(obj, obj.REQUEST)

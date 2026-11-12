@@ -888,7 +888,7 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
             if do_approve:
                 _approve_item(mail)
 
-    # Case 4: seal seul (pas de signataire, pas d'esign) + modèle
+    # Case 4: seal seul (pas de signataire, esign obligatoire avec un seal) + modèle
     if "4" in cases:
         params = dict(base_params)
         params.update({
@@ -896,7 +896,7 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
             "signers": [{"number": 1, "signer": u"_empty_", "approvings": [u"_empty_"], "editor": False}],
 
             "seal": True,
-            "esign": False,
+            "esign": True,
         })
         base_title = params["title"]
         for _m in range(mnb):

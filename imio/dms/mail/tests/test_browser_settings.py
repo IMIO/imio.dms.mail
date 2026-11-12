@@ -20,6 +20,7 @@ from imio.dms.mail.content.behaviors import default_creating_group
 from imio.dms.mail.Extensions.demo import activate_group_encoder
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
 from plone.app.testing import logout
@@ -32,6 +33,8 @@ from zope.i18n import ITranslationDomain
 from zope.interface import Invalid
 from zope.schema.interfaces import IVocabularyFactory
 
+import mock
+import os
 import unittest
 
 
@@ -188,6 +191,26 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         errors = invariants.validate({"omail_signer_rules": [
             self._omail_rule(signer=signer), self._omail_rule(signer=signer)]})
         self.assertTrue(isinstance(errors[0], Invalid))
+        # g) the same approver handles two signer numbers
+        dirg_uid = pf["dirg"]["directeur-general"].get_person().UID()
+        rules = [
+            self._omail_rule(number=1, signer=signer, esign=True, approvings=[u"_themself_"]),
+            self._omail_rule(number=2, signer=pf["bourgmestre"]["bourgmestre"].UID(), esign=True,
+                             approvings=[u"_themself_", dirg_uid]),
+        ]
+        errors = invariants.validate({"omail_signer_rules": rules})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        self.assertIn(u"give the same approver", errors[0].message)
+        # h) disjoint mail_types: the rules cannot apply to the same mail
+        rules[0]["mail_types"] = [u"courrier"]
+        rules[1]["mail_types"] = [u"deliberation"]
+        self.assertFalse(invariants.validate({"omail_signer_rules": rules}))
+        # i) send_modes are not discriminant: a mail can carry several of them at once
+        rules[0]["mail_types"] = rules[1]["mail_types"] = []
+        rules[0]["send_modes"] = [u"post"]
+        rules[1]["send_modes"] = [u"email"]
+        errors = invariants.validate({"omail_signer_rules": rules})
+        self.assertTrue(isinstance(errors[0], Invalid))
 
     def test_request_signer_rules_validation(self):
         """Check request_signer_rules invariant validation."""
@@ -224,6 +247,32 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
             self._request_rule(signer=signer, approvings=[approving]),
             self._request_rule(signer=signer, approvings=[approving])]})
         self.assertTrue(isinstance(errors[0], Invalid))
+        # h) the same approver handles two signer numbers
+        bourgmestre_hp = pf["bourgmestre"]["bourgmestre"]
+        dirg_uid = pf["dirg"]["directeur-general"].get_person().UID()
+        rules = [
+            self._request_rule(number=1, signer=signer, approvings=[u"_themself_"]),
+            self._request_rule(number=2, signer=bourgmestre_hp.UID(), approvings=[u"_themself_", dirg_uid]),
+        ]
+        errors = invariants.validate({"request_signer_rules": rules})
+        self.assertTrue(isinstance(errors[0], Invalid))
+        self.assertIn(u"give the same approver", errors[0].message)
+        # i) same approver but the rules cannot apply to the same document
+        orgs = get_registry_organizations()
+        rules[0]["treating_groups"] = [orgs[0]]
+        rules[1]["treating_groups"] = [orgs[1]]
+        self.assertFalse(invariants.validate({"request_signer_rules": rules}))
+        # j) same number: the rules are alternatives, only the first one is applied
+        rules[0]["treating_groups"] = []
+        rules[1]["treating_groups"] = []
+        rules[1]["number"] = 1
+        self.assertFalse(invariants.validate({"request_signer_rules": rules}))
+        # k) the seal rule (number 0) is skipped by the approver check
+        rules = [
+            self._request_rule(number=0, signer=u"_seal_", approvings=[dirg_uid]),
+            self._request_rule(number=1, signer=signer, approvings=[u"_themself_"]),
+        ]
+        self.assertFalse(invariants.validate({"request_signer_rules": rules}))
 
     def test_validate_settings2(self):
         """Check invariant"""
@@ -410,10 +459,36 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         # user logout
         logout()
 
+    def _ge_security(self, imail):
+        """Return agent1 Contributor role on imail and imail catalog security for the creating group"""
+        principal = "user:{}_{}".format(imail.creating_group, CREATING_GROUP_SUFFIX)
+        brains = self.portal.portal_catalog.unrestrictedSearchResults(UID=imail.UID(), allowedRolesAndUsers=principal)
+        return "Contributor" in api.user.get_roles(username="agent1", obj=imail), len(brains) == 1
+
+    def test_configure_group_encoder_defer_security_update(self):
+        change_user(self.portal)
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(api.content.get_state(imail), "created")
+        imail.creating_group = self.portal["contacts"]["plonegroup-organization"]["evenements"].UID()
+        self.assertEqual(self._ge_security(imail), (False, False))
+        with mock.patch.dict(os.environ, {"DEFER_SECURITY_UPDATE": "1"}):
+            activate_group_encoder(self.portal)
+        fti = getUtility(IDexterityFTI, name="dmsincomingmail")
+        self.assertTrue(fti.localroles.get("creating_group"))
+        # role is given but catalog security is not updated
+        self.assertEqual(self._ge_security(imail), (True, False))
+        # request flag is restored
+        self.assertFalse(self.portal.REQUEST.get("DEFER_SECURITY_UPDATE", False))
+
     def test_configure_group_encoder(self):
         change_user(self.portal)
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(api.content.get_state(imail), "created")
+        imail.creating_group = self.portal["contacts"]["plonegroup-organization"]["evenements"].UID()
+        self.assertEqual(self._ge_security(imail), (False, False))
         # activate imail group encoder
         activate_group_encoder(self.portal)
+        self.assertEqual(self._ge_security(imail), (True, True))
         self.assertIn(CREATING_GROUP_SUFFIX, [fct["fct_id"] for fct in get_registry_functions()])
         for portal_type in ("dmsincomingmail", "dmsincoming_email"):
             fti = getUtility(IDexterityFTI, name=portal_type)

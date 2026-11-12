@@ -15,6 +15,10 @@ msgstr ""
 "Domain: collective.eeafaceted.batchactions\n"
 "X-is-fallback-for: en-au en-ca en-gb en-us\n"
 
+#. Default: "<p>This will concatenate selected annex types PDF annexes of selected items into one single PDF file with a limit of <strong>${max_size}</strong>. If your PDF file is too large you will have a message, in this case select less elements and download it separately.<p>"
+msgid "concatenate_annexes_batch_action_descr"
+msgstr "<p class='discreet'>This action allows you to group documents into a single downloadable PDF. The maximum file size for export is <strong>${max_size}</strong>. If you see a message stating that the file is too large, please select fewer items to export. Once you click «Download», please wait until the PDF file is ready.<p>"
+
 #. Default: "Change state"
 msgid "copy-to-batch-action-but"
 msgstr "Change state"
@@ -22,6 +26,14 @@ msgstr "Change state"
 #. Default: "Merge contacts"
 msgid "duplicated-batch-action-but"
 msgstr "Merge contacts"
+
+#. Default: "PDF elec. sign."
+msgid "export-to-pdf-after-signature-batch-action-but"
+msgstr "PDF elec. sign."
+
+#. Default: "PDF wet sign."
+msgid "export-to-pdf-before-signature-batch-action-but"
+msgstr "PDF wet sign."
 
 #. Default: "Change senders"
 msgid "im-sender-batch-action-but"
@@ -45,7 +57,7 @@ msgstr "Reply to all"
 
 #. Default: "Change send modes"
 msgid "send-modes-batch-action-but"
-msgstr ""
+msgstr "Change send modes"
 
 #. Default: "Change treating group"
 msgid "treatinggroup-batch-action-but"

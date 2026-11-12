@@ -16,6 +16,7 @@ from collective.dms.scanbehavior.behaviors.behaviors import IScanFields
 from collective.documentgenerator.utils import get_site_root_relative_path
 from collective.documentviewer.subscribers import handle_file_creation
 from collective.iconifiedcategory.content.events import categorized_content_created
+from collective.iconifiedcategory.interfaces import IIconifiedPrintable
 from collective.iconifiedcategory.utils import get_category_object
 from collective.iconifiedcategory.utils import update_categorized_elements
 from collective.querynextprev.interfaces import INextPrevNotNavigable
@@ -28,6 +29,7 @@ from imio.dms.mail import ARCHIVE_SITE
 from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import DV_AVOIDED_TYPES
 from imio.dms.mail import GE_CONFIG
+from imio.dms.mail import GENERATED_SIGNING_KEY
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail import IM_EDITOR_SERVICE_FUNCTIONS
 from imio.dms.mail import IM_READER_SERVICE_FUNCTIONS
@@ -36,6 +38,7 @@ from imio.dms.mail.adapters import SignRequestApprovalAdapter
 # from imio.dms.mail import MAIN_FOLDERS
 from imio.dms.mail.browser.settings import default_creating_group
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
+from imio.dms.mail.content.behaviors import check_signing_combination
 from imio.dms.mail.content.behaviors import ISigningBehavior
 from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
@@ -48,6 +51,8 @@ from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_allowed_content_types
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import has_real_signers
+from imio.dms.mail.utils import has_signing_values
 from imio.dms.mail.utils import invalidate_users_groups
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import is_in_user_groups
@@ -414,74 +419,76 @@ def dmsincomingmail_transition(mail, event):
             mail.portal_catalog.reindexObject(mail, ["assigned_user"], update_metadata=0)
 
 
+def sign_approve_before_transition(mail, event):
+    """
+    On outgoing mail and sign request, block entering the approval/signing process while a file has an invalid
+    sign/approve combination. Both entry transitions are guarded: ``propose_to_approve`` and ``propose_to_be_signed``.
+    Only checked from a state before "to_approve": the automatic post-approval transition must never fail.
+    """
+    if (
+        event.transition
+        and event.transition.id in ("propose_to_approve", "propose_to_be_signed")
+        and mail.approval().is_state_before_approve(state=event.old_state.id)
+    ):
+        invalid = mail.approval().invalid_sign_approve_files()
+        if invalid:
+            raise Invalid(
+                _(
+                    u"The following file(s) have an invalid signature/approval combination "
+                    u"(a file to be signed must also be approved, and vice versa): ${files}.",
+                    mapping={"files": u", ".join(safe_unicode(f.Title()) for f in invalid)},
+                )
+            )
+
+
+def start_seal_session(obj, approval):
+    """Add the files to sign of obj to a seal session and send it (seal without real signer)."""
+    for f in obj.values():
+        if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
+            approval.add_file_to_approval(f.UID())
+    added, msg = approval.add_mail_files_to_session()
+    api.portal.show_message(
+        message=msg,
+        request=obj.REQUEST,
+        type=added and "info" or "error",
+    )
+    if added:
+        seal_code = get_esign_registry_seal_code()
+        seal_email = get_esign_registry_seal_email()
+        if not seal_code:
+            api.portal.show_message(
+                message=_("Seal code must be defined in eSign settings before sending session"),
+                request=obj.REQUEST,
+                type="error",
+            )
+        if not seal_email:
+            api.portal.show_message(
+                message=_("Seal email must be defined in eSign settings before sending session"),
+                request=obj.REQUEST,
+                type="error",
+            )
+        if seal_code and seal_email:
+            for sid in approval.session_ids:
+                ExternalSessionCreateView(obj, obj.REQUEST)(session_id=sid)
+
+
 def dmsoutgoingmail_transition(mail, event):
     """When closing an outgoing mail, add the outgoing_date if necessary."""
     if event.transition and event.transition.id == "mark_as_sent" and mail.outgoing_date is None:
         mail.outgoing_date = datetime.datetime.now()
         # TODO must use in a second time the future imio.helpers reindex_object
         mail.portal_catalog.reindexObject(mail, idxs=("in_out_date",), update_metadata=0)
+    if event.transition and event.transition.id in ("propose_to_approve", "propose_to_be_signed"):
+        warn_outdated_generated_files(mail)
     if event.transition and event.transition.id == "propose_to_approve":
         approval = OMApprovalAdapter(mail)
         approval.start_approval_process()
-    if not mail.esign:
-        # if not mail.seal, we render odt to remove download subdocument comment
-        # if (
-        #     not mail.seal
-        #     and event.transition
-        #     and event.transition.id in ("set_validated", "set_to_print", "propose_to_be_signed", "mark_as_sent")
-        # ):
-        #     for afile in object_values(mail, ("ImioDmsFile",)):
-        #         doc_annot = IAnnotations(afile).get("documentgenerator", {})
-        #         # if not a generated odt (or needing mailing) or already done, we pass
-        #         if doc_annot.get("need_mailing", True) is True or doc_annot.get("cleaned_download") is True:
-        #             continue
-        #         helper_view = getMultiAdapter((mail, mail.REQUEST), name="document_generation_helper_view")
-        #         helper_view.pod_template = doc_annot.get("template_uid")
-        #         helper_view.output_format = "odt"
-        #         gen_context = {
-        #             "context": mail,
-        #             "portal": api.portal.get(),
-        #             "view": helper_view,
-        #             "render_download_barcode": True,
-        #         }
-        #         new_file_content = convert_odt(afile.file, fmt="odt", gen_context=gen_context)
-        #         afile.file = NamedBlobFile(new_file_content, filename=afile.file.filename)
-        #         modified(afile, Attributes(ImioDmsFile, "file"))
-        #         doc_annot["cleaned_download"] = True
 
-        # seal without signers (due to constraints)
-        if mail.seal and event.transition and event.transition.id == "propose_to_be_signed":
-            approval = OMApprovalAdapter(mail)
-            for f in mail.values():
-                if f.portal_type in ("dmsommainfile", "dmsappendixfile") and f.to_sign:
-                    approval.add_file_to_approval(f.UID())
-            added, msg = approval.add_mail_files_to_session()
-            api.portal.show_message(
-                message=msg,
-                request=mail.REQUEST,
-                type=added and "info" or "error",
-            )
-            if added:
-                seal_code = get_esign_registry_seal_code()
-                seal_email = get_esign_registry_seal_email()
-                if not seal_code:
-                    api.portal.show_message(
-                        message=_("Seal code must be defined in eSign settings before sending session"),
-                        request=mail.REQUEST,
-                        type="error",
-                    )
-                if not seal_email:
-                    api.portal.show_message(
-                        message=_("Seal email must be defined in eSign settings before sending session"),
-                        request=mail.REQUEST,
-                        type="error",
-                    )
-                if seal_code and seal_email:
-                    for sid in approval.session_ids:
-                        ExternalSessionCreateView(mail, mail.REQUEST)(session_id=sid)
-    else:
-        # TODO for esign mails, check if to_sign and approved files have a pdf version
-        pass
+    # seal without real signer: no approval, the files go directly to a seal session
+    if (event.transition and event.transition.id == "propose_to_be_signed" and mail.seal
+            and not has_real_signers(mail.signers)):
+        start_seal_session(mail, OMApprovalAdapter(mail))
+    # TODO for esign mails, check if to_sign and approved files have a pdf version
 
 
 def get_active_signer_substitutes(today=None):
@@ -519,7 +526,7 @@ def apply_substitutes_to_signers(signers, substitutes=None):
     return result
 
 
-def _apply_signer_rules(obj, registry_key):
+def _apply_signer_rules(obj, registry_key, esign_default):
     """Compute and set obj.signers / seal / esign from the configured signer rules.
 
     Shared implementation for outgoing mail (``omail_signer_rules``) and signing request
@@ -527,12 +534,13 @@ def _apply_signer_rules(obj, registry_key):
     rule defines them and the object carries the corresponding attribute (signing requests
     have neither), so they are simply skipped for signing requests.
 
-    Resets obj.signers to [] then appends matching rules. Returns True if at least one
-    signer rule was applied. May raise Invalid on inconsistent rules.
+    Resets obj.signers to [], obj.seal to False and obj.esign to esign_default, then applies matching rules.
+    Returns True if at least one signer rule was applied. May raise Invalid on inconsistent rules.
     """
     today = datetime.date.today()
     rules_applied = False
     obj.signers = []
+    obj.seal, obj.esign = False, esign_default
     signer_rules = api.portal.get_registry_record(registry_key, IImioDmsMailConfig, [])
     substitutes = get_active_signer_substitutes(today)
     used_numbers = set()
@@ -554,20 +562,10 @@ def _apply_signer_rules(obj, registry_key):
         used_numbers.add(signer["number"])
 
         if signer["number"] == 0:
-            if signer["signer"] == u"_seal_":
-                obj.seal = True
-                obj.esign = True
-            else:
-                obj.seal = False
+            obj.seal = signer["signer"] == u"_seal_"
+            continue
         elif signer["number"] == 1:
             obj.esign = signer.get("esign", False)
-
-        # only check if we have at least a signer 0 and 1 because 0 could be after 1 in rules
-        if 0 in used_numbers and 1 in used_numbers and obj.seal and not obj.esign:
-            raise Invalid(_(u"You cannot have a seal without electronic signature ! You have to adapt the rules !"))
-
-        if signer["number"] == 0:
-            continue
 
         effective_signer = signer["signer"]
         if effective_signer != u"_empty_" and effective_signer in substitutes:
@@ -596,17 +594,47 @@ def _apply_signer_rules(obj, registry_key):
                 "approvings": signer["approvings"],
             }
         )
+    # a seal without real signer is an electronic seal-only signature
+    if obj.seal and not has_real_signers(obj.signers):
+        obj.esign = True
+    check_signing_combination(obj)
     return rules_applied
 
 
 def apply_signer_rules(mail):
     """Compute and set mail.signers / seal / esign from the outgoing mail signer rules."""
-    return _apply_signer_rules(mail, "omail_signer_rules")
+    return _apply_signer_rules(mail, "omail_signer_rules", False)
 
 
 def apply_request_signer_rules(request):
     """Compute and set request.signers / seal / esign from the signing request signer rules."""
-    return _apply_signer_rules(request, "request_signer_rules")
+    # a signing request is always electronic
+    return _apply_signer_rules(request, "request_signer_rules", True)
+
+
+def get_generated_signing_values(mail):
+    """Return the mail signing values rendered in a generated document: signers details, esign and seal."""
+    return {"signers": OMApprovalAdapter(mail).signers_details, "esign": bool(mail.esign), "seal": bool(mail.seal)}
+
+
+def warn_outdated_generated_files(mail):
+    """Warn when main files were generated with other signing values than the current mail ones.
+
+    Files generated before the signing values were stored are ignored."""
+    current = get_generated_signing_values(mail)
+    titles = [safe_unicode(obj.Title()) for obj in mail.objectValues()
+              if obj.portal_type == "dmsommainfile"
+              and IAnnotations(obj).get(GENERATED_SIGNING_KEY, current) != current]
+    if titles:
+        api.portal.show_message(
+            message=translate(
+                _(u"The following documents have been generated with other signers than the current "
+                  u"ones. You may have to delete and generate them again: ${titles}.",
+                  mapping={"titles": u", ".join(titles)}),
+                context=mail.REQUEST),
+            request=mail.REQUEST,
+            type="warning",
+        )
 
 
 def dmsoutgoingmail_modified(mail, event):
@@ -627,9 +655,9 @@ def dmsoutgoingmail_modified(mail, event):
 
     signers_update = False
     signers_origin = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
-    # Update signers field only if empty. In "template_first" mode, signers are defined later, at
+    # Update signers field only if no signing values. In "template_first" mode, signers are defined later, at
     # the first template generation (see browser.documentgenerator._copy_template_signers).
-    if not mail.signers and signers_origin in (u"rules", u"rules_first"):
+    if not has_signing_values(mail) and signers_origin in (u"rules", u"rules_first"):
         rules_applied = apply_signer_rules(mail)
         if rules_applied and not mail.signers:
             mail.signers = get_empty_signers_value()
@@ -640,15 +668,18 @@ def dmsoutgoingmail_modified(mail, event):
         signers_update = True
     # check if this is the signers field that is modified
     mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
-    # In "template_first" / "rules_first" waiting state, mail.signers stays empty: do not sort nor
-    # run update_signers, so that empty signers clearly mean "still to be defined from the template".
-    if (signers_update or "ISigningBehavior.signers" in mod_attr) and mail.signers:
-        mail.signers.sort(key=itemgetter("number"))
+    if signers_update or "ISigningBehavior.signers" in mod_attr:
+        if mail.signers:
+            mail.signers.sort(key=itemgetter("number"))
         approval = OMApprovalAdapter(mail)
-        try:
-            approval.update_signers()
-        except ValueError as e:
-            raise Invalid(translate(e.message, context=mail.REQUEST))
+        # An emptied signers field must also resync the annotation. In "template_first" / "rules_first"
+        # waiting state, both sides are empty: nothing to do.
+        if mail.signers or approval.signers:
+            try:
+                approval.update_signers()
+            except ValueError as e:
+                raise Invalid(translate(e.message, context=mail.REQUEST))
+        warn_outdated_generated_files(mail)
 
 
 def dmsoutgoingmail_added(mail, event):
@@ -658,10 +689,15 @@ def dmsoutgoingmail_added(mail, event):
 
 
 def sign_request_transition(request, event):
-    """Start the approval process when a signing request is proposed to approve."""
+    """Start the approval process when proposed to approve, or the seal session when a seal-only request
+    is proposed to be signed."""
     if event.transition and event.transition.id == "propose_to_approve":
         approval = SignRequestApprovalAdapter(request)
         approval.start_approval_process()
+    # seal without real signer: no approval, the files go directly to a seal session
+    if (event.transition and event.transition.id == "propose_to_be_signed" and request.seal
+            and not has_real_signers(request.signers)):
+        start_seal_session(request, SignRequestApprovalAdapter(request))
 
 
 def sign_request_modified(request, event):
@@ -674,17 +710,20 @@ def sign_request_modified(request, event):
     if request_state in ("signed", "closed", "to_approve", "to_be_signed"):
         return
     signers_update = False
-    if not request.signers:
+    if not has_signing_values(request):
         signers_update = apply_request_signer_rules(request)
     # check if this is the signers field that is modified
     mod_attr = [name for at in event.descriptions or [] if base_hasattr(at, "attributes") for name in at.attributes]
-    if (signers_update or "ISignRequestSigningBehavior.signers" in mod_attr) and request.signers:
-        request.signers.sort(key=itemgetter("number"))
+    if signers_update or "ISignRequestSigningBehavior.signers" in mod_attr:
+        if request.signers:
+            request.signers.sort(key=itemgetter("number"))
         approval = SignRequestApprovalAdapter(request)
-        try:
-            approval.update_signers()
-        except ValueError as e:
-            raise Invalid(e.message)
+        # An emptied signers field must also resync the annotation.
+        if request.signers or approval.signers:
+            try:
+                approval.update_signers()
+            except ValueError as e:
+                raise Invalid(translate(e.message, context=request.REQUEST))
 
 
 def sign_request_added(request, event):
@@ -794,28 +833,33 @@ def _correct_to_sign(file_obj):
     return False
 
 
+def _reset_sign_approve_in_to_approve(file_obj):
+    """A file added to an outgoing mail or a sign request in "to_approve" state is neither to sign nor
+    to approve: it cannot join the running approval and could not be corrected anymore.
+    (Pdf files created at final approval get their esign attributes after creation.)
+    """
+    om_obj = file_obj.__parent__
+    if om_obj.portal_type not in ("dmsoutgoingmail", "sign_request") or api.content.get_state(om_obj) != "to_approve":
+        return
+    if not (getattr(file_obj, "to_sign", False) or getattr(file_obj, "to_approve", False)):
+        return
+    file_obj.to_sign = file_obj.signed = file_obj.to_approve = file_obj.approved = False
+    category_object = get_category_object(file_obj, file_obj.content_category)
+    update_categorized_elements(om_obj, file_obj, category_object, limited=True, sort=False, logging=True)
+
+
 def _correct_to_approve(file_obj):
     """Correct to_approve value following context.
-    Force from True to False except if:
-    * to_sign is True
-    * approvers are defined on parent om
-    * file is not a pdf conversion
-    * file doesn't need_mailing
-    Then the file is added to the approval process.
+    Keep True only if the file is approval-eligible (to_sign, approvers defined, not a pdf
+    conversion, no mailing -- see OMApprovalAdapter.is_file_eligible), then add it to the approval
+    process; otherwise force to False.
     """
     # handle to_approve attribute
     orig_value = getattr(file_obj, "to_approve", False)
-    new_value = False
     om_obj = file_obj.__parent__
     approval = om_obj.approval()
-    if (
-        orig_value
-        and getattr(file_obj, "to_sign", False)
-        and approval.approvers
-        and not base_hasattr(file_obj, "conv_from_uid")
-        and not getattr(file_obj, "need_mailing", False)
-    ):
-        new_value = True
+    new_value = bool(orig_value and approval.approvers and approval.is_file_eligible(file_obj))
+    if new_value:
         approval.add_file_to_approval(file_obj.UID())
     if orig_value != new_value:  # only when passing from True to False normally
         file_obj.to_approve = new_value
@@ -826,12 +870,12 @@ def _correct_to_approve(file_obj):
 def _correct_to_print(file_obj):
     """Automatically set to_print following file type and esign mode.
 
-    - dmsappendixfile -> always False
+    - dmsappendixfile -> always False, None (deactivated) when not printable (not a pdf)
     - dmsommainfile   -> True when the parent mail esign is off, else False
     """
     om = file_obj.__parent__
     if file_obj.portal_type == "dmsappendixfile":
-        new_value = False
+        new_value = False if IIconifiedPrintable(file_obj).is_printable else None
     elif file_obj.portal_type == "dmsommainfile":
         new_value = not getattr(om, "esign", False)
     else:
@@ -847,6 +891,20 @@ def _correct_to_print(file_obj):
     if getattr(file_obj, "to_print", None) != new_value:
         file_obj.to_print = new_value
         update_categorized_elements(om, file_obj, category, limited=True, sort=False, logging=True)
+
+
+def _apply_template_first_signer_rules(mail):
+    """In "template_first" mode, the signer rules are applied only when the first main document is
+    generated from a template (see browser.documentgenerator._copy_template_signers). When a file is added
+    otherwise (appendix or manually added main file), signers would stay empty, so we apply the rules here too.
+    If the rules produce no signer, an _empty_ placeholder is set. A generated main file is added after
+    _copy_template_signers has set signing values, so nothing is done for it."""
+    mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
+    if mode == u"template_first" and not has_signing_values(mail):
+        apply_signer_rules(mail)
+        if not mail.signers:
+            mail.signers = get_empty_signers_value()
+        zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
 
 
 def i_annex_added(obj, event):
@@ -865,6 +923,9 @@ def i_annex_added(obj, event):
     elif obj.portal_type == "dmsommainfile":
         # we update parent index
         obj.__parent__.reindexObject(["enabled", "markers"])
+        if obj.__parent__.portal_type == "dmsoutgoingmail":  # always True
+            _apply_template_first_signer_rules(obj.__parent__)
+        _reset_sign_approve_in_to_approve(obj)
         # TODO add unit tests for the following
         if getattr(obj, "to_sign", False):
             _correct_to_sign(obj)
@@ -872,18 +933,9 @@ def i_annex_added(obj, event):
             _correct_to_approve(obj)
         _correct_to_print(obj)
     elif obj.portal_type == "dmsappendixfile" and obj.__parent__.portal_type in ("dmsoutgoingmail", "sign_request"):
-        mail = obj.__parent__
-        if mail.portal_type == "dmsoutgoingmail":
-            # In "template_first" mode, the signer rules are applied only when the first main document is
-            # generated from a template (see browser.documentgenerator._copy_template_signers). When an
-            # appendix is added before any template generation, signers would otherwise stay empty, so we
-            # apply the rules here too. If the rules produce no signer, an _empty_ placeholder is set.
-            mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
-            if mode == u"template_first" and not mail.signers:
-                apply_signer_rules(mail)
-                if not mail.signers:
-                    mail.signers = get_empty_signers_value()
-                zope.event.notify(ObjectModifiedEvent(mail, Attributes(ISigningBehavior, "ISigningBehavior.signers")))
+        if obj.__parent__.portal_type == "dmsoutgoingmail":
+            _apply_template_first_signer_rules(obj.__parent__)
+        _reset_sign_approve_in_to_approve(obj)
         if getattr(obj, "to_sign", False):
             _correct_to_sign(obj)
         if getattr(obj, "to_approve", False):
@@ -947,7 +999,7 @@ def i_annex_removed(obj, event):
     ):
         current_uid = obj.UID()
         approval = obj.__parent__.approval()
-        # Case 1: We are removing a file in a session. Can be a pdf from odt, a direct pdf, a sealed odf
+        # Case 1: We are removing a file in a session. Can be a pdf from odt, a direct pdf, a sealed pdf
         session_annot = get_session_annotation()
         if current_uid in session_annot["uids"]:
             session_id = session_annot["uids"][current_uid]
@@ -969,6 +1021,9 @@ def i_annex_removed(obj, event):
                 "delete_file_1",
                 "mail={} session={} file={}".format(obj.__parent__.UID(), session_id, current_uid)
             )
+        # Case 3: we are removing a pdf file not in a session but referenced in the approval annotation
+        else:
+            approval.remove_pdf_file_from_approval(current_uid)
 
         # Case 2: We are removing a source file: odt or direct pdf
         if current_uid in approval.files_uids:

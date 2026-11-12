@@ -618,7 +618,9 @@ def remove_om_nplus1_wfadaptation(context):
         col.query = query
     # Remove collection from template
     for name in ("d-print-to-sign", "d-print-signed"):
-        tmpl = site["templates"]["om"][name]
+        tmpl = site["templates"]["om"].get(name)
+        if tmpl is None:  # no more created, replaced by the "export to pdf" forms
+            continue
         cols = tmpl.dashboard_collections
         if val_col_uid in cols:
             cols.remove(val_col_uid)
@@ -1254,7 +1256,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
     api.portal.set_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.org_templates_encoder_can_edit",
                                    False)
 
-    api.portal.show_message("Configurer lien iA·Delib ? Modifier numbering session ?", type="warn")
+    api.portal.show_message(u"Configurer lien iA·Delib ? Modifier numbering session ?", type="warn", request=api.portal.get().REQUEST)
 
 
 def contact_import_pipeline(context):

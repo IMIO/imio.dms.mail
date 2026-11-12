@@ -281,7 +281,16 @@ DMSMAIL_NP1_FIXTURE = DmsmailLayerNP1(
     name="DMSMAIL_NP1_FIXTURE",
 )
 
-DMSMAIL_INTEGRATION_TESTING = IntegrationTesting(bases=(DMSMAIL_FIXTURE,), name="DmsMailFixture:Integration")
+class DmsmailIntegrationTesting(IntegrationTesting):
+
+    def testSetUp(self):
+        super(DmsmailIntegrationTesting, self).testSetUp()
+        # bind the request language (fr) as done when traversing the portal
+        self["portal"].portal_languages.setLanguageBindings()
+
+
+DMSMAIL_INTEGRATION_TESTING = DmsmailIntegrationTesting(
+    bases=(DMSMAIL_FIXTURE,), name="DmsMailFixture:Integration")
 
 DMSMAIL_FUNCTIONAL_TESTING = FunctionalTesting(bases=(DMSMAIL_FIXTURE,), name="DmsMailFixture:Functional")
 
@@ -413,7 +422,7 @@ def create_im_mails(tc, start=1, end=100, senders=[], transitions=[], by_days=20
 
     filespath = "%s/batchimport/toprocess/incoming-mail" % imiodmsmail.__path__[0]
     files = [safe_unicode(name) for name in os.listdir(filespath)
-             if Path(name).suffix[1:] in ("pdf", "doc", "jpg")]
+             if Path(name).suffix[1:] in ("pdf", "docx", "jpg")]
     files_cycle = cycle(files)
 
     # intids = getUtility(IIntIds)

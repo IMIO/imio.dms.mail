@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.documentgenerator.utils import update_oo_config
+from collective.documentgenerator.utils import update_templates
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
@@ -22,7 +23,7 @@ from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IPersonnelFolder
 from imio.dms.mail.interfaces import IProtectedItem
-from imio.dms.mail.interfaces import IReqDashboard
+from imio.dms.mail.interfaces import IReqDashboardBatchActions
 from imio.dms.mail.setuphandlers import add_db_col_folder
 from imio.dms.mail.setuphandlers import configure_faceted_folder
 from imio.dms.mail.setuphandlers import configure_signrequest_rolefields
@@ -30,6 +31,7 @@ from imio.dms.mail.setuphandlers import create_personnel_dashboard
 from imio.dms.mail.setuphandlers import createReqCollections
 from imio.dms.mail.setuphandlers import createStateCollections
 from imio.dms.mail.setuphandlers import get_dashboard_collections
+from imio.dms.mail.setuphandlers import list_templates
 from imio.dms.mail.setuphandlers import order_1st_level
 from imio.dms.mail.setuphandlers import setup_iconified_categories
 from imio.dms.mail.utils import message_status
@@ -63,6 +65,7 @@ import json
 import logging
 import OFS
 import os
+import transaction
 
 
 logger = logging.getLogger("imio.dms.mail")
@@ -83,6 +86,7 @@ class Migrate_To_3_1(Migrator):  # noqa
     def run_parts(self):
         """Run some parts between b and x."""
         if self.is_in_part("c"):  # various, update workflow, localroles and security
+            self.normalize_compound_criterion_values()
             # Update d-print model
             if "d-print" in self.portal["templates"]["om"]:
                 self.update_print_template()
@@ -239,7 +243,7 @@ class Migrate_To_3_1(Migrator):  # noqa
                     if odt_only:
                         formats = ["odt"]
                     else:
-                        formats = ["odt", "pdf", "doc"]
+                        formats = ["odt", "pdf", "docx"]
                     api.portal.set_registry_record(
                         "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_formats_mainfile",
                         formats
@@ -267,6 +271,9 @@ class Migrate_To_3_1(Migrator):  # noqa
                     obj = template.getObject()
                     if not obj.default_content_category:
                         obj.default_content_category = category_id
+                # commit so category icon blobs get their _p_mtime: otherwise icon scales computed below are
+                # regenerated after commit with a new uid and stored icon_url are broken
+                transaction.commit()
 
             gsm = getGlobalSiteManager()
             gsm.unregisterHandler(content_updated, (IIconifiedCategorizationMarker, IObjectModifiedEvent))
@@ -352,7 +359,14 @@ class Migrate_To_3_1(Migrator):  # noqa
             # collective.iconifiedcategory (on existing objects, folders only if the first time)
             # imio.pm.wsclient
             # collective.contact.plonegroup
+            # collective.documentgenerator 16 replaces banned expressions: unmodified stock templates are reloaded
+            stock_tmpls = []
+            for tup in list_templates():
+                obj = self.portal.unrestrictedTraverse(tup[1], None)
+                if obj is not None and not obj.has_been_modified():
+                    stock_tmpls.append((tup[1], tup[2]))
             self.upgradeAll(omit=[u"imio.dms.mail:default"])
+            update_templates(stock_tmpls, force=True)
 
         self.run_parts()
 
@@ -521,7 +535,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             # add searches
             col_folder = add_db_col_folder(req_folder, "requests-searches", _("Requests searches"), _("Requests"))
             alsoProvides(col_folder, INextPrevNotNavigable)
-            alsoProvides(col_folder, IReqDashboard)
+            alsoProvides(col_folder, IReqDashboardBatchActions)
             createReqCollections(col_folder)
             createStateCollections(col_folder, "sign_request")
             configure_faceted_folder(col_folder, xml="requests-searches.xml",
@@ -684,6 +698,20 @@ class Migrate_To_3_1(Migrator):  # noqa
         cols = get_dashboard_collections(self.omf["mail-searches"])
         obj.dashboard_collections = [b.UID for b in cols if b.UID in obj.dashboard_collections
                                      and b.id in om_print_to_sign_cols]
+
+    def normalize_compound_criterion_values(self):
+        """Store CompoundCriterion values as list, not as string."""
+        for brain in self.catalog.unrestrictedSearchResults(portal_type="DashboardCollection"):
+            col = brain.getObject()
+            query = [dict(dic) for dic in col.query]
+            changed = False
+            for dic in query:
+                if dic.get("i") == "CompoundCriterion" and isinstance(dic.get("v"), basestring):
+                    dic["v"] = [dic["v"]]
+                    changed = True
+            if changed:
+                col.query = query
+                logger.info("Normalized CompoundCriterion value in %s" % col.absolute_url_path())
 
 
 def migrate(context):  # noqa
