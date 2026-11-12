@@ -69,6 +69,8 @@ Changelog
   [chris-adam]
 - Fixed signing fields invariant raising a false modification error when stored values are ``None`` (PARAF-563).
   [chris-adam]
+- Fixed mail type titles in outgoing mail dashboard column (SUP-56039).
+  [chris-adam]
 
 3.1.6 (2026-08-14)
 ------------------

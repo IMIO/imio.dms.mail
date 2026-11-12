@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
+from collective.eeafaceted.z3ctable.interfaces import IFacetedColumn
 from datetime import datetime
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.adapters import SignRequestApprovalAdapter
 from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.table import SignRequestVersionsTable
+from imio.dms.mail.columns import OMMailTypeColumn
 from imio.dms.mail.columns import SenderColumn
 from imio.dms.mail.columns import SessionIdColumn
 from imio.dms.mail.columns import TaskActionsColumn
@@ -20,6 +22,7 @@ from plone import api
 from plone.app.testing import login
 from plone.app.testing import TEST_USER_ID
 from z3c.relationfield.relation import RelationValue
+from zope.component import getMultiAdapter
 from zope.component import getUtility
 from zope.intid.interfaces import IIntIds
 
@@ -109,6 +112,24 @@ class TestColumns(unittest.TestCase):
         self.assertIn('"overlay-history"', rendered)
         column.view_name = ""
         self.assertRaises(KeyError, column.renderCell, self.ta1)
+
+    def test_OMMailTypeColumn(self):
+        # a value only defined in outgoing mail types
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.omail_types",
+            [{"value": u"lettre", "dtitle": u"Lettre", "active": True}],
+        )
+        om1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        om1.mail_type = u"lettre"
+        om1.reindexObject(idxs=["mail_type"])
+        brain = self.portal.portal_catalog(UID=om1.UID())[0]
+        om_searches = self.portal["outgoing-mail"]["mail-searches"]
+        table = om_searches.unrestrictedTraverse("@@faceted-table-view")
+        column = table.nameColumn(
+            getMultiAdapter((om_searches, self.portal.REQUEST, table), IFacetedColumn, name="mail_type"), "mail_type"
+        )
+        self.assertIsInstance(column, OMMailTypeColumn)
+        self.assertEqual(column.renderCell(brain), u"Lettre")
 
 
 class TestSessionIdColumn(unittest.TestCase):
