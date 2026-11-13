@@ -30,6 +30,8 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
     def run_parts(self):
 
         if self.is_in_part("c"):
+            # batch approval settings
+            self.runProfileSteps("imio.dms.mail", steps=["plone.app.registry"])
             # "doc" file format replaced by "docx"
             for key in ("omail_formats_mainfile", "omail_esign_formats", "request_esign_formats"):
                 rec = "imio.dms.mail.browser.settings.IImioDmsMailConfig.{}".format(key)

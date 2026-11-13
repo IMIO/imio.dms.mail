@@ -1,12 +1,37 @@
 # -*- coding: utf-8 -*-
 """Test views."""
+from AccessControl import Unauthorized
 from collective.contact.duplicated.interfaces import ICollectiveContactDuplicatedLayer
+from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
+from collective.eeafaceted.batchactions.browser.viewlets import BatchActionsViewlet
+from collective.eeafaceted.collectionwidget.utils import getCollectionLinkCriterion
+from collective.iconifiedcategory.interfaces import ICollectiveIconifiedCategoryLayer
+from collective.iconifiedcategory.utils import calculate_category_id
+from datetime import datetime
+from imio.dms.mail import PRODUCT_DIR
+from imio.dms.mail.browser.batchactions import BATCH_APPROVAL_LIMIT_RECORD
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import DummyView
+from imio.dms.mail.utils import sub_create
+from imio.esign.config import set_esign_registry_file_url
+from imio.fpaudit import LOG_DIR
+from imio.fpaudit.utils import get_lines_of
+from imio.fpaudit.utils import get_log_option
 from imio.helpers.content import get_object
+from imio.helpers.test_helpers import ImioTestHelpers
 from plone import api
+from plone.dexterity.utils import createContentInContainer
+from plone.namedfile.file import NamedBlobFile
+from Products.statusmessages import STATUSMESSAGEKEY
+from Products.statusmessages.interfaces import IStatusMessage
+from z3c.relationfield.relation import RelationValue
+from zope.annotation import IAnnotations
+from zope.component import getUtility
 from zope.interface import alsoProvides
+from zope.intid.interfaces import IIntIds
 
+import os
 import unittest
 
 
@@ -224,3 +249,204 @@ class BatchActions(unittest.TestCase):
         view.handleApply(view, "apply")
         self.assertEqual(self.ta1.assigned_user, "chef")
         self.assertEqual(self.ta2.assigned_user, "chef")
+
+
+class TestApproveBatchActionForm(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.portal.REQUEST
+        self.change_user("siteadmin")
+        alsoProvides(self.request, ICollectiveIconifiedCategoryLayer)
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.dms.mail:singles", "imiodmsmail-activate-om-signing", run_dependencies=False
+        )
+        self.om_searches = self.portal["outgoing-mail"]["mail-searches"]
+        self.req_searches = self.portal["requests"]["requests-searches"]
+        set_esign_registry_file_url("https://downloads.files.com")
+        pf = self.portal["contacts"]["personnel-folder"]
+        self.bourgmestre = pf["bourgmestre"]["bourgmestre"]
+        self.dirg = pf["dirg"]["directeur-general"]
+        self.chef = pf["chef"]
+        # the bourgmestre signs, chef approves for him: no batch approval
+        self.omail1 = self._create_mail("om1", [(self.bourgmestre, self.chef.UID())], "012999900000601")
+        # the directeur general approves first for himself, then chef for the bourgmestre
+        self.omail2 = self._create_mail(
+            "om2", [(self.dirg, u"_themself_"), (self.bourgmestre, self.chef.UID())], "012999900000602"
+        )
+
+    def _create_mail(self, oid, signers, scan_id):
+        """Create an e-signed outgoing mail with one file to approve. signers: (held position, approving)."""
+        intids = getUtility(IIntIds)
+        omail = sub_create(
+            self.portal["outgoing-mail"],
+            "dmsoutgoingmail",
+            datetime.now(),
+            oid,
+            title=u"Courrier sortant {}".format(oid),
+            internal_reference_no=internalReferenceOutgoingMailDefaultValue(DummyView(self.portal, self.request)),
+            mail_type="courrier",
+            treating_groups=self.portal["contacts"]["plonegroup-organization"]["direction-generale"]["grh"].UID(),
+            recipients=[RelationValue(intids.getId(self.portal["contacts"]["jeancourant"]))],
+            assigned_user="agent",
+            sender=self.portal["contacts"]["jeancourant"]["agent-electrabel"].UID(),
+            send_modes=u"post",
+            signers=[
+                {"number": i, "signer": hp.UID(), "approvings": [approving], "editor": False}
+                for i, (hp, approving) in enumerate(signers, start=1)
+            ],
+            esign=True,
+        )
+        filename = u"Réponse salle.odt"
+        ct = self.portal["annexes_types"]["outgoing_dms_files"]["outgoing-dms-file"]
+        with open("%s/batchimport/toprocess/outgoing-mail/%s" % (PRODUCT_DIR, filename), "rb") as fo:
+            createContentInContainer(
+                omail,
+                "dmsommainfile",
+                id="file1",
+                scan_id=scan_id,
+                file=NamedBlobFile(fo.read(), filename=filename),
+                content_category=calculate_category_id(ct),
+            )
+        return omail
+
+    def _select_collection(self, searches, col_id):
+        """Select a dashboard collection as the faceted request does."""
+        self.request.form["{}[]".format(getCollectionLinkCriterion(searches).__name__)] = searches[col_id].UID()
+        IAnnotations(self.request).pop("collectionwidget-utils-getCurrentCollection-{}".format(searches.UID()), None)
+
+    def _actions(self, searches):
+        return [action["name"] for action in BatchActionsViewlet(searches, self.request, None, None)
+                .get_batch_actions()]
+
+    def test_available(self):
+        self._select_collection(self.om_searches, "to_approve")
+        # not a signer: hidden
+        self.change_user("chef")
+        self.assertNotIn("approve-batch-action", self._actions(self.om_searches))
+        self.change_user("dirg")
+        self.assertIn("approve-batch-action", self._actions(self.om_searches))
+        self._select_collection(self.om_searches, "all_mails")
+        self.assertNotIn("approve-batch-action", self._actions(self.om_searches))
+        # requests dashboard
+        self._select_collection(self.req_searches, "to_approve")
+        self.assertIn("approve-batch-action", self._actions(self.req_searches))
+        self._select_collection(self.req_searches, "all_requests")
+        self.assertNotIn("approve-batch-action", self._actions(self.req_searches))
+        # the form opened with the selected uids is not checked against the collection
+        self.request["uids"] = self.omail1.UID()
+        self.assertTrue(self.om_searches.restrictedTraverse("@@approve-batch-action").available())
+        self.change_user("chef")
+        self.assertFalse(self.om_searches.restrictedTraverse("@@approve-batch-action").available())
+
+    def _propose(self):
+        """om1 waiting for chef, om2 and a new mail waiting for the directeur general approving for himself."""
+        omail3 = self._create_mail("om3", [(self.dirg, u"_themself_")], "012999900000603")
+        for omail in (self.omail1, self.omail2, omail3):
+            api.content.transition(omail, "propose_to_approve")
+        self.change_user("dirg")
+        return omail3
+
+    def _form(self, *omails):
+        """The overlay form opened on omails."""
+        self.request.form["form.widgets.uids"] = ",".join([omail.UID() for omail in omails])
+        form = self.om_searches.restrictedTraverse("@@approve-batch-action")
+        form.update()
+        return form
+
+    def test__update(self):
+        omail3 = self._propose()
+        api.portal.set_registry_record(BATCH_APPROVAL_LIMIT_RECORD, 1)
+        self.assertNotIn("apply", self._form(self.omail2, omail3).actions)
+        # om1 is skipped: one mail to approve, within the limit
+        self.assertIn("apply", self._form(self.omail1, self.omail2).actions)
+        # nothing to approve
+        self.assertNotIn("apply", self._form(self.omail1).actions)
+        # 0 means no limit
+        api.portal.set_registry_record(BATCH_APPROVAL_LIMIT_RECORD, 0)
+        self.assertIn("apply", self._form(self.omail2, omail3).actions)
+
+    def test__excluded_mails(self):
+        omail3 = self._propose()
+        # om1 is approved by chef for the bourgmestre
+        self.assertEqual(self._form(self.omail1, self.omail2, omail3)._excluded_mails(), [self.omail1])
+
+    def test_description(self):
+        omail3 = self._propose()
+        api.portal.set_registry_record(BATCH_APPROVAL_LIMIT_RECORD, 1)
+        descr = self._form(self.omail2, omail3).description
+        base = descr.split(u"<div")[0]  # the number of selected elements
+        self.assertEqual(
+            descr,
+            base + u'<div class="portalMessage error"><p>You can approve at most 1 element(s) at once: select fewer '
+                   u'elements.</p></div>',
+        )
+        skipped = (
+            u'<div class="portalMessage warning"><p>These mails will be skipped, you do not approve them for '
+            u'yourself as signer:</p><ul><li><a href="{}" target="_blank">{}</a></li></ul></div>'.format(
+                self.omail1.absolute_url(), self.omail1.Title().decode("utf8")
+            )
+        )
+        # om1 is skipped: one mail to approve, within the limit
+        self.assertEqual(self._form(self.omail1, self.omail2).description, base + skipped)
+        api.portal.set_registry_record(BATCH_APPROVAL_LIMIT_RECORD, 0)
+        self.assertEqual(
+            self._form(self.omail1, self.omail2).description,
+            base + u'<div class="portalMessage warning"><p>Approving too many files at once may take a long time'
+                   u'</p></div>' + skipped,
+        )
+        # nothing to approve
+        descr = self._form(self.omail1).description
+        self.assertEqual(
+            descr,
+            descr.split(u"<div")[0] + u'<div class="portalMessage error"><p>None of the selected mails can be batch '
+                                      u'approved: only a signer approving for themself can.</p></div>',
+        )
+
+    def _approve_as_current_user(self, *omails):
+        """Apply the batch approval on omails from the overlay, return the messages the browser gets."""
+        self.request.form["ajax_load"] = "1"
+        self.request.form["form.widgets.uids"] = ",".join([omail.UID() for omail in omails])
+        form = self.om_searches.restrictedTraverse("@@approve-batch-action")
+        form.update()
+        form.handleApply(form, "apply")
+        # an expired cookie would never reach the browser
+        self.assertNotIn("max_age", self.request.response.cookies[STATUSMESSAGEKEY])
+        return [msg.message for msg in IStatusMessage(self.request).show()]
+
+    def test__apply(self):
+        omail3 = self._propose()
+        # the directeur general approves om2 and om3 for himself; om1, approved by chef, is skipped
+        msgs = self._approve_as_current_user(self.omail1, self.omail2, omail3)
+        self.assertEqual(msgs, [u"2 file(s) approved on 2 element(s). 1 element(s) skipped."])
+        self.assertEqual(api.content.get_state(omail3), "to_be_signed")
+        self.assertTrue(omail3.approval().is_file_approved(omail3["file1"].UID()))
+        self.assertTrue(omail3["file1"].approved)
+        self.assertEqual(len(omail3.approval().annot["session_ids"]), 1)
+        # om2 then waits for chef, approving for the bourgmestre
+        self.assertEqual(api.content.get_state(self.omail2), "to_approve")
+        self.assertEqual(self.omail2.approval().current_nb, 1)
+        self.assertEqual(self.omail1.approval().current_nb, 0)
+        # chef approves om1, but not as signer: the form is refused
+        self.change_user("chef")
+        self.assertRaises(Unauthorized, self._approve_as_current_user, self.omail1, self.omail2)
+        self.assertEqual(self.omail1.approval().current_nb, 0)
+        self.assertEqual(self.omail2.approval().current_nb, 1)
+        # the signing session cannot be created: the approval of the mail is cancelled
+        self.change_user("siteadmin")
+        omail4 = self._create_mail("om4", [(self.dirg, u"_themself_")], "0129999")
+        api.content.transition(omail4, "propose_to_approve")
+        self.change_user("dirg")
+        msgs = self._approve_as_current_user(omail4)
+        self.assertEqual(msgs[0], u"0 file(s) approved on 0 element(s).")
+        self.assertIn(u"Approval cancelled for: {} (".format(omail4.Title().decode("utf8")), msgs[1])
+        self.assertIn(omail4["file1"].absolute_url(), msgs[1])  # the wrong scan id message
+        self.assertEqual(api.content.get_state(omail4), "to_approve")
+        self.assertEqual(omail4.approval().current_nb, 0)
+        self.assertFalse(omail4.approval().is_file_approved(omail4["file1"].UID(), nb=0))
+        self.assertFalse(omail4["file1"].approved)
+        audit_log = os.path.join(LOG_DIR, get_log_option("esign", "audit_log"))
+        last_line = next(get_lines_of(audit_log, actions=("batch_approval_rolled_back",)))
+        self.assertIn(u"mail={} approver=dirg reason=".format(omail4.UID()), last_line)

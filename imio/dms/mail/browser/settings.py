@@ -974,7 +974,11 @@ class IImioDmsMailConfig(model.Schema):
     model.fieldset(
         "general",
         label=_(u"General config tab"),
-        fields=["groups_hidden_in_dashboard_filter", "users_hidden_in_dashboard_filter"],
+        fields=[
+            "groups_hidden_in_dashboard_filter",
+            "users_hidden_in_dashboard_filter",
+            "batch_approval_limit",
+        ],
     )
 
     groups_hidden_in_dashboard_filter = schema.List(
@@ -992,6 +996,14 @@ class IImioDmsMailConfig(model.Schema):
         default=[],
     )
     widget("users_hidden_in_dashboard_filter", OrderedSelectFieldWidget, size=10)
+
+    batch_approval_limit = schema.Int(
+        title=_(u"Maximum number of elements per batch approval"),
+        description=_(u"Converting the files to PDF can take a few seconds per file. 0 means no limit."),
+        required=True,
+        default=10,
+        min=0,
+    )
 
     @invariant
     def validate_settings(data):  # noqa
