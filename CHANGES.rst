@@ -72,7 +72,7 @@ Changelog
 - Fixed mail type titles in outgoing mail dashboard column (SUP-56039).
   [chris-adam]
 - Added a batch approval action on outgoing mail and requests "to approve" dashboards, for a signer approving for themself (PARAF-565).
-  [chris-adam]
+  [chris-adam,sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

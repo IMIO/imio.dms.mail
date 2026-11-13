@@ -380,12 +380,12 @@ class TestApproveBatchActionForm(unittest.TestCase, ImioTestHelpers):
         base = descr.split(u"<div")[0]  # the number of selected elements
         self.assertEqual(
             descr,
-            base + u'<div class="portalMessage error"><p>You can approve at most 1 element(s) at once: select fewer '
-                   u'elements.</p></div>',
+            base + u'<div class="portalMessage error"><p>Vous ne pouvez approuver que 1 élément(s) à la fois: '
+                   u'il faut en sélectionner moins.</p></div>',
         )
         skipped = (
-            u'<div class="portalMessage warning"><p>These mails will be skipped, you do not approve them for '
-            u'yourself as signer:</p><ul><li><a href="{}" target="_blank">{}</a></li></ul></div>'.format(
+            u'<div class="portalMessage warning"><p>Ces éléments ne sont pas concernés, car vous ne pouvez approuver '
+            u'en lot qu\'en tant que signataire:</p><ul><li><a href="{}" target="_blank">{}</a></li></ul></div>'.format(
                 self.omail1.absolute_url(), self.omail1.Title().decode("utf8")
             )
         )
@@ -394,15 +394,16 @@ class TestApproveBatchActionForm(unittest.TestCase, ImioTestHelpers):
         api.portal.set_registry_record(BATCH_APPROVAL_LIMIT_RECORD, 0)
         self.assertEqual(
             self._form(self.omail1, self.omail2).description,
-            base + u'<div class="portalMessage warning"><p>Approving too many files at once may take a long time'
-                   u'</p></div>' + skipped,
+            base + u'<div class="portalMessage warning"><p>Approuver beaucoup d\'éléments en même temps peut prendre '
+                   u'un certain temps. Même si une page d\'expiration/erreur apparaît, l\'opération tourne toujours '
+                   u'en arrière plan. Merci de patienter</p></div>' + skipped,
         )
         # nothing to approve
         descr = self._form(self.omail1).description
         self.assertEqual(
             descr,
-            descr.split(u"<div")[0] + u'<div class="portalMessage error"><p>None of the selected mails can be batch '
-                                      u'approved: only a signer approving for themself can.</p></div>',
+            descr.split(u"<div")[0] + u'<div class="portalMessage error"><p>Aucun des éléments sélectionnés n\'est '
+                                      u'approuvable: seul un signataire peut approuver pour lui-même.</p></div>',
         )
 
     def _approve_as_current_user(self, *omails):
@@ -420,7 +421,7 @@ class TestApproveBatchActionForm(unittest.TestCase, ImioTestHelpers):
         omail3 = self._propose()
         # the directeur general approves om2 and om3 for himself; om1, approved by chef, is skipped
         msgs = self._approve_as_current_user(self.omail1, self.omail2, omail3)
-        self.assertEqual(msgs, [u"2 file(s) approved on 2 element(s). 1 element(s) skipped."])
+        self.assertEqual(msgs, [u"2 fichier(s) approuvé(s) sur 2 élément(s). 1 élément(s) passé(s)."])
         self.assertEqual(api.content.get_state(omail3), "to_be_signed")
         self.assertTrue(omail3.approval().is_file_approved(omail3["file1"].UID()))
         self.assertTrue(omail3["file1"].approved)
@@ -440,8 +441,8 @@ class TestApproveBatchActionForm(unittest.TestCase, ImioTestHelpers):
         api.content.transition(omail4, "propose_to_approve")
         self.change_user("dirg")
         msgs = self._approve_as_current_user(omail4)
-        self.assertEqual(msgs[0], u"0 file(s) approved on 0 element(s).")
-        self.assertIn(u"Approval cancelled for: {} (".format(omail4.Title().decode("utf8")), msgs[1])
+        self.assertEqual(msgs[0], u"0 fichier(s) approuvé(s) sur 0 élément(s).")
+        self.assertIn(u"Approbation annulée pour: {} (".format(omail4.Title().decode("utf8")), msgs[1])
         self.assertIn(omail4["file1"].absolute_url(), msgs[1])  # the wrong scan id message
         self.assertEqual(api.content.get_state(omail4), "to_approve")
         self.assertEqual(omail4.approval().current_nb, 0)

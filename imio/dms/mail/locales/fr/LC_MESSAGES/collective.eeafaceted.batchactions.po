@@ -15,6 +15,10 @@ msgstr ""
 "Domain: collective.eeafaceted.batchactions\n"
 "X-is-fallback-for: fr-fr fr-be fr-ca\n"
 
+#. Default: "Approve"
+msgid "approve-batch-action-but"
+msgstr "Approuver"
+
 #. Default: "<p>This will concatenate selected annex types PDF annexes of selected items into one single PDF file with a limit of <strong>${max_size}</strong>. If your PDF file is too large you will have a message, in this case select less elements and download it separately.<p>"
 msgid "concatenate_annexes_batch_action_descr"
 msgstr "<p class='discreet'>Cette action permet de grouper des documents en un seul PDF téléchargeable. La taille maximum du fichier exporté est de <strong>${max_size}</strong>. Si un message vous indique que c'est trop volumineux, sélectionnez moins d'éléments à exporter. Lorsque vous cliquez sur «Télécharger», veuillez patienter jusqu'à ce que le fichier PDF soit disponible.<p>"
