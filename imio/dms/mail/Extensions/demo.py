@@ -642,7 +642,7 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
     """
     if not check_role(self):
         return "You must be a manager to run this script"
-    if not userids:
+    if not userids or not cases:
         user = api.user.get_current()
         return ("You must call this script with the following parameters:\n"
                 "-> userids : mandatory userids used as signers, separated by comma\n"

@@ -17,5 +17,5 @@ An approver's agreement to one file on behalf of one signer; the signers' approv
 _Avoid_: validation
 
 **Batch approval**:
-Approving, from a dashboard, the files of several documents at once; it only covers signers for which it is enabled.
+Approving, from a dashboard, the files of several documents at once; only a signer approving for themself (a substitute signer included) can do it.
 _Avoid_: bulk approval, mass approval

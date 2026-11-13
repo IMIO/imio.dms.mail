@@ -49,7 +49,6 @@ import transaction
 
 logger = logging.getLogger("imio.dms.mail: batchactions")
 BATCH_APPROVAL_LIMIT_RECORD = "imio.dms.mail.browser.settings.IImioDmsMailConfig.batch_approval_limit"
-BATCH_APPROVAL_SIGNERS_RECORD = "imio.dms.mail.browser.settings.IImioDmsMailConfig.batch_approval_signers"
 
 
 # IM and OM batch actions
@@ -327,22 +326,25 @@ class FoldersTreatingGroupBatchActionForm(BaseBatchActionForm):
 
 
 class ApproveBatchActionForm(BaseBatchActionForm):
-    """Approve the files of the selected elements, for the signers enabled in the settings."""
+    """Approve the files of the selected elements, for a signer approving for themself."""
 
     label = _(u"Batch files approval")
     weight = 15
 
     def available(self):
-        if not api.portal.get_registry_record(BATCH_APPROVAL_SIGNERS_RECORD, default=None):
-            return False
-        if self.request.get("uids") or "form.widgets.uids" in self.request.form:
-            # ponytail: the form itself is not checked against the collection, the button is only shown where needed
-            return True
-        try:
-            collection = getCurrentCollection(self.context)
-        except NotDashboardContextException:
-            return False
-        return collection is not None and collection.getId() == "to_approve"
+        # the form itself is not checked against the collection, the button is only shown where needed
+        if not (self.request.get("uids") or "form.widgets.uids" in self.request.form):
+            # cheap first: the current collection is cached in the request
+            try:
+                collection = getCurrentCollection(self.context)
+            except NotDashboardContextException:
+                return False
+            if collection is None or collection.getId() != "to_approve":
+                return False
+        # only a signer can approve for themself
+        userid = api.user.get_current().getId()
+        return bool(api.portal.get_tool("portal_catalog").unrestrictedSearchResults(
+            portal_type="held_position", userid=userid, usages="signer"))
 
     def _update(self):
         self.limit = api.portal.get_registry_record(BATCH_APPROVAL_LIMIT_RECORD, default=0)
@@ -354,9 +356,8 @@ class ApproveBatchActionForm(BaseBatchActionForm):
     def _excluded_mails(self):
         """The selected mails the current user cannot batch approve now."""
         userid = api.user.get_current().getId()
-        signers = api.portal.get_registry_record(BATCH_APPROVAL_SIGNERS_RECORD, default=None) or []
         objs = [brain.getObject() for brain in self.brains]
-        return [obj for obj in objs if not self._files_to_approve(obj, userid, signers)]
+        return [obj for obj in objs if not self._files_to_approve(obj, userid)]
 
     def _message(self, msg_type, msg, mails=()):
         """A portal message, listing mails, to append to the description."""
@@ -374,29 +375,30 @@ class ApproveBatchActionForm(BaseBatchActionForm):
                 mapping={"limit": self.limit}))
         if not self.do_apply:
             return descr + self._message("error", _(
-                u"None of the selected mails can be batch approved due to site settings."))
+                u"None of the selected mails can be batch approved: only a signer approving for themself can."))
         if not self.limit:
             descr += self._message("warning", _(u"Approving too many files at once may take a long time"))
         if self.excluded:
-            descr += self._message("warning", _(u"These mails will be skipped due to site settings:"), self.excluded)
+            descr += self._message(
+                "warning", _(u"These mails will be skipped, you do not approve them for yourself as signer:"),
+                self.excluded)
         return descr
 
-    def _files_to_approve(self, obj, userid, signers):
-        """The files of obj that userid can approve now, for a signer in signers."""
+    def _files_to_approve(self, obj, userid):
+        """The files of obj that userid can approve now, as signer approving for themself."""
         approval = obj.approval()
         nb = approval.get_approver_nb(userid)
         if api.content.get_state(obj) not in approval.approval_states or nb is None or nb != approval.current_nb:
             return []
-        # same order as the approval levels
-        obj_signers = [s["signer"] for s in sorted(obj.signers, key=lambda s: s["number"]) if s["signer"] != "_empty_"]
-        if obj_signers[nb] not in signers:
+        # the signer userid of the level, a substitute signer included
+        if approval.signers[nb] != userid:
             return []
         return [uuidToObject(f_uid, unrestricted=True) for f_uid in approval.files_uids
                 if not approval.is_file_approved(f_uid, nb=nb)]
 
-    def _approve(self, obj, userid, signers):
+    def _approve(self, obj, userid):
         """Approve the files of obj as the approval icon does. Return the number of approved files."""
-        afiles = self._files_to_approve(obj, userid, signers)
+        afiles = self._files_to_approve(obj, userid)
         views = [getMultiAdapter((afile, self.request), name="iconified-approved") for afile in afiles]
         # status 0 when the signing session cannot be created, the reason is in the error messages
         if not all([view.set_values(None)[0] for view in views]):
@@ -406,14 +408,13 @@ class ApproveBatchActionForm(BaseBatchActionForm):
 
     def _apply(self, **data):
         userid = api.user.get_current().getId()
-        signers = api.portal.get_registry_record(BATCH_APPROVAL_SIGNERS_RECORD, default=None) or []
         nb_files = nb_mails = skipped = 0
         failed = []
         for brain in self.brains:
             obj = brain.getObject()
             savepoint = transaction.savepoint()
             try:
-                approved = self._approve(obj, userid, signers)
+                approved = self._approve(obj, userid)
             except ConflictError:
                 raise
             except Exception as exc:
@@ -434,8 +435,8 @@ class ApproveBatchActionForm(BaseBatchActionForm):
         self.request.response.cookies.pop(STATUSMESSAGEKEY, None)
         mapping = {"files": nb_files, "elements": nb_mails, "skipped": skipped}
         if skipped:
-            summary = _(u"${files} file(s) approved on ${elements} element(s). ${skipped} element(s) skipped due to "
-                        u"site settings.", mapping=mapping)
+            summary = _(u"${files} file(s) approved on ${elements} element(s). ${skipped} element(s) skipped.",
+                        mapping=mapping)
         else:
             summary = _(u"${files} file(s) approved on ${elements} element(s).", mapping=mapping)
         api.portal.show_message(summary, request=self.request)
