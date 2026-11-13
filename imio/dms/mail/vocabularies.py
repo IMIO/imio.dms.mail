@@ -599,7 +599,8 @@ class LabelsVocabulary(object):
 
 @implementer(IVocabularyFactory)
 class CreatingGroupVocabulary(object):
-    """Creating group vocabulary"""
+    """Creating group vocabulary: organizations having a "group_encoder" or "contacts_part" plone group,
+    even empty (a group exists for each organization selected in the function, or for all if none is selected)"""
 
     @ram.cache(voc_cache_key)
     def CreatingGroupVocabulary__call__(self, context):
@@ -622,7 +623,8 @@ class CreatingGroupVocabulary(object):
 
 @implementer(IVocabularyFactory)
 class ActiveCreatingGroupVocabulary(object):
-    """Active creating group vocabulary"""
+    """Active creating group vocabulary: organizations having a "group_encoder" or "contacts_part" plone group
+    containing at least one member"""
 
     @ram.cache(voc_cache_key)
     def ActiveCreatingGroupVocabulary__call__(self, context):

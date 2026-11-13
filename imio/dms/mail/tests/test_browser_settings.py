@@ -91,6 +91,22 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
             _tr(errors[0].message, mapping={"tab": _tr("Incoming mail"), "field": _tr("Activate group encoder")}),
             error_msg,
         )
+        # test iemail_creating_group
+        data = {"iemail_routing": [], "iemail_state_set": []}
+        rule = {"forward": u"agent", "transfer_email_pat": u"", "original_email_pat": u"", "tal_condition_1": u"",
+                "cg_value": u"_transferer_"}
+        data["iemail_creating_group"] = [rule]
+        self.assertFalse(invariants.validate(data))
+        rule["cg_value"] = None
+        errors = invariants.validate(data)
+        self.assertEqual(errors[0].message, u"${tab} tab: « ${field} » rule ${rule} is configured with no values "
+                                            u"defined")
+        self.assertEqual(errors[0].message.mapping["rule"], 1)
+        rule.update({"cg_value": u"_transferer_", "transfer_email_pat": u"agent(@"})
+        errors = invariants.validate(data)
+        self.assertEqual(errors[0].message, u"${tab} tab: « ${field} » rule ${rule} has an invalid pattern in "
+                                            u"« ${col} »")
+        self.assertEqual(errors[0].message.mapping["rule"], 1)
 
     def test_omail_signer_substitutes_validation(self):
         """Check omail_signer_substitutes invariant validation."""
@@ -453,9 +469,11 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(default_creating_group(), orgs[3])  # primary org
         # user not in selected groups: no interaction
         self.assertEqual(default_creating_group(api.user.get(userid="agent1")), orgs[1])
+        self.assertIsNone(default_creating_group(api.user.get(userid="agent1"), strict=True))
         # we change the primary organization
         get_person_from_userid("agent").primary_organization = None
         self.assertEqual(default_creating_group(api.user.get(userid="agent")), orgs[1])
+        self.assertEqual(default_creating_group(api.user.get(userid="agent"), strict=True), orgs[1])
         # user logout
         logout()
 
@@ -525,3 +543,21 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
         for fid in ("orgs-searches", "persons-searches", "hps-searches", "cls-searches"):
             crit = ICriteria(self.portal["contacts"][fid])
             self.assertIn("c90", crit.keys())
+
+    def test_CgRoutingValueVocabulary(self):
+        voc = getUtility(IVocabularyFactory, "imio.dms.mail.CgRoutingValueVocabulary")
+        self.assertListEqual([t.value for t in voc(self.portal)], [None, u"_transferer_", u"_treating_group_"])
+        change_user(self.portal)
+        activate_group_encoder(self.portal)
+        pgof = self.portal["contacts"]["plonegroup-organization"]
+        self.assertListEqual(
+            [(t.value, t.title) for t in voc(self.portal)][3:],
+            [
+                (pgof["direction-generale"]["secretariat"].UID(), u"Direction générale - Secrétariat"),
+                (pgof["evenements"].UID(), u"Événements"),
+            ],
+        )
+        # an organization with an empty creating group is not proposed
+        api.group.remove_user(groupname="{}_{}".format(pgof["evenements"].UID(), CREATING_GROUP_SUFFIX),
+                              username="agent1")
+        self.assertListEqual([t.value for t in voc(self.portal)][3:], [pgof["direction-generale"]["secretariat"].UID()])
