@@ -14,7 +14,6 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import DEFAULT_DISPLAYED_TABS
 from imio.dms.mail import FIRST_LEVEL_TABS
 from imio.dms.mail.browser.settings import IImioDmsMailConfig
-from imio.dms.mail.browser.settings import SettingsEditForm
 from imio.dms.mail.browser.views import ImioCatalogNavigationTabs
 from imio.dms.mail.browser.views import PlusPortaltabContent
 from imio.dms.mail.content.behaviors import default_creating_group
@@ -558,15 +557,7 @@ class TestSettings(unittest.TestCase, ImioTestHelpers):
                 (pgof["evenements"].UID(), u"Événements"),
             ],
         )
-
-    def test_SettingsEditForm_updateFields(self):
-        def iem_widgets():
-            form = SettingsEditForm(self.portal, self.portal.REQUEST)
-            form.update()
-            return [grp for grp in form.groups if grp.__name__ == "incoming_email"][0].widgets.keys()
-
-        # creating group rules are hidden while incoming mail group encoding is off
-        self.assertListEqual(iem_widgets(), ["iemail_routing", "iemail_state_set"])
-        change_user(self.portal)
-        activate_group_encoder(self.portal)
-        self.assertListEqual(iem_widgets(), ["iemail_routing", "iemail_state_set", "iemail_creating_group"])
+        # an organization with an empty creating group is not proposed
+        api.group.remove_user(groupname="{}_{}".format(pgof["evenements"].UID(), CREATING_GROUP_SUFFIX),
+                              username="agent1")
+        self.assertListEqual([t.value for t in voc(self.portal)][3:], [pgof["direction-generale"]["secretariat"].UID()])

@@ -73,8 +73,8 @@ Changelog
   [chris-adam]
 - Added a batch approval action on outgoing mail and requests "to approve" dashboards, for a signer approving for themself (PARAF-565).
   [chris-adam,sgeulette]
-- Added the incoming email creating group rules setting, shown when the incoming mail group encoder is activated (DMS-1252).
-  [chris-adam]
+- Added the incoming email creating group rules setting, used when the incoming mail group encoder is activated (DMS-1252).
+  [chris-adam,sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

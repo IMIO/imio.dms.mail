@@ -270,6 +270,7 @@ class StatesRoutingValueVocabulary(object):
 
 @implementer(IVocabularyFactory)
 class CgRoutingValueVocabulary(object):
+    """Creating group rule values: special values followed by active creating groups (with members)"""
 
     def __call__(self, context):
         return SimpleVocabulary(
@@ -277,8 +278,8 @@ class CgRoutingValueVocabulary(object):
                 SimpleTerm(value=None, title=_("Choose a value !")),
                 SimpleTerm(value=u"_transferer_", title=_("Transferer")),
                 SimpleTerm(value=u"_treating_group_", title=_("Following treating group")),
-            ] + vocabularyname_to_terms("imio.dms.mail.CreatingGroupVocabulary", context=api.portal.get(),
-                                        sort_on="title")
+            ] + vocabularyname_to_terms("imio.dms.mail.ActiveCreatingGroupVocabulary",
+                                        context=api.portal.get(), sort_on="title")
         )
 
 
@@ -734,7 +735,8 @@ class IImioDmsMailConfig(model.Schema):
 
     iemail_creating_group = schema.List(
         title=_(u"${type} creating group", mapping={"type": _("Incoming email")}),
-        description=_(u"Configure creating group rules carefully. You can order with arrows. Only first rule giving "
+        description=_(u"Those rules are only used if group encoder option is activated ! Configure creating group "
+                      u"rules carefully. You can order with arrows. Only first rule giving "
                       u"a usable creating group is used. Rules are applied after routing ones."),
         required=False,
         value_type=DictRow(title=_(u"Creating group"), schema=ICreatingGroupSetSchema, required=False),
@@ -1541,15 +1543,6 @@ class SettingsEditForm(RegistryEditForm):
                         mapping={"list": u", ".join(unconfigured)},
                     ),
                 )
-
-    def updateFields(self):
-        super(SettingsEditForm, self).updateFields()
-        # creating group rules are only used with incoming mail group encoding
-        if api.portal.get_registry_record("imio.dms.mail.browser.settings.IImioDmsMailConfig.imail_group_encoder"):
-            return
-        for grp in self.groups:
-            if grp.__name__ == "incoming_email":
-                grp.fields = grp.fields.omit("iemail_creating_group")
 
 
 SettingsView = layout.wrap_form(SettingsEditForm, ControlPanelFormWrapper)
