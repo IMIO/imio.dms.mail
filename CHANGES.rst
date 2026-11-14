@@ -4,6 +4,11 @@ Changelog
 3.1.8 (unreleased)
 ------------------
 
+- Added "Export to zip" action and batch action on incoming and outgoing mails, sign requests
+  and classification folders, using the imio.annex zip forms. Base versions (mailing sources and
+  files converted to pdf) are not listed. On a folder, subfolder files are listed but not preselected,
+  an option stores them in a directory by subfolder. The element form opens in an overlay.
+  [sgeulette]
 - Updated `ExportToPDFBatchActionForm` after imio.annex refactoring
   [sgeulette]
 - Fixed amqp consumer crash on scanned outgoing mail in `template_first` signers mode: signer rules

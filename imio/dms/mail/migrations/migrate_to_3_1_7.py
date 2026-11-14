@@ -49,9 +49,10 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                 alsoProvides(req_folder, ICountableTab)
                 req_folder.reindexObject(idxs="object_provides")
                 logger.info("requests folder marked as countable tab")
-            # new "export to pdf" actions on dmsoutgoingmail and sign_request
-            load_type_from_package("dmsoutgoingmail", "imio.dms.mail:default")
-            load_type_from_package("sign_request", "imio.dms.mail:default")
+            # new "export to pdf" actions on dmsoutgoingmail and sign_request, "export to zip" on mails and folders
+            for type_name in ("dmsincomingmail", "dmsincoming_email", "dmsoutgoingmail", "sign_request",
+                              "ClassificationFolder", "ClassificationSubfolder"):
+                load_type_from_package(type_name, "imio.dms.mail:default")
             # d-print templates replaced by the "export to pdf" forms: disabled, not yet removed
             for tid in ("d-print-to-sign", "d-print-signed"):
                 tmpl = self.portal["templates"]["om"].get(tid)
