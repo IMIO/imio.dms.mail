@@ -237,6 +237,16 @@
         />
 
     <utility
+        name="imio.dms.mail.ExportToZipVocabulary"
+        factory="imio.dms.mail.browser.export_to_pdf.DmsFilesVocabulary"
+        />
+
+    <utility
+        name="imio.dms.mail.ExportToZipFolderVocabulary"
+        factory="imio.dms.mail.browser.export_to_zip.ExportToZipFolderVocabulary"
+        />
+
+    <utility
         name="imio.dms.mail.PODTemplateContentCategoriesVocabulary"
         factory="imio.dms.mail.vocabularies.PODTemplateContentCategoriesVocabulary"
         />

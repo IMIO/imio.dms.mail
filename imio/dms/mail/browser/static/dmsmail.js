@@ -202,7 +202,8 @@ $(document).ready(function(){
     });
 
     function SimpleExportPDF() {
-      $('.apButtonAction_form_export-to-pdf-before-signature, .apButtonAction_form_export-to-pdf-after-signature').prepOverlay({
+      $('.apButtonAction_form_export-to-pdf-before-signature, .apButtonAction_form_export-to-pdf-after-signature, ' +
+        '.apButtonAction_form_export-to-zip').prepOverlay({
          subtype: 'ajax',
          closeselector: '[name="form.buttons.cancel"]',
          config: { onBeforeLoad: function(e) {

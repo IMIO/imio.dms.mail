@@ -136,6 +136,67 @@
         permission="zope2.View"
         />
 
+    <!-- Export the files as a Zip file -->
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsIncomingMail"
+        name="export-to-zip"
+        class=".export_to_zip.ExportToZipForm"
+        permission="zope2.View"
+        allowed_attributes="available"
+        />
+
+    <browser:page
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
+        name="export-to-zip"
+        class=".export_to_zip.ExportToZipForm"
+        permission="zope2.View"
+        allowed_attributes="available"
+        />
+
+    <browser:page
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
+        name="export-to-zip"
+        class=".export_to_zip.ExportToZipForm"
+        permission="zope2.View"
+        allowed_attributes="available"
+        />
+
+    <browser:page
+        for="collective.classification.folder.content.classification_folder.IClassificationFolder"
+        name="export-to-zip"
+        class=".export_to_zip.ExportToZipFolderForm"
+        permission="zope2.View"
+        allowed_attributes="available"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IIMDashboardBatchActions"
+        name="export-to-zip-batch-action"
+        class=".export_to_zip.ExportToZipBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
+        name="export-to-zip-batch-action"
+        class=".export_to_zip.ExportToZipBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IReqDashboardBatchActions"
+        name="export-to-zip-batch-action"
+        class=".export_to_zip.ExportToZipBatchActionForm"
+        permission="zope2.View"
+        />
+
+    <browser:page
+        for="imio.dms.mail.interfaces.IClassificationFoldersDashboardBatchActions"
+        name="export-to-zip-batch-action"
+        class=".export_to_zip.ExportToZipFolderBatchActionForm"
+        permission="zope2.View"
+        />
+
     <browser:page
         for="imio.dms.mail.interfaces.IOMDashboardBatchActions"
         name="approve-batch-action"

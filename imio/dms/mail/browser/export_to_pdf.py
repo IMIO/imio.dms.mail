@@ -69,16 +69,12 @@ def pdf_content(afile):
     return convert_file(afile) if afile.contentType in (ODT, DOCX) else afile.data
 
 
-class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
-    """Files of an outgoing mail or a signing request that may be exported to PDF.
+class DmsFilesVocabulary(ContainedAnnexesVocabulary):
+    """Files of a mail, a signing request or a folder: every file type, shown in the term title.
 
     Files are listed in the IItemOrderProvider order: GED files first, then the appendix files.
-    Files superseded by their mailing are dropped, the others are disabled when they
-    are not to be printed, when a PDF was generated from them or when they cannot be
-    concatenated.
+    Base versions (`_dropped_uids`) are not listed.
     """
-
-    after_signature = False
 
     def __call__(
             self,
@@ -89,17 +85,22 @@ class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
             include_parent_title=False,
             filters={}):
 
-        return super(ExportToPDFElementsVocabulary, self).__call__(
+        return super(DmsFilesVocabulary, self).__call__(
             context, portal_type=portal_type, token_value=token_value, include_portal_type=include_portal_type,
             include_parent_title=include_parent_title, filters=filters
         )
 
     def _prepare_annex_infos(self, context, annex_infos):
-        mailed = superseded_uids(context)[0]
+        dropped = self._dropped_uids(context)
         order = getAdapter(context, IItemOrderProvider).get_item_order()
         return sorted(
-            [infos for infos in annex_infos if infos["UID"] not in mailed],
+            [infos for infos in annex_infos if infos["UID"] not in dropped],
             key=lambda infos: order.get(infos["UID"], len(order)))
+
+    def _dropped_uids(self, context):
+        """The mailing sources and the files converted to pdf: only their derived files are listed."""
+        mailed, converted = superseded_uids(context)
+        return mailed | converted
 
     def _portal_type_title(self, context, annex_info):
         """Tell ged files and appendix files apart, the FTI titles are not readable."""
@@ -107,6 +108,21 @@ class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
             api.portal.get().portal_types[annex_info['portal_type']].title,
             domain="plone",
             context=context.REQUEST)
+
+
+class ExportToPDFElementsVocabulary(DmsFilesVocabulary):
+    """Files of an outgoing mail or a signing request that may be exported to PDF.
+
+    Files superseded by their mailing are dropped, the others are disabled when they
+    are not to be printed, when a PDF was generated from them or when they cannot be
+    concatenated.
+    """
+
+    after_signature = False
+
+    def _dropped_uids(self, context):
+        """Files converted to pdf are listed, but disabled."""
+        return superseded_uids(context)[0]
 
     def _to_print(self, annex_info):
         """Is this file part of what has to be printed?"""
@@ -147,7 +163,20 @@ class ExportToPDFAfterSignatureVocabulary(ExportToPDFElementsVocabulary):
     after_signature = True
 
 
-class ExportToPDFForm(ExportPDFForm):
+class PreselectElementsMixin(object):
+    """Preselect the exportable elements when the export form is first displayed."""
+
+    def updateWidgets(self):
+        super(PreselectElementsMixin, self).updateWidgets()
+        widget = self.widgets["elements"]
+        if "%s-empty-marker" % widget.name not in self.request.form:
+            widget.value = [term.token for term in widget.terms if self._preselect(term)]
+
+    def _preselect(self, term):
+        return not getattr(term, "disabled", False)
+
+
+class ExportToPDFForm(PreselectElementsMixin, ExportPDFForm):
     """Concatenate the selected files of an outgoing mail or a signing request."""
 
     condition = None  # name of the context method telling if the export is possible
@@ -162,13 +191,6 @@ class ExportToPDFForm(ExportPDFForm):
     def __init__(self, context, request):
         super(ExportToPDFForm, self).__init__(context, request)
         self.fields["two_sided"].field.default = True
-
-    def updateWidgets(self):
-        super(ExportToPDFForm, self).updateWidgets()
-        widget = self.widgets["elements"]
-        if "%s-empty-marker" % widget.name not in self.request.form:
-            # first display: preselect everything that may be exported
-            widget.value = [term.token for term in widget.terms if not getattr(term, "disabled", False)]
 
     def _elements_content(self, data):
         """Odt and docx files are converted to PDF before being concatenated."""

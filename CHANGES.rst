@@ -10,6 +10,11 @@ Changelog
   [sgeulette]
 - Added "Export to PDF" batch actions on outgoing mail and requests dashboards.
   [sgeulette]
+- Added "Export to zip" action and batch action on incoming and outgoing mails, sign requests
+  and classification folders, using the imio.annex zip forms. Base versions (mailing sources and
+  files converted to pdf) are not listed. On a folder, subfolder files are listed but not preselected,
+  an option stores them in a directory by subfolder. The element form opens in an overlay.
+  [sgeulette]
 - Removed "d-print-to-sign" and "d-print-signed" templates from new sites and disabled them
   in migration: they are replaced by "Export to PDF".
   [sgeulette]

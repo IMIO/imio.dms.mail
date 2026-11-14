@@ -101,7 +101,9 @@ class DmsIMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
             "renderAssignUser",
             "render_multiple_annexes_button",
         )
-        self.ACCEPTABLE_ACTIONS = ["delete"]
+        self.ACCEPTABLE_ACTIONS = ["delete", "export-to-zip"]
+        if self.isInFacetedNavigation():  # export condition is too costly to be computed for each listed mail
+            self.ACCEPTABLE_ACTIONS = ["delete"]
         self.ogm = api.portal.get()["outgoing-mail"]
 
     def mayReply(self):
@@ -261,7 +263,8 @@ class DmsOMActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
         super(DmsOMActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
         # self.ACCEPTABLE_ACTIONS = ['copy', 'paste', 'delete']
-        self.ACCEPTABLE_ACTIONS = ["delete", "export-to-pdf-before-signature", "export-to-pdf-after-signature"]
+        self.ACCEPTABLE_ACTIONS = ["delete", "export-to-pdf-before-signature", "export-to-pdf-after-signature",
+                                   "export-to-zip"]
         if self.isInFacetedNavigation():  # export condition is too costly to be computed for each listed mail
             self.ACCEPTABLE_ACTIONS = ["delete"]
         self.SECTIONS_TO_RENDER += (
@@ -374,7 +377,7 @@ class DmsSignRequestActionsPanelView(MultipleAnnexesMixin, ActionsPanelView):
     def __init__(self, context, request):
         super(DmsSignRequestActionsPanelView, self).__init__(context, request)
         # portal_actions.object_buttons action ids to keep
-        self.ACCEPTABLE_ACTIONS = ["delete", "export-to-pdf-after-signature"]
+        self.ACCEPTABLE_ACTIONS = ["delete", "export-to-pdf-after-signature", "export-to-zip"]
         if self.isInFacetedNavigation():  # export condition is too costly to be computed for each listed request
             self.ACCEPTABLE_ACTIONS = ["delete"]
         self.SECTIONS_TO_RENDER += ("render_multiple_annexes_button",)
@@ -478,7 +481,9 @@ class ClassificationFolderActionsPanelView(MultipleAnnexesMixin, ActionsPanelVie
 
     def __init__(self, context, request):
         super(ClassificationFolderActionsPanelView, self).__init__(context, request)
-        self.ACCEPTABLE_ACTIONS = ["cut", "copy", "paste", "delete"]
+        self.ACCEPTABLE_ACTIONS = ["cut", "copy", "paste", "delete", "export-to-zip"]
+        if self.isInFacetedNavigation():  # export condition is too costly to be computed for each listed folder
+            self.ACCEPTABLE_ACTIONS = ["cut", "copy", "paste", "delete"]
         self.SECTIONS_TO_RENDER += ("render_multiple_annexes_button",)
 
     @ram.cache(actionspanelview_cachekey)
