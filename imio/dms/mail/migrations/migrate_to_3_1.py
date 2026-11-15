@@ -319,8 +319,11 @@ class Migrate_To_3_1(Migrator):  # noqa
             if can_delete_batch_files(batch_keys, batch_config):
                 batch_delete_files(batch_keys, batch_config, log=True)
 
-        if self.is_in_part("g"):  # 3.1.6 sign_request
+        if self.is_in_part("g"):
             self.add_sign_request()
+
+        if self.is_in_part("h"):
+            self.add_contact_type_search_term()
 
         if self.is_in_part("t"):  # final steps
             # finished = True  # can be eventually returned and set by batched method
@@ -506,6 +509,28 @@ class Migrate_To_3_1(Migrator):  # noqa
             maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
             maintenance.sync()  # BATCHED
             response.write = original
+
+    def add_contact_type_search_term(self):
+        """Type term (organisation, personne, poste, role, liste) in contacts SearchableText. BATCHED"""
+        api.portal.set_registry_record(
+            "collective.contact.core.interfaces.IContactCoreParameters.use_type_term_to_search_contact", True
+        )
+        load_type_from_package("contact_list", "imio.dms.mail:default")  # IDexterityTextIndexer behavior
+        paths = [brain.getPath() for brain in self.catalog.unrestrictedSearchResults(
+            portal_type=["organization", "person", "held_position", "position", "contact_list"])]
+        pklfile = batch_hashed_filename("imio.dms.mail.add_contact_type_search_term.pkl", ())
+        batch_keys, batch_config = batch_get_keys(pklfile, loop_length=len(paths), log=True)
+        for path in paths:
+            if batch_skip_key(path, batch_keys, batch_config):
+                continue
+            self.portal.unrestrictedTraverse(path).reindexObject(idxs=["SearchableText"])
+            if batch_handle_key(path, batch_keys, batch_config):
+                break
+        else:
+            batch_loop_else(batch_keys, batch_config)
+        if can_delete_batch_files(batch_keys, batch_config):
+            batch_delete_files(batch_keys, batch_config, log=True)
+        logger.info("SearchableText reindexed on %d contacts", len(paths))
 
     def add_sign_request(self):
         """sign_request type and workflow, requests folder, related settings."""
@@ -706,7 +731,7 @@ class Migrate_To_3_1(Migrator):  # noqa
             query = [dict(dic) for dic in col.query]
             changed = False
             for dic in query:
-                if dic.get("i") == "CompoundCriterion" and isinstance(dic.get("v"), basestring):
+                if dic.get("i") == "CompoundCriterion" and isinstance(dic.get("v"), basestring):  # noqa F821
                     dic["v"] = [dic["v"]]
                     changed = True
             if changed:

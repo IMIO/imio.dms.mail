@@ -75,6 +75,9 @@ Changelog
   [chris-adam,sgeulette]
 - Added the incoming email creating group rules setting, used when the incoming mail group encoder is activated (DMS-1252).
   [chris-adam,sgeulette]
+- Activated collective.contact.core `use_type_term_to_search_contact` option: a type term (organisation,
+  personne, poste, role, liste) is added in contacts SearchableText to filter by type in contact widgets (DMS-1254).
+  [sgeulette]
 
 3.1.6 (2026-08-14)
 ------------------

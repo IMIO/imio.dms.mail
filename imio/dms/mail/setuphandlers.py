@@ -2279,6 +2279,9 @@ def adaptDefaultPortal(context):
     api.portal.set_registry_record(
         "collective.contact.core.interfaces.IContactCoreParameters.display_below_content_title_on_views", True
     )
+    api.portal.set_registry_record(
+        "collective.contact.core.interfaces.IContactCoreParameters.use_type_term_to_search_contact", True
+    )
     # imio.dms.mail configuration annotation
     # if changed, must be updated in testing.py !
     set_dms_config(

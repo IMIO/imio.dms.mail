@@ -2,5 +2,6 @@
 <object name="contact_list">
  <property name="behaviors" purge="False">
   <element value="plone.app.lockingbehavior.behaviors.ILocking" />
+  <element value="collective.dexteritytextindexer.behavior.IDexterityTextIndexer" />
  </property>
 </object>

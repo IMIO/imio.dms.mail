@@ -113,6 +113,9 @@ class Migrate_To_3_1_7(Migrate_To_3_1):  # noqa
                 batch_delete_files(batch_keys, batch_config, log=True)
             logger.info("categorized_elements updated on %d containers with appendix files", len(parents))
 
+        if self.is_in_part("g"):
+            self.add_contact_type_search_term()
+
         if self.is_in_part("t"):  # final steps
             if self.old_version != self.new_version:
                 self.run_finalization()

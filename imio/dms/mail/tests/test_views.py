@@ -100,6 +100,15 @@ class TestContactSuggest(unittest.TestCase):
         self.assertEqual(parse_query("dir*"), {"SearchableText": "dir*"})
         self.assertEqual(parse_query("director(organization)"), {"SearchableText": "director* AND organization*"})
 
+    def test_type_term_search(self):
+        pc = self.portal.portal_catalog
+        self.assertIn("held_position", {b.portal_type for b in pc(**parse_query("electrabel"))})
+        self.assertSetEqual({b.portal_type for b in pc(**parse_query("organisation electrabel"))}, {"organization"})
+        self.assertSetEqual({b.portal_type for b in pc(**parse_query("poste electrabel"))}, {"held_position"})
+        with api.env.adopt_roles(["Manager"]):
+            api.content.create(container=self.ctct["contact-lists-folder"], type="contact_list", id="cl", title=u"Amis")
+        self.assertListEqual([b.id for b in pc(**parse_query("liste amis"))], ["cl"])
+
     def test_call_ContactSuggest(self):
         imail1 = get_object(oid="courrier1", ptype="dmsincomingmail")
         view = imail1.unrestrictedTraverse("@@contact-autocomplete-suggest")
