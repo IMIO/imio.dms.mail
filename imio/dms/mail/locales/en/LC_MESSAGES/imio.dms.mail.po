@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-16 10:24+0000\n"
+"POT-Creation-Date: 2026-11-16 15:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -344,7 +344,7 @@ msgstr ""
 msgid "Annexes Types"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:237
+#: ./browser/export_to_pdf.py:240
 msgid "Appendix files for each mailed version?"
 msgstr ""
 
@@ -500,7 +500,7 @@ msgstr ""
 msgid "Close outgoing mail on email send"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:246
+#: ./browser/export_to_pdf.py:215
 msgid "Close the exported elements?"
 msgstr ""
 
@@ -663,7 +663,7 @@ msgstr ""
 msgid "Due date extension"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:318
+#: ./browser/export_to_pdf.py:321
 msgid "E-signature or seal set, or already signed"
 msgstr ""
 
@@ -1005,7 +1005,7 @@ msgstr ""
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
-#: ./browser/export_to_pdf.py:306
+#: ./browser/export_to_pdf.py:309
 msgid "No file to print"
 msgstr ""
 
@@ -1029,7 +1029,7 @@ msgstr ""
 msgid "Not all files approved"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:328
+#: ./browser/export_to_pdf.py:335
 msgid "Not signed"
 msgstr ""
 
@@ -1054,7 +1054,7 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
 msgstr ""
 
-#: ./browser/export_to_pdf.py:336
+#: ./browser/export_to_pdf.py:343
 msgid "Only sent by email"
 msgstr ""
 
@@ -1109,7 +1109,7 @@ msgid "Outgoing DMS Files"
 msgstr ""
 
 #: ./browser/batchactions.py:162
-#: ./browser/export_to_pdf.py:254
+#: ./browser/export_to_pdf.py:257
 #: ./dmsmail.py:723
 msgid "Outgoing Date"
 msgstr ""
@@ -1195,6 +1195,10 @@ msgstr ""
 
 #: ./profiles/default/registry.xml
 msgid "Precise scan date"
+msgstr ""
+
+#: ./browser/export_to_pdf.py:325
+msgid "Put the exported elements to signature?"
 msgstr ""
 
 #: ./browser/settings.py:178
@@ -1676,7 +1680,11 @@ msgstr ""
 msgid "Warning: the mail already has signers configured that differ from the template. The template signers were not applied."
 msgstr ""
 
-#: ./browser/export_to_pdf.py:247
+#: ./browser/export_to_pdf.py:326
+msgid "Will made transition to be signed"
+msgstr ""
+
+#: ./browser/export_to_pdf.py:216
 msgid "Will made transition to final state and set an outgoing date"
 msgstr ""
 
@@ -2090,11 +2098,11 @@ msgstr "Title"
 msgid "listing_sender_title"
 msgstr "Sender"
 
-#: ./browser/export_to_pdf.py:238
+#: ./browser/export_to_pdf.py:241
 msgid "mailing_appendices description after signature"
 msgstr "Annexes are duplicated and inserted in the generated PDF right after each mailed document"
 
-#: ./browser/export_to_pdf.py:239
+#: ./browser/export_to_pdf.py:242
 msgid "mailing_appendices description before signature"
 msgstr "Annexes are duplicated and inserted at the end of the generated PDF, so the centralised sending will have all the copies"
 
