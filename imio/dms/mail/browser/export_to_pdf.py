@@ -210,8 +210,11 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
     condition = None  # name of the element method telling if the element export is possible
     condition_msg = None  # exclusion reason when the condition is not met
     mailing_appendices = None  # default of the field repeating the appendix files by mailed version, None to omit it
-    close_transition = None  # transition to the final state, done after the export when close_content is True
-    close_with_date = False  # the outgoing date is set when closing
+    after_export_transition = None  # transition done after the export when do_transition is True
+    transition_default = True  # default of the do_transition field
+    transition_title = _(u"Close the exported elements?")
+    transition_description = _(u"Will made transition to final state and set an outgoing date")
+    transition_with_date = False  # the outgoing date is set with the transition
     button_with_icon = False
     CHECK_ELEMENTS = True
 
@@ -240,15 +243,15 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
                 default=self.mailing_appendices,
                 required=False))
             self.fields["mailing_appendices"].widgetFactory = RadioFieldWidget
-        if self.close_transition:
+        if self.after_export_transition:
             self.fields += Fields(schema.Bool(
-                __name__="close_content",
-                title=_(u"Close the exported elements?"),
-                description=_(u"Will made transition to final state and set an outgoing date"),
-                default=True,
+                __name__="do_transition",
+                title=self.transition_title,
+                description=self.transition_description,
+                default=self.transition_default,
                 required=False))
-            self.fields["close_content"].widgetFactory = RadioFieldWidget
-        if self.close_with_date:
+            self.fields["do_transition"].widgetFactory = RadioFieldWidget
+        if self.transition_with_date:
             self.fields += Fields(schema.Datetime(
                 __name__="outgoing_date",
                 title=_(u"Outgoing Date"),
@@ -257,21 +260,21 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
 
     def _apply(self, **data):
         pdf_file_content = super(ExportToPDFBatchActionForm, self)._apply(**data)
-        if pdf_file_content and data.get("close_content"):
-            self._close_elements(data)
+        if pdf_file_content and data.get("do_transition"):
+            self._transition_elements(data)
         return pdf_file_content
 
-    def _close_elements(self, data):
-        """Do the final transition on the exported elements that can do it."""
+    def _transition_elements(self, data):
+        """Do the after export transition on the exported elements that can do it."""
         excluded = [obj for obj, reason in self._excluded_elements()]
         for brain in self.brains:
             obj = brain.getObject()
-            if obj in excluded or self.close_transition not in get_transitions(obj):
+            if obj in excluded or self.after_export_transition not in get_transitions(obj):
                 continue
             if data.get("outgoing_date"):
                 obj.outgoing_date = data["outgoing_date"]
                 modified(obj, Attributes(IImioDmsOutgoingMail, "outgoing_date"))
-            api.content.transition(obj=obj, transition=self.close_transition)
+            api.content.transition(obj=obj, transition=self.after_export_transition)
             # the dashboard showing the batch action is refreshed after the download
             self.request.response.setHeader("X-Refresh-Faceted", "1")
 
@@ -317,6 +320,10 @@ class ExportToPDFBeforeSignatureBatchActionForm(ExportToPDFBatchActionForm):
     condition = "can_do_export_to_pdf_before_signature"
     condition_msg = _(u"E-signature or seal set, or already signed")
     mailing_appendices = False  # the mailed odt holds every version
+    after_export_transition = "propose_to_be_signed"  # the printed pdf is signed by hand
+    transition_default = False  # a pdf is often exported only to be read again
+    transition_title = _(u"Put the exported elements to signature?")
+    transition_description = _(u"Will made transition to be signed")
 
 
 class ExportToPDFAfterSignatureBatchActionForm(ExportToPDFBatchActionForm):
@@ -327,8 +334,8 @@ class ExportToPDFAfterSignatureBatchActionForm(ExportToPDFBatchActionForm):
     condition = "can_do_export_to_pdf_after_signature"
     condition_msg = _(u"Not signed")
     mailing_appendices = True  # each mailed version is a separate pdf
-    close_transition = "mark_as_sent"
-    close_with_date = True
+    after_export_transition = "mark_as_sent"
+    transition_with_date = True
 
     def _check_element(self, obj):
         # a mail only sent by email has nothing to print
@@ -341,8 +348,8 @@ class ExportToPDFReqAfterSignatureBatchActionForm(ExportToPDFAfterSignatureBatch
 
     collections = None
     mailing_appendices = None  # sign requests are not mailed
-    close_transition = "close"
-    close_with_date = False
+    after_export_transition = "close"
+    transition_with_date = False
 
     def _check_element(self, obj):
         """Sign requests have no send modes."""

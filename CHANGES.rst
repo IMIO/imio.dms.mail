@@ -10,6 +10,8 @@ Changelog
   [sgeulette]
 - Added "Export to PDF" batch actions on outgoing mail and requests dashboards.
   [sgeulette]
+- Added an option in "Export to PDF before signature" batch action to put the exported mails to be signed.
+  [sgeulette]
 - Removed "d-print-to-sign" and "d-print-signed" templates from new sites and disabled them
   in migration: they are replaced by "Export to PDF".
   [sgeulette]
