@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.1.7 (unreleased)
+3.1.7 (2026-11-17)
 ------------------
 
 - Added "Export to PDF" actions on dmsoutgoingmail and sign_request, using the
