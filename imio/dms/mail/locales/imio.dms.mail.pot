@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-16 15:37+0000\n"
+"POT-Creation-Date: 2026-11-17 08:42+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -346,7 +346,7 @@ msgstr ""
 msgid "Annexes Types"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:240
+#: ./browser/export_to_pdf.py:232
 msgid "Appendix files for each mailed version?"
 msgstr ""
 
@@ -502,7 +502,7 @@ msgstr ""
 msgid "Close outgoing mail on email send"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:215
+#: ./browser/export_to_pdf.py:207
 msgid "Close the exported elements?"
 msgstr ""
 
@@ -665,7 +665,7 @@ msgstr ""
 msgid "Due date extension"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:321
+#: ./browser/export_to_pdf.py:313
 msgid "E-signature or seal set, or already signed"
 msgstr ""
 
@@ -740,11 +740,11 @@ msgstr ""
 msgid "Expand/Collapse row"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:200
+#: ./browser/export_to_pdf.py:192
 msgid "Export to PDF after signature"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:180
+#: ./browser/export_to_pdf.py:172
 msgid "Export to PDF before signature"
 msgstr ""
 
@@ -930,7 +930,7 @@ msgstr ""
 msgid "Legal advice"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:194
+#: ./browser/export_to_pdf.py:186
 msgid "LibreOffice server ${server} does not answer on port(s) ${ports}: odt and docx files cannot be converted."
 msgstr ""
 
@@ -1007,7 +1007,7 @@ msgstr ""
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr ""
 
-#: ./browser/export_to_pdf.py:309
+#: ./browser/export_to_pdf.py:301
 msgid "No file to print"
 msgstr ""
 
@@ -1031,7 +1031,7 @@ msgstr ""
 msgid "Not all files approved"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:335
+#: ./browser/export_to_pdf.py:327
 msgid "Not signed"
 msgstr ""
 
@@ -1056,7 +1056,7 @@ msgstr ""
 msgid "Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
 msgstr ""
 
-#: ./browser/export_to_pdf.py:343
+#: ./browser/export_to_pdf.py:335
 msgid "Only sent by email"
 msgstr ""
 
@@ -1111,7 +1111,7 @@ msgid "Outgoing DMS Files"
 msgstr ""
 
 #: ./browser/batchactions.py:162
-#: ./browser/export_to_pdf.py:257
+#: ./browser/export_to_pdf.py:249
 #: ./dmsmail.py:723
 msgid "Outgoing Date"
 msgstr ""
@@ -1199,7 +1199,7 @@ msgstr ""
 msgid "Precise scan date"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:325
+#: ./browser/export_to_pdf.py:317
 msgid "Put the exported elements to signature?"
 msgstr ""
 
@@ -1527,6 +1527,10 @@ msgstr ""
 msgid "The file '${file}' has been approved by ${user}. Next approval number is ${nb}."
 msgstr ""
 
+#: ./browser/viewlets.py:137
+msgid "The file '${title}' has an invalid signature/approval combination: a file to be signed must also be approved, and vice versa."
+msgstr ""
+
 #: ./subscribers.py:631
 msgid "The following documents have been generated with other signers than the current ones. You may have to delete and generate them again: ${titles}."
 msgstr ""
@@ -1682,11 +1686,11 @@ msgstr ""
 msgid "Warning: the mail already has signers configured that differ from the template. The template signers were not applied."
 msgstr ""
 
-#: ./browser/export_to_pdf.py:326
+#: ./browser/export_to_pdf.py:318
 msgid "Will made transition to be signed"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:216
+#: ./browser/export_to_pdf.py:208
 msgid "Will made transition to final state and set an outgoing date"
 msgstr ""
 
@@ -2100,11 +2104,11 @@ msgstr ""
 msgid "listing_sender_title"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:241
+#: ./browser/export_to_pdf.py:233
 msgid "mailing_appendices description after signature"
 msgstr ""
 
-#: ./browser/export_to_pdf.py:242
+#: ./browser/export_to_pdf.py:234
 msgid "mailing_appendices description before signature"
 msgstr ""
 

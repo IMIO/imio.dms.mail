@@ -11,6 +11,7 @@ from collective.messagesviewlet.browser.messagesviewlet import GlobalMessagesVie
 from collective.messagesviewlet.message import generate_uid
 from collective.messagesviewlet.message import PseudoMessage
 from collective.task.browser.viewlets import TaskParentViewlet
+from imio.dms.mail import _tr as _
 from imio.dms.mail.browser.table import IMVersionsTable
 from imio.dms.mail.browser.table import OMVersionsTable
 from imio.dms.mail.browser.table import SignRequestVersionsTable
@@ -133,13 +134,8 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
             approval = self.context.approval()
             invalid_files = approval.invalid_sign_approve_files() if approval.is_state_before_approve() else []
             for afile in invalid_files:
-                msg = translate(
-                    u"The file '${title}' has an invalid signature/approval combination: "
-                    u"a file to be signed must also be approved, and vice versa.",
-                    domain="imio.dms.mail",
-                    context=self.request,
-                    mapping={"title": safe_unicode(afile.Title())},
-                )
+                msg = _(u"The file '${title}' has an invalid signature/approval combination: a file to be signed must "
+                        u"also be approved, and vice versa.", mapping={"title": safe_unicode(afile.Title())})
                 ret.append(
                     PseudoMessage(msg_type="significant", text=richtextval(msg),
                                   hidden_uid=generate_uid(), can_hide=False)

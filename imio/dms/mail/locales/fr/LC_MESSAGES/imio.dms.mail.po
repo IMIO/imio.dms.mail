@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-11-16 15:37+0000\n"
+"POT-Creation-Date: 2026-11-17 08:42+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -346,7 +346,7 @@ msgstr "Annexe"
 msgid "Annexes Types"
 msgstr "Types d'annexes"
 
-#: ./browser/export_to_pdf.py:240
+#: ./browser/export_to_pdf.py:232
 msgid "Appendix files for each mailed version?"
 msgstr "Intégrer les annexes pour chacune des versions publipostées ?"
 
@@ -502,7 +502,7 @@ msgstr "Choisir dans quel état un email, transféré manuellement par un agent,
 msgid "Close outgoing mail on email send"
 msgstr "Clôturer la fiche courrier sortant lors de l'expédition de l'email"
 
-#: ./browser/export_to_pdf.py:215
+#: ./browser/export_to_pdf.py:207
 msgid "Close the exported elements?"
 msgstr "Clôturer l'élément après l'export ?"
 
@@ -665,7 +665,7 @@ msgstr "Sous-document avec QR code de téléchargement"
 msgid "Due date extension"
 msgstr "Échéance par défaut"
 
-#: ./browser/export_to_pdf.py:321
+#: ./browser/export_to_pdf.py:313
 msgid "E-signature or seal set, or already signed"
 msgstr "Signature ou cachet électroniques ou déjà signé"
 
@@ -740,11 +740,11 @@ msgstr "Entrez une expression régulière python"
 msgid "Expand/Collapse row"
 msgstr "Augmenter/réduire la hauteur de ligne"
 
-#: ./browser/export_to_pdf.py:200
+#: ./browser/export_to_pdf.py:192
 msgid "Export to PDF after signature"
 msgstr "Concaténation des PDF après signature électronique (pour impression)"
 
-#: ./browser/export_to_pdf.py:180
+#: ./browser/export_to_pdf.py:172
 msgid "Export to PDF before signature"
 msgstr "Concaténation des PDF avant signature manuscrite (pour impression)"
 
@@ -930,7 +930,7 @@ msgstr "Nom Prénom"
 msgid "Legal advice"
 msgstr "Avis légal"
 
-#: ./browser/export_to_pdf.py:194
+#: ./browser/export_to_pdf.py:186
 msgid "LibreOffice server ${server} does not answer on port(s) ${ports}: odt and docx files cannot be converted."
 msgstr "Libreoffice ne répond pas sur le serveur ${server} et le port ${ports}: les fichiers odt et docx ne peuvent être convertis."
 
@@ -1007,7 +1007,7 @@ msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sél
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
-#: ./browser/export_to_pdf.py:309
+#: ./browser/export_to_pdf.py:301
 msgid "No file to print"
 msgstr "Aucun fichier trouvé à exporter pour impression"
 
@@ -1031,7 +1031,7 @@ msgstr "Aucun des éléments sélectionnés n'est approuvable: seul un signatair
 msgid "Not all files approved"
 msgstr "Tous les fichiers ne sont pas approuvés"
 
-#: ./browser/export_to_pdf.py:335
+#: ./browser/export_to_pdf.py:327
 msgid "Not signed"
 msgstr "Non signé électroniquement"
 
@@ -1056,7 +1056,7 @@ msgstr "<span class='beware'>Une fois activée, cette option ne peut pas être a
 msgid "Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
 msgstr "Une fois l'élément créé et utilisé, la zone 'Valeur stockée' ne doit plus être modifiée."
 
-#: ./browser/export_to_pdf.py:343
+#: ./browser/export_to_pdf.py:335
 msgid "Only sent by email"
 msgstr "À envoyer par email"
 
@@ -1111,7 +1111,7 @@ msgid "Outgoing DMS Files"
 msgstr "Fichiers ged CS"
 
 #: ./browser/batchactions.py:162
-#: ./browser/export_to_pdf.py:257
+#: ./browser/export_to_pdf.py:249
 #: ./dmsmail.py:723
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
@@ -1199,7 +1199,7 @@ msgstr "Publipostage postal"
 msgid "Precise scan date"
 msgstr "Date précise de scan"
 
-#: ./browser/export_to_pdf.py:325
+#: ./browser/export_to_pdf.py:317
 msgid "Put the exported elements to signature?"
 msgstr "Mettre l'élément à la signature ?"
 
@@ -1527,13 +1527,17 @@ msgstr "Le fichier '${file}' a été approuvé par ${user}. Cependant, il y a en
 msgid "The file '${file}' has been approved by ${user}. Next approval number is ${nb}."
 msgstr "Le fichier '${file}' a été approuvé par ${user}. Le prochain numéro d'approbation est ${nb}."
 
+#: ./browser/viewlets.py:137
+msgid "The file '${title}' has an invalid signature/approval combination: a file to be signed must also be approved, and vice versa."
+msgstr "Le fichier « ${title} » a une combinaison invalide signature / approbation: un fichier « à signer » doit être « à approuver », et vice-versa."
+
 #: ./subscribers.py:631
 msgid "The following documents have been generated with other signers than the current ones. You may have to delete and generate them again: ${titles}."
 msgstr "Les documents suivants ont été générés avec d'autres signataires que ceux enregistrés. Il faut peut-être les effacer et les regénérer: « ${titles} »."
 
 #: ./subscribers.py:436
 msgid "The following file(s) have an invalid signature/approval combination (a file to be signed must also be approved, and vice versa): ${files}."
-msgstr "Les fichiers suivants ont une combinaison invalide de signataires/approbateurs (un fichier à signer doit être approuvé et vice/versa): «  ${files} »."
+msgstr "Les fichiers suivants ont une combinaison invalide signature / approbation (un fichier « à signer » doit être « à approuver », et vice-versa): « ${files} »."
 
 #: ./content/behaviors.py:256
 msgid "The signer '${signer_title}' has no userid, you cannot use it !"
@@ -1682,11 +1686,11 @@ msgstr "Attention: aucune prévisualisation pour le document '${doc}' dans le co
 msgid "Warning: the mail already has signers configured that differ from the template. The template signers were not applied."
 msgstr "Attention: cette fiche a déjà des signataires configurés qui diffère de ceux de ce modèle, qui ne seront donc pas appliqués à la fiche."
 
-#: ./browser/export_to_pdf.py:326
+#: ./browser/export_to_pdf.py:318
 msgid "Will made transition to be signed"
 msgstr "Cela va effectuer la transition vers l'état « À la signature »"
 
-#: ./browser/export_to_pdf.py:216
+#: ./browser/export_to_pdf.py:208
 msgid "Will made transition to final state and set an outgoing date"
 msgstr "Cela va effectuer la transition vers l'état final (envoyé ou clôturé) et définir la date d'expédition"
 
@@ -2100,11 +2104,11 @@ msgstr "Objet"
 msgid "listing_sender_title"
 msgstr "Expéditeur"
 
-#: ./browser/export_to_pdf.py:241
+#: ./browser/export_to_pdf.py:233
 msgid "mailing_appendices description after signature"
 msgstr "Les annexes sont dupliquées et incorporées dans le PDF généré après chaque document publiposté"
 
-#: ./browser/export_to_pdf.py:242
+#: ./browser/export_to_pdf.py:234
 msgid "mailing_appendices description before signature"
 msgstr "Les annexes sont dupliquées et incorporées à la fin du PDF généré, afin que l'envoi centralisé dispose de toutes les copies"
 
