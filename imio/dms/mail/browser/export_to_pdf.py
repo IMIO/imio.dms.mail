@@ -85,12 +85,11 @@ class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
             context,
             portal_type=None,
             token_value='id',
-            include_portal_type=True,
             include_parent_title=False,
             filters={}):
 
         return super(ExportToPDFElementsVocabulary, self).__call__(
-            context, portal_type=portal_type, token_value=token_value, include_portal_type=include_portal_type,
+            context, portal_type=portal_type, token_value=token_value,
             include_parent_title=include_parent_title, filters=filters
         )
 
@@ -100,13 +99,6 @@ class ExportToPDFElementsVocabulary(ContainedAnnexesVocabulary):
         return sorted(
             [infos for infos in annex_infos if infos["UID"] not in mailed],
             key=lambda infos: order.get(infos["UID"], len(order)))
-
-    def _portal_type_title(self, context, annex_info):
-        """Tell ged files and appendix files apart, the FTI titles are not readable."""
-        return u"%s - " % translate(
-            api.portal.get().portal_types[annex_info['portal_type']].title,
-            domain="plone",
-            context=context.REQUEST)
 
     def _to_print(self, annex_info):
         """Is this file part of what has to be printed?"""
