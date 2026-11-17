@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from collective.documentgenerator.utils import update_oo_config
+from collective.documentviewer.settings import GlobalSettings
 from collective.eeafaceted.dashboard.interfaces import ICountableTab
 from collective.iconifiedcategory.behaviors.iconifiedcategorization import IIconifiedCategorizationMarker
 from collective.iconifiedcategory.content.events import content_updated
@@ -109,6 +110,12 @@ class Migrate_To_3_1(Migrator):  # noqa
                     api.portal.get_registry_record(
                         "imio.pm.wsclient.browser.settings.IWS4PMClientSettings.generated_actions"),
                 ))
+            # odt, ods and odp are split from word, excel and ppt in imio.helpers: still convert them
+            gsettings = GlobalSettings(self.portal)
+            if "odt" not in gsettings.auto_layout_file_types:
+                gsettings.auto_layout_file_types = list(gsettings.auto_layout_file_types) + [
+                    ftype for ftype in ("odt", "ods", "odp") if ftype not in gsettings.auto_layout_file_types
+                ]
 
             # update workflow
             if "signed" not in self.portal.portal_workflow["outgoingmail_workflow"].states:
