@@ -29,6 +29,8 @@ Changelog
 - "Create from template": the modal closes after the template choice, and the mail reloads once the generated file
   is closed (no more waiting for the dropped documentviewer conversion).
   [chris-adam]
+- Dropped support for Plone versions below 6.2.
+  [chris-adam]
 
 3.1.7 (unreleased)
 ------------------
