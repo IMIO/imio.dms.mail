@@ -145,11 +145,11 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
             )
         afile.to_sign, afile.to_approve = True, False  # eligible but not approved => invalid
         om_inv_v = ContextInformationViewlet(om, self.elec.REQUEST, None)
-        combo = [m for m in om_inv_v.getAllMessages() if u"invalid signature/approval combination" in m.text.output]
+        combo = [m for m in om_inv_v.getAllMessages() if u"a une combinaison invalide signature / approbation" in m.text.output]
         self.assertEqual(len(combo), 1)
         self.assertTrue(isinstance(combo[0], PseudoMessage))
         afile.to_approve = True  # valid combination now => no banner
-        combo = [m for m in om_inv_v.getAllMessages() if u"invalid signature/approval combination" in m.text.output]
+        combo = [m for m in om_inv_v.getAllMessages() if u"a une combinaison invalide signature / approbation" in m.text.output]
         self.assertEqual(combo, [])
         # render() wraps the (possibly empty) banner in an AJAX-refreshable container
         om_inv_v.index = lambda: u"BODY"
@@ -158,5 +158,5 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         request, files = create_sign_request(self.portal, oid="sr-viewlet")
         files[0].to_approve = False  # to_sign but not approved => invalid
         sr_v = ContextInformationViewlet(request, self.elec.REQUEST, None)
-        combo = [m for m in sr_v.getAllMessages() if u"invalid signature/approval combination" in m.text.output]
+        combo = [m for m in sr_v.getAllMessages() if u"a une combinaison invalide signature / approbation" in m.text.output]
         self.assertEqual(len(combo), 1)
