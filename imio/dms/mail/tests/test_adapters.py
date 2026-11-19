@@ -17,6 +17,7 @@ from imio.dms.mail.adapters import IncomingMailHighestValidationCriterion
 from imio.dms.mail.adapters import IncomingMailInCopyGroupCriterion
 from imio.dms.mail.adapters import IncomingMailInTreatingGroupCriterion
 from imio.dms.mail.adapters import IncomingMailValidationCriterion
+from imio.dms.mail.adapters import ItemSignersAdapter
 from imio.dms.mail.adapters import OdmSearchableExtender
 from imio.dms.mail.adapters import OMApprovalAdapter
 from imio.dms.mail.adapters import org_sortable_title_index
@@ -41,7 +42,10 @@ from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
+from imio.esign.adapters import ISignable
+from imio.esign.config import set_esign_registry_enforce_signers_order
 from imio.esign.config import set_esign_registry_file_url
+from imio.esign.config import set_esign_registry_signers_order
 from imio.esign.interfaces import IItemOrderProvider
 from imio.esign.utils import get_session_annotation
 from imio.helpers.content import get_object
@@ -503,6 +507,47 @@ class TestAdapters(unittest.TestCase, ImioTestHelpers):
         view.updateWidgets()
         self.assertNotIn("Courrier", view.widgets["mail_type"].render())
         self.assertIn("Valeur manquante", view.widgets["mail_type"].render())
+
+
+class TestItemSignersAdapter(unittest.TestCase, ImioTestHelpers):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.change_user("siteadmin")
+        self.portal.portal_setup.runImportStepFromProfile(
+            "profile-imio.esign:default", "plone.app.registry", run_dependencies=False
+        )
+        self.pf = self.portal["contacts"]["personnel-folder"]
+
+    def test_get_signers_order_userids(self):
+        dirg_hp = self.pf["dirg"]["directeur-general"].UID()
+        bourg_hp = self.pf["bourgmestre"]["bourgmestre"].UID()
+        # the bourgmestre also signs as a college member
+        college = self.portal["contacts"]["plonegroup-organization"]["college-communal"]
+        self.pf["bourgmestre"].invokeFactory(
+            "held_position", "college", position=RelationValue(getUtility(IIntIds).getId(college)), usages=["signer"]
+        )
+        college_hp = self.pf["bourgmestre"]["college"].UID()
+        request, _files = create_sign_request(
+            self.portal,
+            signers=[
+                {"number": 1, "signer": college_hp, "approvings": [u"_themself_"], "editor": True},
+                {"number": 2, "signer": dirg_hp, "approvings": [u"_themself_"], "editor": False},
+            ],
+            nb_files=0,
+        )
+        adapter = ISignable(request)
+        self.assertIsInstance(adapter, ItemSignersAdapter)
+        # ranked on the held position signing the request, not on the first one of the person
+        set_esign_registry_signers_order([bourg_hp, dirg_hp, college_hp])
+        self.assertEqual(adapter.get_signers_order_userids(), ["dirg", "bourgmestre"])
+        dirg = ("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")
+        bourg = ("bourgmestre", "bourgmestre@macommune.be", u"Paul BM", u"Membre du Collège")
+        self.assertEqual(adapter.sort_signers([bourg, dirg]), [bourg, dirg])  # order not enforced
+        set_esign_registry_enforce_signers_order(True)
+        self.assertEqual(adapter.sort_signers([bourg, dirg]), [dirg, bourg])
 
 
 class TestOMApprovalAdapter(unittest.TestCase, ImioTestHelpers):

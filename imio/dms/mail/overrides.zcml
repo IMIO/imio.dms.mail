@@ -81,4 +81,9 @@
       name="collective.contact.plonegroup.primary_organizations"
     />
 
+    <utility
+      factory=".vocabularies.OMSignersVocabulary"
+      name="imio.esign.signers"
+    />
+
 </configure>

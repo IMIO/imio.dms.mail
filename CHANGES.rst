@@ -6,6 +6,8 @@ Changelog
 
 - Added `docs_om_temp_deactivation` external method to temporarily disable then re-enable outgoing mail use.
   [sgeulette]
+- Ordered imio.esign signers by held position, removed ones dropped from the order (PARAF-527).
+  [chris-adam]
 
 3.1.7 (2026-11-17)
 ------------------

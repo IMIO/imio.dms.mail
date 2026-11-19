@@ -51,6 +51,7 @@ from imio.dms.mail.utils import logger
 from imio.esign.adapters import DefaultItemOrderProvider
 from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
+from imio.esign.config import get_esign_registry_signers_order
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
 from imio.esign.utils import get_max_download_date
@@ -1151,7 +1152,7 @@ class SendableAnnexesToPMAdapter(object):
 class ItemSignersAdapter(SignableAdapter):
     """Adapter to get signers of a given item.
 
-    Signers are set by the approval mechanism: only the session recreation uses this adapter."""
+    Signers are set by the approval mechanism: only the session creation and recreation use this adapter."""
 
     def get_signers(self):
         """Return the list of signers for the item."""
@@ -1177,6 +1178,12 @@ class ItemSignersAdapter(SignableAdapter):
         # for sub_content in self.context.values():
         #     if sub_content.portal_type in ("dmsommainfile", "dmsappendixfile"):
         #         yield sub_content.UID()
+
+    def get_signers_order_userids(self):
+        """Rank each signer on the held position signing the item, not on their first one in the order."""
+        item_hps = [row["signer"] for row in self.context.signers or []]
+        return [uuidToObject(uid, unrestricted=True).get_person().userid
+                for uid in get_esign_registry_signers_order() if uid in item_hps]
 
 
 class BaseItemOrderProvider(DefaultItemOrderProvider):
