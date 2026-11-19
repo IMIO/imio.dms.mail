@@ -6,9 +6,10 @@ Changelog
 
 - Added `docs_om_temp_deactivation` external method to temporarily disable then re-enable outgoing mail use.
   [sgeulette]
-- Prefixed all external methods added at site root with `docs_` (previously `sge_` or no prefix).
-  Migration recreates existing ones with the prefix, deletes old duplicates and updates demo portlet actions.
+- Standardized all external methods added at site root with `docs_`. Migration corrects existing ones.
   [sgeulette]
+- Reindexed the scan_id given to a file added to a signing session, so its signed version is consumed (PARAF-580).
+  [chris-adam,sgeulette]
 
 3.1.7 (2026-11-17)
 ------------------
