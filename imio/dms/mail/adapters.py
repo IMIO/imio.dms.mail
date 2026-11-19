@@ -2062,7 +2062,12 @@ class ApprovalAdapter(object):
                         break
                 else:
                     fobj.scan_id = next_scan_id(file_portal_types=["dmsommainfile", "dmsappendixfile"], scan_type="2")
-                fobj.reindexObject(idxs=["scan_id"])  # the amqp consumer finds the signed file by scan_id
+                # the amqp consumer finds the signed file by scan_id
+                if fobj.portal_type == "dmsommainfile":  # only main file and mail SearchableText include scan_id
+                    fobj.reindexObject(idxs=["scan_id", "SearchableText"])
+                    fobj.__parent__.reindexObject(idxs=["SearchableText"])
+                else:
+                    fobj.reindexObject(idxs=["scan_id"])
             if len(fobj.scan_id) != 15:
                 api.portal.show_message(
                     message=_(
