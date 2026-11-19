@@ -1809,6 +1809,23 @@ class TestSignRequestApprovalAdapter(unittest.TestCase, ImioTestHelpers):
             self.approval.approve_file(afile, "bourgmestre")
         self.assertEqual(self.approval.current_nb, -1)
 
+    def test_add_mail_files_to_session(self):
+        # uploaded files have no scan_id: they get one when added to the session
+        self.request.esign = True
+        for afile in self.files:
+            afile.scan_id = None
+            afile.reindexObject(idxs=["scan_id"])
+        self.pw.doActionFor(self.request, "propose_to_approve")
+        for signer in ("dirg", "bourgmestre"):
+            for afile in self.files:
+                self.approval.approve_file(afile, signer)
+        self.assertEqual(len(get_session_annotation()["sessions"]), 1)
+        scan_id = self.files[0].scan_id
+        self.assertEqual(len(scan_id), 15)
+        # signed files coming back from the amqp consumer are found by scan_id
+        brains = self.portal.portal_catalog(portal_type=["dmsommainfile", "dmsappendixfile"], scan_id=scan_id)
+        self.assertEqual(sorted(b.UID for b in brains), sorted(f.UID() for f in self.files))
+
     def test_roles(self):
         self.assertEqual(self.approval.roles, {})
         self.pw.doActionFor(self.request, "propose_to_approve")
