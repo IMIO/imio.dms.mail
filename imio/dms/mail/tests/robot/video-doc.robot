@@ -28,7 +28,7 @@ Naviguer
     # setup
     [TAGS]  RUN01
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned?redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=
     ${im1_path} =  Get mail path  oid=dmsincomingmail-1
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
@@ -160,7 +160,7 @@ Traiter un courrier
     [TAGS]  RUN02
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned?redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=
     ${im1_path} =  Get mail path  oid=dmsincomingmail-1
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
@@ -433,7 +433,7 @@ Répondre à un courrier
     # setup
     [TAGS]  RUN03
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned?redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=
     ${im1_path} =  Get mail path  oid=dmsincomingmail-1
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
@@ -536,7 +536,7 @@ Répondre à un courrier
     Remove element  id=${note1}
 
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=reponse-candidature-a-un-poste-douvrier-communal
-    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/${om_path}/docs_create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
     Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css:body.portaltype-dmsoutgoingmail #formfield-form-widgets-external_reference_no  10
 
@@ -661,7 +661,7 @@ Créer un courrier sortant
     Remove element  id=${note1}
 
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=annonce-de-la-refection-des-trottoirs-rue-des-papillons
-    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/${om_path}/docs_create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
     Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css:body.portaltype-dmsoutgoingmail #formfield-form-widgets-external_reference_no  10
 
@@ -707,7 +707,7 @@ Créer un document bureautique
     ${convert}=  Convert Date  ${date}  result_format=%d/%m/%Y
     Set field value  ${UID}  mail_date  ${convert}  date%d/%m/%Y
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=annonce-de-la-refection-des-trottoirs-rue-des-papillons
-    # Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    # Go to  ${PLONE_URL}/${om_path}/docs_create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
     Go to  ${PLONE_URL}/${om_path}
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
@@ -776,8 +776,8 @@ Transférer un email entrant
     [TAGS]  RUN06
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned?redirect=
-    Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=1&redirect=&only=email1.pdf
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?ptype=dmsincoming_email&number=1&redirect=&only=email1.pdf
     ${im1_path} =  Get mail path  oid=dmsincomingmail-1
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
@@ -931,7 +931,7 @@ Envoyer un email sortant
     ${convert}=  Convert Date  ${date}  result_format=%d/%m/%Y
     Set field value  ${UID}  mail_date  ${convert}  date%d/%m/%Y
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=annonce-de-la-refection-des-trottoirs-rue-des-papillons
-    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
+    Go to  ${PLONE_URL}/${om_path}/docs_create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Modèle+de+base&mainfile_type=dmsommainfile&redirect=
     Go to  ${PLONE_URL}/${om_path}
     # start video
     Run keyword if  '${RECORD}'=='1'  Pause
@@ -1074,7 +1074,7 @@ Valider un courrier entrant
     [TAGS]  RUN08
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned?redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=
     ${im1_path} =  Get mail path  oid=dmsincomingmail-1
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
@@ -1228,7 +1228,7 @@ Ajouter un contact
     [TAGS]  RUN09
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned?redirect=&only=59.PDF
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=&only=59.PDF
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
@@ -1532,7 +1532,7 @@ Ajouter une annexe
     # setup
     [TAGS]  RUN10
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned?redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=
     ${im1_path} =  Get mail path  oid=dmsincomingmail-1
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
@@ -1636,7 +1636,7 @@ Ajouter une tâche
     [TAGS]  RUN11
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned?redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=
     ${im1_path} =  Get mail path  oid=dmsincomingmail-1
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
@@ -1793,7 +1793,7 @@ Utiliser les recherches
     [TAGS]  RUN12
     Enable autologin as  encodeur
     Set Window Size  ${W_WIDTH}  ${W_HEIGHT}
-    Go to  ${PLONE_URL}/import_scanned?redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=
     ${im1_path} =  Get mail path  oid=dmsincomingmail-1
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
@@ -2028,8 +2028,8 @@ Suite Setup
     Set Selenium Speed  0.2
     Enable autologin as  Manager
     Set autologin username  dirg
-    Go to  ${PLONE_URL}/robot_init
-    Go to  ${PLONE_URL}/video_doc_init?pdb=
+    Go to  ${PLONE_URL}/docs_robot_init
+    Go to  ${PLONE_URL}/docs_video_doc_init?pdb=
     Disable autologin
     # Register Keyword To Run On Failure  debug
     Run keyword if  '${RECORD}'=='0'  Set suite variable  \${L_S}  2

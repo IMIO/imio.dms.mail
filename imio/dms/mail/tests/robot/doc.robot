@@ -44,17 +44,17 @@ CE numerisation
 # partie 2.2.1 Numérisation d'un document
     [TAGS]  RUN2021
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned?redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Sleep  0.5
     Capture and crop page screenshot  doc/utilisation/2-2-1-onglet-courrier-entrant.png  css=.site-plone  id=portal-footer-wrapper
     ${im_path} =  Get mail path  oid=dmsincomingmail
-    Go to  ${PLONE_URL}/${im_path}/lock-unlock
+    Go to  ${PLONE_URL}/${im_path}/docs_lock-unlock
     Wait until element is visible  css=.DV-pageImage  10
     Select collection  incoming-mail/mail-searches/searchfor_created
     Capture and crop page screenshot  doc/utilisation/2-2-1-recherche-en-creation.png  css=.site-plone  id=portal-footer-wrapper  id=faceted-results
-    Go to  ${PLONE_URL}/${im_path}/lock-unlock?unlock=1
+    Go to  ${PLONE_URL}/${im_path}/docs_lock-unlock?unlock=1
     Sleep  1
     Wait until element is visible  css=.DV-pageImage  10
 
@@ -214,9 +214,9 @@ CE transfert email
 # partie 2.2.2 Transfert d'un email
     [TAGS]  RUN2022
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned?number=1&redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?number=1&redirect=
     sleep  1
-    Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=1&only=email2.pdf&redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?ptype=dmsincoming_email&number=1&only=email2.pdf&redirect=
     sleep  2
     Go to  ${PLONE_URL}/incoming-mail
     sleep  1
@@ -226,7 +226,7 @@ CE transfert email
     Capture and crop page screenshot  doc/utilisation/2-2-2-recherche-en-creation-1.png  css=.eea-preview-items
     ${im_path} =  Get mail path  ptype=dmsincoming_email  oid=ou-se-situe-votre-entite-par-rapport-aux-objectifs-de-developpement-durable
     Delete content  /${PLONE_SITE_ID}/${im_path}
-    Go to  ${PLONE_URL}/import_scanned?ptype=dmsincoming_email&number=2&only=email1.pdf,email2.pdf&redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?ptype=dmsincoming_email&number=2&only=email1.pdf,email2.pdf&redirect=
     sleep  1
     Enable autologin as  dirg
     ${im_path} =  Get mail path  ptype=dmsincoming_email  oid=reservation-de-la-salle-le-foyer
@@ -284,7 +284,7 @@ CE manuel
     Capture and crop page screenshot  doc/utilisation/2-2-3-ged-1-creation-scan.png  id=content
     Click button  id=form-buttons-cancel
     ${im_path} =  Get mail path  oid=braderie-annuelle-septembre
-    Go to  ${PLONE_URL}/${im_path}/create_main_file?filename=60.PDF
+    Go to  ${PLONE_URL}/${im_path}/docs_create_main_file?filename=60.PDF
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note12}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
@@ -299,9 +299,9 @@ CE multi-indicatage
     [TAGS]  RUN313
     Enable autologin as  Manager
     Set autologin username  encodeur
-    Go to  ${PLONE_URL}/activate_group_encoder
+    Go to  ${PLONE_URL}/docs_activate_group_encoder
     Wait until element is visible  css=h1.documentFirstHeading
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/docs_import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${im_path} =  Get mail path  oid=dmsincomingmail
     Go to  ${PLONE_URL}/${im_path}/edit
@@ -311,7 +311,7 @@ CE multi-indicatage
     Click element  id=form-widgets-IDmsMailCreatingGroup-creating_group
     Wait until element is visible  id=form-widgets-IDmsMailCreatingGroup-creating_group-1  10
     Capture and crop page screenshot  doc/utilisation/3-1-3-ce-groupe-indicateur.png  id=formfield-form-widgets-internal_reference_no  id=form-buttons-save
-    Go to  ${PLONE_URL}/activate_group_encoder?typ=contact
+    Go to  ${PLONE_URL}/docs_activate_group_encoder?typ=contact
     Wait until element is visible  css=h1.documentFirstHeading
     Go to  ${PLONE_URL}/${im_path}/edit
     Sleep  0.5
@@ -322,7 +322,7 @@ CS en réponse
 # partie 2.3.1 Réponse à un courrier entrant
     [TAGS]  RUN2031
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/docs_import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     # set treating_groups value to enable transition
     ${im_path} =  Get mail path  oid=dmsincomingmail
@@ -449,7 +449,7 @@ CS en réponse
     Wait until element is visible  id=formfield-form-widgets-file  10
     Capture and crop page screenshot  doc/utilisation/2-3-1-cs-2-ged-ajout.png  id=content
     Click button  id=form-buttons-cancel
-    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
+    Go to  ${PLONE_URL}/${om_path}/docs_create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     ${note62}  Add pointy note  id=breadcrumbs-2  Cliquez ici pour revenir au courrier  position=bottom  color=blue
@@ -494,7 +494,7 @@ CS nouveau
     Go to  ${PLONE_URL}/${om_path}
     Wait until element is visible  css=#viewlet-below-content-body table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/utilisation/2-3-2-cs-1-creation-finie.png  css=table.actionspanel-no-style-table  css=div.viewlet_workflowstate  id=form-groups-signing
-    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Refection+trottoir.odt&title=Réfection+trottoir&mainfile_type=dmsommainfile
+    Go to  ${PLONE_URL}/${om_path}/docs_create_main_file?filename=Refection+trottoir.odt&title=Réfection+trottoir&mainfile_type=dmsommainfile
     Sleep  2
     Wait until element is visible  css=.DV-pageImage  10
     Go to  ${PLONE_URL}/${om_path}
@@ -526,18 +526,18 @@ CS depuis le scanner
 # partie 2.3.3 Envoi par le scanner
     [TAGS]  RUN2033
     Enable autologin as  scanner
-    Go to  ${PLONE_URL}/import_scanned2
+    Go to  ${PLONE_URL}/docs_import_scanned2
     Wait until element is visible  css=.faceted-table-results  10
     # Capture and crop page screenshot  doc/utilisation/2-3-3-cs-onglet-courrier-sortant.png  css=.site-plone  id=portal-footer-wrapper
     Enable autologin as  encodeur
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=dmsoutgoingmail
     Go to  ${PLONE_URL}/${om_path}
-    Go to  ${PLONE_URL}/${om_path}/lock-unlock
+    Go to  ${PLONE_URL}/${om_path}/docs_lock-unlock
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Select collection  outgoing-mail/mail-searches/searchfor_scanned
     Capture and crop page screenshot  doc/utilisation/2-3-3-cs-recherche-scanne.png  css=.site-plone  id=portal-footer-wrapper  id=faceted-results
-    Go to  ${PLONE_URL}/${om_path}/lock-unlock?unlock=1
+    Go to  ${PLONE_URL}/${om_path}/docs_lock-unlock?unlock=1
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
 
@@ -572,8 +572,8 @@ Menu courrier
 # partie 2.4.1 Menu de recherches prédéfinies
     [TAGS]  RUN2041
     Enable autologin as  scanner
-    Go to  ${PLONE_URL}/import_scanned?redirect=
-    Go to  ${PLONE_URL}/import_scanned2
+    Go to  ${PLONE_URL}/docs_import_scanned?redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned2
     Enable autologin as  Manager
     Set autologin username  dirg
     Go to  ${PLONE_URL}/incoming-mail
@@ -591,9 +591,9 @@ Tableaux de bord
 # partie 2.4.2 Tableaux de bord
     [TAGS]  RUN2042
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned?number=25&redirect=
+    Go to  ${PLONE_URL}/docs_import_scanned?number=25&redirect=
     ${im_path} =  Get mail path  oid=dmsincomingmail
-    Go to  ${PLONE_URL}/${im_path}/lock-unlock
+    Go to  ${PLONE_URL}/${im_path}/docs_lock-unlock
     ${UID0} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
     ${GRH} =  Path to uid  /${PLONE_SITE_ID}/contacts/plonegroup-organization/direction-generale/grh
     ${PERS1} =  Path to uid  /${PLONE_SITE_ID}/contacts/jeancourant
@@ -605,7 +605,7 @@ Tableaux de bord
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Capture and crop page screenshot  doc/utilisation/2-4-2-tableaux-de-bord-general.png  id=content
-    Go to  ${PLONE_URL}/${im_path}/lock-unlock?unlock=1
+    Go to  ${PLONE_URL}/${im_path}/docs_lock-unlock?unlock=1
     Go to  ${PLONE_URL}/incoming-mail
     Wait until element is visible  css=.faceted-table-results  10
     Click element   css=div.pagination a.next
@@ -681,7 +681,7 @@ Recherche générale
 # partie 2.4.3 Recherche dans les fichiers importés
     [TAGS]  RUN2043
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/docs_import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${im1_path} =  Get mail path  oid=dmsincomingmail-1
     ${UID1} =  Path to uid  /${PLONE_SITE_ID}/${im1_path}
@@ -698,7 +698,7 @@ Visualisation
 # partie 2.5 Visualisation des courriers
     [TAGS]  RUN205
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/docs_import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
@@ -741,7 +741,7 @@ Modification
 # partie 2.6 Modification des courriers
     [TAGS]  RUN206
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/docs_import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
@@ -776,7 +776,7 @@ Tache
 # partie 2.7.1 Ajout d'une tâche
     [TAGS]  RUN207
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/docs_import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
@@ -824,7 +824,7 @@ Workflow ce
 # partie 2.8.1 Principe et utilisation
     [TAGS]  RUN2081
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/docs_import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
@@ -939,7 +939,7 @@ Workflow cs
     # Set field value  ${UID}  mail_type  courrier  str
     Sleep  1
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=reponse-candidature
-    Go to  ${PLONE_URL}/${om_path}/create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
+    Go to  ${PLONE_URL}/${om_path}/docs_create_main_file?filename=Reponse+candidature+ouvrier+communal.odt&title=Réponse+candidature+ouvrier+communal&mainfile_type=dmsommainfile
     Sleep  0.5
     Wait until element is visible  css=.DV-pageImage  10
     Go to  ${PLONE_URL}/${om_path}
@@ -1045,7 +1045,7 @@ Contacts 2
 # partie 2.9.2 Gestion de contacts
     [TAGS]  RUN2092
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/docs_import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
@@ -1118,7 +1118,7 @@ Contacts 3
     Capture and crop page screenshot  doc/utilisation/2-9-3-contact-list-dashboard.png  id=content
     ### utilisation liste contact
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned2
+    Go to  ${PLONE_URL}/docs_import_scanned2
     Wait until element is visible  css=.faceted-table-results  10
     ${om_path} =  Get mail path  ptype=dmsoutgoingmail  oid=dmsoutgoingmail
     ${UID} =  Path to uid  /${PLONE_SITE_ID}/${om_path}
@@ -1196,7 +1196,7 @@ ia-delib
     Set autologin username  encodeur
     Apply profile step  imio.dms.mail:singles  imiodmsmail-configure-wsclient
     # Unexpected Zope exception: <class 'ZODB.POSException.InvalidObjectReference'> - ('Attempt to store an object from a foreign database connection',  ,  )
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/docs_import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     ${im_path} =  Get mail path  oid=dmsincomingmail
     ${UID0} =  Path to uid  /${PLONE_SITE_ID}/${im_path}
@@ -1296,7 +1296,7 @@ Configuration
     Capture and crop page screenshot  doc/configuration/5-10-import-reussi.png  content
     # classification codes
     # clean demo examples before import
-    Go to  ${PLONE_URL}/delete-category?key=-1
+    Go to  ${PLONE_URL}/docs_delete-category?key=-1
     Go to  ${PLONE_URL}/tree
     Wait until element is visible  css=table.actionspanel-no-style-table  10
     Capture and crop page screenshot  doc/configuration/5-9-import-lien.png  id=portal-breadcrumbs  css=table.actionspanel-no-style-table  id=parent-fieldname-title
@@ -1614,7 +1614,7 @@ Suite Setup
     Set Selenium Speed  ${SELENIUM_SPEED}
     Enable autologin as  Manager
     Set autologin username  dirg
-    Go to  ${PLONE_URL}/robot_init
+    Go to  ${PLONE_URL}/docs_robot_init
     Add Cookie  dv_zoom_size  500  path=/
     Disable autologin
     # Activate esigning  (done in testing.py)

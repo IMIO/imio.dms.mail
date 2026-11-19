@@ -554,10 +554,10 @@ def postInstall(context):
     try:
         from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 
-        manage_addExternalMethod(site, "sge_clean_examples", "", "imio.dms.mail.demo", "clean_examples")
-        manage_addExternalMethod(site, "sge_import_contacts", "", "imports", "import_contacts")
-        manage_addExternalMethod(site, "sge_import_scanned", "", "imio.dms.mail.demo", "import_scanned")
-        manage_addExternalMethod(site, "sge_import_scanned2", "", "imio.dms.mail.demo", "import_scanned2")
+        manage_addExternalMethod(site, "docs_clean_examples", "", "imio.dms.mail.demo", "clean_examples")
+        manage_addExternalMethod(site, "docs_import_contacts", "", "imports", "import_contacts")
+        manage_addExternalMethod(site, "docs_import_scanned", "", "imio.dms.mail.demo", "import_scanned")
+        manage_addExternalMethod(site, "docs_import_scanned2", "", "imio.dms.mail.demo", "import_scanned2")
     except Exception:
         pass
 

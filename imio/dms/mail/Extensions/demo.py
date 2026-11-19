@@ -650,7 +650,7 @@ def import_sign_examples(self, userids="", cases="12345678", mnb="1", fnb="1", a
                 "-> mnb : number of mails to create\n"
                 "-> fnb : number of files to create\n"
                 "-> approve : if '1', approve esign mails (propose_to_approve + approvings)\n"
-                "Example: import_sign_examples?userids={}&cases=136\n\n"
+                "Example: docs_import_sign_examples?userids={}&cases=136\n\n"
                 "Cases:\n"
                 "-> 1 : signataire avec modèle\n"
                 "-> 2 : signataire avec annexe seule\n"

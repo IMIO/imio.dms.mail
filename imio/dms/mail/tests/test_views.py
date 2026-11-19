@@ -212,14 +212,14 @@ class TestServerSentEvents(unittest.TestCase):
         self.assertEqual(sse_vw(), u"")  # no refresh
         self.assertEqual(omf.generated, 2)  # waiting external edition
         # we lock like zopeedit
-        omf.restrictedTraverse("lock-unlock")()
+        omf.restrictedTraverse("docs_lock-unlock")()
         self.assertTrue(eee_vw.isObjectLocked())
         self.assertEqual(sse_vw(), u"")  # no refresh
         self.assertEqual(omf.generated, 3)  # was always waiting but will end
         self.assertEqual(sse_vw(), u"")  # no refresh
         self.assertEqual(omf.generated, 3)  # no more waiting but locked
         # we unlock
-        omf.restrictedTraverse("lock-unlock")(unlock=1)
+        omf.restrictedTraverse("docs_lock-unlock")(unlock=1)
         self.assertFalse(eee_vw.isObjectLocked())
         res = sse_vw()
         # u'data: {"path": "/plone/outgoing-mail/reponse1/1", "id": "1", "refresh": true}\n\n'
@@ -230,7 +230,7 @@ class TestServerSentEvents(unittest.TestCase):
         self.assertFalse(hasattr(omf, "conversion_finished"))
         self.assertEqual(sse_vw(), u"")  # no refresh
         # we lock like zopeedit
-        omf.restrictedTraverse("lock-unlock")()
+        omf.restrictedTraverse("docs_lock-unlock")()
         self.assertTrue(eee_vw.isObjectLocked())
         self.assertEqual(sse_vw(), u"")  # no refresh
         # we save the file in the editor but dont close it
@@ -238,7 +238,7 @@ class TestServerSentEvents(unittest.TestCase):
         self.assertEqual(sse_vw(), u"")  # no refresh
         self.assertEqual(omf.generated, 3)  # set as no more waiting
         # we unlock
-        omf.restrictedTraverse("lock-unlock")(unlock=1)
+        omf.restrictedTraverse("docs_lock-unlock")(unlock=1)
         self.assertFalse(eee_vw.isObjectLocked())
         res = sse_vw()
         # u'data: {"path": "/plone/outgoing-mail/reponse1/1", "id": "1", "refresh": true}\n\n'

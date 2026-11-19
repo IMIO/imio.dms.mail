@@ -68,6 +68,20 @@ import transaction
 
 
 logger = logging.getLogger("imio.dms.mail")
+# external methods added at site root, previously without prefix or with sge_ prefix
+EXTERNAL_METHODS = (
+    "activate_group_encoder",
+    "clean_examples",
+    "create_main_file",
+    "delete-category",
+    "import_contacts",
+    "import_scanned",
+    "import_scanned2",
+    "import_sign_examples",
+    "lock-unlock",
+    "robot_init",
+    "video_doc_init",
+)
 
 
 class Migrate_To_3_1(Migrator):  # noqa
@@ -85,10 +99,6 @@ class Migrate_To_3_1(Migrator):  # noqa
     def run_parts(self):
         """Run some parts between b and x."""
         if self.is_in_part("c"):  # various, update workflow, localroles and security
-            self.normalize_compound_criterion_values()
-            # Update d-print model
-            if "d-print" in self.portal["templates"]["om"]:
-                self.update_print_template()
             # we have to separate batched reindexIndexes in different parts because pkl file is deleted after finished
             if api.group.get("esign_watchers") is None:  # first run
                 api.group.create("esign_watchers", "2 Observateurs module signature")
@@ -97,7 +107,19 @@ class Migrate_To_3_1(Migrator):  # noqa
                 self.runProfileSteps("imio.dms.mail", steps=["catalog"])
                 self.setup_personnel_dashboard()
                 self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
-
+                # Correct compound criterin values in collections
+                self.normalize_compound_criterion_values()
+                # Update d-print model
+                if "d-print" in self.portal["templates"]["om"]:
+                    self.update_print_template()
+                # Correct external method names
+                self.rename_external_methods()
+                # Add new external method
+                if "docs_om_temp_deactivation" not in self.portal.objectIds():
+                    manage_addExternalMethod(
+                        self.portal, "docs_om_temp_deactivation", "", "imio.dms.mail.maintenance",
+                        "om_temp_deactivation"
+                    )
                 # Update dashboard pod templates
                 self.portal["templates"]["export-users-groups"].max_objects = 0
                 self.portal["templates"]["all-contacts-export"].max_objects = 0
@@ -396,10 +418,6 @@ class Migrate_To_3_1(Migrator):  # noqa
         ret = ret.replace("<div>Those methods have been added: ", "").replace("</div>", "")
         if ret:
             logger.info('CPUtils added methods: "{}"'.format(ret.replace("<br />", ", ")))
-        if "docs_om_temp_deactivation" not in self.portal.objectIds():
-            manage_addExternalMethod(
-                self.portal, "docs_om_temp_deactivation", "", "imio.dms.mail.maintenance", "om_temp_deactivation"
-            )
         if message_status("doc", older=timedelta(days=90), to_state="inactive"):
             logger.info("doc message deactivated")
         self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])
@@ -511,6 +529,27 @@ class Migrate_To_3_1(Migrator):  # noqa
             maintenance = self.portal.unrestrictedTraverse("@@solr-maintenance")
             maintenance.sync()  # BATCHED
             response.write = original
+
+    def rename_external_methods(self):
+        """Prefix with docs_ the external methods at site root. If the prefixed one exists, old ones are deleted."""
+        for name in EXTERNAL_METHODS:
+            new_id = "docs_{}".format(name)
+            for old_id in ("sge_{}".format(name), name):
+                if old_id not in self.portal.objectIds("External Method"):
+                    continue
+                old = self.portal[old_id]
+                if new_id not in self.portal.objectIds():
+                    # manage_renameObject refuses External Method meta_type in Plone site
+                    manage_addExternalMethod(self.portal, new_id, old.title, old.module(), old.function())
+                    logger.info("External method '{}' recreated as '{}'".format(old_id, new_id))
+                self.portal.manage_delObjects([old_id])
+                logger.info("External method '{}' deleted".format(old_id))
+        # demo portlet actions calling the renamed methods
+        category = self.portal.portal_actions.object_portlet
+        for aid in ("scanner_im", "scanner_iem", "scanner_om"):
+            action = category.get(aid)
+            if action is not None and "}/import_scanned" in action.url_expr:
+                action._setPropValue("url_expr", action.url_expr.replace("}/import_scanned", "}/docs_import_scanned"))
 
     def add_contact_type_search_term(self):
         """Type term (organisation, personne, poste, role, liste) in contacts SearchableText. BATCHED"""

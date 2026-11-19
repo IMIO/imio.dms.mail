@@ -76,7 +76,7 @@ OM default values on new OM
 OM default values on response
     [TAGS]  RUN02
     Enable autologin as  encodeur
-    Go to  ${PLONE_URL}/import_scanned
+    Go to  ${PLONE_URL}/docs_import_scanned
     Wait until element is visible  css=.faceted-table-results  10
     # set treating_groups value to enable transition
     ${im_path} =  Get mail path  oid=dmsincomingmail
@@ -161,7 +161,7 @@ Suite Setup
     Set Selenium Speed  0.2
     Enable autologin as  Manager
     Set autologin username  dirg
-    Go to  ${PLONE_URL}/robot_init
+    Go to  ${PLONE_URL}/docs_robot_init
     Disable autologin
 
 Test Setup

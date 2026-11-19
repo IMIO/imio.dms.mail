@@ -898,12 +898,12 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
         mapping["aide"] = portlet
 
     # Add external methods
-    if "import_scanned" not in site.objectIds():
-        manage_addExternalMethod(site, "import_scanned", "", "imio.dms.mail.demo", "import_scanned")
-    if "import_scanned2" not in site.objectIds():
-        manage_addExternalMethod(site, "import_scanned2", "", "imio.dms.mail.demo", "import_scanned2")
-    if "import_sign_examples" not in site.objectIds():
-        manage_addExternalMethod(site, "import_sign_examples", "", "imio.dms.mail.demo", "import_sign_examples")
+    if "docs_import_scanned" not in site.objectIds():
+        manage_addExternalMethod(site, "docs_import_scanned", "", "imio.dms.mail.demo", "import_scanned")
+    if "docs_import_scanned2" not in site.objectIds():
+        manage_addExternalMethod(site, "docs_import_scanned2", "", "imio.dms.mail.demo", "import_scanned2")
+    if "docs_import_sign_examples" not in site.objectIds():
+        manage_addExternalMethod(site, "docs_import_sign_examples", "", "imio.dms.mail.demo", "import_sign_examples")
 
     # Add object_portlet actions to be displayed in "divers" portlet
     category = site.portal_actions.object_portlet
@@ -912,7 +912,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             "scanner_im",
             title="Simulation scanner",
             i18n_domain="imio.dms.mail",
-            url_expr="string:${globals_view/navigationRootUrl}/import_scanned",
+            url_expr="string:${globals_view/navigationRootUrl}/docs_import_scanned",
             available_expr="python:context.getId() == 'incoming-mail' or (context.getId() == 'mail-searches' and "
                            "context.aq_parent.getId() == 'incoming-mail')",
             permissions=("collective.dms.batchimport: Batch import",),
@@ -924,7 +924,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             "scanner_iem",
             title="Simulation transfert email",
             i18n_domain="imio.dms.mail",
-            url_expr="string:${globals_view/navigationRootUrl}/import_scanned?ptype=dmsincoming_email",
+            url_expr="string:${globals_view/navigationRootUrl}/docs_import_scanned?ptype=dmsincoming_email",
             available_expr="python:context.getId() == 'incoming-mail' or (context.getId() == 'mail-searches' and "
                            "context.aq_parent.getId() == 'incoming-mail')",
             permissions=("collective.dms.batchimport: Batch import",),
@@ -936,7 +936,7 @@ les informations d'envoi d'un email et il est possible alors de l'envoyer dans u
             "scanner_om",
             title="Simulation scanner",
             i18n_domain="imio.dms.mail",
-            url_expr="string:${globals_view/navigationRootUrl}/import_scanned2",
+            url_expr="string:${globals_view/navigationRootUrl}/docs_import_scanned2",
             available_expr="python:context.getId() == 'outgoing-mail' or (context.getId() == 'mail-searches' and "
                            "context.aq_parent.getId() == 'outgoing-mail')",
             permissions=("collective.dms.batchimport: Batch import",),
