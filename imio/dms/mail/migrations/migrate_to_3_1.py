@@ -396,6 +396,10 @@ class Migrate_To_3_1(Migrator):  # noqa
         ret = ret.replace("<div>Those methods have been added: ", "").replace("</div>", "")
         if ret:
             logger.info('CPUtils added methods: "{}"'.format(ret.replace("<br />", ", ")))
+        if "docs_om_temp_deactivation" not in self.portal.objectIds():
+            manage_addExternalMethod(
+                self.portal, "docs_om_temp_deactivation", "", "imio.dms.mail.maintenance", "om_temp_deactivation"
+            )
         if message_status("doc", older=timedelta(days=90), to_state="inactive"):
             logger.info("doc message deactivated")
         self.runProfileSteps("imio.dms.mail", steps=["cssregistry", "jsregistry"])

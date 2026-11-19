@@ -4,8 +4,8 @@ Changelog
 3.1.8 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Added `docs_om_temp_deactivation` external method to temporarily disable then re-enable outgoing mail use.
+  [sgeulette]
 
 3.1.7 (2026-11-17)
 ------------------
