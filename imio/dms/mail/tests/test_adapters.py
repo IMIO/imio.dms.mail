@@ -521,31 +521,32 @@ class TestItemSignersAdapter(unittest.TestCase, ImioTestHelpers):
         )
         self.pf = self.portal["contacts"]["personnel-folder"]
 
-    def test_sort_signers(self):
+    def test_get_signers_order_userids(self):
         dirg_hp = self.pf["dirg"]["directeur-general"].UID()
         bourg_hp = self.pf["bourgmestre"]["bourgmestre"].UID()
+        # the bourgmestre also signs as a college member
+        college = self.portal["contacts"]["plonegroup-organization"]["college-communal"]
+        self.pf["bourgmestre"].invokeFactory(
+            "held_position", "college", position=RelationValue(getUtility(IIntIds).getId(college)), usages=["signer"]
+        )
+        college_hp = self.pf["bourgmestre"]["college"].UID()
         request, _files = create_sign_request(
             self.portal,
             signers=[
-                {"number": 1, "signer": dirg_hp, "approvings": [u"_themself_"], "editor": True},
-                {"number": 2, "signer": bourg_hp, "approvings": [u"_themself_"], "editor": False},
+                {"number": 1, "signer": college_hp, "approvings": [u"_themself_"], "editor": True},
+                {"number": 2, "signer": dirg_hp, "approvings": [u"_themself_"], "editor": False},
             ],
             nb_files=0,
         )
         adapter = ISignable(request)
         self.assertIsInstance(adapter, ItemSignersAdapter)
+        # ranked on the held position signing the request, not on the first one of the person
+        set_esign_registry_signers_order([bourg_hp, dirg_hp, college_hp])
+        self.assertEqual(adapter.get_signers_order_userids(), ["dirg", "bourgmestre"])
         dirg = ("dirg", "dirg@macommune.be", u"Maxime DG", u"Directeur Général")
-        bourg = ("bourgmestre", "bourgmestre@macommune.be", u"Paul BM", u"Bourgmestre")
-        other = ("agent", "agent@macommune.be", u"Fred Agent", u"")
-        set_esign_registry_signers_order([bourg_hp])
-        # order not enforced: unchanged
-        self.assertEqual(adapter.sort_signers([other, dirg, bourg]), [other, dirg, bourg])
-        # enforced: ordered held positions first, then signer number, signers not on the request last
+        bourg = ("bourgmestre", "bourgmestre@macommune.be", u"Paul BM", u"Membre du Collège")
+        self.assertEqual(adapter.sort_signers([bourg, dirg]), [bourg, dirg])  # order not enforced
         set_esign_registry_enforce_signers_order(True)
-        self.assertEqual(adapter.sort_signers([other, dirg, bourg]), [bourg, dirg, other])
-        self.assertEqual(adapter.sort_signers([bourg, other, dirg]), [bourg, dirg, other])
-        # nothing ordered: signer number
-        set_esign_registry_signers_order([])
         self.assertEqual(adapter.sort_signers([bourg, dirg]), [dirg, bourg])
 
 

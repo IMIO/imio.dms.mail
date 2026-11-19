@@ -51,7 +51,6 @@ from imio.dms.mail.utils import logger
 from imio.esign.adapters import DefaultItemOrderProvider
 from imio.esign.adapters import SignableAdapter
 from imio.esign.audit import audit as esign_audit
-from imio.esign.config import get_esign_registry_enforce_signers_order
 from imio.esign.config import get_esign_registry_signers_order
 from imio.esign.utils import add_files_to_session
 from imio.esign.utils import get_file_download_url
@@ -1180,19 +1179,11 @@ class ItemSignersAdapter(SignableAdapter):
         #     if sub_content.portal_type in ("dmsommainfile", "dmsappendixfile"):
         #         yield sub_content.UID()
 
-    def sort_signers(self, signers):
-        """Sort on the esign signers order of their held position, then their number."""
-        if not get_esign_registry_enforce_signers_order():
-            return signers
-        order = list(get_esign_registry_signers_order())
-        keys = {}
-        for row in self.context.signers or []:
-            hp = uuidToObject(row["signer"], unrestricted=True)  # None for _empty_ and _seal_
-            if hp is not None:
-                rank = order.index(row["signer"]) if row["signer"] in order else len(order)
-                keys[hp.get_person().userid] = (rank, row["number"])
-        # signers not found on the item last
-        return sorted(signers, key=lambda sig: keys.get(sig[0], (len(order) + 1, 0)))
+    def get_signers_order_userids(self):
+        """Rank each signer on the held position signing the item, not on their first one in the order."""
+        item_hps = [row["signer"] for row in self.context.signers or []]
+        return [uuidToObject(uid, unrestricted=True).get_person().userid
+                for uid in get_esign_registry_signers_order() if uid in item_hps]
 
 
 class BaseItemOrderProvider(DefaultItemOrderProvider):
