@@ -1176,6 +1176,11 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         createContentInContainer(omail3, "dmsommainfile", id="main1", title="Main 1")
         self.assertEqual([s["signer"] for s in omail3.signers], [dirg_hp.UID(), bourgmestre_hp.UID()])
 
+        # a scanned mail (no title) is left untouched: no signer and no modified event (amqp consumer)
+        omail4 = sub_create(self.omf, "dmsoutgoingmail", datetime.now(), "scanned-tf-id4")
+        createContentInContainer(omail4, "dmsommainfile", id="main1", title="Main 1")
+        self.assertFalse(omail4.signers)
+
     def test_dmsoutgoingmail_modified_signer_substitutes(self):
         dirg = self.pf["dirg"]
         dirg_hp = dirg["directeur-general"]

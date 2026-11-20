@@ -4,6 +4,9 @@ Changelog
 3.1.8 (unreleased)
 ------------------
 
+- Fixed amqp consumer crash on scanned outgoing mail in `template_first` signers mode: signer rules
+  are no more applied on a mail without title.
+  [sgeulette,chris-adam]
 - Added `docs_om_temp_deactivation` external method to temporarily disable then re-enable outgoing mail use.
   [sgeulette]
 - Standardized all external methods added at site root with `docs_`. Migration corrects existing ones.
