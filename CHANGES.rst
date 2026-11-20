@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.1.7.1 (unreleased)
+3.1.7.1 (2026-11-20)
 --------------------
 
 - Fixed amqp consumer crash on scanned outgoing mail in `template_first` signers mode: signer rules
