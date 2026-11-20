@@ -898,7 +898,10 @@ def _apply_template_first_signer_rules(mail):
     generated from a template (see browser.documentgenerator._copy_template_signers). When a file is added
     otherwise (appendix or manually added main file), signers would stay empty, so we apply the rules here too.
     If the rules produce no signer, an _empty_ placeholder is set. A generated main file is added after
-    _copy_template_signers has set signing values, so nothing is done for it."""
+    _copy_template_signers has set signing values, so nothing is done for it.
+    A mail without title is created by the scanner: nothing is done for it."""
+    if not mail.title:
+        return
     mode = api.portal.get_registry_record("omail_signers_origin", IImioDmsMailConfig, u"rules")
     if mode == u"template_first" and not has_signing_values(mail):
         apply_signer_rules(mail)

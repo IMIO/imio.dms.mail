@@ -1,11 +1,12 @@
 Changelog
 =========
 
-3.1.8 (unreleased)
-------------------
+3.1.7.1 (unreleased)
+--------------------
 
-- Nothing changed yet.
-
+- Fixed amqp consumer crash on scanned outgoing mail in `template_first` signers mode: signer rules
+  are no more applied on a mail without title.
+  [sgeulette,chris-adam]
 
 3.1.7 (2026-11-17)
 ------------------
