@@ -868,6 +868,17 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     background-size: 15px auto;
 }
 
+.apButtonAction_export-to-zip {
+    background-image: url('&dtml-portal_url;/download_icon.png');
+    background-size: 15px auto;
+}
+
+#export-to-zip-batch-action-but {
+    background-image: url('&dtml-portal_url;/download_icon.png');
+    background-repeat: no-repeat;
+    background-size: 15px auto;
+}
+
 .apButtonAction_sendemail {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/send_email.svg');
     background-size: 18px 18px;
