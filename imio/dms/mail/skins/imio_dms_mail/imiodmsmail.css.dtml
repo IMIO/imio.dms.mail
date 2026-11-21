@@ -861,6 +861,13 @@ dl.portletWidgetCollection div.portlet_add_icons a {
     background-size: 15px auto;
 }
 
+#export-to-pdf-before-signature-batch-action-but,
+#export-to-pdf-after-signature-batch-action-but {
+    background-image: url('&dtml-portal_url;/++resource++collective.documentgenerator/pdf.svg');
+    background-repeat: no-repeat;
+    background-size: 15px auto;
+}
+
 .apButtonAction_sendemail {
     background-image: url('&dtml-portal_url;/++resource++imio.dms.mail/send_email.svg');
     background-size: 18px 18px;

@@ -7,7 +7,7 @@ from collective.documentgenerator.utils import convert_file
 from collective.eeafaceted.collectionwidget.interfaces import NotDashboardContextException
 from collective.eeafaceted.collectionwidget.utils import getCurrentCollection
 from collective.iconifiedcategory.utils import get_categorized_elements
-from imio.annex.browser.views import ConcatenateAnnexesBatchActionForm
+from imio.annex.browser.views import ExportPDFBatchActionForm
 from imio.annex.browser.views import ExportPDFForm
 from imio.annex.vocabularies import ContainedAnnexesVocabulary
 from imio.dms.mail import _
@@ -194,7 +194,7 @@ class ExportToPDFAfterSignatureForm(ExportToPDFForm):
     condition = "can_do_export_to_pdf_after_signature"
 
 
-class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
+class ExportToPDFBatchActionForm(ExportPDFBatchActionForm):
     """Concatenate the files to print of the selected outgoing mails, as the element export preselects them."""
 
     collections = ()  # ids of the dashboard collections showing the button, None for every collection
@@ -207,7 +207,6 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
     transition_title = _(u"Close the exported elements?")
     transition_description = _(u"Will made transition to final state and set an outgoing date")
     transition_with_date = False  # the outgoing date is set with the transition
-    button_with_icon = False
     CHECK_ELEMENTS = True
 
     def available(self):
@@ -224,7 +223,8 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
 
     def _update(self):
         super(ExportToPDFBatchActionForm, self)._update()
-        self.fields = self.fields.omit("annex_types")
+        # the files are chosen by _element_annexes, not by the user
+        self.fields = self.fields.omit("annexes")
         self.fields["two_sided"].field.default = True
         if self.mailing_appendices is not None:
             self.fields += Fields(schema.Bool(
@@ -250,7 +250,20 @@ class ExportToPDFBatchActionForm(ConcatenateAnnexesBatchActionForm):
                 default=datetime.datetime.now(),
                 required=False))
 
+    def _annexes_field(self):
+        """Omitted field: no default, it would be validated against an empty vocabulary."""
+        return schema.List(__name__="annexes")
+
+    def _update_widgets(self):
+        """No sortable "annexes" widget."""
+
+    def _get_annexes(self, data=None):
+        """The files to export of the selected elements not excluded."""
+        return [afile for obj in self._elements() for afile in self._element_annexes(obj, data)]
+
     def _apply(self, **data):
+        # mailing_appendices is only known now
+        self.annexes = self._get_annexes(data)
         pdf_file_content = super(ExportToPDFBatchActionForm, self)._apply(**data)
         if pdf_file_content and data.get("do_transition"):
             self._transition_elements(data)

@@ -4,6 +4,8 @@ Changelog
 3.1.8 (unreleased)
 ------------------
 
+- Updated `ExportToPDFBatchActionForm` after imio.annex refactoring
+  [sgeulette]
 - Fixed amqp consumer crash on scanned outgoing mail in `template_first` signers mode: signer rules
   are no more applied on a mail without title.
   [sgeulette,chris-adam]

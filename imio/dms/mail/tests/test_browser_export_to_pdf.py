@@ -339,7 +339,7 @@ class TestExportToPDFBatchActionForm(ExportToPdfTestCase):
         self.request["uids"] = self.omail.UID()
         form = self._form("export-to-pdf-before-signature-batch-action")
         form.update()
-        self.assertNotIn("annex_types", form.fields)
+        self.assertNotIn("annexes", form.fields)
         self.assertEqual(form.widgets["two_sided"].value, ["true"])
         self.assertEqual(form._get_annexes({}), [self.a_odt, self.b_pdf, self.appendix])
         self._clean_cache()
