@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-10-15 09:28+0000\n"
+"POT-Creation-Date: 2026-11-21 19:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -85,6 +85,10 @@ msgstr ""
 
 #: profiles/default/types/dmsoutgoingmail.xml
 msgid "Export to PDF before signature"
+msgstr ""
+
+#: profiles/default/types/dmsincomingmail.xml
+msgid "Export to zip"
 msgstr ""
 
 #: profiles/default/sharing.xml

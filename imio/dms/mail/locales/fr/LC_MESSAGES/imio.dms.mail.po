@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-11-17 08:42+0000\n"
+"POT-Creation-Date: 2026-11-21 19:19+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -29,7 +29,7 @@ msgstr " [pas marqué à imprimer]"
 msgid " [pdf required]"
 msgstr " [format pdf requis]"
 
-#: ./adapters.py:2120
+#: ./adapters.py:2126
 msgid "${count} file(s) added to session(s) ${session_ids}"
 msgstr "${count} fichier(s) ajouté(s) dans session(s) ${session_ids}"
 
@@ -222,7 +222,7 @@ msgstr "2 Lecteurs Globaux CE"
 msgid "2 OM global readers"
 msgstr "2 Lecteurs Globaux CS"
 
-#: ./subscribers.py:1328
+#: ./subscribers.py:1331
 msgid "<a href=\"${url}\" target=\"_blank\">Linked groups</a> : ${list}"
 msgstr "<a href=\"${url}\" target=\"_blank\">Groupes liés</a> : ${list}"
 
@@ -346,7 +346,7 @@ msgstr "Annexe"
 msgid "Annexes Types"
 msgstr "Types d'annexes"
 
-#: ./browser/export_to_pdf.py:232
+#: ./browser/export_to_pdf.py:254
 msgid "Appendix files for each mailed version?"
 msgstr "Intégrer les annexes pour chacune des versions publipostées ?"
 
@@ -392,7 +392,7 @@ msgstr "Utilisateur obligatoire seulement au niveau n+1"
 msgid "Assigned user value"
 msgstr "Valeur utilisateur assigné"
 
-#: ./adapters.py:2074
+#: ./adapters.py:2080
 msgid "Bad scan_id for file uid ${uid}"
 msgstr "Mauvais scan ID pour le fichier avec UID ${uid}"
 
@@ -452,7 +452,7 @@ msgstr "Changement de service traitant par lot"
 msgid "Can choose possible usages (on held position)"
 msgstr "Champ « Utilisé comme » (pour fonction occupée)"
 
-#: ./adapters.py:2089
+#: ./adapters.py:2095
 msgid "Cannot split odt file uid ${uid}"
 msgstr "Le fichier ODT avec UID ${uid} ne peut pas être fractionné"
 
@@ -502,7 +502,7 @@ msgstr "Choisir dans quel état un email, transféré manuellement par un agent,
 msgid "Close outgoing mail on email send"
 msgstr "Clôturer la fiche courrier sortant lors de l'expédition de l'email"
 
-#: ./browser/export_to_pdf.py:207
+#: ./browser/export_to_pdf.py:229
 msgid "Close the exported elements?"
 msgstr "Clôturer l'élément après l'export ?"
 
@@ -665,7 +665,7 @@ msgstr "Sous-document avec QR code de téléchargement"
 msgid "Due date extension"
 msgstr "Échéance par défaut"
 
-#: ./browser/export_to_pdf.py:313
+#: ./browser/export_to_pdf.py:348
 msgid "E-signature or seal set, or already signed"
 msgstr "Signature ou cachet électroniques ou déjà signé"
 
@@ -740,13 +740,17 @@ msgstr "Entrez une expression régulière python"
 msgid "Expand/Collapse row"
 msgstr "Augmenter/réduire la hauteur de ligne"
 
-#: ./browser/export_to_pdf.py:192
+#: ./browser/export_to_pdf.py:214
 msgid "Export to PDF after signature"
 msgstr "Concaténation des PDF après signature électronique (pour impression)"
 
-#: ./browser/export_to_pdf.py:172
+#: ./browser/export_to_pdf.py:194
 msgid "Export to PDF before signature"
 msgstr "Concaténation des PDF avant signature manuscrite (pour impression)"
+
+#: ./browser/export_to_zip.py:43
+msgid "Export to zip"
+msgstr "Fichiers en Zip"
 
 #: ./setuphandlers.py:2979
 msgid "Export users and groups"
@@ -764,11 +768,11 @@ msgstr "Champ"
 msgid "Field name"
 msgstr "Nom du champ"
 
-#: ./adapters.py:2082
+#: ./adapters.py:2088
 msgid "File '${file}' cannot be split for signing: ${error}."
 msgstr "Le fichier publiposté '${file}' ne peut être reséparé en documents différents: ${error}."
 
-#: ./adapters.py:2067
+#: ./adapters.py:2073
 msgid "File '${file}' has no or a wrong scan id, it cannot be added to sign session."
 msgstr "Le fichier '${file}' a un identifiant de scan manquant ou invalide. Il ne peut être ajouté à la session de signature."
 
@@ -785,7 +789,7 @@ msgstr "Prénom Nom"
 msgid "Folders"
 msgstr "Dossiers"
 
-#: ./migrations/migrate_to_3_1.py:261
+#: ./migrations/migrate_to_3_1.py:290
 #: ./setuphandlers.py:642
 msgid "Folders Appendix Files"
 msgstr "Annexes dossiers"
@@ -930,11 +934,11 @@ msgstr "Nom Prénom"
 msgid "Legal advice"
 msgstr "Avis légal"
 
-#: ./browser/export_to_pdf.py:186
+#: ./browser/export_to_pdf.py:208
 msgid "LibreOffice server ${server} does not answer on port(s) ${ports}: odt and docx files cannot be converted."
 msgstr "Libreoffice ne répond pas sur le serveur ${server} et le port ${ports}: les fichiers odt et docx ne peuvent être convertis."
 
-#: ./subscribers.py:1355
+#: ./subscribers.py:1358
 msgid "Linked objects: ${list}"
 msgstr "Éléments liés: ${list}"
 
@@ -1007,7 +1011,7 @@ msgstr "Aucune transition commune ou valide. Recommencez en modifiant votre sél
 msgid "No common or available treating group, or no available assigned user. Modify your selection."
 msgstr "Aucun service traitant commun ou valide, ou aucun utilisateur assigné. Recommencez en modifiant votre sélection."
 
-#: ./browser/export_to_pdf.py:301
+#: ./browser/export_to_pdf.py:336
 msgid "No file to print"
 msgstr "Aucun fichier trouvé à exporter pour impression"
 
@@ -1031,7 +1035,7 @@ msgstr "Aucun des éléments sélectionnés n'est approuvable: seul un signatair
 msgid "Not all files approved"
 msgstr "Tous les fichiers ne sont pas approuvés"
 
-#: ./browser/export_to_pdf.py:327
+#: ./browser/export_to_pdf.py:362
 msgid "Not signed"
 msgstr "Non signé électroniquement"
 
@@ -1056,7 +1060,7 @@ msgstr "<span class='beware'>Une fois activée, cette option ne peut pas être a
 msgid "Once created and used, value doesn't be changed anymore. None can be used for a 'choose' value."
 msgstr "Une fois l'élément créé et utilisé, la zone 'Valeur stockée' ne doit plus être modifiée."
 
-#: ./browser/export_to_pdf.py:335
+#: ./browser/export_to_pdf.py:370
 msgid "Only sent by email"
 msgstr "À envoyer par email"
 
@@ -1111,7 +1115,7 @@ msgid "Outgoing DMS Files"
 msgstr "Fichiers ged CS"
 
 #: ./browser/batchactions.py:162
-#: ./browser/export_to_pdf.py:249
+#: ./browser/export_to_pdf.py:271
 #: ./dmsmail.py:723
 msgid "Outgoing Date"
 msgstr "Date d'expédition"
@@ -1199,7 +1203,7 @@ msgstr "Publipostage postal"
 msgid "Precise scan date"
 msgstr "Date précise de scan"
 
-#: ./browser/export_to_pdf.py:317
+#: ./browser/export_to_pdf.py:352
 msgid "Put the exported elements to signature?"
 msgstr "Mettre l'élément à la signature ?"
 
@@ -1245,12 +1249,12 @@ msgstr "Répondre"
 msgid "Reply to ${ref}"
 msgstr "Répondre à ${ref}"
 
-#: ./migrations/migrate_to_3_1.py:552
+#: ./migrations/migrate_to_3_1.py:602
 #: ./setuphandlers.py:311
 msgid "Requests"
 msgstr "Demandes de signature"
 
-#: ./migrations/migrate_to_3_1.py:552
+#: ./migrations/migrate_to_3_1.py:602
 #: ./setuphandlers.py:311
 msgid "Requests searches"
 msgstr "Recherches demandes sign"
@@ -1438,6 +1442,10 @@ msgstr "Valeur stockée"
 msgid "Style template"
 msgstr "Styles de base"
 
+#: ./browser/export_to_zip.py:67
+msgid "Subfolder files in a directory by subfolder?"
+msgstr "Annexes des chemises regroupés par dossier?"
+
 #: ./browser/settings.py:851
 msgid "Substitute"
 msgstr "Remplaçant"
@@ -1591,7 +1599,7 @@ msgstr "<span class='beware'>À modifier en toute connaissance de cause ! Ces r�
 msgid "Title changed."
 msgstr "Titre modifié."
 
-#: ./migrations/migrate_to_3_1.py:710
+#: ./migrations/migrate_to_3_1.py:760
 msgid "To sign files print template"
 msgstr "Impression en lot pour signature"
 
@@ -1686,11 +1694,11 @@ msgstr "Attention: aucune prévisualisation pour le document '${doc}' dans le co
 msgid "Warning: the mail already has signers configured that differ from the template. The template signers were not applied."
 msgstr "Attention: cette fiche a déjà des signataires configurés qui diffère de ceux de ce modèle, qui ne seront donc pas appliqués à la fiche."
 
-#: ./browser/export_to_pdf.py:318
+#: ./browser/export_to_pdf.py:353
 msgid "Will made transition to be signed"
 msgstr "Cela va effectuer la transition vers l'état « À la signature »"
 
-#: ./browser/export_to_pdf.py:208
+#: ./browser/export_to_pdf.py:230
 msgid "Will made transition to final state and set an outgoing date"
 msgstr "Cela va effectuer la transition vers l'état final (envoyé ou clôturé) et définir la date d'expédition"
 
@@ -1710,7 +1718,7 @@ msgstr "Vous ne pouvez approuver que ${limit} élément(s) à la fois: il faut e
 msgid "You can only upload \".odt\" file (Libre Office format)"
 msgstr "Vous pouvez seulement uploader un fichier «.odt» (format Libre Office)"
 
-#: ./subscribers.py:1491
+#: ./subscribers.py:1494
 msgid "You cannot add a group in a group !"
 msgstr "Vous ne pouvez pas ajouter un groupe dans un groupe !"
 
@@ -1722,31 +1730,31 @@ msgstr "Vous ne pouvez pas changer l'utilisateur Plone car l'ancienne valeur est
 msgid "You cannot copy this item '${title}' ! If you are in a table, you have to use the buttons below the table."
 msgstr "Vous ne pouvez pas copier cet élément '${title}' ! Pour un élément du tableau, vous devez utiliser les boutons sous le tableau."
 
-#: ./subscribers.py:972
+#: ./subscribers.py:975
 msgid "You cannot delete a file '${title}' part of already started esign process !"
 msgstr "Vous ne pouvez pas supprimer le fichier '${title}' qui est déjà engagé dans une procédure de signature électronique !"
 
-#: ./subscribers.py:1033
+#: ./subscribers.py:1036
 msgid "You cannot delete a file '${title}' when there are still linked pdf files !"
 msgstr "Vous ne pouvez pas effacer un fichier '${title}' avec des pdfs associés !"
 
-#: ./subscribers.py:1451
+#: ./subscribers.py:1454
 msgid "You cannot delete the group '${group}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:1390
+#: ./subscribers.py:1393
 msgid "You cannot delete the group '${group}'."
 msgstr "Vous ne pouvez pas effacer le groupe '${group}'."
 
-#: ./subscribers.py:1349
+#: ./subscribers.py:1352
 msgid "You cannot delete the user name '${user}', used in '${idx}' index."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans l'index '${idx}'."
 
-#: ./subscribers.py:1319
+#: ./subscribers.py:1322
 msgid "You cannot delete the user name '${user}', used in following groups."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}', utilisé dans les groupes."
 
-#: ./subscribers.py:1308
+#: ./subscribers.py:1311
 msgid "You cannot delete the user name '${user}'."
 msgstr "Vous ne pouvez pas effacer l'utilisateur '${user}'."
 
@@ -1880,6 +1888,10 @@ msgstr "Le dernier fichier ged ne sera pas pris en compte dans l'impression par 
 #: ./columns.py:56
 msgid "batch_printable_True"
 msgstr "Le dernier fichier ged sera bien pris en compte dans l'impression par lot."
+
+#: ./browser/export_to_zip.py:68
+msgid "by_subfolder description"
+msgstr "Si coché, l'archive va contenir un dossier par chemise"
 
 #: ./browser/viewlets.py:107
 msgid "city"
@@ -2104,11 +2116,11 @@ msgstr "Objet"
 msgid "listing_sender_title"
 msgstr "Expéditeur"
 
-#: ./browser/export_to_pdf.py:233
+#: ./browser/export_to_pdf.py:255
 msgid "mailing_appendices description after signature"
 msgstr "Les annexes sont dupliquées et incorporées dans le PDF généré après chaque document publiposté"
 
-#: ./browser/export_to_pdf.py:234
+#: ./browser/export_to_pdf.py:256
 msgid "mailing_appendices description before signature"
 msgstr "Les annexes sont dupliquées et incorporées à la fin du PDF généré, afin que l'envoi centralisé dispose de toutes les copies"
 
@@ -2189,7 +2201,7 @@ msgstr "À approuver"
 msgid "req_to_treat"
 msgstr "Qui m'est assigné"
 
-#: ./migrations/migrate_to_3_1.py:544
+#: ./migrations/migrate_to_3_1.py:594
 #: ./setuphandlers.py:303
 msgid "requests_tab"
 msgstr "Demandes sign."

@@ -89,6 +89,10 @@ msgstr ""
 msgid "Export to PDF before signature"
 msgstr ""
 
+#: profiles/default/types/dmsincomingmail.xml
+msgid "Export to zip"
+msgstr ""
+
 #: profiles/default/sharing.xml
 msgid "IM Field Writer"
 msgstr ""

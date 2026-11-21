@@ -45,6 +45,10 @@ msgstr ""
 msgid "export-to-pdf-before-signature-batch-action-but"
 msgstr ""
 
+#. Default: "Download files in zip"
+msgid "export-to-zip-batch-action-but"
+msgstr ""
+
 #. Default: "Change recipient groups"
 msgid "recipientgroup-batch-action-but"
 msgstr ""
