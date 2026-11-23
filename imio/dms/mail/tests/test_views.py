@@ -794,7 +794,7 @@ class TestCollaboraOrZopeEditView(unittest.TestCase):
                              "{}/externalEdit_/{}.zem".format(obj.aq_parent.absolute_url(), obj.getId()))
             # collabora edit enabled: collabora
             api.portal.set_registry_record(COLLABORA_EDIT, True)
-            self.assertIn("collabora_server_url is not configured", obj.restrictedTraverse("external_edit")())
+            self.assertIn("collabora_server_url n'est pas configur", obj.restrictedTraverse("external_edit")())
             api.portal.set_registry_record(COLLABORA_EDIT, False)
         # zopeedit needs the modify permission, as before collabora
         change_user(self.portal, "agent")
