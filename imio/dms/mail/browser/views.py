@@ -683,14 +683,16 @@ class ImioCatalogNavigationTabs(CatalogNavigationTabs):
 class SessionAnnotationInfoView(BaseSessionAnnotationInfoView):
     """Admin-only view displaying approval and imio.esign session annotations for an outgoing mail or sign request."""
 
-    index = ViewPageTemplateFile("templates/session_annotation_info.pt")
-
     @property
     def approval_annot_html(self):
         """Renders approval annot in HTML"""
         approval = self.context.approval()
         native = persistent_to_native(approval.annot)
         return self._render_value(native)
+
+    def sections(self):
+        """The approval annotation first."""
+        return [(u"Approval annotation", self.approval_annot_html)] + super(SessionAnnotationInfoView, self).sections()
 
 
 class ObjectRenameTitleView(BrowserView):

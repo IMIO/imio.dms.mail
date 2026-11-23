@@ -1322,13 +1322,13 @@
             permission="zope2.View"
         />
 
-        <!-- Wrong signature tags of the files of a draft session, see PARAF-503.
-             Registered on the containers and on the files themselves. -->
+        <!-- Wrong acroform tags of the files to sign.
+             Registered on the mails and on the files, overriding the imio.esign one. -->
         <browser:viewlet
             for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail"
             manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             name="esign-acroform-errors"
-            class="imio.esign.browser.views.AcroformErrorsViewlet"
+            class="imio.dms.mail.browser.viewlets.ImioAcroformErrorsViewlet"
             permission="zope2.View"
         />
 
@@ -1336,16 +1336,17 @@
             for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest"
             manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             name="esign-acroform-errors"
-            class="imio.esign.browser.views.AcroformErrorsViewlet"
+            class="imio.dms.mail.browser.viewlets.ImioAcroformErrorsViewlet"
             permission="zope2.View"
         />
 
         <browser:viewlet
-            for="imio.dms.mail.dmsfile.IImioDmsFile"
+            for="imio.annex.content.annex.IAnnex"
             manager="plone.app.layout.viewlets.interfaces.IAboveContentTitle"
             name="esign-acroform-errors"
-            class="imio.esign.browser.views.AcroformErrorsViewlet"
+            class="imio.dms.mail.browser.viewlets.ImioAcroformErrorsViewlet"
             permission="zope2.View"
+            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
         />
 
         <browser:viewlet

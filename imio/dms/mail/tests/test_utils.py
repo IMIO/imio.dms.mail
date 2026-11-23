@@ -163,9 +163,12 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(len(errors), 1)
         self.assertEqual(errors[0][1][0].mapping, {"nb": 2, "count": 1})
 
-        # --- a file that is not to be signed is not checked ---
+        # --- a file that is not to be signed, or already signed, is not checked ---
         afile.to_sign = False
         self.assertEqual(acroform_errors(omail), [])
+        afile.to_sign = afile.signed = True
+        self.assertEqual(acroform_errors(omail), [])
+        afile.signed = False
 
         # --- the seal tag is checked against the seal field ---
         sealed, sfile = create_om_with_tags(self.portal, "omail-acroform-seal", tag_ids=(1, u"SCEAU"))
@@ -183,6 +186,12 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         self.assertEqual(len(acroform_errors(seal_only)), 1)
         sofile.file = odt_with_tags(1, u"SCEAU")
         self.assertEqual(acroform_errors(seal_only), [])
+
+        # --- stored=True trusts the tags stored on the file, a changed file is read again otherwise ---
+        sofile.file = odt_with_tags(u"SCEAU", u"SCEAU")
+        self.assertEqual(acroform_errors(seal_only, stored=True), [])
+        self.assertEqual(len(acroform_errors(seal_only)), 1)
+        self.assertEqual(len(acroform_errors(seal_only, stored=True)), 1)
 
     def test_ensure_set_field(self):
         now1 = datetime.now()

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from Acquisition import aq_parent
+from collections import OrderedDict
 from collective.contact.core.browser.address import get_address
 from collective.contact.widget.interfaces import IContactContent
 from collective.dms.basecontent.browser.viewlets import VersionsViewlet
@@ -11,6 +13,7 @@ from collective.messagesviewlet.browser.messagesviewlet import GlobalMessagesVie
 from collective.messagesviewlet.message import generate_uid
 from collective.messagesviewlet.message import PseudoMessage
 from collective.task.browser.viewlets import TaskParentViewlet
+from imio.annex.content.annex import IAnnex
 from imio.dms.mail import _tr as _
 from imio.dms.mail.browser.table import IMVersionsTable
 from imio.dms.mail.browser.table import OMVersionsTable
@@ -19,6 +22,7 @@ from imio.dms.mail.browser.views import ImioSessionsListingView
 from imio.dms.mail.dmsmail import IImioDmsOutgoingMail
 from imio.dms.mail.dmssignrequest import IImioDmsSignRequest
 from imio.dms.mail.utils import acroform_errors
+from imio.esign.browser.views import AcroformErrorsViewlet
 from imio.esign.browser.views import FacetedSessionInfoViewlet
 from imio.esign.browser.views import ItemSessionInfoViewlet
 from imio.helpers.content import richtextval
@@ -30,6 +34,7 @@ from plone.app.layout.viewlets.common import FooterViewlet
 from Products.CMFPlone.utils import safe_unicode
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from zc.relation.interfaces import ICatalog
+from zope.cachedescriptors.property import CachedProperty
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.interface import alsoProvides
@@ -180,7 +185,7 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
             ret.append(
                 PseudoMessage(msg_type="significant", text=richtextval(msg), hidden_uid=generate_uid(), can_hide=False)
             )
-        return ret + self.get_acroform_messages()
+        return ret
 
     def render(self):
         # Wrap in an always-present container so the banner can be AJAX-refreshed
@@ -188,29 +193,6 @@ class ContextInformationViewlet(GlobalMessagesViewlet):
         return u'<div id="dms-context-messages">{0}</div>'.format(
             super(ContextInformationViewlet, self).render()
         )
-
-    def get_acroform_messages(self):
-        """Wrong signature or seal tags, while the item can still be corrected."""
-        if not (IImioDmsOutgoingMail.providedBy(self.context) or IImioDmsSignRequest.providedBy(self.context)):
-            return []
-        signed_states = ("to_be_signed", "signed", "sent", "closed")
-        if api.content.get_state(self.context) in signed_states:
-            return []
-        ret = []
-        for fobj, errors in acroform_errors(self.context):
-            msg = translate(
-                u"The signature or seal tags of file '${title}' are wrong: ${errors}",
-                domain="imio.dms.mail",
-                context=self.request,
-                mapping={
-                    "title": object_link(fobj),
-                    "errors": u" ".join([translate(error, context=self.request) for error in errors]),
-                },
-            )
-            ret.append(
-                PseudoMessage(msg_type="significant", text=richtextval(msg), hidden_uid=generate_uid(), can_hide=False)
-            )
-        return ret
 
 
 class CKBatchActionsViewlet(BatchActionsViewlet):
@@ -276,3 +258,23 @@ class ImioItemSessionInfoViewlet(ItemSessionInfoViewlet):
 
     def collapsible_content_css_default(self):
         return "collapsible-content discreet"
+
+
+class ImioAcroformErrorsViewlet(AcroformErrorsViewlet):
+    """Before signing, the files to sign are checked against the signers and seal of their container,
+    from then on against their session."""
+
+    session_info_viewlet_class = ImioItemSessionInfoViewlet
+
+    @CachedProperty
+    def errors(self):
+        """Return OrderedDict {file uid: (file object, [translated error messages])}."""
+        container = aq_parent(self.context) if IAnnex.providedBy(self.context) else self.context
+        signable = IImioDmsOutgoingMail.providedBy(container) or IImioDmsSignRequest.providedBy(container)
+        if not signable or not container.approval().is_state_before_or_approve():
+            return super(ImioAcroformErrorsViewlet, self).errors
+        uid = self.context.UID()
+        return OrderedDict(
+            [(fobj.UID(), (fobj, [translate(msg, context=self.request) for msg in messages]))
+             for fobj, messages in acroform_errors(container, stored=True) if uid in (container.UID(), fobj.UID())]
+        )

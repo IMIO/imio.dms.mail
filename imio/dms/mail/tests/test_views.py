@@ -467,15 +467,15 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
     False,
   ],
   "files": [
-    <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({uid1}),
-    <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/012999900000602/view' title='/plone/outgoing-mail/{folder_name}/om-esign/012999900000602'>Modèle de base</a> ({uid2}),
+    "{uid1}",
+    "{uid2}",
   ],
   "pdf_files": [
     [
-      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/file0/view' title='/plone/outgoing-mail/{folder_name}/om-esign/file0'>Réponse salle.odt</a> ({puid1}),
+      "{puid1}",
     ],
     [
-      <a href='http://nohost/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf/view' title='/plone/outgoing-mail/{folder_name}/om-esign/modele-de-base-s0010-courrier-test-esign.pdf'>Modele de base S0010 Courrier test esign.pdf</a> ({puid2}),
+      "{puid2}",
     ],
   ],
   "session_ids": [
@@ -603,6 +603,20 @@ class TestSessionAnnotationInfoView(unittest.TestCase, ImioTestHelpers):
         self.assertIn("dirg", html)
         # esign session created for the request
         self.assertEqual(len(view.esign_sessions), 1)
+
+    def test_sections(self):
+        """The approval annotation, then the esign sections (sessions, file annotations)."""
+        request, files = self._setup_esign_sign_request()
+        pw = self.portal.portal_workflow
+        pw.doActionFor(request, "propose_to_approve")
+        approval = ISignRequestApproval(request)
+        for userid in ("dirg", "bourgmestre"):
+            approval.approve_file(files[0], userid, transition="propose_to_be_signed")
+        view = SessionAnnotationInfoView(request, self.portal.REQUEST)
+        sections = view.sections()
+        self.assertEqual([title for title, html in sections][:2], [u"Approval annotation", u"Session 0"])
+        self.assertEqual(sections[0][1], view.approval_annot_html)
+        self.assertIn(u"<h2>Approval annotation</h2>", view())
 
 
 class TestObjectRenameTitleView(unittest.TestCase):

@@ -9,6 +9,8 @@ from io import BytesIO
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from xml.sax.saxutils import escape
+from zope.event import notify
+from zope.lifecycleevent import ObjectModifiedEvent
 
 import datetime
 import zipfile
@@ -67,6 +69,7 @@ def create_om_with_tags(portal, oid, tag_ids=(1,), nb_signers=1, esign=True, sea
     afile = createContentInContainer(
         omail, "dmsommainfile", id="mainfile", file=file_object, content_category=calculate_category_id(ct)
     )
-    afile.file = odt_with_tags(*tag_ids)
     afile.to_sign = True
+    afile.file = odt_with_tags(*tag_ids)
+    notify(ObjectModifiedEvent(afile))
     return omail, afile

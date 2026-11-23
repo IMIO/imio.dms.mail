@@ -1714,27 +1714,6 @@ def is_esign(obj):
     return bool(getattr(obj, "esign", False) or getattr(obj, "seal", False))
 
 
-def acroform_errors(container):
-    """Return the acroform tag errors of the signable files of an outgoing mail or sign request.
-
-    :param container: outgoing mail or sign request
-    :return: list of (file object, [error messages]) for the files in error only
-    """
-    if not (container.esign or container.seal):
-        return []
-    nb_signers = None
-    if container.esign:
-        nb_signers = len([s for s in (container.signers or []) if s["signer"] != u"_empty_"])
-    res = []
-    for fobj in container.values():
-        if fobj.portal_type not in ("dmsommainfile", "dmsappendixfile") or not getattr(fobj, "to_sign", False):
-            continue
-        errors = check_file(fobj, nb_signers, container.seal)
-        if errors:
-            res.append((fobj, errors))
-    return res
-
-
 def get_allowed_content_types(esign=False, portal_type=None):
     """Get allowed configured content types.
 
@@ -1786,3 +1765,26 @@ def is_hp_used_in_signer_rules(hp_obj, remaining_usages):
                 if person_uid in (rule.get("approvings") or []):
                     return True
     return False
+
+
+def acroform_errors(container, stored=False):
+    """Return the acroform tag errors of the signable files of an outgoing mail or sign request.
+
+    :param container: outgoing mail or sign request
+    :param stored: trust the acroform tags stored on the files, see imio.esign get_file_acroform_tags
+    :return: list of (file object, [error messages]) for the files in error only
+    """
+    if not is_esign(container):
+        return []
+    nb_signers = None
+    if container.esign:
+        nb_signers = len([s for s in (container.signers or []) if s["signer"] != u"_empty_"])
+    res = []
+    for fobj in container.values():
+        if fobj.portal_type not in ("dmsommainfile", "dmsappendixfile") or not getattr(fobj, "to_sign", False) \
+                or getattr(fobj, "signed", False):
+            continue
+        errors = check_file(fobj, nb_signers, container.seal, stored)
+        if errors:
+            res.append((fobj, errors))
+    return res
