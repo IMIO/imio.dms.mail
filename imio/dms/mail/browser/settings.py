@@ -1057,7 +1057,10 @@ class IImioDmsMailConfig(model.Schema):
 
     collabora_collaborative_edit = schema.Bool(
         title=_(u"Collaborative editing with Collabora"),
-        description=_(u"Let several users edit a document at the same time. Otherwise, the others open it read-only."),
+        description=_(
+            u"Let several users edit a document at the same time: their changes are shared and anyone's "
+            u"\"Save & Close\" saves them all. Otherwise, the others open it read-only."
+        ),
         default=False,
     )
     write_permission(collabora_collaborative_edit="cmf.ManagePortal")

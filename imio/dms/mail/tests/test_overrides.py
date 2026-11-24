@@ -8,6 +8,7 @@ from imio.helpers.content import get_object
 from io import BytesIO
 from plone import api
 from zExceptions import Redirect
+from zope.annotation.interfaces import IAnnotations
 
 import json
 import os
@@ -44,6 +45,7 @@ class TestOverrides(unittest.TestCase):
 
     def wopi(self, obj, operation="", lock_id=""):
         """Call the WOPI file endpoint like Collabora. Return the status, the body and the X-WOPI-Lock header."""
+        IAnnotations(self.request).pop("plone.memoize", None)  # each WOPI call is a new request
         response = self.request.response
         response.setStatus(200)
         self.request.environ["HTTP_X_WOPI_OVERRIDE"] = operation
@@ -55,6 +57,14 @@ class TestOverrides(unittest.TestCase):
 
     def test_lock_collabora_edition(self):
         omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        # a reader, given the mail through sharing, cannot lock it
+        api.user.grant_roles(username="lecteur", obj=omf.aq_parent, roles=["Reader"])
+        change_user(self.portal, "lecteur")
+        self.assertTrue(api.user.has_permission("View", obj=omf))
+        self.assertFalse(api.user.has_permission("Modify portal content", obj=omf))
+        self.assertEqual(self.wopi(omf, "LOCK", "cool-lock0")[0], 403)
+        self.assertFalse(omf.wl_isLocked())
+        change_user(self.portal)
         # siteadmin opens the file in Collabora, which locks it
         info = json.loads(self.wopi(omf)[1])
         self.assertTrue(info["SupportsLocks"])
@@ -74,6 +84,21 @@ class TestOverrides(unittest.TestCase):
         api.portal.set_registry_record(COLLABORATIVE_EDIT, True)
         self.assertTrue(json.loads(self.wopi(omf)[1])["UserCanWrite"])
         self.assertRaises(Redirect, omf.restrictedTraverse("@@edit"))
+        # only the lock holder's session saves
+        data = omf.file.data
+        self.request.method = "POST"
+        self.request.environ["HTTP_X_COOL_WOPI_ISMODIFIEDBYUSER"] = "true"
+        self.request.environ["HTTP_X_COOL_WOPI_EXTENDEDDATA"] = "SaveAndClose=true"
+        for lock_id, status in (("cool-lock2", 409), ("cool-lock1", 200)):
+            self.request.response.setStatus(200)
+            self.request.environ["HTTP_X_WOPI_LOCK"] = lock_id
+            self.request._file = BytesIO(data + b"saved")
+            view = omf.restrictedTraverse("@@collabora-wopi")
+            view.wopi_mode = "contents"
+            view()
+            self.assertEqual(self.request.response.getStatus(), status)
+        self.assertEqual(omf.file.data, data + b"saved")
+        self.request.method = "GET"
         # Collabora unlocks at the end of the edition
         self.assertEqual(self.wopi(omf, "UNLOCK", "cool-lock2")[0], 409)
         self.assertEqual(self.wopi(omf, "UNLOCK", "cool-lock1"), (200, "", "cool-lock1"))
@@ -95,11 +120,13 @@ class TestOverrides(unittest.TestCase):
         view.wopi_mode = "contents"
         self.assertEqual(json.loads(view())["BaseFileName"], omf.file.filename)
         self.assertEqual(omf.file.data, data)
-        # the save of "Save & Close" is kept
+        # the save of "Save & Close" is kept, the preview completed before it is outdated
+        omf.conversion_finished = "stale"
         self.request.environ["HTTP_X_COOL_WOPI_EXTENDEDDATA"] = "SaveAndClose=true"
         self.request._file = BytesIO(edited)
         view()
         self.assertEqual(omf.file.data, edited)
+        self.assertNotEqual(getattr(omf, "conversion_finished", None), "stale")
         # Collabora autosave: every save is kept, with Collabora's own save button
         api.portal.set_registry_record(COLLABORA_AUTOSAVE, True)
         del self.request.environ["HTTP_X_COOL_WOPI_EXTENDEDDATA"]

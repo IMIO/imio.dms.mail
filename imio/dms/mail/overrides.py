@@ -9,6 +9,7 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.SecurityManagement import getSecurityManager
+from Acquisition import aq_base
 from collective.collabora.browser.edit import CollaboraEditView
 from collective.collabora.browser.wopi import CollaboraWOPIView
 from collective.contact.plonegroup.subscribers import PloneGroupContactChecksAdapter
@@ -214,6 +215,7 @@ def _lock_collabora_edition():
     """
     file_info = CollaboraWOPIView.file_info.fget
     call = CollaboraWOPIView.__call__
+    put_file = CollaboraWOPIView.wopi_put_file
 
     def lock_file_info(self):
         """Same as upstream, with locks, read-only while another user edits the file."""
@@ -233,6 +235,9 @@ def _lock_collabora_edition():
             or not ITTWLockable.providedBy(self.context)
         ):
             return call(self)
+        if operation != "GET_LOCK" and not self.can_edit:
+            self.request.response.setStatus(403)
+            return ""
         alsoProvides(self.request, IDisableCSRFProtection)
         lock_id = self.request.get_header("X-WOPI-Lock", "")
         lockable = ILockable(self.context)
@@ -250,8 +255,18 @@ def _lock_collabora_edition():
         self.request.response.setHeader("X-WOPI-Lock", current or "")
         return ""
 
+    def put_file_with_lock(self):
+        """Same as upstream, but refuse a save from another Collabora session than the lock holder."""
+        current = get_collabora_lock_id(self.context) if ITTWLockable.providedBy(self.context) else None
+        if current is not None and self.request.get_header("X-WOPI-Lock") != current:
+            self.request.response.setStatus(409)
+            self.request.response.setHeader("X-WOPI-Lock", current)
+            return ""
+        return put_file(self)
+
     CollaboraWOPIView.file_info = property(lock_file_info)
     CollaboraWOPIView.__call__ = call_with_locks
+    CollaboraWOPIView.wopi_put_file = put_file_with_lock
 
 
 def _save_on_request():
@@ -278,6 +293,9 @@ def _save_on_request():
     def wopi_put_file(self):
         """Same as upstream, but drop the saves not asked by "Save & Close"."""
         if autosave() or COLLABORA_SAVE_REQUEST in (self.request.get_header("X-COOL-WOPI-ExtendedData") or ""):
+            # a preview completed before this save is outdated: wait for the next one (ServerSentEvents)
+            if getattr(aq_base(self.context), "conversion_finished", False):
+                del self.context.conversion_finished
             return put_file(self)
         logger.info("Dropped a Collabora save not asked by Save & Close on %r", self.context.absolute_url())
         self.request.response.setHeader("Content-Type", "application/json")

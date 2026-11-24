@@ -4,12 +4,18 @@
 
 var dms_collabora = {modified: false, leaving: false, closeUrl: null};
 
+function dms_collabora_text(name) {
+  return document.querySelector(".section-collabora-main").getAttribute(name);
+}
+
 function dms_collabora_save_and_close(link) {
-  dms_collabora.leaving = true;
   if (!dms_collabora.modified) {
+    dms_collabora.leaving = true;
     return true;  // nothing to save: follow the link
   }
   dms_collabora.closeUrl = link.href;
+  // block editing while saving: a change made after the save snapshot would be lost when leaving
+  collabora_postMessage("Action_ShowBusy", {Label: dms_collabora_text("data-saving")});
   collabora_postMessage("Action_Save", {
     DontTerminateEdit: true,
     DontSaveIfUnmodified: false,  // an autosave dropped by Plone leaves the document "unmodified"
@@ -25,6 +31,8 @@ function dms_collabora_cancel_and_close() {
 }
 
 window.addEventListener("message", function (e) {
+  var iframe = document.getElementById("cool-iframe");
+  if (!iframe || e.source !== iframe.contentWindow) { return; }
   var msg;
   try { msg = JSON.parse(e.data); } catch (err) { return; }
   if (!msg || !msg.Values) { return; }
@@ -34,11 +42,12 @@ window.addEventListener("message", function (e) {
   }
   if (msg.MessageId === "Action_Save_Resp" && dms_collabora.closeUrl) {
     if (msg.Values.success) {
+      dms_collabora.leaving = true;
       window.location.href = dms_collabora.closeUrl;
     } else {
-      dms_collabora.leaving = false;
       dms_collabora.closeUrl = null;
-      window.alert(document.querySelector(".section-collabora-main").getAttribute("data-save-error"));
+      collabora_postMessage("Action_HideBusy");
+      window.alert(dms_collabora_text("data-save-error"));
     }
   }
 }, false);

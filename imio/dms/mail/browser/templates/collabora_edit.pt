@@ -79,8 +79,9 @@
 
         <section tal:condition="not: view/error_msg"
                  data-save-error="The document could not be saved."
+                 data-saving="Saving..."
                  i18n:domain="imio.dms.mail"
-                 i18n:attributes="data-save-error"
+                 i18n:attributes="data-save-error; data-saving"
                  tal:attributes="
                    class python:'section section-collabora-main ' + view.plone_version;
                  "

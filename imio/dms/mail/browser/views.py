@@ -777,7 +777,8 @@ class CollaboraOrZopeEditView(CollaboraEditView):
     def close_url(self):
         """Mail file: its mail. Template: the page the edit was opened from, else its folder."""
         referer = self.request.get("HTTP_REFERER", "")
-        if not IAnnex.providedBy(self.context) and referer.startswith(self.portal_url):
+        in_site = referer == self.portal_url or referer.startswith(self.portal_url + "/")
+        if not IAnnex.providedBy(self.context) and in_site:
             return referer
         return aq_parent(aq_inner(self.context)).absolute_url()
 

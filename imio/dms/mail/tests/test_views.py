@@ -848,7 +848,7 @@ class TestCollaboraOrZopeEditView(unittest.TestCase):
         # template: the page it was opened from
         self.assertEqual(template.restrictedTraverse("external_edit").close_url, dashboard)
         # template opened from outside the site or without referer: its folder
-        for referer in ("http://elsewhere/page", ""):
+        for referer in ("http://elsewhere/page", self.portal.absolute_url() + ".elsewhere/page", ""):
             self.request["HTTP_REFERER"] = referer
             self.assertEqual(
                 template.restrictedTraverse("external_edit").close_url, self.portal["templates"]["om"].absolute_url()
