@@ -48,7 +48,7 @@ setup(
         "collective.ckeditor",
         "collective.ckeditortemplates",
         "collective.classification.folder",
-        "collective.collabora",
+        "collective.collabora>=1.3.0",
         "collective.contact.core",
         "collective.contact.contactlist",
         "collective.contact.duplicated",
