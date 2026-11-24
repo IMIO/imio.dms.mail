@@ -1910,8 +1910,9 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         # a modification outside Collabora: nothing to wait for
         modified(omf)
         self.assertFalse(hasattr(omf, "generated"))
-        # Collabora saves the file through its WOPI callback
+        # Collabora saves the file through its WOPI callback, asked by "Save & Close"
         request = self.portal.REQUEST
+        request.environ["HTTP_X_COOL_WOPI_EXTENDEDDATA"] = "SaveAndClose=true"
         request["PATH_INFO"] = "{}/@@collabora-wopi/files/{}/contents".format(omf.absolute_url_path(), omf.UID())
         request["HTTP_X_COOL_WOPI_ISMODIFIEDBYUSER"] = "true"
         request.method = "POST"

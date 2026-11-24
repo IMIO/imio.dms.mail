@@ -18,6 +18,8 @@ Changelog
   The outgoing mail view refreshes once the preview of a file saved by Collabora is rebuilt (DMS-1263).
   A file edited in Collabora is locked: others open it read-only and cannot edit its metadata.
   The `collabora_collaborative_edit` setting lets several users edit it together (DMS-1262).
+  Collabora saves only through "Save & Close"; "Cancel & Close" drops the changes and leaving the page warns.
+  The `collabora_autosave` setting keeps every Collabora save instead (DMS-1259).
   [chris-adam]
 - Updated `ExportToPDFBatchActionForm` after imio.annex refactoring
   [sgeulette]

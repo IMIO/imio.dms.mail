@@ -1020,6 +1020,7 @@ class IImioDmsMailConfig(model.Schema):
             "batch_approval_limit",
             "collabora_edit",
             "collabora_collaborative_edit",
+            "collabora_autosave",
         ],
     )
 
@@ -1060,6 +1061,16 @@ class IImioDmsMailConfig(model.Schema):
         default=False,
     )
     write_permission(collabora_collaborative_edit="cmf.ManagePortal")
+
+    collabora_autosave = schema.Bool(
+        title=_(u"Collabora autosave"),
+        description=_(
+            u"Keep every save of Collabora (while editing and when leaving). Otherwise, only "
+            u"\"Save & Close\" saves and \"Cancel & Close\" drops the changes."
+        ),
+        default=False,
+    )
+    write_permission(collabora_autosave="cmf.ManagePortal")
 
     @invariant
     def validate_settings(data):  # noqa

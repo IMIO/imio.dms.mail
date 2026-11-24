@@ -767,6 +767,13 @@ class CollaboraOrZopeEditView(CollaboraEditView):
         return super(CollaboraOrZopeEditView, self).can_edit and not is_collabora_read_only(self.context)
 
     @property
+    def autosave(self):
+        """Collabora autosave: every save is kept, so no "Cancel & Close"."""
+        return api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_autosave", default=False
+        )
+
+    @property
     def close_url(self):
         """Mail file: its mail. Template: the page the edit was opened from, else its folder."""
         referer = self.request.get("HTTP_REFERER", "")

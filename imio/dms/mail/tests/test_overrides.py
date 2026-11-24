@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
 """Test overrides."""
 
+from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.helpers.content import get_object
+from io import BytesIO
 from plone import api
 from zExceptions import Redirect
 
 import json
+import os
 import unittest
 
 
 COLLABORATIVE_EDIT = "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_collaborative_edit"
+COLLABORA_AUTOSAVE = "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_autosave"
 
 
 class TestOverrides(unittest.TestCase):
@@ -75,3 +79,32 @@ class TestOverrides(unittest.TestCase):
         self.assertEqual(self.wopi(omf, "UNLOCK", "cool-lock1"), (200, "", "cool-lock1"))
         self.assertFalse(omf.wl_isLocked())
         self.assertEqual(self.wopi(omf, "REFRESH_LOCK", "cool-lock1"), (409, "", ""))
+
+    def test_save_on_request(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        data = omf.file.data
+        with open(os.path.join(PRODUCT_DIR, "Extensions", "Refection trottoir.odt"), "rb") as fh:
+            edited = fh.read()
+        view = omf.restrictedTraverse("@@collabora-wopi")
+        view.wopi_mode = "file_info"
+        self.assertTrue(json.loads(view())["HideSaveOption"])
+        # Collabora saves by itself (when idle, while editing, when leaving): dropped
+        self.request.method = "POST"
+        self.request.environ["HTTP_X_COOL_WOPI_ISMODIFIEDBYUSER"] = "true"
+        self.request._file = BytesIO(edited)
+        view.wopi_mode = "contents"
+        self.assertEqual(json.loads(view())["BaseFileName"], omf.file.filename)
+        self.assertEqual(omf.file.data, data)
+        # the save of "Save & Close" is kept
+        self.request.environ["HTTP_X_COOL_WOPI_EXTENDEDDATA"] = "SaveAndClose=true"
+        self.request._file = BytesIO(edited)
+        view()
+        self.assertEqual(omf.file.data, edited)
+        # Collabora autosave: every save is kept, with Collabora's own save button
+        api.portal.set_registry_record(COLLABORA_AUTOSAVE, True)
+        del self.request.environ["HTTP_X_COOL_WOPI_EXTENDEDDATA"]
+        self.request._file = BytesIO(data)
+        view()
+        self.assertEqual(omf.file.data, data)
+        view.wopi_mode = "file_info"
+        self.assertNotIn("HideSaveOption", json.loads(view()))

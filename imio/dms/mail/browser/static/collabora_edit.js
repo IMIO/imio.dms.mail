@@ -1,0 +1,53 @@
+// Collabora edit page (collabora_edit.pt), next to collective.collabora's edit.js.
+// Without Collabora autosave, Plone keeps only the save sent by "Save & Close" (overrides._save_on_request
+// checks its extended data), so leaving the page any other way drops the changes.
+
+var dms_collabora = {modified: false, leaving: false, closeUrl: null};
+
+function dms_collabora_save_and_close(link) {
+  dms_collabora.leaving = true;
+  if (!dms_collabora.modified) {
+    return true;  // nothing to save: follow the link
+  }
+  dms_collabora.closeUrl = link.href;
+  collabora_postMessage("Action_Save", {
+    DontTerminateEdit: true,
+    DontSaveIfUnmodified: false,  // an autosave dropped by Plone leaves the document "unmodified"
+    Notify: true,
+    ExtendedData: "SaveAndClose=true"
+  });
+  return false;  // leave once Collabora has saved: it then uploads even if the page is gone
+}
+
+function dms_collabora_cancel_and_close() {
+  dms_collabora.leaving = true;
+  return true;
+}
+
+window.addEventListener("message", function (e) {
+  var msg;
+  try { msg = JSON.parse(e.data); } catch (err) { return; }
+  if (!msg || !msg.Values) { return; }
+  if (msg.MessageId === "Doc_ModifiedStatus" && msg.Values.Modified) {
+    // kept true: a dropped autosave resets Collabora's own status
+    dms_collabora.modified = true;
+  }
+  if (msg.MessageId === "Action_Save_Resp" && dms_collabora.closeUrl) {
+    if (msg.Values.success) {
+      window.location.href = dms_collabora.closeUrl;
+    } else {
+      dms_collabora.leaving = false;
+      dms_collabora.closeUrl = null;
+      window.alert(document.querySelector(".section-collabora-main").getAttribute("data-save-error"));
+    }
+  }
+}, false);
+
+window.addEventListener("beforeunload", function (e) {
+  var actions = document.querySelector(".section-collabora-actions");
+  if (!dms_collabora.modified || dms_collabora.leaving || !actions || actions.getAttribute("data-autosave") === "true") {
+    return;
+  }
+  e.preventDefault();
+  e.returnValue = "";  // browsers show their own "changes may not be saved" message
+});

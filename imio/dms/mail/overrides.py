@@ -29,12 +29,15 @@ from Products.PluggableAuthService.PluggableAuthService import PluggableAuthServ
 from zope.annotation.interfaces import IAnnotations
 from zope.interface import alsoProvides
 
+import json
 import os
 
 
 logger = getLogger("imio.dms.mail.overrides")
 # Path segment that identifies Collabora's own server-to-server callback.
 COLLABORA_CALLBACK = "@@collabora-wopi"
+# Extended data sent with the save of our "Save & Close" button (collabora_edit.js).
+COLLABORA_SAVE_REQUEST = "SaveAndClose=true"
 
 
 class DmsPloneGroupContactChecksAdapter(PloneGroupContactChecksAdapter):
@@ -251,9 +254,43 @@ def _lock_collabora_edition():
     CollaboraWOPIView.__call__ = call_with_locks
 
 
+def _save_on_request():
+    """Keep only the saves asked by our "Save & Close" button, unless Collabora autosave is enabled.
+
+    Collabora also saves by itself (when idle, every minute while editing, when leaving): those saves are dropped, so
+    "Cancel & Close" discards the changes. Collabora's own save button is hidden.
+    """
+    file_info = CollaboraWOPIView.file_info.fget
+    put_file = CollaboraWOPIView.wopi_put_file
+
+    def autosave():
+        return api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_autosave", default=False
+        )
+
+    def save_file_info(self):
+        """Same as upstream, without Collabora's own save button."""
+        info = file_info(self)
+        if not autosave():
+            info["HideSaveOption"] = True
+        return info
+
+    def wopi_put_file(self):
+        """Same as upstream, but drop the saves not asked by "Save & Close"."""
+        if autosave() or COLLABORA_SAVE_REQUEST in (self.request.get_header("X-COOL-WOPI-ExtendedData") or ""):
+            return put_file(self)
+        logger.info("Dropped a Collabora save not asked by Save & Close on %r", self.context.absolute_url())
+        self.request.response.setHeader("Content-Type", "application/json")
+        return json.dumps(self.file_info)
+
+    CollaboraWOPIView.file_info = property(save_file_info)
+    CollaboraWOPIView.wopi_put_file = wopi_put_file
+
+
 _record_async_user_folder()
 _authenticate_zope_root_user()
 _hide_collabora_popups()
 _lock_collabora_edition()
+_save_on_request()
 if os.environ.get("COLLABORA_DEV_MODE"):
     _allow_localhost_dev()

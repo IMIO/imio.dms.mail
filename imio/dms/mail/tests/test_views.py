@@ -818,6 +818,13 @@ class TestCollaboraOrZopeEditView(unittest.TestCase):
                 self.assertIn("cool-iframe", html)
                 self.assertNotIn("standalone download", html)
                 self.assertNotIn("standalone edit", html)
+                # saving goes through collabora_edit.js, which can cancel without autosave
+                self.assertIn("dms_collabora_save_and_close", html)
+                self.assertIn("standalone cancel", html)
+            api.portal.set_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_autosave", True
+            )
+            self.assertNotIn("standalone cancel", omf.restrictedTraverse("external_edit")())
         api.portal.set_registry_record(COLLABORA_EDIT, False)
         # zopeedit needs the modify permission, as before collabora
         change_user(self.portal, "agent")
