@@ -19,6 +19,7 @@ from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import current_user_groups_ids
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import is_collabora_read_only
 from imio.esign import manage_session_perm
 from imio.esign.browser.actions import RecreateSessionView
 from imio.esign.browser.actions import RemoveItemFromSessionView
@@ -759,6 +760,11 @@ class CollaboraOrZopeEditView(CollaboraEditView):
             raise Unauthorized
         # built directly: this view shadows ZopeEdit's external_edit
         return ZopeEditView(self.context, self.request)()
+
+    @property
+    def can_edit(self):
+        """Same as upstream, but not while another user edits the file."""
+        return super(CollaboraOrZopeEditView, self).can_edit and not is_collabora_read_only(self.context)
 
     @property
     def close_url(self):

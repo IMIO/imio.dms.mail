@@ -19,6 +19,7 @@ from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import COLLABORA_LOCK
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
@@ -33,6 +34,7 @@ from plone import api
 from plone.app.testing import login
 from plone.app.testing import logout
 from plone.dexterity.utils import createContentInContainer
+from plone.locking.interfaces import ILockable
 from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield import RelationValue
@@ -820,6 +822,14 @@ class TestCollaboraOrZopeEditView(unittest.TestCase):
         # zopeedit needs the modify permission, as before collabora
         change_user(self.portal, "agent")
         self.assertRaises(Unauthorized, template.restrictedTraverse("external_edit"))
+
+    def test_can_edit(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        self.assertTrue(omf.restrictedTraverse("external_edit").can_edit)
+        # siteadmin edits the file in Collabora: the service head only gets a read-only editor
+        ILockable(omf).lock(COLLABORA_LOCK)
+        change_user(self.portal, "chef")
+        self.assertFalse(omf.restrictedTraverse("external_edit").can_edit)
 
     def test_close_url(self):
         omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")

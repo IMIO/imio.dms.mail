@@ -14,11 +14,20 @@ from collective.collabora.browser.wopi import CollaboraWOPIView
 from collective.contact.plonegroup.subscribers import PloneGroupContactChecksAdapter
 from collective.contact.plonegroup.subscribers import search_value_in_objects
 from collective.task.adapters import TaskContentAdapter
+from imio.dms.mail.utils import COLLABORA_LOCK
+from imio.dms.mail.utils import COLLABORA_LOCK_ID
+from imio.dms.mail.utils import get_collabora_lock_id
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import is_collabora_read_only
 from logging import getLogger
 from plone import api
+from plone.locking.interfaces import ILockable
+from plone.locking.interfaces import ITTWLockable
 from plone.memoize.view import memoize
+from plone.protect.interfaces import IDisableCSRFProtection
 from Products.PluggableAuthService.PluggableAuthService import PluggableAuthService
+from zope.annotation.interfaces import IAnnotations
+from zope.interface import alsoProvides
 
 import os
 
@@ -194,8 +203,57 @@ def _hide_collabora_popups():
     CollaboraWOPIView.__call__ = call_without_settings_upload
 
 
+def _lock_collabora_edition():
+    """Lock a file while Collabora edits it, so others can edit neither the file nor its metadata.
+
+    Collabora locks when its first writer opens the document, refreshes the lock and unlocks at the end. Others open
+    it read-only, unless collaborative editing is enabled. The ILocking behavior protects the metadata edit form.
+    """
+    file_info = CollaboraWOPIView.file_info.fget
+    call = CollaboraWOPIView.__call__
+
+    def lock_file_info(self):
+        """Same as upstream, with locks, read-only while another user edits the file."""
+        info = file_info(self)
+        if ITTWLockable.providedBy(self.context):
+            info["SupportsLocks"] = True
+            info["SupportsGetLock"] = True
+            info["UserCanWrite"] = info["UserCanWrite"] and not is_collabora_read_only(self.context)
+        return info
+
+    def call_with_locks(self):
+        """Same as upstream, plus the WOPI Lock, RefreshLock, Unlock and GetLock operations."""
+        operation = self.request.get_header("X-WOPI-Override")
+        if (
+            self.wopi_mode != "file_info"
+            or operation not in ("LOCK", "REFRESH_LOCK", "UNLOCK", "GET_LOCK")
+            or not ITTWLockable.providedBy(self.context)
+        ):
+            return call(self)
+        alsoProvides(self.request, IDisableCSRFProtection)
+        lock_id = self.request.get_header("X-WOPI-Lock", "")
+        lockable = ILockable(self.context)
+        current = get_collabora_lock_id(self.context)
+        if operation == "LOCK" and current is None and not lockable.locked():
+            lockable.lock(COLLABORA_LOCK)
+            IAnnotations(self.context)[COLLABORA_LOCK_ID] = lock_id
+        elif operation in ("LOCK", "REFRESH_LOCK") and current == lock_id:
+            lockable.refresh_lock(COLLABORA_LOCK)
+        elif operation == "UNLOCK" and current == lock_id:
+            lockable.unlock(COLLABORA_LOCK, stealable_only=False)
+            del IAnnotations(self.context)[COLLABORA_LOCK_ID]
+        elif operation != "GET_LOCK":
+            self.request.response.setStatus(409)  # Collabora then opens the document read-only
+        self.request.response.setHeader("X-WOPI-Lock", current or "")
+        return ""
+
+    CollaboraWOPIView.file_info = property(lock_file_info)
+    CollaboraWOPIView.__call__ = call_with_locks
+
+
 _record_async_user_folder()
 _authenticate_zope_root_user()
 _hide_collabora_popups()
+_lock_collabora_edition()
 if os.environ.get("COLLABORA_DEV_MODE"):
     _allow_localhost_dev()

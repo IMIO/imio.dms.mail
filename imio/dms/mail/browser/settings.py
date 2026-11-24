@@ -1018,7 +1018,8 @@ class IImioDmsMailConfig(model.Schema):
             "groups_hidden_in_dashboard_filter",
             "users_hidden_in_dashboard_filter",
             "batch_approval_limit",
-            "collabora_edit"
+            "collabora_edit",
+            "collabora_collaborative_edit",
         ],
     )
 
@@ -1052,6 +1053,13 @@ class IImioDmsMailConfig(model.Schema):
         default=False,
     )
     write_permission(collabora_edit="cmf.ManagePortal")
+
+    collabora_collaborative_edit = schema.Bool(
+        title=_(u"Collaborative editing with Collabora"),
+        description=_(u"Let several users edit a document at the same time. Otherwise, the others open it read-only."),
+        default=False,
+    )
+    write_permission(collabora_collaborative_edit="cmf.ManagePortal")
 
     @invariant
     def validate_settings(data):  # noqa
