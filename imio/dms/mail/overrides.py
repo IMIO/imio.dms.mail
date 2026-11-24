@@ -39,6 +39,8 @@ logger = getLogger("imio.dms.mail.overrides")
 COLLABORA_CALLBACK = "@@collabora-wopi"
 # Extended data sent with the save of our "Save & Close" button (collabora_edit.js).
 COLLABORA_SAVE_REQUEST = "SaveAndClose=true"
+# Zope answers an empty 200 with 204, which Collabora takes as a failed lock: the document then opens read-only.
+WOPI_EMPTY_ANSWER = "{}"
 
 
 class DmsPloneGroupContactChecksAdapter(PloneGroupContactChecksAdapter):
@@ -200,7 +202,7 @@ def _hide_collabora_popups():
     def call_without_settings_upload(self):
         """Same as upstream, but drop the user settings uploads: user prefs stay in the browser."""
         if self.request.get("PATH_INFO", "").endswith(COLLABORA_CALLBACK + "/settings/upload"):
-            return ""
+            return WOPI_EMPTY_ANSWER
         return call(self)
 
     CollaboraWOPIView.file_info = property(popup_file_info)
@@ -253,7 +255,8 @@ def _lock_collabora_edition():
         elif operation != "GET_LOCK":
             self.request.response.setStatus(409)  # Collabora then opens the document read-only
         self.request.response.setHeader("X-WOPI-Lock", current or "")
-        return ""
+        self.request.response.setHeader("Content-Type", "application/json")
+        return WOPI_EMPTY_ANSWER
 
     def put_file_with_lock(self):
         """Same as upstream, but refuse a save from another Collabora session than the lock holder."""

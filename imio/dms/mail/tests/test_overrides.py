@@ -41,7 +41,7 @@ class TestOverrides(unittest.TestCase):
         )
         # user settings uploads are dropped
         self.request["PATH_INFO"] = "{}/@@collabora-wopi/settings/upload".format(omf.absolute_url_path())
-        self.assertEqual(view(), "")
+        self.assertEqual(view(), "{}")
 
     def wopi(self, obj, operation="", lock_id=""):
         """Call the WOPI file endpoint like Collabora. Return the status, the body and the X-WOPI-Lock header."""
@@ -69,16 +69,16 @@ class TestOverrides(unittest.TestCase):
         info = json.loads(self.wopi(omf)[1])
         self.assertTrue(info["SupportsLocks"])
         self.assertTrue(info["UserCanWrite"])
-        self.assertEqual(self.wopi(omf, "LOCK", "cool-lock1"), (200, "", ""))
+        self.assertEqual(self.wopi(omf, "LOCK", "cool-lock1"), (200, "{}", ""))
         self.assertTrue(omf.wl_isLocked())
         self.assertTrue(json.loads(self.wopi(omf)[1])["UserCanWrite"])
         self.assertEqual(self.wopi(omf, "GET_LOCK")[2], "cool-lock1")
-        self.assertEqual(self.wopi(omf, "REFRESH_LOCK", "cool-lock1"), (200, "", "cool-lock1"))
+        self.assertEqual(self.wopi(omf, "REFRESH_LOCK", "cool-lock1"), (200, "{}", "cool-lock1"))
         # the service head opens it read-only, and can neither lock it nor edit its metadata
         change_user(self.portal, "chef")
         self.assertTrue(api.user.has_permission("Modify portal content", obj=omf))
         self.assertFalse(json.loads(self.wopi(omf)[1])["UserCanWrite"])
-        self.assertEqual(self.wopi(omf, "LOCK", "cool-lock2"), (409, "", "cool-lock1"))
+        self.assertEqual(self.wopi(omf, "LOCK", "cool-lock2"), (409, "{}", "cool-lock1"))
         self.assertRaises(Redirect, omf.restrictedTraverse("@@edit"))
         # collaborative editing: they join the edition, still not the metadata
         api.portal.set_registry_record(COLLABORATIVE_EDIT, True)
@@ -101,9 +101,9 @@ class TestOverrides(unittest.TestCase):
         self.request.method = "GET"
         # Collabora unlocks at the end of the edition
         self.assertEqual(self.wopi(omf, "UNLOCK", "cool-lock2")[0], 409)
-        self.assertEqual(self.wopi(omf, "UNLOCK", "cool-lock1"), (200, "", "cool-lock1"))
+        self.assertEqual(self.wopi(omf, "UNLOCK", "cool-lock1"), (200, "{}", "cool-lock1"))
         self.assertFalse(omf.wl_isLocked())
-        self.assertEqual(self.wopi(omf, "REFRESH_LOCK", "cool-lock1"), (409, "", ""))
+        self.assertEqual(self.wopi(omf, "REFRESH_LOCK", "cool-lock1"), (409, "{}", ""))
 
     def test_save_on_request(self):
         omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
