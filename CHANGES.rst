@@ -15,6 +15,7 @@ Changelog
   Hid Collabora's welcome popup and onboarding tour (DMS-1258).
   Removed the download and metadata edit buttons from the Collabora edit page (DMS-1260).
   Closing the Collabora edit page goes back to the mail, or to the page a template edit was opened from (DMS-1261).
+  The outgoing mail view refreshes once the preview of a file saved by Collabora is rebuilt (DMS-1263).
   [chris-adam]
 - Updated `ExportToPDFBatchActionForm` after imio.annex refactoring
   [sgeulette]

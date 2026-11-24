@@ -13,8 +13,8 @@ from imio.dms.mail import CREATING_GROUP_SUFFIX
 from imio.dms.mail import get_empty_signers_value
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.adapters import OMApprovalAdapter
-from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.content.behaviors import ISigningBehavior
+from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.content.behaviors import IUsagesBehavior
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.interfaces import ISignRequestApproval
@@ -35,6 +35,7 @@ from imio.helpers import EMPTY_TITLE
 from imio.helpers.content import get_object
 from imio.helpers.content import uuidToObject
 from imio.helpers.test_helpers import ImioTestHelpers
+from io import BytesIO
 from mock import Mock
 from mock import patch
 from plone import api
@@ -1901,6 +1902,28 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         # removing the held position reindexes the person (held_position_removed subscriber)
         api.content.delete(person["hp1"])
         self.assertListEqual(self._person_usages(person), [])
+
+    def test_imiodmsfile_modified(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        omf = omail["1"]
+        sse_vw = omail.restrictedTraverse("server_sent_events")
+        # a modification outside Collabora: nothing to wait for
+        modified(omf)
+        self.assertFalse(hasattr(omf, "generated"))
+        # Collabora saves the file through its WOPI callback
+        request = self.portal.REQUEST
+        request["PATH_INFO"] = "{}/@@collabora-wopi/files/{}/contents".format(omf.absolute_url_path(), omf.UID())
+        request["HTTP_X_COOL_WOPI_ISMODIFIEDBYUSER"] = "true"
+        request.method = "POST"
+        request._file = BytesIO(omf.file.data)
+        wopi_vw = omf.restrictedTraverse("@@collabora-wopi")
+        wopi_vw.wopi_mode = "contents"
+        wopi_vw()
+        self.assertEqual(omf.generated, 3)
+        # the mail view refreshes once documentviewer has rebuilt the preview
+        omf.conversion_finished = True
+        self.assertIn('"id": "1", "refresh": true', sse_vw())
+        self.assertFalse(hasattr(omf, "generated"))
 
 
 class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
