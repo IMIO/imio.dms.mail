@@ -39,6 +39,10 @@ msgstr "PDF elec. sign."
 msgid "export-to-pdf-before-signature-batch-action-but"
 msgstr "PDF wet sign."
 
+#. Default: "Download files in zip"
+msgid "export-to-zip-batch-action-but"
+msgstr "Download files in Zip"
+
 #. Default: "Change senders"
 msgid "im-sender-batch-action-but"
 msgstr "Change senders"
