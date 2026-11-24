@@ -81,12 +81,11 @@ class DmsFilesVocabulary(ContainedAnnexesVocabulary):
             context,
             portal_type=None,
             token_value='id',
-            include_portal_type=False,
             include_parent_title=False,
             filters={}):
 
         return super(DmsFilesVocabulary, self).__call__(
-            context, portal_type=portal_type, token_value=token_value, include_portal_type=include_portal_type,
+            context, portal_type=portal_type, token_value=token_value,
             include_parent_title=include_parent_title, filters=filters
         )
 
@@ -101,13 +100,6 @@ class DmsFilesVocabulary(ContainedAnnexesVocabulary):
         """The mailing sources and the files converted to pdf: only their derived files are listed."""
         mailed, converted = superseded_uids(context)
         return mailed | converted
-
-    def _portal_type_title(self, context, annex_info):
-        """Tell ged files and appendix files apart, the FTI titles are not readable."""
-        return u"%s - " % translate(
-            api.portal.get().portal_types[annex_info['portal_type']].title,
-            domain="plone",
-            context=context.REQUEST)
 
 
 class ExportToPDFElementsVocabulary(DmsFilesVocabulary):

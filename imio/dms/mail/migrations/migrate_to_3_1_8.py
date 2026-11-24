@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from imio.dms.mail.migrations.migrate_to_3_1 import Migrate_To_3_1
+from imio.helpers.setup import load_type_from_package
 from Products.ExternalMethod.ExternalMethod import manage_addExternalMethod
 
 import logging
@@ -29,6 +30,10 @@ class Migrate_To_3_1_8(Migrate_To_3_1):  # noqa
             for brain in brains:
                 brain._unrestrictedGetObject().reindexObject(idxs=["scan_id"])
             logger.info("scan_id reindexed on %d sign request appendix files", len(brains))
+            # new "export to zip" action on mails, sign requests and folders
+            for type_name in ("dmsincomingmail", "dmsincoming_email", "dmsoutgoingmail", "sign_request",
+                              "ClassificationFolder", "ClassificationSubfolder"):
+                load_type_from_package(type_name, "imio.dms.mail:default")
 
         if self.is_in_part("t"):  # final steps, adding om_templates_generation external method
             if self.old_version != self.new_version:
