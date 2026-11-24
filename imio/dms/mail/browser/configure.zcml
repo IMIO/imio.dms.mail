@@ -924,34 +924,32 @@
             />
     </class>
 
-    <configure package="collective.collabora.browser">
-        <browser:page
-            name="external_edit"
-            for="imio.annex.content.annex.IAnnex"
-            class="imio.dms.mail.browser.views.CollaboraOrZopeEditView"
-            template="templates/edit.pt"
-            permission="zope2.View"
-            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
-            />
+    <browser:page
+        name="external_edit"
+        for="imio.annex.content.annex.IAnnex"
+        class=".views.CollaboraOrZopeEditView"
+        template="templates/collabora_edit.pt"
+        permission="zope2.View"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
 
-        <browser:page
-            name="external_edit"
-            for="collective.documentgenerator.content.pod_template.IPODTemplate"
-            class="imio.dms.mail.browser.views.CollaboraOrZopeEditView"
-            template="templates/edit.pt"
-            permission="zope2.View"
-            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
-            />
+    <browser:page
+        name="external_edit"
+        for="collective.documentgenerator.content.pod_template.IPODTemplate"
+        class=".views.CollaboraOrZopeEditView"
+        template="templates/collabora_edit.pt"
+        permission="zope2.View"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
 
-        <browser:page
-            name="external_edit"
-            for="collective.documentgenerator.content.style_template.IStyleTemplate"
-            class="imio.dms.mail.browser.views.CollaboraOrZopeEditView"
-            template="templates/edit.pt"
-            permission="zope2.View"
-            layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
-            />
-    </configure>
+    <browser:page
+        name="external_edit"
+        for="collective.documentgenerator.content.style_template.IStyleTemplate"
+        class=".views.CollaboraOrZopeEditView"
+        template="templates/collabora_edit.pt"
+        permission="zope2.View"
+        layer="imio.dms.mail.interfaces.IImioDmsMailLayer"
+        />
 
     <browser:page
         name="collabora-wopi"

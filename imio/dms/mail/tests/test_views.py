@@ -41,10 +41,16 @@ from zope.i18n import translate
 from zope.intid import IIntIds
 
 import json
+import mock
 import unittest
 
 
 COLLABORA_EDIT = "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_edit"
+COLLABORA_DISCOVERY = (
+    '<wopi-discovery><net-zone name="external-http"><app name="application/vnd.oasis.opendocument.text">'
+    '<action name="edit" ext="" urlsrc="http://collabora:9980/browser/dist/cool.html?"/></app></net-zone>'
+    "</wopi-discovery>"
+)
 
 
 class TestReplyForm(unittest.TestCase):
@@ -797,6 +803,17 @@ class TestCollaboraOrZopeEditView(unittest.TestCase):
             api.portal.set_registry_record(COLLABORA_EDIT, True)
             self.assertIn("collabora_server_url n'est pas configur", obj.restrictedTraverse("external_edit")())
             api.portal.set_registry_record(COLLABORA_EDIT, False)
+        # collabora page: no download nor metadata edit buttons
+        api.portal.set_registry_record(COLLABORA_EDIT, True)
+        api.portal.set_registry_record("collective.collabora.collabora_server_url", u"http://collabora:9980")
+        with mock.patch("requests.get") as requests_get:
+            requests_get.return_value.configure_mock(status_code=200, text=COLLABORA_DISCOVERY)
+            for obj in (omf, template):
+                html = obj.restrictedTraverse("external_edit")()
+                self.assertIn("cool-iframe", html)
+                self.assertNotIn("standalone download", html)
+                self.assertNotIn("standalone edit", html)
+        api.portal.set_registry_record(COLLABORA_EDIT, False)
         # zopeedit needs the modify permission, as before collabora
         change_user(self.portal, "agent")
         self.assertRaises(Unauthorized, template.restrictedTraverse("external_edit"))

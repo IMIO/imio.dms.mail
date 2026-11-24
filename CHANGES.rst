@@ -13,6 +13,7 @@ Changelog
   [sgeulette]
 - Added Collabora edit on files and templates (DMS-1106). Added some patches (DMS-1227, DMS-1228).
   Hid Collabora's welcome popup and onboarding tour (DMS-1258).
+  Removed the download and metadata edit buttons from the Collabora edit page (DMS-1260).
   [chris-adam]
 - Updated `ExportToPDFBatchActionForm` after imio.annex refactoring
   [sgeulette]
