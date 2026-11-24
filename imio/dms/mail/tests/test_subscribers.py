@@ -1985,11 +1985,7 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
         afile.file = odt_with_tags(1, 2)
         with self.assertRaises(Invalid) as cm:
             self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
-        self.assertEqual(
-            cm.exception.message,
-            u"Signature or seal tags are wrong: Il y a une balise de signature pour Signer2 alors que le nombre "
-            u"de signataires définis est 1: {}".format(safe_unicode(afile.Title())),
-        )
+        self.assertEqual(cm.exception.message, u"The transition cannot be done while signature or seal tags are wrong.")
         self.assertEqual(api.content.get_state(request), "created")
 
         # --- one tag per signer: the transition goes through ---
@@ -2009,7 +2005,7 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
         )
         with self.assertRaises(Invalid) as cm:
             self.portal.portal_workflow.doActionFor(seal_only, "propose_to_be_signed")
-        self.assertIn(u"présente 2 fois", cm.exception.message)
+        self.assertEqual(cm.exception.message, u"The transition cannot be done while signature or seal tags are wrong.")
         self.assertEqual(api.content.get_state(seal_only), "created")
 
         # --- one seal tag: the transition goes through ---

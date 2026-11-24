@@ -60,7 +60,6 @@ from imio.dms.mail.utils import is_in_user_groups
 from imio.dms.mail.utils import update_approvers_settings
 from imio.dms.mail.utils import update_transitions_auc_config
 from imio.dms.mail.utils import update_transitions_levels_config
-from imio.esign.acroform import format_errors
 from imio.esign.audit import audit as esign_audit
 from imio.esign.browser.views import ExternalSessionCreateView
 from imio.esign.config import get_esign_registry_seal_code
@@ -1878,12 +1877,6 @@ def signing_before_transition(obj, event):
     if not event.transition or event.transition.id not in ("propose_to_approve", "propose_to_be_signed") \
             or not obj.approval().is_state_before_approve(state=event.old_state.id):
         return
-    errors = acroform_errors(obj)
-    if errors:
-        details = u"; ".join(
-            [format_errors(safe_unicode(fobj.Title()), messages, obj.REQUEST) for fobj, messages in errors]
-        )
-        raise Invalid(
-            translate(_("Signature or seal tags are wrong: ${details}", mapping={"details": details}),
-                      context=obj.REQUEST)
-        )
+    # the errors are listed by the acroform errors viewlet
+    if acroform_errors(obj):
+        raise Invalid(_(u"The transition cannot be done while signature or seal tags are wrong."))
