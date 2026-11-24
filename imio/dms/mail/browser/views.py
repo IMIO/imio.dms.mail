@@ -2,11 +2,13 @@
 from AccessControl import getSecurityManager
 from AccessControl import Unauthorized
 from Acquisition import aq_inner
+from Acquisition import aq_parent
 from collective.ckeditortemplates.cktemplate import ICKTemplate
 from collective.collabora.browser.edit import CollaboraEditView
 from collective.externaleditor.browser.views import ExternalEditView as ZopeEditView
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
+from imio.annex.content.annex import IAnnex
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PLUS_MENU_TABS
@@ -757,6 +759,14 @@ class CollaboraOrZopeEditView(CollaboraEditView):
             raise Unauthorized
         # built directly: this view shadows ZopeEdit's external_edit
         return ZopeEditView(self.context, self.request)()
+
+    @property
+    def close_url(self):
+        """Mail file: its mail. Template: the page the edit was opened from, else its folder."""
+        referer = self.request.get("HTTP_REFERER", "")
+        if not IAnnex.providedBy(self.context) and referer.startswith(self.portal_url):
+            return referer
+        return aq_parent(aq_inner(self.context)).absolute_url()
 
 
 @implementer(IPublishTraverse)

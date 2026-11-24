@@ -42,6 +42,7 @@ from zope.intid import IIntIds
 
 import json
 import mock
+import re
 import unittest
 
 
@@ -803,13 +804,15 @@ class TestCollaboraOrZopeEditView(unittest.TestCase):
             api.portal.set_registry_record(COLLABORA_EDIT, True)
             self.assertIn("collabora_server_url n'est pas configur", obj.restrictedTraverse("external_edit")())
             api.portal.set_registry_record(COLLABORA_EDIT, False)
-        # collabora page: no download nor metadata edit buttons
+        # collabora page: closing goes to close_url, no download nor metadata edit buttons
         api.portal.set_registry_record(COLLABORA_EDIT, True)
         api.portal.set_registry_record("collective.collabora.collabora_server_url", u"http://collabora:9980")
         with mock.patch("requests.get") as requests_get:
             requests_get.return_value.configure_mock(status_code=200, text=COLLABORA_DISCOVERY)
             for obj in (omf, template):
                 html = obj.restrictedTraverse("external_edit")()
+                close_link = re.search(r'<a class="btn btn-primary context"[^>]*>', html).group(0)
+                self.assertIn('href="{}"'.format(obj.aq_parent.absolute_url()), close_link)
                 self.assertIn("cool-iframe", html)
                 self.assertNotIn("standalone download", html)
                 self.assertNotIn("standalone edit", html)
@@ -817,6 +820,22 @@ class TestCollaboraOrZopeEditView(unittest.TestCase):
         # zopeedit needs the modify permission, as before collabora
         change_user(self.portal, "agent")
         self.assertRaises(Unauthorized, template.restrictedTraverse("external_edit"))
+
+    def test_close_url(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        template = self.portal["templates"]["om"]["main"]
+        dashboard = self.portal["templates"].absolute_url()
+        self.request["HTTP_REFERER"] = dashboard
+        # mail file: its mail, whatever the page it was opened from
+        self.assertEqual(omail["1"].restrictedTraverse("external_edit").close_url, omail.absolute_url())
+        # template: the page it was opened from
+        self.assertEqual(template.restrictedTraverse("external_edit").close_url, dashboard)
+        # template opened from outside the site or without referer: its folder
+        for referer in ("http://elsewhere/page", ""):
+            self.request["HTTP_REFERER"] = referer
+            self.assertEqual(
+                template.restrictedTraverse("external_edit").close_url, self.portal["templates"]["om"].absolute_url()
+            )
 
 
 class TestCollaboraSettingsView(unittest.TestCase):

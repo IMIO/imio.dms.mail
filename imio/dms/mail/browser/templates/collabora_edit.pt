@@ -7,7 +7,7 @@
       xml:lang="en"
       i18n:domain="collective.collabora"
 >
-  <!-- Fork of collective.collabora's edit.pt: no download nor metadata edit buttons -->
+  <!-- Fork of collective.collabora's edit.pt: no download nor metadata edit buttons, close to view/close_url -->
   <body>
 
     <metal:css fill-slot="style_slot">
@@ -49,7 +49,7 @@
              onclick="javascript:collabora_action_save_and_close(); return true;"
              tal:condition="view/can_edit"
              tal:attributes="
-               href python:context.absolute_url() + '/view';
+               href view/close_url;
              "
              i18n:translate=""
           >Save & Close</a>
@@ -57,7 +57,7 @@
              onclick="javascript:collabora_action_close(); return true;"
              tal:condition="not:view/can_edit"
              tal:attributes="
-               href python:context.absolute_url() + '/view';
+               href view/close_url;
              "
              i18n:translate=""
           >Close</a>
