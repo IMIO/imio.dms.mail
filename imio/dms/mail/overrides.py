@@ -10,6 +10,7 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.class_init import InitializeClass
 from AccessControl.SecurityManagement import getSecurityManager
 from collective.collabora.browser.edit import CollaboraEditView
+from collective.collabora.browser.wopi import CollaboraWOPIView
 from collective.contact.plonegroup.subscribers import PloneGroupContactChecksAdapter
 from collective.contact.plonegroup.subscribers import search_value_in_objects
 from collective.task.adapters import TaskContentAdapter
@@ -167,7 +168,34 @@ def _allow_localhost_dev():
     logger.warning("COLLABORA_DEV_MODE set: allowing localhost plone_server_url (dev only, network_mode: host).")
 
 
+def _hide_collabora_popups():
+    """Hide Collabora's welcome popup and onboarding tour.
+
+    Its client skips the popup for guests, and the tour once the user settings (@@collabora-settings) mark it
+    as seen. The CODE server can only disable them with home_mode, which caps connections.
+    """
+    file_info = CollaboraWOPIView.file_info.fget
+    call = CollaboraWOPIView.__call__
+
+    def popup_file_info(self):
+        """Same as upstream, flagged as guest, with our user settings."""
+        info = file_info(self)
+        info["UserExtraInfo"] = {"is_guest": True}
+        info["UserSettings"] = {"uri": api.portal.get().absolute_url() + "/@@collabora-settings", "stamp": "1"}
+        return info
+
+    def call_without_settings_upload(self):
+        """Same as upstream, but drop the user settings uploads: user prefs stay in the browser."""
+        if self.request.get("PATH_INFO", "").endswith(COLLABORA_CALLBACK + "/settings/upload"):
+            return ""
+        return call(self)
+
+    CollaboraWOPIView.file_info = property(popup_file_info)
+    CollaboraWOPIView.__call__ = call_without_settings_upload
+
+
 _record_async_user_folder()
 _authenticate_zope_root_user()
+_hide_collabora_popups()
 if os.environ.get("COLLABORA_DEV_MODE"):
     _allow_localhost_dev()

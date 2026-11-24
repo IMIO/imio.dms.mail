@@ -31,6 +31,7 @@ from imio.helpers.test_helpers import ImioTestHelpers
 from persistent.list import PersistentList
 from plone import api
 from plone.app.testing import login
+from plone.app.testing import logout
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import safe_unicode
@@ -799,6 +800,36 @@ class TestCollaboraOrZopeEditView(unittest.TestCase):
         # zopeedit needs the modify permission, as before collabora
         change_user(self.portal, "agent")
         self.assertRaises(Unauthorized, template.restrictedTraverse("external_edit"))
+
+
+class TestCollaboraSettingsView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.layer["request"]
+
+    def test_call(self):
+        # Collabora fetches the settings without credentials
+        logout()
+        view = self.portal.restrictedTraverse("@@collabora-settings")
+        self.assertEqual(
+            json.loads(view()),
+            {
+                "kind": "user",
+                "browsersetting": [
+                    {
+                        "uri": "{}/@@collabora-settings/browsersetting.json".format(self.portal.absolute_url()),
+                        "stamp": "1",
+                    }
+                ],
+            },
+        )
+        self.assertEqual(self.request.response.getHeader("Content-Type"), "application/json")
+        settings = json.loads(view.publishTraverse(self.request, "browsersetting.json")())
+        self.assertEqual(sorted(settings), ["drawing", "presentation", "spreadsheet", "text"])
+        self.assertEqual(settings["text"], {"onboardingTourSeen": True})
 
 
 class TestCreateFromTemplateForm(unittest.TestCase):

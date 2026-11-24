@@ -56,6 +56,7 @@ from zope.i18n import translate
 from zope.interface import implementer
 from zope.lifecycleevent import modified
 from zope.pagetemplate.pagetemplate import PageTemplate
+from zope.publisher.interfaces import IPublishTraverse
 
 import json
 
@@ -756,3 +757,25 @@ class CollaboraOrZopeEditView(CollaboraEditView):
             raise Unauthorized
         # built directly: this view shadows ZopeEdit's external_edit
         return ZopeEditView(self.context, self.request)()
+
+
+@implementer(IPublishTraverse)
+class CollaboraSettingsView(BrowserView):
+    """Collabora user settings, where the onboarding tour counts as seen.
+
+    Public: Collabora fetches them without credentials.
+    """
+
+    file_name = None
+
+    def publishTraverse(self, request, name):
+        self.file_name = name
+        return self
+
+    def __call__(self):
+        self.request.response.setHeader("Content-Type", "application/json")
+        if self.file_name == "browsersetting.json":
+            doc_types = ("text", "spreadsheet", "presentation", "drawing")
+            return json.dumps({doc_type: {"onboardingTourSeen": True} for doc_type in doc_types})
+        url = self.context.absolute_url() + "/@@collabora-settings/browsersetting.json"
+        return json.dumps({"kind": "user", "browsersetting": [{"uri": url, "stamp": "1"}]})

@@ -12,6 +12,7 @@ Changelog
   an option stores them in a directory by subfolder. The element form opens in an overlay.
   [sgeulette]
 - Added Collabora edit on files and templates (DMS-1106). Added some patches (DMS-1227, DMS-1228).
+  Hid Collabora's welcome popup and onboarding tour (DMS-1258).
   [chris-adam]
 - Updated `ExportToPDFBatchActionForm` after imio.annex refactoring
   [sgeulette]
