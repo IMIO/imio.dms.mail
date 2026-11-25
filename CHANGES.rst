@@ -4,6 +4,8 @@ Changelog
 3.1.8 (unreleased)
 ------------------
 
+- Added commit when adding annexes types in examples step, so the icon_url points to existing category icon scales.
+  [sgeulette]
 - Added "Export to zip" action and batch action on incoming and outgoing mails, sign requests
   and classification folders, using the imio.annex zip forms. Base versions (mailing sources and
   files converted to pdf) are not listed. On a folder, subfolder files are listed but not preselected,

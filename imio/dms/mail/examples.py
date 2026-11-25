@@ -48,6 +48,7 @@ from zope.intid.interfaces import IIntIds
 import datetime
 import logging
 import os
+import transaction
 
 
 logger = logging.getLogger("imio.dms.mail: examples")
@@ -134,6 +135,9 @@ def add_test_annexes_types(context):
             icon=icon,
             id=oid,
         )
+    # commit so category icon blobs get their _p_mtime: otherwise icon scales computed when adding example files are
+    # regenerated after commit with a new uid and stored icon_url are broken
+    transaction.commit()
 
 
 def add_test_contact_lists(context):

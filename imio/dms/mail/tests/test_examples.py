@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collective.iconifiedcategory.utils import get_category_icon_url
 from datetime import datetime
 from imio.dms.mail.examples import add_special_model_mail
 from imio.dms.mail.interfaces import IProtectedItem
@@ -6,6 +7,7 @@ from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import create_period_folder
 from plone import api
+from plone.app.uuid.utils import uuidToObject
 from plone.registry.interfaces import IRegistry
 from Products.CMFCore.utils import getToolByName
 from zExceptions import Redirect
@@ -76,6 +78,10 @@ class TestExamples(unittest.TestCase):
         # checking outgoing mails
         omails = pc(portal_type=("dmsoutgoingmail",), path={"query": "plone/outgoing-mail"})
         self.assertEquals(len(omails), 9)
+        # stored icon_url still point to an existing category icon scale
+        for brain in imails + omails:
+            for infos in brain.getObject().categorized_elements.values():
+                self.assertEqual(infos["icon_url"], get_category_icon_url(uuidToObject(infos["category_uid"])))
 
     def test_add_test_users_and_groups(self):
         # checking groups
