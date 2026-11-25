@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2026-11-21 19:19+0000\n"
+"POT-Creation-Date: 2026-11-25 18:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -336,7 +336,7 @@ msgstr ""
 msgid "An electronic signature needs at least one real signer or a seal !"
 msgstr ""
 
-#: ./examples.py:117
+#: ./examples.py:118
 msgid "Annex"
 msgstr ""
 
@@ -607,7 +607,7 @@ msgstr ""
 msgid "Defines substitute signers when a default signer is absent. Rules are read in order; for each signer the first match is used, next ones are ignored. Dates with format YYYY/MM/DD."
 msgstr ""
 
-#: ./examples.py:118
+#: ./examples.py:119
 msgid "Deliberation"
 msgstr ""
 
@@ -920,7 +920,7 @@ msgstr ""
 msgid "Invalid file format. Allowed formats are: ${formats}."
 msgstr ""
 
-#: ./examples.py:121
+#: ./examples.py:122
 msgid "Invoice"
 msgstr ""
 
@@ -928,7 +928,7 @@ msgstr ""
 msgid "Lastname Firstname"
 msgstr ""
 
-#: ./examples.py:120
+#: ./examples.py:121
 msgid "Legal advice"
 msgstr ""
 
@@ -1261,7 +1261,7 @@ msgstr ""
 msgid "Response prefix"
 msgstr ""
 
-#: ./examples.py:1047
+#: ./examples.py:1051
 msgid "Response: "
 msgstr ""
 
@@ -1496,7 +1496,7 @@ msgstr ""
 msgid "Tasks searches"
 msgstr ""
 
-#: ./examples.py:119
+#: ./examples.py:120
 msgid "Technical specifications"
 msgstr ""
 

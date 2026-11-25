@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2026-11-21 19:19+0000\n"
+"POT-Creation-Date: 2026-11-25 18:07+0000\n"
 "PO-Revision-Date: 2016-04-13 16:52+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -338,7 +338,7 @@ msgstr "Un utilisateur assigné n'est pas dans le nouveau service traitant. Cour
 msgid "An electronic signature needs at least one real signer or a seal !"
 msgstr "Une signature électronique exige au moins un signataire ou un sceau !"
 
-#: ./examples.py:117
+#: ./examples.py:118
 msgid "Annex"
 msgstr "Annexe"
 
@@ -609,7 +609,7 @@ msgstr "Définit le mode selon lequel les signataires de courrier sortant sont d
 msgid "Defines substitute signers when a default signer is absent. Rules are read in order; for each signer the first match is used, next ones are ignored. Dates with format YYYY/MM/DD."
 msgstr "Les règles sont lues dans l'ordre. Pour chaque signataire, la première règle valide s'applique. Les dates sont au format AAAA/MM/JJ."
 
-#: ./examples.py:118
+#: ./examples.py:119
 msgid "Deliberation"
 msgstr "Déliberation"
 
@@ -922,7 +922,7 @@ msgstr "Sous-document d'introduction"
 msgid "Invalid file format. Allowed formats are: ${formats}."
 msgstr "Format de fichier invalide. Les formats permis sont: ${formats}."
 
-#: ./examples.py:121
+#: ./examples.py:122
 msgid "Invoice"
 msgstr "Facture"
 
@@ -930,7 +930,7 @@ msgstr "Facture"
 msgid "Lastname Firstname"
 msgstr "Nom Prénom"
 
-#: ./examples.py:120
+#: ./examples.py:121
 msgid "Legal advice"
 msgstr "Avis légal"
 
@@ -1263,7 +1263,7 @@ msgstr "Recherches demandes sign"
 msgid "Response prefix"
 msgstr "Préfixe de l'intitulé d'une réponse"
 
-#: ./examples.py:1047
+#: ./examples.py:1051
 msgid "Response: "
 msgstr "Réponse: "
 
@@ -1498,7 +1498,7 @@ msgstr "Tâches"
 msgid "Tasks searches"
 msgstr "Recherches tâches"
 
-#: ./examples.py:119
+#: ./examples.py:120
 msgid "Technical specifications"
 msgstr "Spécifications techniques"
 
