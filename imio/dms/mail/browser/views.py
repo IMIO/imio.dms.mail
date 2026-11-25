@@ -19,8 +19,10 @@ from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import current_user_groups_ids
+from imio.dms.mail.utils import get_collabora_lock_id
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_collabora_read_only
+from imio.dms.mail.utils import remove_collabora_lock
 from imio.esign import manage_session_perm
 from imio.esign.browser.actions import RecreateSessionView
 from imio.esign.browser.actions import RemoveItemFromSessionView
@@ -42,6 +44,7 @@ from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from plone import api
+from plone.locking.interfaces import ITTWLockable
 from plone.protect import CheckAuthenticator
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone import utils
@@ -789,6 +792,13 @@ class CollaboraOrZopeEditView(CollaboraEditView):
             return referer
         return aq_parent(aq_inner(self.context)).absolute_url()
 
+    @property
+    def unlock_url(self):
+        """Where collabora_edit.js releases the Collabora lock when leaving, for a lockable item."""
+        if ITTWLockable.providedBy(self.context):
+            return self.context.absolute_url() + "/@@collabora-unlock"
+        return None
+
 
 @implementer(IPublishTraverse)
 class CollaboraSettingsView(BrowserView):
@@ -810,3 +820,15 @@ class CollaboraSettingsView(BrowserView):
             return json.dumps({doc_type: {"onboardingTourSeen": True} for doc_type in doc_types})
         url = self.context.absolute_url() + "/@@collabora-settings/browsersetting.json"
         return json.dumps({"kind": "user", "browsersetting": [{"uri": url, "stamp": "1"}]})
+
+
+class CollaboraUnlockView(BrowserView):
+    """Release the Collabora lock when its last user closes the edit page.
+
+    Collabora unlocks once the page is gone, after uploading its save: the page they go back to could still be locked.
+    """
+
+    def __call__(self):
+        CheckAuthenticator(self.request)
+        if get_collabora_lock_id(self.context) is not None and not is_collabora_read_only(self.context):
+            remove_collabora_lock(self.context)

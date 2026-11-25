@@ -33,6 +33,7 @@ from imio.dms.mail.utils import is_collabora_read_only
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import PREVIEW_DIR
+from imio.dms.mail.utils import remove_collabora_lock
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.utils import update_solr_config
@@ -1244,3 +1245,11 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
         ILockable(omf).lock()
         self.change_user("chef")
         self.assertTrue(is_collabora_read_only(omf))
+
+    def test_remove_collabora_lock(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        ILockable(omf).lock(COLLABORA_LOCK)
+        IAnnotations(omf)[COLLABORA_LOCK_ID] = "cool-lock1"
+        remove_collabora_lock(omf)
+        self.assertFalse(ILockable(omf).locked())
+        self.assertNotIn(COLLABORA_LOCK_ID, IAnnotations(omf))

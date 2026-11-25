@@ -20,7 +20,9 @@ from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.utils import COLLABORA_LOCK
+from imio.dms.mail.utils import COLLABORA_LOCK_ID
 from imio.dms.mail.utils import DummyView
+from imio.dms.mail.utils import get_collabora_lock_id
 from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import add_files_to_session
@@ -38,6 +40,8 @@ from plone.locking.interfaces import ILockable
 from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield import RelationValue
+from zExceptions import Forbidden
+from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.intid import IIntIds
@@ -832,6 +836,8 @@ class TestCollaboraOrZopeEditView(unittest.TestCase):
                 # saving goes through collabora_edit.js, which can cancel without autosave
                 self.assertIn("dms_collabora_save_and_close", html)
                 self.assertIn("standalone cancel", html)
+                # leaving releases the Collabora lock
+                self.assertIn('data-unlock-url="{}/@@collabora-unlock"'.format(obj.absolute_url()), html)
             api.portal.set_registry_record(
                 "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_autosave", True
             )
@@ -894,6 +900,45 @@ class TestCollaboraSettingsView(unittest.TestCase):
         settings = json.loads(view.publishTraverse(self.request, "browsersetting.json")())
         self.assertEqual(sorted(settings), ["drawing", "presentation", "spreadsheet", "text"])
         self.assertEqual(settings["text"], {"onboardingTourSeen": True})
+
+
+class TestCollaboraUnlockView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.layer["request"]
+        change_user(self.portal)
+
+    def unlock(self, obj):
+        self.request["_authenticator"] = self.portal.restrictedTraverse("@@authenticator").token()
+        obj.restrictedTraverse("@@collabora-unlock")()
+
+    def test_call(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        self.assertRaises(Forbidden, omf.restrictedTraverse("@@collabora-unlock"))
+        # siteadmin edits the file in Collabora: the service head cannot unlock it
+        ILockable(omf).lock(COLLABORA_LOCK)
+        IAnnotations(omf)[COLLABORA_LOCK_ID] = "cool-lock1"
+        change_user(self.portal, "chef")
+        self.unlock(omf)
+        self.assertEqual(get_collabora_lock_id(omf), "cool-lock1")
+        # unless collaborative editing lets them edit it too
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_collaborative_edit", True
+        )
+        self.unlock(omf)
+        self.assertIsNone(get_collabora_lock_id(omf))
+        # siteadmin unlocks their own Collabora lock, not a metadata edition lock
+        change_user(self.portal)
+        ILockable(omf).lock(COLLABORA_LOCK)
+        IAnnotations(omf)[COLLABORA_LOCK_ID] = "cool-lock2"
+        self.unlock(omf)
+        self.assertFalse(ILockable(omf).locked())
+        ILockable(omf).lock()
+        self.unlock(omf)
+        self.assertTrue(ILockable(omf).locked())
 
 
 class TestCreateFromTemplateForm(unittest.TestCase):

@@ -1793,3 +1793,9 @@ def is_collabora_read_only(obj):
         "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_collaborative_edit", default=False
     )
     return not (collaborative and get_collabora_lock_id(obj) is not None)
+
+
+def remove_collabora_lock(obj):
+    """Remove the Collabora lock of obj."""
+    ILockable(obj).unlock(COLLABORA_LOCK, stealable_only=False)
+    del IAnnotations(obj)[COLLABORA_LOCK_ID]

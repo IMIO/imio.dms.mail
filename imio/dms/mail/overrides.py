@@ -20,6 +20,7 @@ from imio.dms.mail.utils import COLLABORA_LOCK_ID
 from imio.dms.mail.utils import get_collabora_lock_id
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import is_collabora_read_only
+from imio.dms.mail.utils import remove_collabora_lock
 from logging import getLogger
 from plone import api
 from plone.locking.interfaces import ILockable
@@ -250,8 +251,7 @@ def _lock_collabora_edition():
         elif operation in ("LOCK", "REFRESH_LOCK") and current == lock_id:
             lockable.refresh_lock(COLLABORA_LOCK)
         elif operation == "UNLOCK" and current == lock_id:
-            lockable.unlock(COLLABORA_LOCK, stealable_only=False)
-            del IAnnotations(self.context)[COLLABORA_LOCK_ID]
+            remove_collabora_lock(self.context)
         elif operation != "GET_LOCK":
             self.request.response.setStatus(409)  # Collabora then opens the document read-only
         self.request.response.setHeader("X-WOPI-Lock", current or "")

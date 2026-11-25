@@ -43,6 +43,8 @@
                  tal:attributes="
                    class python:'section section-collabora-actions ' + view.plone_version;
                    data-autosave python:view.autosave and 'true' or 'false';
+                   data-unlock-url view/unlock_url;
+                   data-authenticator context/@@authenticator/token;
                  "
         >
           <a class="btn btn-secondary standalone fullscreen"
@@ -59,7 +61,7 @@
              i18n:translate=""
           >Save & Close</a>
           <a class="btn btn-secondary standalone cancel"
-             onclick="return dms_collabora_cancel_and_close();"
+             onclick="return dms_collabora_cancel_and_close(this);"
              tal:condition="python:view.can_edit and not view.autosave"
              tal:attributes="
                href view/close_url;
