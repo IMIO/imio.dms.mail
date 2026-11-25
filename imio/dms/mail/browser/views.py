@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
 from AccessControl import Unauthorized
+from Acquisition import aq_base
 from Acquisition import aq_inner
 from Acquisition import aq_parent
 from collective.ckeditortemplates.cktemplate import ICKTemplate
@@ -218,8 +219,12 @@ class ServerSentEvents(BrowserView):
         self.request.response.setHeader("Cache-Control", "no-cache")
         self.request.response.setHeader("Pragma", "no-cache")
         response = u""
+        userid = api.user.get_current().getId()
         for child in self.context.listFolderContents():
             if IImioDmsFile.providedBy(child) and getattr(child, "conversion_finished", False):
+                # edited_by: only the page of the user who saved the file in Collabora refreshes
+                if getattr(aq_base(child), "edited_by", userid) != userid:
+                    continue
                 # generated is added by creation subscriber, only when file is generated
                 # generated <= 2: wait to be sure zopedit redirection has been made
                 # generated > 3 and locked: wait else: refresh
@@ -242,6 +247,8 @@ class ServerSentEvents(BrowserView):
                 response = u"{}{}".format(response, line)
                 delattr(child, "conversion_finished")
                 delattr(child, "generated")
+                if hasattr(aq_base(child), "edited_by"):
+                    delattr(child, "edited_by")
         return response
 
 

@@ -258,6 +258,17 @@ class TestServerSentEvents(unittest.TestCase):
         # u'data: {"path": "/plone/outgoing-mail/reponse1/1", "id": "1", "refresh": true}\n\n'
         self.assertIn('"id": "1", "refresh": true', res)  # we refresh
 
+        # a dmsommainfile is saved in Collabora: only the page of the user who saved it refreshes
+        omf.generated = 3
+        omf.edited_by = "siteadmin"
+        omf.conversion_finished = True
+        change_user(self.portal, "chef")
+        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertTrue(omf.conversion_finished)
+        change_user(self.portal)
+        self.assertIn('"id": "1", "refresh": true', sse_vw())  # we refresh
+        self.assertFalse(hasattr(omf, "edited_by"))
+
 
 class TestUpdateItem(unittest.TestCase):
 

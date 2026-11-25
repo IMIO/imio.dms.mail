@@ -1872,10 +1872,11 @@ def i_annex_created(obj, event):
 
 
 def imiodmsfile_modified(obj, event):
-    """Refresh the outgoing mail view once the preview of a file saved by Collabora is rebuilt.
+    """Refresh the outgoing mail view of the user who saved the file in Collabora, once its preview is rebuilt.
 
-    Collabora does not lock the file like ZopeEdit: ServerSentEvents handles it like an edited generated file.
+    ServerSentEvents handles it like an edited generated file.
     """
     request = getRequest()
     if request is not None and COLLABORA_CALLBACK in (request.get("PATH_INFO") or ""):
         obj.generated = 3
+        obj.edited_by = api.user.get_current().getId()

@@ -15,7 +15,7 @@ Changelog
   Hid Collabora's welcome popup and onboarding tour (DMS-1258).
   Removed the download and metadata edit buttons from the Collabora edit page (DMS-1260).
   Closing the Collabora edit page goes back to the mail, or to the page a template edit was opened from (DMS-1261).
-  The outgoing mail view refreshes once the preview of a file saved by Collabora is rebuilt (DMS-1263).
+  The outgoing mail view of the user who saved a file in Collabora refreshes once its preview is rebuilt (DMS-1263).
   A file edited in Collabora is locked: others open it read-only and cannot edit its metadata.
   The `collabora_collaborative_edit` setting lets several users edit it together (DMS-1262).
   Collabora saves only through "Save & Close"; "Cancel & Close" drops the changes and leaving the page warns.

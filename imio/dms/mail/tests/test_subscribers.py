@@ -1921,10 +1921,12 @@ class TestSubscribers(unittest.TestCase, ImioTestHelpers):
         wopi_vw.wopi_mode = "contents"
         wopi_vw()
         self.assertEqual(omf.generated, 3)
+        self.assertEqual(omf.edited_by, "siteadmin")
         # the mail view refreshes once documentviewer has rebuilt the preview
         omf.conversion_finished = True
         self.assertIn('"id": "1", "refresh": true', sse_vw())
         self.assertFalse(hasattr(omf, "generated"))
+        self.assertFalse(hasattr(omf, "edited_by"))
 
 
 class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
