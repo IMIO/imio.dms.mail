@@ -120,6 +120,8 @@ class Migrate_To_3_1(Migrator):  # noqa
                         self.portal, "docs_om_temp_deactivation", "", "imio.dms.mail.maintenance",
                         "om_temp_deactivation"
                     )
+                # Duplicates management group can merge (delete) contacts
+                self.contacts.manage_addLocalRoles("gestion_contacts", ["Editor"])
                 # Update dashboard pod templates
                 self.portal["templates"]["export-users-groups"].max_objects = 0
                 self.portal["templates"]["all-contacts-export"].max_objects = 0

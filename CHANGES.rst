@@ -20,6 +20,8 @@ Changelog
   [sgeulette]
 - Reindexed the scan_id given to a file added to a signing session, so its signed version is consumed (PARAF-580).
   [chris-adam,sgeulette]
+- Gave `gestion_contacts` the Editor role on contacts, so its members can merge duplicates.
+  [chris-adam]
 
 3.1.7 (2026-11-17)
 ------------------
