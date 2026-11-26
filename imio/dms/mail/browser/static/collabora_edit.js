@@ -4,6 +4,13 @@
 
 var dms_collabora = {modified: false, leaving: false, closeUrl: null, views: 1};
 
+// Replaces edit.js's resize_iframe: its plone4 offset keeps 210px for the footer, hidden here (collabora_edit.pt)
+function resize_iframe() {
+  var iframe = document.getElementById("cool-iframe");
+  var offset = iframe.getBoundingClientRect().top + window.pageYOffset + 10;
+  iframe.style.height = "calc(100vh - " + offset + "px)";
+}
+
 function dms_collabora_text(name) {
   return document.querySelector(".section-collabora-main").getAttribute(name);
 }

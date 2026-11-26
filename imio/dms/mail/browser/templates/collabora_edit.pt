@@ -16,6 +16,9 @@
              tal:content="view/css_import"
       >
       </style>
+      <style type="text/css">
+        #portal-top, #portal-footer, #portal-colophon { display: none; }
+      </style>
     </metal:css>
     <metal:js fill-slot="javascript_head_slot">
       <script tal:attributes="
