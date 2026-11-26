@@ -120,7 +120,7 @@ def _record_async_user_folder():
         if root_uf is None or root_uf.getUserById(user_id) is None:
             # Unknown everywhere: leave it, so the worker says so plainly.
             return uf_path, user_id
-        logger.info(
+        logger.debug(
             "User %r is unknown to %r but is a Zope root user: queueing the "
             "job against the root acl_users.",
             user_id,
@@ -158,7 +158,7 @@ def _authenticate_zope_root_user():
         if root_uf is None or root_uf.getUserById(user_id) is None:
             # Unknown everywhere: leave it, so the request fails as it would have.
             return user
-        logger.info(
+        logger.debug(
             "%r is unknown to %r but is a Zope root user: running Collabora's "
             "callback as that root user.",
             user_id,
@@ -300,7 +300,7 @@ def _save_on_request():
             if getattr(aq_base(self.context), "conversion_finished", False):
                 del self.context.conversion_finished
             return put_file(self)
-        logger.info("Dropped a Collabora save not asked by Save & Close on %r", self.context.absolute_url())
+        logger.debug("Dropped a Collabora save not asked by Save & Close on %r", self.context.absolute_url())
         self.request.response.setHeader("Content-Type", "application/json")
         return json.dumps(self.file_info)
 
