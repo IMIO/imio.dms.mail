@@ -26,6 +26,7 @@ from imio.dms.mail import PERIODS
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.esign.acroform import check_file
 from imio.helpers.batching import batch_delete_files
 from imio.helpers.batching import batch_get_keys
 from imio.helpers.batching import batch_handle_key
@@ -1764,3 +1765,26 @@ def is_hp_used_in_signer_rules(hp_obj, remaining_usages):
                 if person_uid in (rule.get("approvings") or []):
                     return True
     return False
+
+
+def acroform_errors(container, stored=False):
+    """Return the acroform tag errors of the signable files of an outgoing mail or sign request.
+
+    :param container: outgoing mail or sign request
+    :param stored: trust the acroform tags stored on the files, see imio.esign get_file_acroform_tags
+    :return: list of (file object, [error messages]) for the files in error only
+    """
+    if not is_esign(container):
+        return []
+    nb_signers = None
+    if container.esign:
+        nb_signers = len([s for s in (container.signers or []) if s["signer"] != u"_empty_"])
+    res = []
+    for fobj in container.values():
+        if fobj.portal_type not in ("dmsommainfile", "dmsappendixfile") or not getattr(fobj, "to_sign", False) \
+                or getattr(fobj, "signed", False):
+            continue
+        errors = check_file(fobj, nb_signers, container.seal, stored)
+        if errors:
+            res.append((fobj, errors))
+    return res

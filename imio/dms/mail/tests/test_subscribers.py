@@ -24,6 +24,8 @@ from imio.dms.mail.subscribers import reindex_person_usages
 from imio.dms.mail.subscribers import sign_request_transition
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.tests.utils import create_om_with_tags
+from imio.dms.mail.tests.utils import odt_with_tags
 from imio.dms.mail.utils import DummyView
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.vocabularies import AssignedUsersWithDeactivatedVocabulary
@@ -1968,6 +1970,49 @@ class TestSignRequestSubscribers(unittest.TestCase, ImioTestHelpers):
         ]
         with self.assertRaises(Invalid):
             modified(request, Attributes(ISignRequestSigningBehavior, "ISignRequestSigningBehavior.signers"))
+
+    def test_signing_before_transition(self):
+        """Advancing towards signing is refused while the acroform tags of a signable file are wrong."""
+        request, files = create_sign_request(
+            self.portal, oid="sr-acroform", nb_files=1, esign=True,
+            signers=[{"number": 1, "signer": self.pf["dirg"]["directeur-general"].UID(),
+                      "approvings": [u"_themself_"], "editor": True}],
+        )
+        afile = files[0]
+        afile.to_sign = True
+
+        # --- a tag for a signer that does not exist: the transition is refused ---
+        afile.file = odt_with_tags(1, 2)
+        with self.assertRaises(Invalid) as cm:
+            self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
+        self.assertEqual(cm.exception.message, u"The transition cannot be done while signature or seal tags are wrong.")
+        self.assertEqual(api.content.get_state(request), "created")
+
+        # --- one tag per signer: the transition goes through ---
+        afile.file = odt_with_tags(1)
+        self.portal.portal_workflow.doActionFor(request, "propose_to_approve")
+        self.assertEqual(api.content.get_state(request), "to_approve")
+
+        # --- the automatic transition after the last approval is never refused, sending the session is ---
+        afile.file = odt_with_tags(1, 2)
+        ISignRequestApproval(request).approve_file(afile, "dirg", transition="propose_to_be_signed")
+        self.assertEqual(api.content.get_state(request), "to_be_signed")
+
+        # --- propose_to_be_signed is guarded too: a mail with a seal and no signer never passes ---
+        seal_only, sofile = create_om_with_tags(
+            self.portal, "om-acroform-seal-only", tag_ids=(u"SCEAU", u"SCEAU"),
+            nb_signers=0, esign=False, seal=True,
+        )
+        with self.assertRaises(Invalid) as cm:
+            self.portal.portal_workflow.doActionFor(seal_only, "propose_to_be_signed")
+        self.assertEqual(cm.exception.message, u"The transition cannot be done while signature or seal tags are wrong.")
+        self.assertEqual(api.content.get_state(seal_only), "created")
+
+        # --- one seal tag: the transition goes through ---
+        sofile.file = odt_with_tags(u"SCEAU")
+        seal_only.esign = True
+        self.portal.portal_workflow.doActionFor(seal_only, "propose_to_be_signed")
+        self.assertEqual(api.content.get_state(seal_only), "to_be_signed")
 
     def test_i_annex_added(self):
         request, _files = create_sign_request(self.portal, oid="sr-annex", nb_files=0)

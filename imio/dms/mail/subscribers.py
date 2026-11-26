@@ -45,6 +45,7 @@ from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
+from imio.dms.mail.utils import acroform_errors
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
 from imio.dms.mail.utils import eml_preview
@@ -1868,3 +1869,14 @@ def i_annex_created(obj, event):
     if not filename or obj.title not in (None, u"", filename):
         return
     obj.title = safe_unicode(filename).rsplit(u".", 1)[0] or safe_unicode(filename)
+
+
+def signing_before_transition(obj, event):
+    """Refuse to advance towards signing when the acroform tags of a signable file are wrong.
+    Only checked from a state before "to_approve": the automatic post-approval transition must never fail."""
+    if not event.transition or event.transition.id not in ("propose_to_approve", "propose_to_be_signed") \
+            or not obj.approval().is_state_before_approve(state=event.old_state.id):
+        return
+    # the errors are listed by the acroform errors viewlet
+    if acroform_errors(obj):
+        raise Invalid(_(u"The transition cannot be done while signature or seal tags are wrong."))

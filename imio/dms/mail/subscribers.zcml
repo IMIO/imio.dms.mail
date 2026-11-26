@@ -97,6 +97,13 @@
              Products.DCWorkflow.interfaces.IBeforeTransitionEvent"
         handler=".subscribers.sign_approve_before_transition"
       />
+
+    <subscriber
+        for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
+             Products.DCWorkflow.interfaces.IBeforeTransitionEvent"
+        handler=".subscribers.signing_before_transition"
+      />
+
     <subscriber
         for="imio.dms.mail.dmsmail.IImioDmsOutgoingMail
              Products.DCWorkflow.interfaces.IAfterTransitionEvent"
@@ -121,6 +128,13 @@
              Products.DCWorkflow.interfaces.IBeforeTransitionEvent"
         handler=".subscribers.sign_approve_before_transition"
       />
+
+    <subscriber
+        for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
+             Products.DCWorkflow.interfaces.IBeforeTransitionEvent"
+        handler=".subscribers.signing_before_transition"
+      />
+
     <subscriber
         for="imio.dms.mail.dmssignrequest.IImioDmsSignRequest
              Products.DCWorkflow.interfaces.IAfterTransitionEvent"

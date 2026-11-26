@@ -1,20 +1,26 @@
 # -*- coding: utf-8 -*-
 """Test views."""
+from collections import OrderedDict
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.messagesviewlet.message import PseudoMessage
 from datetime import datetime
 from imio.dms.mail import PRODUCT_DIR
 from imio.dms.mail.browser.viewlets import ContactContentBackrefsViewlet
 from imio.dms.mail.browser.viewlets import ContextInformationViewlet
+from imio.dms.mail.browser.viewlets import ImioAcroformErrorsViewlet
 from imio.dms.mail.dmsmail import IImioDmsIncomingMail
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.tests.utils import create_om_with_tags
+from imio.dms.mail.tests.utils import odt_with_tags
 from imio.dms.mail.utils import sub_create
 from imio.helpers.content import get_object
 from plone import api
 from plone.app.testing import login
 from plone.dexterity.utils import createContentInContainer
 from plone.namedfile.file import NamedBlobFile
+from zope.event import notify
+from zope.lifecycleevent import ObjectModifiedEvent
 
 import unittest
 
@@ -160,3 +166,39 @@ class TestContactContentBackrefsViewlet(unittest.TestCase):
         sr_v = ContextInformationViewlet(request, self.elec.REQUEST, None)
         combo = [m for m in sr_v.getAllMessages() if u"a une combinaison invalide signature / approbation" in m.text.output]
         self.assertEqual(len(combo), 1)
+
+
+class TestImioAcroformErrorsViewlet(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        login(self.portal, "siteadmin")
+
+    def test_errors(self):
+        """Before signing, the files to sign are checked against the signers and seal of their mail,
+        on the mail and on the file, with their stored tags. From then on, against their session."""
+        omail, afile = create_om_with_tags(self.portal, "omail-acroform-viewlet", tag_ids=(1,), nb_signers=2)
+
+        def errors(context):
+            return ImioAcroformErrorsViewlet(context, self.portal.REQUEST, None, None).errors
+
+        expected = OrderedDict([(afile.UID(), (afile, [u"La balise de signature de Signer2 est manquante."]))])
+        self.assertEqual(errors(omail), expected)
+        self.assertEqual(errors(afile), expected)
+        # --- the stored tags are used, updated when the file is modified ---
+        afile.file = odt_with_tags(1, 2)
+        self.assertEqual(errors(omail), expected)
+        notify(ObjectModifiedEvent(afile))
+        self.assertEqual(errors(omail), OrderedDict())
+        # --- once the mail left the states before signing, only its sessions are checked ---
+        afile.file = odt_with_tags(1)
+        notify(ObjectModifiedEvent(afile))
+        self.assertEqual(len(errors(omail)), 1)
+        api.content.transition(obj=omail, transition="mark_as_sent")
+        self.assertEqual(errors(omail), OrderedDict())
+        self.assertEqual(errors(afile), OrderedDict())
+        # --- a file of an incoming mail: only its sessions are checked ---
+        imail = get_object(oid="courrier1", ptype="dmsincomingmail")
+        self.assertEqual(errors(imail.objectValues()[0]), OrderedDict())
