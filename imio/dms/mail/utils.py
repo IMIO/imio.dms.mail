@@ -54,6 +54,9 @@ from plone import api
 from plone.api.exc import GroupNotFoundError
 from plone.dexterity.utils import addContentToContainer
 from plone.i18n.normalizer import IIDNormalizer
+from plone.locking.interfaces import ILockable
+from plone.locking.interfaces import ITTWLockable
+from plone.locking.interfaces import LockType
 from plone.memoize import ram
 from plone.registry.interfaces import IRegistry
 from plone.z3cform.fieldsets.utils import add
@@ -1764,3 +1767,35 @@ def is_hp_used_in_signer_rules(hp_obj, remaining_usages):
                 if person_uid in (rule.get("approvings") or []):
                     return True
     return False
+
+
+# plone.locking lock held while Collabora edits a file. Collabora refreshes it every 15 minutes.
+COLLABORA_LOCK = LockType(u"imio.dms.mail.collabora", stealable=True, user_unlockable=True, timeout=30)
+COLLABORA_LOCK_ID = "imio.dms.mail.collabora_lock"  # annotation key of Collabora's own lock id
+
+
+def get_collabora_lock_id(obj):
+    """Collabora's lock id while its lock on obj is valid, else None."""
+    for info in ILockable(obj).lock_info():
+        if getattr(info["type"], "__name__", None) == COLLABORA_LOCK.__name__:
+            return IAnnotations(obj).get(COLLABORA_LOCK_ID)
+    return None
+
+
+def is_collabora_read_only(obj):
+    """Another user locks obj, and collaborative editing does not let the current user join."""
+    if not ITTWLockable.providedBy(obj):
+        return False
+    userid = api.user.get_current().getId()
+    if all(info["creator"] == userid for info in ILockable(obj).lock_info()):
+        return False
+    collaborative = api.portal.get_registry_record(
+        "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_collaborative_edit", default=False
+    )
+    return not (collaborative and get_collabora_lock_id(obj) is not None)
+
+
+def remove_collabora_lock(obj):
+    """Remove the Collabora lock of obj."""
+    ILockable(obj).unlock(COLLABORA_LOCK, stealable_only=False)
+    del IAnnotations(obj)[COLLABORA_LOCK_ID]

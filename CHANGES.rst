@@ -11,6 +11,16 @@ Changelog
   files converted to pdf) are not listed. On a folder, subfolder files are listed but not preselected,
   an option stores them in a directory by subfolder. The element form opens in an overlay.
   [sgeulette]
+- Added Collabora edit on files and templates (DMS-1106). Added some patches (DMS-1227, DMS-1228).
+  Hid Collabora's welcome popup and onboarding tour (DMS-1258).
+  Removed the download and metadata edit buttons from the Collabora edit page (DMS-1260).
+  Closing the Collabora edit page goes back to the mail, or to the page a template edit was opened from (DMS-1261).
+  The outgoing mail view of the user who saved a file in Collabora refreshes once its preview is rebuilt (DMS-1263).
+  A file edited in Collabora is locked: others open it read-only and cannot edit its metadata.
+  The `collabora_collaborative_edit` setting lets several users edit it together (DMS-1262).
+  Collabora saves only through "Save & Close"; "Cancel & Close" drops the changes and leaving the page warns.
+  The `collabora_autosave` setting keeps every Collabora save instead (DMS-1259).
+  [chris-adam]
 - Updated `ExportToPDFBatchActionForm` after imio.annex refactoring
   [sgeulette]
 - Fixed amqp consumer crash on scanned outgoing mail in `template_first` signers mode: signer rules

@@ -44,6 +44,7 @@ from imio.dms.mail.content.behaviors import ISignRequestSigningBehavior
 from imio.dms.mail.interfaces import IActionsPanelFolderOnlyAdd
 from imio.dms.mail.interfaces import IPersonnelContact
 from imio.dms.mail.interfaces import IProtectedItem
+from imio.dms.mail.overrides import COLLABORA_CALLBACK
 from imio.dms.mail.setuphandlers import blacklistPortletCategory
 from imio.dms.mail.utils import create_personnel_content
 from imio.dms.mail.utils import create_read_label_cron_task
@@ -1868,3 +1869,14 @@ def i_annex_created(obj, event):
     if not filename or obj.title not in (None, u"", filename):
         return
     obj.title = safe_unicode(filename).rsplit(u".", 1)[0] or safe_unicode(filename)
+
+
+def imiodmsfile_modified(obj, event):
+    """Refresh the outgoing mail view of the user who saved the file in Collabora, once its preview is rebuilt.
+
+    ServerSentEvents handles it like an edited generated file.
+    """
+    request = getRequest()
+    if request is not None and COLLABORA_CALLBACK in (request.get("PATH_INFO") or ""):
+        obj.generated = 3
+        obj.edited_by = api.user.get_current().getId()

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Test views."""
 
+from AccessControl import Unauthorized
 from collective.dms.mailcontent.dmsmail import internalReferenceOutgoingMailDefaultValue
 from collective.iconifiedcategory.utils import calculate_category_id
 from collective.MockMailHost.MockMailHost import MockMailHost
@@ -18,7 +19,10 @@ from imio.dms.mail.interfaces import ISignRequestApproval
 from imio.dms.mail.testing import change_user
 from imio.dms.mail.testing import create_sign_request
 from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
+from imio.dms.mail.utils import COLLABORA_LOCK
+from imio.dms.mail.utils import COLLABORA_LOCK_ID
 from imio.dms.mail.utils import DummyView
+from imio.dms.mail.utils import get_collabora_lock_id
 from imio.dms.mail.utils import sub_create
 from imio.esign.config import set_esign_registry_file_url
 from imio.esign.utils import add_files_to_session
@@ -30,16 +34,30 @@ from imio.helpers.test_helpers import ImioTestHelpers
 from persistent.list import PersistentList
 from plone import api
 from plone.app.testing import login
+from plone.app.testing import logout
 from plone.dexterity.utils import createContentInContainer
+from plone.locking.interfaces import ILockable
 from plone.namedfile.file import NamedBlobFile
 from Products.CMFPlone.utils import safe_unicode
 from z3c.relationfield import RelationValue
+from zExceptions import Forbidden
+from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 from zope.i18n import translate
 from zope.intid import IIntIds
 
 import json
+import mock
+import re
 import unittest
+
+
+COLLABORA_EDIT = "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_edit"
+COLLABORA_DISCOVERY = (
+    '<wopi-discovery><net-zone name="external-http"><app name="application/vnd.oasis.opendocument.text">'
+    '<action name="edit" ext="" urlsrc="http://collabora:9980/browser/dist/cool.html?"/></app></net-zone>'
+    "</wopi-discovery>"
+)
 
 
 class TestReplyForm(unittest.TestCase):
@@ -243,6 +261,17 @@ class TestServerSentEvents(unittest.TestCase):
         res = sse_vw()
         # u'data: {"path": "/plone/outgoing-mail/reponse1/1", "id": "1", "refresh": true}\n\n'
         self.assertIn('"id": "1", "refresh": true', res)  # we refresh
+
+        # a dmsommainfile is saved in Collabora: only the page of the user who saved it refreshes
+        omf.generated = 3
+        omf.edited_by = "siteadmin"
+        omf.conversion_finished = True
+        change_user(self.portal, "chef")
+        self.assertEqual(sse_vw(), u"")  # no refresh
+        self.assertTrue(omf.conversion_finished)
+        change_user(self.portal)
+        self.assertIn('"id": "1", "refresh": true', sse_vw())  # we refresh
+        self.assertFalse(hasattr(omf, "edited_by"))
 
 
 class TestUpdateItem(unittest.TestCase):
@@ -766,3 +795,164 @@ class TestImioRecreateSessionView(unittest.TestCase):
         # the old session is consumed by the recreation, the new one gets a title with the new sign_id
         self.assertNotIn(old_id, annot["sessions"])
         self.assertEqual(annot["sessions"][new_id]["title"], u"[iA.Docs] Courrier sortant - 012999900001")
+
+
+class TestCollaboraOrZopeEditView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.layer["request"]
+        change_user(self.portal)
+        # an unconfigured collabora server url avoids any discovery call
+        api.portal.set_registry_record("collective.collabora.collabora_server_url", u"")
+
+    def test_call(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        template = self.portal["templates"]["om"]["main"]
+        style = self.portal["templates"]["om"]["style"]
+        for obj in (omf, template, style):
+            # collabora edit disabled: zopeedit
+            obj.restrictedTraverse("external_edit")()
+            self.assertEqual(self.request.response.getHeader("location"),
+                             "{}/externalEdit_/{}.zem".format(obj.aq_parent.absolute_url(), obj.getId()))
+            # collabora edit enabled: collabora
+            api.portal.set_registry_record(COLLABORA_EDIT, True)
+            self.assertIn("collabora_server_url n'est pas configur", obj.restrictedTraverse("external_edit")())
+            api.portal.set_registry_record(COLLABORA_EDIT, False)
+        # collabora page: closing goes to close_url, no download nor metadata edit buttons
+        api.portal.set_registry_record(COLLABORA_EDIT, True)
+        api.portal.set_registry_record("collective.collabora.collabora_server_url", u"http://collabora:9980")
+        with mock.patch("requests.get") as requests_get:
+            requests_get.return_value.configure_mock(status_code=200, text=COLLABORA_DISCOVERY)
+            for obj in (omf, template):
+                html = obj.restrictedTraverse("external_edit")()
+                close_link = re.search(r'<a class="btn btn-primary context"[^>]*>', html).group(0)
+                self.assertIn('href="{}"'.format(obj.aq_parent.absolute_url()), close_link)
+                self.assertIn("cool-iframe", html)
+                self.assertNotIn("standalone download", html)
+                self.assertNotIn("standalone edit", html)
+                # saving goes through collabora_edit.js, which can cancel without autosave
+                self.assertIn("dms_collabora_save_and_close", html)
+                self.assertIn("standalone cancel", html)
+                # leaving releases the Collabora lock
+                self.assertIn('data-unlock-url="{}/@@collabora-unlock"'.format(obj.absolute_url()), html)
+            api.portal.set_registry_record(
+                "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_autosave", True
+            )
+            self.assertNotIn("standalone cancel", omf.restrictedTraverse("external_edit")())
+        api.portal.set_registry_record(COLLABORA_EDIT, False)
+        # zopeedit needs the modify permission, as before collabora
+        change_user(self.portal, "agent")
+        self.assertRaises(Unauthorized, template.restrictedTraverse("external_edit"))
+
+    def test_can_edit(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        self.assertTrue(omf.restrictedTraverse("external_edit").can_edit)
+        # siteadmin edits the file in Collabora: the service head only gets a read-only editor
+        ILockable(omf).lock(COLLABORA_LOCK)
+        change_user(self.portal, "chef")
+        self.assertFalse(omf.restrictedTraverse("external_edit").can_edit)
+
+    def test_close_url(self):
+        omail = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        template = self.portal["templates"]["om"]["main"]
+        dashboard = self.portal["templates"].absolute_url()
+        self.request["HTTP_REFERER"] = dashboard
+        # mail file: its mail, whatever the page it was opened from
+        self.assertEqual(omail["1"].restrictedTraverse("external_edit").close_url, omail.absolute_url())
+        # template: the page it was opened from
+        self.assertEqual(template.restrictedTraverse("external_edit").close_url, dashboard)
+        # template opened from outside the site or without referer: its folder
+        for referer in ("http://elsewhere/page", self.portal.absolute_url() + ".elsewhere/page", ""):
+            self.request["HTTP_REFERER"] = referer
+            self.assertEqual(
+                template.restrictedTraverse("external_edit").close_url, self.portal["templates"]["om"].absolute_url()
+            )
+
+
+class TestCollaboraSettingsView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.layer["request"]
+
+    def test_call(self):
+        # Collabora fetches the settings without credentials
+        logout()
+        view = self.portal.restrictedTraverse("@@collabora-settings")
+        self.assertEqual(
+            json.loads(view()),
+            {
+                "kind": "user",
+                "browsersetting": [
+                    {
+                        "uri": "{}/@@collabora-settings/browsersetting.json".format(self.portal.absolute_url()),
+                        "stamp": "1",
+                    }
+                ],
+            },
+        )
+        self.assertEqual(self.request.response.getHeader("Content-Type"), "application/json")
+        settings = json.loads(view.publishTraverse(self.request, "browsersetting.json")())
+        self.assertEqual(sorted(settings), ["drawing", "presentation", "spreadsheet", "text"])
+        self.assertEqual(settings["text"], {"onboardingTourSeen": True})
+
+
+class TestCollaboraUnlockView(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        self.request = self.layer["request"]
+        change_user(self.portal)
+
+    def unlock(self, obj):
+        self.request["_authenticator"] = self.portal.restrictedTraverse("@@authenticator").token()
+        obj.restrictedTraverse("@@collabora-unlock")()
+
+    def test_call(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        self.assertRaises(Forbidden, omf.restrictedTraverse("@@collabora-unlock"))
+        # siteadmin edits the file in Collabora: the service head cannot unlock it
+        ILockable(omf).lock(COLLABORA_LOCK)
+        IAnnotations(omf)[COLLABORA_LOCK_ID] = "cool-lock1"
+        change_user(self.portal, "chef")
+        self.unlock(omf)
+        self.assertEqual(get_collabora_lock_id(omf), "cool-lock1")
+        # unless collaborative editing lets them edit it too
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_collaborative_edit", True
+        )
+        self.unlock(omf)
+        self.assertIsNone(get_collabora_lock_id(omf))
+        # siteadmin unlocks their own Collabora lock, not a metadata edition lock
+        change_user(self.portal)
+        ILockable(omf).lock(COLLABORA_LOCK)
+        IAnnotations(omf)[COLLABORA_LOCK_ID] = "cool-lock2"
+        self.unlock(omf)
+        self.assertFalse(ILockable(omf).locked())
+        ILockable(omf).lock()
+        self.unlock(omf)
+        self.assertTrue(ILockable(omf).locked())
+
+
+class TestCreateFromTemplateForm(unittest.TestCase):
+
+    layer = DMSMAIL_INTEGRATION_TESTING
+
+    def setUp(self):
+        self.portal = self.layer["portal"]
+        change_user(self.portal)
+
+    def test_form_target(self):
+        omail1 = get_object(oid="reponse1", ptype="dmsoutgoingmail")
+        view = omail1.restrictedTraverse("@@create-from-template")
+        self.assertIsNone(view.form_target)
+        # collabora edit opens in a new tab
+        api.portal.set_registry_record(COLLABORA_EDIT, True)
+        self.assertEqual(view.form_target, "_blank")

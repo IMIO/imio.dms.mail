@@ -38,6 +38,7 @@ from plone.app.registry.browser.controlpanel import ControlPanelFormWrapper
 from plone.app.registry.browser.controlpanel import RegistryEditForm
 from plone.app.z3cform.wysiwyg import WysiwygFieldWidget
 from plone.autoform.directives import widget
+from plone.autoform.directives import write_permission
 from plone.dexterity.fti import DexterityFTIModificationDescription
 from plone.dexterity.fti import ftiModified
 from plone.dexterity.interfaces import IDexterityFTI
@@ -1017,6 +1018,9 @@ class IImioDmsMailConfig(model.Schema):
             "groups_hidden_in_dashboard_filter",
             "users_hidden_in_dashboard_filter",
             "batch_approval_limit",
+            "collabora_edit",
+            "collabora_collaborative_edit",
+            "collabora_autosave",
         ],
     )
 
@@ -1043,6 +1047,33 @@ class IImioDmsMailConfig(model.Schema):
         default=10,
         min=0,
     )
+
+    collabora_edit = schema.Bool(
+        title=_(u"Edit with Collabora"),
+        description=_(u"Enable for online editing of documents. Disable to use ZopeEdit."),
+        default=False,
+    )
+    write_permission(collabora_edit="cmf.ManagePortal")
+
+    collabora_collaborative_edit = schema.Bool(
+        title=_(u"Collaborative editing with Collabora"),
+        description=_(
+            u"Let several users edit a document at the same time: their changes are shared and anyone's "
+            u"\"Save & Close\" saves them all. Otherwise, the others open it read-only."
+        ),
+        default=False,
+    )
+    write_permission(collabora_collaborative_edit="cmf.ManagePortal")
+
+    collabora_autosave = schema.Bool(
+        title=_(u"Collabora autosave"),
+        description=_(
+            u"Keep every save of Collabora (while editing and when leaving). Otherwise, only "
+            u"\"Save & Close\" saves and \"Cancel & Close\" drops the changes."
+        ),
+        default=False,
+    )
+    write_permission(collabora_autosave="cmf.ManagePortal")
 
     @invariant
     def validate_settings(data):  # noqa

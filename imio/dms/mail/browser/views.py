@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
 from AccessControl import getSecurityManager
 from AccessControl import Unauthorized
+from Acquisition import aq_base
 from Acquisition import aq_inner
+from Acquisition import aq_parent
 from collective.ckeditortemplates.cktemplate import ICKTemplate
+from collective.collabora.browser.edit import CollaboraEditView
+from collective.externaleditor.browser.views import ExternalEditView as ZopeEditView
 from datetime import datetime
 from eea.faceted.vocabularies.autocomplete import IAutocompleteSuggest
+from imio.annex.content.annex import IAnnex
 from imio.dms.mail import _
 from imio.dms.mail import _tr
 from imio.dms.mail import PLUS_MENU_TABS
@@ -14,7 +19,10 @@ from imio.dms.mail.browser.table import CKTemplatesTable
 from imio.dms.mail.dmsfile import IImioDmsFile
 from imio.dms.mail.interfaces import IOMApproval
 from imio.dms.mail.utils import current_user_groups_ids
+from imio.dms.mail.utils import get_collabora_lock_id
 from imio.dms.mail.utils import get_dms_config
+from imio.dms.mail.utils import is_collabora_read_only
+from imio.dms.mail.utils import remove_collabora_lock
 from imio.esign import manage_session_perm
 from imio.esign.browser.actions import RecreateSessionView
 from imio.esign.browser.actions import RemoveItemFromSessionView
@@ -36,6 +44,7 @@ from imio.helpers.fancytree.views import BaseRenderFancyTree
 from imio.helpers.workflow import do_transitions
 from imio.helpers.xhtml import object_link
 from plone import api
+from plone.locking.interfaces import ITTWLockable
 from plone.protect import CheckAuthenticator
 from Products.CMFCore.utils import getToolByName
 from Products.CMFPlone import utils
@@ -54,6 +63,7 @@ from zope.i18n import translate
 from zope.interface import implementer
 from zope.lifecycleevent import modified
 from zope.pagetemplate.pagetemplate import PageTemplate
+from zope.publisher.interfaces import IPublishTraverse
 
 import json
 
@@ -63,6 +73,14 @@ class CreateFromTemplateForm(BaseRenderFancyTree):
     """Create a document from a collective.documentgenerator template."""
 
     root = "/templates/om"
+
+    @property
+    def form_target(self):
+        """Open Collabora edit in a new tab."""
+        collabora = api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_edit", default=False
+        )
+        return "_blank" if collabora else None
 
     def label(self):
         return translate(
@@ -204,8 +222,12 @@ class ServerSentEvents(BrowserView):
         self.request.response.setHeader("Cache-Control", "no-cache")
         self.request.response.setHeader("Pragma", "no-cache")
         response = u""
+        userid = api.user.get_current().getId()
         for child in self.context.listFolderContents():
             if IImioDmsFile.providedBy(child) and getattr(child, "conversion_finished", False):
+                # edited_by: only the page of the user who saved the file in Collabora refreshes
+                if getattr(aq_base(child), "edited_by", userid) != userid:
+                    continue
                 # generated is added by creation subscriber, only when file is generated
                 # generated <= 2: wait to be sure zopedit redirection has been made
                 # generated > 3 and locked: wait else: refresh
@@ -228,6 +250,8 @@ class ServerSentEvents(BrowserView):
                 response = u"{}{}".format(response, line)
                 delattr(child, "conversion_finished")
                 delattr(child, "generated")
+                if hasattr(aq_base(child), "edited_by"):
+                    delattr(child, "edited_by")
         return response
 
 
@@ -731,3 +755,80 @@ class ObjectRenameTitleView(BrowserView):
         self.title = safe_unicode(self.context.Title())
         self.orig_template = self.request.get("HTTP_REFERER", "").split("?")[0]
         return self.index()
+
+
+class CollaboraOrZopeEditView(CollaboraEditView):
+    """Edit with Collabora or ZopeEdit, following the collabora_edit setting."""
+
+    def __call__(self):
+        if api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_edit", default=False
+        ):
+            return super(CollaboraOrZopeEditView, self).__call__()
+        # page permission is View for collabora read-only mode
+        if not api.user.has_permission("Modify portal content", obj=self.context):
+            raise Unauthorized
+        # built directly: this view shadows ZopeEdit's external_edit
+        return ZopeEditView(self.context, self.request)()
+
+    @property
+    def can_edit(self):
+        """Same as upstream, but not while another user edits the file."""
+        return super(CollaboraOrZopeEditView, self).can_edit and not is_collabora_read_only(self.context)
+
+    @property
+    def autosave(self):
+        """Collabora autosave: every save is kept, so no "Cancel & Close"."""
+        return api.portal.get_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_autosave", default=False
+        )
+
+    @property
+    def close_url(self):
+        """Mail file: its mail. Template: the page the edit was opened from, else its folder."""
+        referer = self.request.get("HTTP_REFERER", "")
+        in_site = referer == self.portal_url or referer.startswith(self.portal_url + "/")
+        if not IAnnex.providedBy(self.context) and in_site:
+            return referer
+        return aq_parent(aq_inner(self.context)).absolute_url()
+
+    @property
+    def unlock_url(self):
+        """Where collabora_edit.js releases the Collabora lock when leaving, for a lockable item."""
+        if ITTWLockable.providedBy(self.context):
+            return self.context.absolute_url() + "/@@collabora-unlock"
+        return None
+
+
+@implementer(IPublishTraverse)
+class CollaboraSettingsView(BrowserView):
+    """Collabora user settings, where the onboarding tour counts as seen.
+
+    Public: Collabora fetches them without credentials.
+    """
+
+    file_name = None
+
+    def publishTraverse(self, request, name):
+        self.file_name = name
+        return self
+
+    def __call__(self):
+        self.request.response.setHeader("Content-Type", "application/json")
+        if self.file_name == "browsersetting.json":
+            doc_types = ("text", "spreadsheet", "presentation", "drawing")
+            return json.dumps({doc_type: {"onboardingTourSeen": True} for doc_type in doc_types})
+        url = self.context.absolute_url() + "/@@collabora-settings/browsersetting.json"
+        return json.dumps({"kind": "user", "browsersetting": [{"uri": url, "stamp": "1"}]})
+
+
+class CollaboraUnlockView(BrowserView):
+    """Release the Collabora lock when its last user closes the edit page.
+
+    Collabora unlocks once the page is gone, after uploading its save: the page they go back to could still be locked.
+    """
+
+    def __call__(self):
+        CheckAuthenticator(self.request)
+        if get_collabora_lock_id(self.context) is not None and not is_collabora_read_only(self.context):
+            remove_collabora_lock(self.context)

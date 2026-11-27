@@ -215,6 +215,12 @@
         handler=".subscribers.imiodmsfile_added"
         />
 
+    <subscriber
+        for="imio.dms.mail.dmsfile.IImioDmsFile
+             zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+        handler=".subscribers.imiodmsfile_modified"
+        />
+
     <!--subscriber
         for="imio.dms.mail.dmsfile.IImioDmsFile
              collective.iconifiedcategory.interfaces.IIconifiedAttrChangedEvent"

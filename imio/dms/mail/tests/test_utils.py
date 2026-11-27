@@ -11,6 +11,8 @@ from imio.dms.mail.testing import DMSMAIL_INTEGRATION_TESTING
 from imio.dms.mail.testing import reset_dms_config
 from imio.dms.mail.utils import add_remove_values_in_registry_list
 from imio.dms.mail.utils import back_or_again_state
+from imio.dms.mail.utils import COLLABORA_LOCK
+from imio.dms.mail.utils import COLLABORA_LOCK_ID
 from imio.dms.mail.utils import create_period_folder
 from imio.dms.mail.utils import create_period_folder_max
 from imio.dms.mail.utils import create_personnel_content
@@ -20,15 +22,18 @@ from imio.dms.mail.utils import dv_clean
 from imio.dms.mail.utils import eml_preview
 from imio.dms.mail.utils import ensure_set_field
 from imio.dms.mail.utils import get_allowed_content_types
+from imio.dms.mail.utils import get_collabora_lock_id
 from imio.dms.mail.utils import get_dms_config
 from imio.dms.mail.utils import get_scan_id
 from imio.dms.mail.utils import group_has_user
 from imio.dms.mail.utils import highest_review_level
 from imio.dms.mail.utils import IdmUtilsMethods
 from imio.dms.mail.utils import invalidate_users_groups
+from imio.dms.mail.utils import is_collabora_read_only
 from imio.dms.mail.utils import is_hp_used_in_signer_rules
 from imio.dms.mail.utils import list_wf_states
 from imio.dms.mail.utils import PREVIEW_DIR
+from imio.dms.mail.utils import remove_collabora_lock
 from imio.dms.mail.utils import set_dms_config
 from imio.dms.mail.utils import sub_create
 from imio.dms.mail.utils import update_solr_config
@@ -37,6 +42,7 @@ from imio.dms.mail.utils import update_transitions_levels_config
 from imio.dms.mail.utils import UtilsMethods
 from imio.dms.mail.utils import VariousUtilsMethods
 from imio.helpers.cache import invalidate_cachekey_volatile_for
+from imio.helpers.content import get_object
 from imio.helpers.test_helpers import ImioTestHelpers
 from mock import Mock
 from mock import patch
@@ -44,6 +50,7 @@ from persistent.dict import PersistentDict
 from persistent.list import PersistentList
 from plone import api
 from plone.dexterity.utils import createContentInContainer
+from plone.locking.interfaces import ILockable
 from plone.namedfile.file import NamedBlobFile
 from plone.registry import field as reg_field
 from plone.registry import Record
@@ -1205,3 +1212,44 @@ class TestUtils(unittest.TestCase, ImioTestHelpers):
 
         # Approver in rules, remaining_usages=["approving"]: not a conflict
         self.assertFalse(is_hp_used_in_signer_rules(bourgmestre_hp, ["approving"]))
+
+    def test_get_collabora_lock_id(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        self.assertIsNone(get_collabora_lock_id(omf))
+        # a metadata edition lock
+        ILockable(omf).lock()
+        self.assertIsNone(get_collabora_lock_id(omf))
+        ILockable(omf).unlock()
+        # a Collabora edition lock
+        ILockable(omf).lock(COLLABORA_LOCK)
+        IAnnotations(omf)[COLLABORA_LOCK_ID] = "cool-lock1"
+        self.assertEqual(get_collabora_lock_id(omf), "cool-lock1")
+
+    def test_is_collabora_read_only(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        self.assertFalse(is_collabora_read_only(omf))
+        # siteadmin edits the file in Collabora: not read-only for them, read-only for others
+        ILockable(omf).lock(COLLABORA_LOCK)
+        IAnnotations(omf)[COLLABORA_LOCK_ID] = "cool-lock1"
+        self.assertFalse(is_collabora_read_only(omf))
+        self.change_user("chef")
+        self.assertTrue(is_collabora_read_only(omf))
+        # collaborative editing lets others join a Collabora edition
+        api.portal.set_registry_record(
+            "imio.dms.mail.browser.settings.IImioDmsMailConfig.collabora_collaborative_edit", True
+        )
+        self.assertFalse(is_collabora_read_only(omf))
+        # but not a metadata edition
+        ILockable(omf).clear_locks()
+        self.change_user("siteadmin")
+        ILockable(omf).lock()
+        self.change_user("chef")
+        self.assertTrue(is_collabora_read_only(omf))
+
+    def test_remove_collabora_lock(self):
+        omf = get_object(oid="reponse1", ptype="dmsoutgoingmail")["1"]
+        ILockable(omf).lock(COLLABORA_LOCK)
+        IAnnotations(omf)[COLLABORA_LOCK_ID] = "cool-lock1"
+        remove_collabora_lock(omf)
+        self.assertFalse(ILockable(omf).locked())
+        self.assertNotIn(COLLABORA_LOCK_ID, IAnnotations(omf))
