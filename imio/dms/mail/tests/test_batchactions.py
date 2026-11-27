@@ -232,9 +232,10 @@ class BatchActions(unittest.TestCase):
         psf = pf["personnel-searches"]
         p1 = api.content.create(container=pf, type="person", id="dup1", lastname=u"Dupont")
         p2 = api.content.create(container=pf, type="person", id="dup2", lastname=u"Dupond")
-        # an agent only member of the duplicates management group
-        api.group.add_user(groupname="gestion_contacts", username="agent")
-        change_user(self.portal, "agent")
+        # a user only member of the duplicates management group
+        api.user.create(email="dup@example.be", username="dupmanager", password="Password123!")
+        api.group.add_user(groupname="gestion_contacts", username="dupmanager")
+        change_user(self.portal, "dupmanager")
         view = psf.unrestrictedTraverse("@@duplicated-batch-action")
         alsoProvides(view.request, ICollectiveContactDuplicatedLayer)
         view.request["uids"] = ",".join([p1.UID(), p2.UID()])

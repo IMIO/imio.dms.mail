@@ -3292,7 +3292,7 @@ def create_users_and_groups(site):
         api.group.add_user(groupname="expedition", username="scanner")
     if api.group.get("gestion_contacts") is None:
         api.group.create("gestion_contacts", safe_encode(_("1 Duplicate contacts management")))
-        site["contacts"].manage_addLocalRoles("gestion_contacts", ["Editor"])
+        site["contacts"].manage_addLocalRoles("gestion_contacts", ["Contributor", "Editor"])
     if api.group.get("createurs_dossier") is None:
         api.group.create("createurs_dossier", safe_encode(_("1 Folders creators")))
     if api.group.get("audit_contacts") is None:
