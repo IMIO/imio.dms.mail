@@ -34,6 +34,8 @@ class Migrate_To_3_1_8(Migrate_To_3_1):  # noqa
             for type_name in ("dmsincomingmail", "dmsincoming_email", "dmsoutgoingmail", "sign_request",
                               "ClassificationFolder", "ClassificationSubfolder"):
                 load_type_from_package(type_name, "imio.dms.mail:default")
+            # Duplicates management group can merge (delete) contacts
+            self.contacts.manage_addLocalRoles("gestion_contacts", ["Contributor", "Editor"])
 
         if self.is_in_part("t"):  # final steps, adding om_templates_generation external method
             if self.old_version != self.new_version:

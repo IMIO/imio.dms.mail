@@ -232,12 +232,21 @@ class BatchActions(unittest.TestCase):
         psf = pf["personnel-searches"]
         p1 = api.content.create(container=pf, type="person", id="dup1", lastname=u"Dupont")
         p2 = api.content.create(container=pf, type="person", id="dup2", lastname=u"Dupond")
+        # a user only member of the duplicates management group
+        api.user.create(email="dup@example.be", username="dupmanager", password="Password123!")
+        api.group.add_user(groupname="gestion_contacts", username="dupmanager")
+        change_user(self.portal, "dupmanager")
         view = psf.unrestrictedTraverse("@@duplicated-batch-action")
         alsoProvides(view.request, ICollectiveContactDuplicatedLayer)
         view.request["uids"] = ",".join([p1.UID(), p2.UID()])
         result = view()
         self.assertIn(p1.UID(), result)
         self.assertIn(p2.UID(), result)
+        # the compare form is posted to the directory, with the user's own roles
+        view.request.form.update({"uids": [p1.UID(), p2.UID()], "path": p1.UID()})
+        self.portal["contacts"].restrictedTraverse("@@merge-contacts-apply")()
+        self.assertIn("dup1", pf)
+        self.assertNotIn("dup2", pf)
 
     def test_TaskAssignedUserBatchActionForm(self):
         self.assertIsNone(self.ta1.assigned_user)
